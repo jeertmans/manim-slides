@@ -5,7 +5,8 @@ Tool to do live presentations using [manim](https://www.manim.community/)
 ## Install
 
 ```
-pip install -e git+https://github.com/galatolofederico/manim-presentation.git
+pip install manim opencv-python
+pip install -e git+https://github.com/galatolofederico/manim-presentation.git#egg=manim_presentation
 ```
 
 ## Usage
@@ -64,6 +65,7 @@ git clone https://github.com/galatolofederico/manim-presentation.git
 cd manim-presentation
 virtualenv --python=python3.7 env
 . ./env/bin/activate
+pip install manim opencv-python
 python setup.py install
 ```
 

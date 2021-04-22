@@ -18,8 +18,6 @@ setuptools.setup(
         "console_scripts": ["manim_presentation=manim_presentation.present:main"],
     },
     install_requires=[
-        "manim==0.5.0",
-        "opencv-python==4.5.1.48"
     ],
     classifiers=[
         "Programming Language :: Python :: 3.7",
