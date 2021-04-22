@@ -62,7 +62,7 @@ class Example(Slide):
 ```
 git clone https://github.com/galatolofederico/manim-presentation.git
 cd manim-presentation
-virtualenv --python=python3.6 env
+virtualenv --python=python3.7 env
 . ./env/bin/activate
 python setup.py install
 ```
