@@ -20,9 +20,9 @@ class Example(Slide):
         ...
 ```
 
-call `self.pause()` when you want to pause the playback
+call `self.pause()` when you want to pause the playback and wait for an input to continue (check the keybindings)
 
-call `self.start_loop()` and `self.stop_loop()` when you want to loop some animations
+Wrap a series of animations between `self.start_loop()` and `self.stop_loop()` when you want to loop them (until input to continue)
 
 ```python
 from manim import *
@@ -46,6 +46,11 @@ class Example(Slide):
         self.wait()
 ```
 
+To start the presentation using `Scene1`, `Scene2` and so on simply run:
+
+```
+manim_presentation Scene1 Scene2...
+```
 
 ## Default Keybindings
 
@@ -59,7 +64,7 @@ Default keybindings to control the presentation
 |   Spacebar  |        Play/Pause        |
 |      Q      |           Quit           |
 
-## Run Example
+### Run Example
 
 Clone this repository
 
