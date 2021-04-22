@@ -1,0 +1,1 @@
+from manim_presentation.slide import Slide

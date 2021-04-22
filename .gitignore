@@ -1,0 +1,11 @@
+__pycache__/
+/env
+/tests
+/build
+/dist
+*.egg-info/
+
+/media
+/presentation
+
+/.vscode
