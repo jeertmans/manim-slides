@@ -1,12 +1,11 @@
 # manim-presentation
 
-Tool to do live presentations using [manim](https://www.manim.community/)
+Tool for live presentations using [manim](https://www.manim.community/)
 
 ## Install
 
 ```
-pip install manim opencv-python
-pip install -e git+https://github.com/galatolofederico/manim-presentation.git#egg=manim_presentation
+pip install manim_presentation opencv-python
 ```
 
 ## Usage
@@ -50,6 +49,8 @@ class Example(Slide):
 
 ## Default Keybindings
 
+Default keybindings to control the presentation
+
 |  Keybinding |          Action          |
 |:-----------:|:------------------------:|
 | Right Arrow |    Continue/Next Slide   |
@@ -60,20 +61,37 @@ class Example(Slide):
 
 ## Run Example
 
+Clone this repository
+
 ```
 git clone https://github.com/galatolofederico/manim-presentation.git
 cd manim-presentation
+```
+
+Create a virtualenv
+
+```
 virtualenv --python=python3.7 env
 . ./env/bin/activate
-pip install manim opencv-python
-python setup.py install
 ```
 
+Install `manim` and `manim_presentation`
+
 ```
-manim -ql example.py
+pip install manim manim_presentation opencv-python
+```
+
+Render the example scene
+
+```
+manim -qh example.py
+```
+
+Run the presentation
+
+```
 manim_presentation Example
 ```
-
 
 ## Contributions and license
 
