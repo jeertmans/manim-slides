@@ -64,7 +64,7 @@ Default keybindings to control the presentation
 |   Spacebar  |        Play/Pause        |
 |      Q      |           Quit           |
 
-### Run Example
+## Run Example
 
 Clone this repository
 
