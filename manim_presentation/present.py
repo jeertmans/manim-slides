@@ -116,6 +116,8 @@ class Display:
         self.state = State.PLAYING
         self.lastframe = None
         self.current_presentation_i = 0
+
+        self.lag = 0
         self.last_time = now()
     
     @property
@@ -141,6 +143,8 @@ class Display:
             self.handle_key()
     
     def show_video(self):
+        self.lag = now() - self.last_time
+        self.last_time = now()
         cv2.imshow("Video", self.lastframe)
     
     def show_info(self):
@@ -186,9 +190,7 @@ class Display:
     
     def handle_key(self):
         sleep_time = math.ceil(1000/self.current_presentation.fps)
-        lag = now() - self.last_time
-        self.last_time = now()
-        key = cv2.waitKey(fix_time(sleep_time - lag)) & 0xFF
+        key = cv2.waitKey(fix_time(sleep_time - self.lag)) & 0xFF
 
         if key == Config.QUIT_KEY:
             self.quit()
