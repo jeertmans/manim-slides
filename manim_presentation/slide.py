@@ -41,6 +41,7 @@ class Slide(Scene):
         ))
         self.current_slide += 1
         self.loop_start_animation = None
+        self.pause_start_animation = self.current_animation
     
     def render(self, *args, **kwargs):
         super(Slide, self).render(*args, **kwargs)
