@@ -64,7 +64,7 @@ class Presentation:
             self.caps.append(cv2.VideoCapture(f))
 
     def next(self):
-        self.current_slide_i += 1
+        self.current_slide_i = min(len(self.slides) - 1, self.current_slide_i + 1)
         self.current_animation = self.current_slide["start_animation"]
     
     def prev(self):
