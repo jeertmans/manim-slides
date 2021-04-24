@@ -5,7 +5,7 @@ Tool for live presentations using [manim](https://www.manim.community/)
 ## Install
 
 ```
-pip install manim_presentation opencv-python
+pip install manim-presentation opencv-python
 ```
 
 ## Usage
@@ -83,7 +83,7 @@ virtualenv --python=python3.7 env
 Install `manim` and `manim_presentation`
 
 ```
-pip install manim manim_presentation opencv-python
+pip install manim manim-presentation opencv-python
 ```
 
 Render the example scene
