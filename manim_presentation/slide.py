@@ -1,7 +1,7 @@
 import os
 import json
 import shutil
-from manim import Scene
+from manim import Scene, config
 
 class Slide(Scene):
     def __init__(self, *args, **kwargs):
@@ -44,7 +44,14 @@ class Slide(Scene):
         self.pause_start_animation = self.current_animation
     
     def render(self, *args, **kwargs):
+        # We need to disable the caching limit since we rely on intermidiate files
+        max_files_cached = config["max_files_cached"]
+        config["max_files_cached"] = float("inf")
+        
         super(Slide, self).render(*args, **kwargs)
+
+        config["max_files_cached"] = max_files_cached
+
         if not os.path.exists(self.output_folder):
             os.mkdir(self.output_folder)
         
