@@ -4,6 +4,7 @@ on: push
 jobs:
   build-n-publish:
     name: Build and publish to PyPI
+    if: startsWith(github.ref, 'refs/tags')
     runs-on: ubuntu-18.04
     steps:
     - uses: actions/checkout@master
@@ -16,7 +17,6 @@ jobs:
     - name: Build binary wheel and a source tarball
       run: python -m build --sdist --wheel --outdir dist/ .
     - name: Publish to PyPI
-      if: startsWith(github.ref, 'refs/tags')
       uses: pypa/gh-action-pypi-publish@master
       with:
         password: ${{ secrets.PYPI_API_TOKEN }}
