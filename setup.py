@@ -6,11 +6,11 @@ with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), "README.md")
 
 setuptools.setup(
     name="manim_presentation",
-    version="0.1.0",
+    version="0.1.1",
     author="Federico A. Galatolo",
     author_email="federico.galatolo@ing.unipi.it",
-    description="",
-    url="",
+    description="Tool for live presentations using manim",
+    url="https://github.com/galatolofederico/manim-presentation",
     long_description=long_description,
     long_description_content_type="text/markdown",
     packages=setuptools.find_packages(),
