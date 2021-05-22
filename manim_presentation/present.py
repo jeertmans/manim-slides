@@ -227,9 +227,9 @@ def main():
     parser.add_argument("scenes", metavar="scenes", type=str, nargs="+", help="Scenes to present")
     parser.add_argument("--folder", type=str, default="./presentation", help="Presentation files folder")
     parser.add_argument("--start-paused", action="store_true", help="Start paused")
-    
 
     args = parser.parse_args()
+    args.folder = os.path.normcase(args.folder)
 
     presentations = list()
     for scene in args.scenes:
