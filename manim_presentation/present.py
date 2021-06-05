@@ -7,13 +7,28 @@ import math
 import time
 import argparse
 from enum import Enum
+import platform
 
 class Config:
-    QUIT_KEY = ord("q")
-    CONTINUE_KEY = 83      #right arrow
-    BACK_KEY = 81          #left arrow
-    REWIND_KEY = ord("r")
-    PLAYPAUSE_KEY = 32     #spacebar
+    @classmethod
+    def init(cls):
+        if platform.system() == "Windows":
+            cls.QUIT_KEY = ord("q")
+            cls.CONTINUE_KEY = 2555904     #right arrow
+            cls.BACK_KEY = 2424832         #left arrow
+            cls.REWIND_KEY = ord("r")
+            cls.PLAYPAUSE_KEY = 32         #spacebar
+        else:
+            cls.QUIT_KEY = ord("q")
+            cls.CONTINUE_KEY = 65363       #right arrow
+            cls.BACK_KEY = 65361           #left arrow
+            cls.REWIND_KEY = ord("r")
+            cls.PLAYPAUSE_KEY = 32         #spacebar
+        
+        if os.path.exists(os.path.join(os.getcwd(), "./manim-presentation.json")):
+            json_config = json.load(open(os.path.join(os.getcwd(), "./manim-presentation.json"), "r"))
+            for key, value in json_config.items():
+                setattr(cls, key, value)
 
 class State(Enum):
     PLAYING = 0
@@ -190,8 +205,8 @@ class Display:
     
     def handle_key(self):
         sleep_time = math.ceil(1000/self.current_presentation.fps)
-        key = cv2.waitKey(fix_time(sleep_time - self.lag)) & 0xFF
-
+        key = cv2.waitKeyEx(fix_time(sleep_time - self.lag))
+        
         if key == Config.QUIT_KEY:
             self.quit()
         elif self.state == State.PLAYING and key == Config.PLAYPAUSE_KEY:
@@ -227,9 +242,11 @@ def main():
     parser.add_argument("scenes", metavar="scenes", type=str, nargs="+", help="Scenes to present")
     parser.add_argument("--folder", type=str, default="./presentation", help="Presentation files folder")
     parser.add_argument("--start-paused", action="store_true", help="Start paused")
-
+    
     args = parser.parse_args()
     args.folder = os.path.normcase(args.folder)
+
+    Config.init()
 
     presentations = list()
     for scene in args.scenes:
