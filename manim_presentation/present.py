@@ -113,7 +113,7 @@ class Presentation:
 
 
 class Display:
-    def __init__(self, presentations, start_paused=False):
+    def __init__(self, presentations, start_paused=False, fullscreen=False):
         self.presentations = presentations
         self.start_paused = start_paused
 
@@ -123,6 +123,10 @@ class Display:
 
         self.lag = 0
         self.last_time = now()
+
+        if fullscreen:
+            cv2.namedWindow("Video", cv2.WND_PROP_FULLSCREEN)
+            cv2.setWindowProperty("Video", cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
     
     @property
     def current_presentation(self):
@@ -231,6 +235,7 @@ def main():
     parser.add_argument("scenes", metavar="scenes", type=str, nargs="+", help="Scenes to present")
     parser.add_argument("--folder", type=str, default="./presentation", help="Presentation files folder")
     parser.add_argument("--start-paused", action="store_true", help="Start paused")
+    parser.add_argument("--fullscreen", action="store_true", help="Fullscreen")
 
     args = parser.parse_args()
     args.folder = os.path.normcase(args.folder)
@@ -243,7 +248,7 @@ def main():
         config = json.load(open(config_file))
         presentations.append(Presentation(config))
 
-    display = Display(presentations, start_paused=args.start_paused)
+    display = Display(presentations, start_paused=args.start_paused, fullscreen=args.fullscreen)
     display.run()
 
 if __name__ == "__main__":
