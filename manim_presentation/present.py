@@ -41,22 +41,13 @@ class Presentation:
 
         self.reset()        
         self.load_files()
-        self.add_last_slide()
+        self.slides[-1]["type"] = "last"
+        self.slides[-1]["terminated"] = False
     
     def reset(self):
         self.current_animation = 0
         self.current_slide_i = 0
-
-
-    def add_last_slide(self):
-        last_slide_end = self.slides[-1]["end_animation"]
-        last_animation = len(self.files) - 1
-        self.slides.append(dict(
-            start_animation = last_slide_end,
-            end_animation = last_animation,
-            type = "last",
-            number = len(self.slides) + 1
-        ))
+        self.slides[-1]["terminated"] = False
     
     def load_files(self):
         self.caps = list()
@@ -64,15 +55,19 @@ class Presentation:
             self.caps.append(cv2.VideoCapture(f))
 
     def next(self):
-        self.current_slide_i = min(len(self.slides) - 1, self.current_slide_i + 1)
-        self.current_animation = self.current_slide["start_animation"]
+        if self.current_slide["type"] == "last":
+            self.current_slide["terminated"] = True
+        else:
+            self.current_slide_i = min(len(self.slides) - 1, self.current_slide_i + 1)
+            self.rewind()
     
     def prev(self):
         self.current_slide_i = max(0, self.current_slide_i - 1)
-        self.current_animation = self.current_slide["start_animation"]
+        self.rewind()
 
     def rewind(self):
         self.current_animation = self.current_slide["start_animation"]
+        self.current_cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
 
     @property
     def current_slide(self):
@@ -86,24 +81,33 @@ class Presentation:
     def fps(self):
         return self.current_cap.get(cv2.CAP_PROP_FPS)
 
-    def get_frame_and_state(self):
-        ret, frame = self.current_cap.read()
-        state = State.PLAYING
-        if ret:
+    # This function updates the state given the previous state.
+    # It does this by reading the video information and checking if the state is still correct.
+    # It returns the frame to show (lastframe) and the new state.
+    def update_state(self, state):
+        still_playing, frame = self.current_cap.read()
+        if still_playing:
             self.lastframe = frame
+        if state in [state.WAIT, state.PAUSED]:
+            return self.lastframe, state
+        if self.current_slide["type"] == "last" and self.current_slide["terminated"]:
+            return self.lastframe, State.END
         else:
-            self.current_cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
-            if self.current_slide["end_animation"] == self.current_animation + 1:
-                if self.current_slide["type"] == "slide":
+            if not still_playing:
+                if self.current_slide["end_animation"] == self.current_animation + 1:
+                    if self.current_slide["type"] == "slide":
+                        state = State.WAIT
+                    elif self.current_slide["type"] == "loop":
+                        self.current_animation = self.current_slide["start_animation"]
+                    elif self.current_slide["type"] == "last":
+                        state = State.WAIT
+                elif self.current_slide["type"] == "last" and self.current_slide["end_animation"] == self.current_animation:
                     state = State.WAIT
-                elif self.current_slide["type"] == "loop":
-                    self.current_animation = self.current_slide["start_animation"]
-                elif self.current_slide["type"] == "last":
-                    return self.lastframe, State.END
-            elif self.current_slide["type"] == "last" and self.current_slide["end_animation"] == self.current_animation:
-                return self.lastframe, State.END
-            else:
-                self.current_animation += 1
+                else:
+                    # Play next video!
+                    self.current_animation += 1
+                    # Reset video to position zero if it has been played before
+                    self.current_cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
             
         return self.lastframe, state
 
@@ -126,8 +130,9 @@ class Display:
     
     def run(self):
         while True:
-            if self.state == State.PLAYING:
-                self.lastframe, self.state = self.current_presentation.get_frame_and_state()
+            old_state = self.state
+            self.lastframe, self.state = self.current_presentation.update_state(self.state)
+            if self.state == State.PLAYING or self.state == State.PAUSED:
                 if self.start_paused:
                     self.state = State.PAUSED
                     self.start_paused = False
@@ -137,16 +142,15 @@ class Display:
                 else:
                     self.current_presentation_i += 1
                     self.state = State.PLAYING
-                
+            self.handle_key()
             self.show_video()
             self.show_info()
-            self.handle_key()
     
     def show_video(self):
         self.lag = now() - self.last_time
         self.last_time = now()
-        cv2.imshow("Video", self.lastframe)
-    
+        cv2.imshow("Video", self.lastframe) 
+
     def show_info(self):
         info = np.zeros((130, 420), np.uint8)
         font_args = (cv2.FONT_HERSHEY_SIMPLEX, 0.7, 255)
