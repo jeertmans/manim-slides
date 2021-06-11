@@ -99,6 +99,8 @@ class Presentation:
                         state = State.WAIT
                     elif self.current_slide["type"] == "loop":
                         self.current_animation = self.current_slide["start_animation"]
+                        state = State.PLAYING
+                        self.rewind()
                     elif self.current_slide["type"] == "last":
                         state = State.WAIT
                 elif self.current_slide["type"] == "last" and self.current_slide["end_animation"] == self.current_animation:
