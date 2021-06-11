@@ -39,6 +39,8 @@ class Presentation:
         self.slides = config["slides"]
         self.files = config["files"]
 
+        self.lastframe = []
+
         self.reset()        
         self.load_files()
         self.slides[-1]["type"] = "last"
@@ -59,13 +61,13 @@ class Presentation:
             self.current_slide["terminated"] = True
         else:
             self.current_slide_i = min(len(self.slides) - 1, self.current_slide_i + 1)
-            self.rewind()
+            self.rewind_slide()
     
     def prev(self):
         self.current_slide_i = max(0, self.current_slide_i - 1)
-        self.rewind()
+        self.rewind_slide()
 
-    def rewind(self):
+    def rewind_slide(self):
         self.current_animation = self.current_slide["start_animation"]
         self.current_cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
 
@@ -85,31 +87,40 @@ class Presentation:
     # It does this by reading the video information and checking if the state is still correct.
     # It returns the frame to show (lastframe) and the new state.
     def update_state(self, state):
+        if state == State.PAUSED:
+            if len(self.lastframe) == 0:
+                _, self.lastframe = self.current_cap.read()
+            return self.lastframe, state
         still_playing, frame = self.current_cap.read()
         if still_playing:
             self.lastframe = frame
-        if state in [state.WAIT, state.PAUSED]:
+        elif state in [state.WAIT, state.PAUSED]:
             return self.lastframe, state
-        if self.current_slide["type"] == "last" and self.current_slide["terminated"]:
+        elif self.current_slide["type"] == "last" and self.current_slide["terminated"]:
             return self.lastframe, State.END
-        else:
-            if not still_playing:
-                if self.current_slide["end_animation"] == self.current_animation + 1:
-                    if self.current_slide["type"] == "slide":
-                        state = State.WAIT
-                    elif self.current_slide["type"] == "loop":
-                        self.current_animation = self.current_slide["start_animation"]
-                        state = State.PLAYING
-                        self.rewind()
-                    elif self.current_slide["type"] == "last":
-                        state = State.WAIT
-                elif self.current_slide["type"] == "last" and self.current_slide["end_animation"] == self.current_animation:
+
+        if not still_playing:
+            if self.current_slide["end_animation"] == self.current_animation + 1:
+                if self.current_slide["type"] == "slide":
+                    # To fix "it always ends one frame before the animation", uncomment this.
+                    # But then clears on the next slide will clear the stationary after this slide.
+                    # self.next_cap = self.caps[self.current_animation + 1]
+                    # self.next_cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
+                    # _, self.lastframe = self.next_cap.read()
                     state = State.WAIT
-                else:
-                    # Play next video!
-                    self.current_animation += 1
-                    # Reset video to position zero if it has been played before
-                    self.current_cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
+                elif self.current_slide["type"] == "loop":
+                    self.current_animation = self.current_slide["start_animation"]
+                    state = State.PLAYING
+                    self.rewind_slide()
+                elif self.current_slide["type"] == "last":
+                    state = State.WAIT
+            elif self.current_slide["type"] == "last" and self.current_slide["end_animation"] == self.current_animation:
+                state = State.WAIT
+            else:
+                # Play next video!
+                self.current_animation += 1
+                # Reset video to position zero if it has been played before
+                self.current_cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
             
         return self.lastframe, state
 
@@ -136,7 +147,6 @@ class Display:
     
     def run(self):
         while True:
-            old_state = self.state
             self.lastframe, self.state = self.current_presentation.update_state(self.state)
             if self.state == State.PLAYING or self.state == State.PAUSED:
                 if self.start_paused:
@@ -222,7 +232,7 @@ class Display:
                 self.current_presentation.prev()
                 self.state = State.PLAYING
         elif key == Config.REWIND_KEY:
-            self.current_presentation.rewind()
+            self.current_presentation.rewind_slide()
             self.state = State.PLAYING
 
     
