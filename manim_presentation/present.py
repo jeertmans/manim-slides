@@ -125,7 +125,7 @@ class Presentation:
                     state = State.PLAYING
                     self.rewind_slide()
                 elif self.current_slide["type"] == "last":
-                    state = State.WAIT
+                    self.current_slide["terminated"] = True
             elif self.current_slide["type"] == "last" and self.current_slide["end_animation"] == self.current_animation:
                 state = State.WAIT
             else:
