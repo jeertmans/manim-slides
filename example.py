@@ -16,4 +16,13 @@ class Example(Slide):
         self.play(dot.animate.move_to(ORIGIN))
         self.pause()
 
-        self.wait()
+        self.play(dot.animate.move_to(RIGHT*3))
+        self.pause()
+        
+        self.start_loop()
+        self.play(MoveAlongPath(dot, circle), run_time=2, rate_func=linear)
+        self.end_loop()
+
+        # Each slide MUST end with an animation (a self.wait is considered an animation)
+        self.play(dot.animate.move_to(ORIGIN))
+        

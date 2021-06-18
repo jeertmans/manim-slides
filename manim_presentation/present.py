@@ -39,24 +39,29 @@ class Presentation:
         self.slides = config["slides"]
         self.files = config["files"]
 
+        self.lastframe = []
+
         self.reset()        
         self.load_files()
         self.add_last_slide()
-    
-    def reset(self):
-        self.current_animation = 0
-        self.current_slide_i = 0
-
 
     def add_last_slide(self):
         last_slide_end = self.slides[-1]["end_animation"]
-        last_animation = len(self.files) - 1
+        last_animation = len(self.files)
         self.slides.append(dict(
             start_animation = last_slide_end,
             end_animation = last_animation,
             type = "last",
-            number = len(self.slides) + 1
+            number = len(self.slides) + 1,
+            terminated = False
         ))
+
+
+
+    def reset(self):
+        self.current_animation = 0
+        self.current_slide_i = 0
+        self.slides[-1]["terminated"] = False
     
     def load_files(self):
         self.caps = list()
@@ -64,15 +69,19 @@ class Presentation:
             self.caps.append(cv2.VideoCapture(f))
 
     def next(self):
-        self.current_slide_i = min(len(self.slides) - 1, self.current_slide_i + 1)
-        self.current_animation = self.current_slide["start_animation"]
+        if self.current_slide["type"] == "last":
+            self.current_slide["terminated"] = True
+        else:
+            self.current_slide_i = min(len(self.slides) - 1, self.current_slide_i + 1)
+            self.rewind_slide()
     
     def prev(self):
         self.current_slide_i = max(0, self.current_slide_i - 1)
-        self.current_animation = self.current_slide["start_animation"]
+        self.rewind_slide()
 
-    def rewind(self):
+    def rewind_slide(self):
         self.current_animation = self.current_slide["start_animation"]
+        self.current_cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
 
     @property
     def current_slide(self):
@@ -86,30 +95,50 @@ class Presentation:
     def fps(self):
         return self.current_cap.get(cv2.CAP_PROP_FPS)
 
-    def get_frame_and_state(self):
-        ret, frame = self.current_cap.read()
-        state = State.PLAYING
-        if ret:
+    # This function updates the state given the previous state.
+    # It does this by reading the video information and checking if the state is still correct.
+    # It returns the frame to show (lastframe) and the new state.
+    def update_state(self, state):
+        if state == State.PAUSED:
+            if len(self.lastframe) == 0:
+                _, self.lastframe = self.current_cap.read()
+            return self.lastframe, state
+        still_playing, frame = self.current_cap.read()
+        if still_playing:
             self.lastframe = frame
-        else:
-            self.current_cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
+        elif state in [state.WAIT, state.PAUSED]:
+            return self.lastframe, state
+        elif self.current_slide["type"] == "last" and self.current_slide["terminated"]:
+            return self.lastframe, State.END
+
+        if not still_playing:
             if self.current_slide["end_animation"] == self.current_animation + 1:
                 if self.current_slide["type"] == "slide":
+                    # To fix "it always ends one frame before the animation", uncomment this.
+                    # But then clears on the next slide will clear the stationary after this slide.
+                    # self.next_cap = self.caps[self.current_animation + 1]
+                    # self.next_cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
+                    # _, self.lastframe = self.next_cap.read()
                     state = State.WAIT
                 elif self.current_slide["type"] == "loop":
                     self.current_animation = self.current_slide["start_animation"]
+                    state = State.PLAYING
+                    self.rewind_slide()
                 elif self.current_slide["type"] == "last":
-                    return self.lastframe, State.END
+                    state = State.WAIT
             elif self.current_slide["type"] == "last" and self.current_slide["end_animation"] == self.current_animation:
-                return self.lastframe, State.END
+                state = State.WAIT
             else:
+                # Play next video!
                 self.current_animation += 1
+                # Reset video to position zero if it has been played before
+                self.current_cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
             
         return self.lastframe, state
 
 
 class Display:
-    def __init__(self, presentations, start_paused=False):
+    def __init__(self, presentations, start_paused=False, fullscreen=False):
         self.presentations = presentations
         self.start_paused = start_paused
 
@@ -119,6 +148,10 @@ class Display:
 
         self.lag = 0
         self.last_time = now()
+
+        if fullscreen:
+            cv2.namedWindow("Video", cv2.WND_PROP_FULLSCREEN)
+            cv2.setWindowProperty("Video", cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
     
     @property
     def current_presentation(self):
@@ -126,8 +159,8 @@ class Display:
     
     def run(self):
         while True:
-            if self.state == State.PLAYING:
-                self.lastframe, self.state = self.current_presentation.get_frame_and_state()
+            self.lastframe, self.state = self.current_presentation.update_state(self.state)
+            if self.state == State.PLAYING or self.state == State.PAUSED:
                 if self.start_paused:
                     self.state = State.PAUSED
                     self.start_paused = False
@@ -137,16 +170,15 @@ class Display:
                 else:
                     self.current_presentation_i += 1
                     self.state = State.PLAYING
-                
+            self.handle_key()
             self.show_video()
             self.show_info()
-            self.handle_key()
     
     def show_video(self):
         self.lag = now() - self.last_time
         self.last_time = now()
-        cv2.imshow("Video", self.lastframe)
-    
+        cv2.imshow("Video", self.lastframe) 
+
     def show_info(self):
         info = np.zeros((130, 420), np.uint8)
         font_args = (cv2.FONT_HERSHEY_SIMPLEX, 0.7, 255)
@@ -212,7 +244,7 @@ class Display:
                 self.current_presentation.prev()
                 self.state = State.PLAYING
         elif key == Config.REWIND_KEY:
-            self.current_presentation.rewind()
+            self.current_presentation.rewind_slide()
             self.state = State.PLAYING
 
     
@@ -227,6 +259,7 @@ def main():
     parser.add_argument("scenes", metavar="scenes", type=str, nargs="+", help="Scenes to present")
     parser.add_argument("--folder", type=str, default="./presentation", help="Presentation files folder")
     parser.add_argument("--start-paused", action="store_true", help="Start paused")
+    parser.add_argument("--fullscreen", action="store_true", help="Fullscreen")
 
     args = parser.parse_args()
     args.folder = os.path.normcase(args.folder)
@@ -239,7 +272,7 @@ def main():
         config = json.load(open(config_file))
         presentations.append(Presentation(config))
 
-    display = Display(presentations, start_paused=args.start_paused)
+    display = Display(presentations, start_paused=args.start_paused, fullscreen=args.fullscreen)
     display.run()
 
 if __name__ == "__main__":

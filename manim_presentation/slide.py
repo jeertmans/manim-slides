@@ -2,6 +2,7 @@ import os
 import json
 import shutil
 from manim import Scene, config
+from manim.animation.animation import Wait
 
 class Slide(Scene):
     def __init__(self, *args, **kwargs):

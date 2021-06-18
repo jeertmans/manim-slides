@@ -46,6 +46,8 @@ class Example(Slide):
         self.wait()
 ```
 
+You **must** end your `Slide` with a `self.play(...)` or a `self.wait(..)`
+
 To start the presentation using `Scene1`, `Scene2` and so on simply run:
 
 ```
