@@ -66,6 +66,10 @@ Default keybindings to control the presentation
 |   Spacebar  |        Play/Pause        |
 |      Q      |           Quit           |
 
+
+You can specify different keybindings creating a file named `manim-presentation.json` with the keys: `QUIT_KEY` `CONTINUE_KEY` `BACK_KEY` `REWIND_KEY` and `PLAYPAUSE_KEY`
+`manim-presentation` uses `cv2.waitKeyEx()` to wait for keypresses
+
 ## Run Example
 
 Clone this repository
