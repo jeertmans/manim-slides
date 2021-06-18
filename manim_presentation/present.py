@@ -35,7 +35,8 @@ def fix_time(x):
     return x if x > 0 else 1
 
 class Presentation:
-    def __init__(self, config):
+    def __init__(self, config, last_frame_next=False):
+        self.last_frame_next = last_frame_next
         self.slides = config["slides"]
         self.files = config["files"]
 
@@ -116,9 +117,10 @@ class Presentation:
                 if self.current_slide["type"] == "slide":
                     # To fix "it always ends one frame before the animation", uncomment this.
                     # But then clears on the next slide will clear the stationary after this slide.
-                    # self.next_cap = self.caps[self.current_animation + 1]
-                    # self.next_cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
-                    # _, self.lastframe = self.next_cap.read()
+                    if self.last_frame_next:
+                        self.next_cap = self.caps[self.current_animation + 1]
+                        self.next_cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
+                        _, self.lastframe = self.next_cap.read()
                     state = State.WAIT
                 elif self.current_slide["type"] == "loop":
                     self.current_animation = self.current_slide["start_animation"]
@@ -260,17 +262,17 @@ def main():
     parser.add_argument("--folder", type=str, default="./presentation", help="Presentation files folder")
     parser.add_argument("--start-paused", action="store_true", help="Start paused")
     parser.add_argument("--fullscreen", action="store_true", help="Fullscreen")
-
+    parser.add_argument("--last-frame-next", action="store_true", help="Show the next animation first frame as last frame (hack)")
+    
     args = parser.parse_args()
     args.folder = os.path.normcase(args.folder)
-
     presentations = list()
     for scene in args.scenes:
         config_file = os.path.join(args.folder, f"{scene}.json")
         if not os.path.exists(config_file):
             raise Exception(f"File {config_file} does not exist, check the scene name and make sure to use Slide as your scene base class")
         config = json.load(open(config_file))
-        presentations.append(Presentation(config))
+        presentations.append(Presentation(config, last_frame_next=args.last_frame_next))
 
     display = Display(presentations, start_paused=args.start_paused, fullscreen=args.fullscreen)
     display.run()
