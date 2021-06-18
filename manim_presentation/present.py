@@ -43,9 +43,21 @@ class Presentation:
 
         self.reset()        
         self.load_files()
-        self.slides[-1]["type"] = "last"
-        self.slides[-1]["terminated"] = False
-    
+        self.add_last_slide()
+
+    def add_last_slide(self):
+        last_slide_end = self.slides[-1]["end_animation"]
+        last_animation = len(self.files)
+        self.slides.append(dict(
+            start_animation = last_slide_end,
+            end_animation = last_animation,
+            type = "last",
+            number = len(self.slides) + 1,
+            terminated = False
+        ))
+
+
+
     def reset(self):
         self.current_animation = 0
         self.current_slide_i = 0
