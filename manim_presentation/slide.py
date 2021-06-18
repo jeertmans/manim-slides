@@ -2,6 +2,7 @@ import os
 import json
 import shutil
 from manim import Scene, config
+from manim.animation.animation import Wait
 
 class Slide(Scene):
     def __init__(self, *args, **kwargs):
@@ -18,6 +19,7 @@ class Slide(Scene):
         self.current_animation += 1
     
     def pause(self):
+        self.play(Wait(1.0 / config["frame_rate"]))
         self.slides.append(dict(
             type="slide",
             start_animation=self.pause_start_animation,
