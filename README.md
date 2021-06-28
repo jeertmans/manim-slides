@@ -54,7 +54,7 @@ To start the presentation using `Scene1`, `Scene2` and so on simply run:
 manim_presentation Scene1 Scene2...
 ```
 
-## Default Keybindings
+##  Keybindings
 
 Default keybindings to control the presentation
 
@@ -67,7 +67,13 @@ Default keybindings to control the presentation
 |      Q      |           Quit           |
 
 
-You can specify different keybindings creating a file named `manim-presentation.json` with the keys: `QUIT_KEY` `CONTINUE_KEY` `BACK_KEY` `REWIND_KEY` and `PLAYPAUSE_KEY`
+You can run the **configuration wizard** with
+
+```
+manim-presentation-wizard
+```
+
+Alternatively you can specify different keybindings creating a file named `manim-presentation.json` with the keys: `QUIT_KEY` `CONTINUE_KEY` `BACK_KEY` `REWIND_KEY` and `PLAYPAUSE_KEY`
 `manim-presentation` uses `cv2.waitKeyEx()` to wait for keypresses
 
 ## Run Example
@@ -86,7 +92,7 @@ virtualenv --python=python3.7 env
 . ./env/bin/activate
 ```
 
-Install `manim` and `manim_presentation`
+Install `manim` and `manim-presentation`
 
 ```
 pip install manim manim-presentation opencv-python
@@ -101,7 +107,7 @@ manim -qh example.py
 Run the presentation
 
 ```
-manim_presentation Example
+manim-presentation Example
 ```
 
 ## Contributions and license
