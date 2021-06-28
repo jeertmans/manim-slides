@@ -57,8 +57,8 @@ class Presentation:
 
         self.lastframe = []
 
+        self.caps = [None for _ in self.files]
         self.reset()        
-        self.load_files()
         self.add_last_slide()
 
     def add_last_slide(self):
@@ -73,17 +73,12 @@ class Presentation:
         ))
 
 
-
     def reset(self):
         self.current_animation = 0
+        self.load_this_cap(0)
         self.current_slide_i = 0
         self.slides[-1]["terminated"] = False
     
-    def load_files(self):
-        self.caps = list()
-        for f in self.files:
-            self.caps.append(cv2.VideoCapture(f))
-
     def next(self):
         if self.current_slide["type"] == "last":
             self.current_slide["terminated"] = True
@@ -98,6 +93,16 @@ class Presentation:
     def rewind_slide(self):
         self.current_animation = self.current_slide["start_animation"]
         self.current_cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
+    
+    def load_this_cap(self,cap_number):
+        if self.caps[cap_number] == None:
+            # unload other caps
+            for i in range(len(self.caps)):
+                if self.caps[i] != None:
+                    self.caps[i].release()
+                    self.caps[i] = None
+            # load this cap
+            self.caps[cap_number] = cv2.VideoCapture(self.files[cap_number])
 
     @property
     def current_slide(self):
@@ -105,6 +110,7 @@ class Presentation:
     
     @property
     def current_cap(self):
+        self.load_this_cap(self.current_animation)
         return self.caps[self.current_animation]
 
     @property
@@ -133,7 +139,9 @@ class Presentation:
                     # To fix "it always ends one frame before the animation", uncomment this.
                     # But then clears on the next slide will clear the stationary after this slide.
                     if self.last_frame_next:
+                        self.load_this_cap(self.next_cap)
                         self.next_cap = self.caps[self.current_animation + 1]
+
                         self.next_cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
                         _, self.lastframe = self.next_cap.read()
                     state = State.WAIT
@@ -148,6 +156,7 @@ class Presentation:
             else:
                 # Play next video!
                 self.current_animation += 1
+                self.load_this_cap(self.current_animation)
                 # Reset video to position zero if it has been played before
                 self.current_cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
             
