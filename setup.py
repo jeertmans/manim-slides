@@ -15,7 +15,11 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     packages=setuptools.find_packages(),
     entry_points = {
-        "console_scripts": ["manim_presentation=manim_presentation.present:main"],
+        "console_scripts": [
+            "manim_presentation=manim_presentation.present:main",
+            "manim-presentation=manim_presentation.present:main",
+            "manim-presentation-wizard=manim_presentation.wizard:main",
+        ],
     },
     install_requires=[
     ],
