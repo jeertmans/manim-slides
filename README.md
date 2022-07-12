@@ -1,32 +1,32 @@
-# manim-presentation
+# manim-slides
 
-Tool for live presentations using [manim](https://www.manim.community/)
+Tool for live presentations using either [manim](http://3b1b.github.io/manim/) or [manim-community](https://www.manim.community/).
+
+> **_NOTE:_**  This project is a fork of [`manim-presentation`](https://github.com/galatolofederico/manim-presentation). Since the project seemed to be inactive, I decided to create my own fork to deploy new features more rapidly.
 
 ## Install
 
 ```
-pip install manim-presentation opencv-python
+pip install manim-slides
 ```
 
 ## Usage
 
-Use the class `Slide` as your scenes base class
-
+Use the class `Slide` as your scenes base class:
 ```python
-from manim_presentation import Slide
+from manim_slides import Slide
 
 class Example(Slide):
     def construct(self):
         ...
 ```
 
-call `self.pause()` when you want to pause the playback and wait for an input to continue (check the keybindings)
+call `self.pause()` when you want to pause the playback and wait for an input to continue (check the keybindings).
 
-Wrap a series of animations between `self.start_loop()` and `self.stop_loop()` when you want to loop them (until input to continue)
-
+Wrap a series of animations between `self.start_loop()` and `self.stop_loop()` when you want to loop them (until input to continue):
 ```python
 from manim import *
-from manim_presentation import Slide
+from manim_slides import Slide
 
 class Example(Slide):
     def construct(self):
@@ -46,17 +46,16 @@ class Example(Slide):
         self.wait()
 ```
 
-You **must** end your `Slide` with a `self.play(...)` or a `self.wait(..)`
+You **must** end your `Slide` with a `self.play(...)` or a `self.wait(..)`.
 
 To start the presentation using `Scene1`, `Scene2` and so on simply run:
-
 ```
-manim_presentation Scene1 Scene2...
+manim-slides Scene1 Scene2...
 ```
 
 ##  Keybindings
 
-Default keybindings to control the presentation
+Default keybindings to control the presentation:
 
 |  Keybinding |          Action          |
 |:-----------:|:------------------------:|
@@ -67,51 +66,65 @@ Default keybindings to control the presentation
 |      Q      |           Quit           |
 
 
-You can run the **configuration wizard** with
+You can run the **configuration wizard** with:
 
 ```
-manim-presentation-wizard
+manim-slides wizard
 ```
 
-Alternatively you can specify different keybindings creating a file named `manim-presentation.json` with the keys: `QUIT_KEY` `CONTINUE_KEY` `BACK_KEY` `REWIND_KEY` and `PLAYPAUSE_KEY`
-`manim-presentation` uses `cv2.waitKeyEx()` to wait for keypresses
+Alternatively you can specify different keybindings creating a file named `.manim-slides.json` with the keys: `QUIT` `CONTINUE` `BACK` `REWIND` and `PLAY_PAUSE`.
+
+A default file can be created with:
+```
+manim-slides init
+```
+
+> **_NOTE:_**  `manim-slides` uses `cv2.waitKeyEx()` to wait for keypresses, and directly registers the key code.
 
 ## Run Example
 
-Clone this repository
-
+Clone this repository:
 ```
-git clone https://github.com/galatolofederico/manim-presentation.git
-cd manim-presentation
-```
-
-Create a virtualenv
-
-```
-virtualenv --python=python3.7 env
-. ./env/bin/activate
+git clone https://github.com/jeertmans/manim-slides.git
+cd manim-slides
 ```
 
-Install `manim` and `manim-presentation`
-
+Install `manim` and `manim-slides`:
 ```
-pip install manim manim-presentation opencv-python
+pip install manim manim-slides
 ```
 
-Render the example scene
-
+Render the example scene:
 ```
 manim -qh example.py
 ```
 
 Run the presentation
+```
+manim-slides Example
+```
 
-```
-manim-presentation Example
-```
+Below is a small recording of me playing with the slides back and forth.
+
+![](https://raw.githubusercontent.com/jeertmans/manim-slides/main/static/example.gif)
+
+
+## Comparison with original `manim-presentation`
+
+Here are a few things that I implemented (or that I'm planning to implement) on top of the original work:
+
+- [x] Allowing multiple keys to control one action (useful when you use a laser pointer)
+- [x] More robust config files checking
+- [x] Dependencies are installed with the package
+- [x] Only one cli (to rule them all)
+- [x] User can easily generate dummy config file
+- [x] Config file path can be manually set
+- [ ] Play animation in reverse [#9](https://github.com/galatolofederico/manim-presentation/issues/9)
+- [ ] Handle 3D scenes out of the box
+- [ ] Can work with both community and 3b1b versions (not tested)
+- [ ] Generate docs online
+- [ ] Fix the quality problem on Windows platforms with `fullscreen` flag
 
 ## Contributions and license
 
-The code is released as Free Software under the [GNU/GPLv3](https://choosealicense.com/licenses/gpl-3.0/) license. Copying, adapting and republishing it is not only consent but also encouraged. 
-
-For any further question feel free to reach me at  [federico.galatolo@ing.unipi.it](mailto:federico.galatolo@ing.unipi.it) or on Telegram  [@galatolo](https://t.me/galatolo)
+The code is released as Free Software under the [GNU/GPLv3](https://choosealicense.com/licenses/gpl-3.0/) license. Copying, adapting and republishing it is not only consent but also encouraged.
