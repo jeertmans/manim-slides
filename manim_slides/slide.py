@@ -1,13 +1,16 @@
-import os
 import json
+import os
 import shutil
-from manim import Scene, config
-from manim.animation.animation import Wait
+
+from manim import Scene, ThreeDScene, config
+
+from .defaults import FOLDER_PATH
+
 
 class Slide(Scene):
-    def __init__(self, *args, **kwargs):
-        self.output_folder = kwargs.pop("output_folder", "./presentation")
+    def __init__(self, *args, output_folder=FOLDER_PATH, **kwargs):
         super(Slide, self).__init__(*args, **kwargs)
+        self.output_folder = output_folder
         self.slides = list()
         self.current_slide = 1
         self.current_animation = 0
@@ -29,7 +32,7 @@ class Slide(Scene):
         self.pause_start_animation = self.current_animation
     
     def start_loop(self):
-        assert self.loop_start_animation is None, "You cant nest loops"
+        assert self.loop_start_animation is None, "You cannot nest loops"
         self.loop_start_animation = self.current_animation
     
     def end_loop(self):
@@ -81,3 +84,6 @@ class Slide(Scene):
             files=files
         ), f)
         f.close()
+
+class ThreeDSlide(ThreeDScene, Slide):
+    pass

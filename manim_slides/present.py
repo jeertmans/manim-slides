@@ -1,34 +1,18 @@
-import cv2
-import numpy as np
-import os
-import sys
 import json
 import math
+import os
+import sys
 import time
-import argparse
 from enum import Enum
-import platform
 
-class Config:
-    @classmethod
-    def init(cls):
-        if platform.system() == "Windows":
-            cls.QUIT_KEY = ord("q")
-            cls.CONTINUE_KEY = 2555904     #right arrow
-            cls.BACK_KEY = 2424832         #left arrow
-            cls.REWIND_KEY = ord("r")
-            cls.PLAYPAUSE_KEY = 32         #spacebar
-        else:
-            cls.QUIT_KEY = ord("q")
-            cls.CONTINUE_KEY = 65363       #right arrow
-            cls.BACK_KEY = 65361           #left arrow
-            cls.REWIND_KEY = ord("r")
-            cls.PLAYPAUSE_KEY = 32         #spacebar
-        
-        if os.path.exists(os.path.join(os.getcwd(), "./manim-presentation.json")):
-            json_config = json.load(open(os.path.join(os.getcwd(), "./manim-presentation.json"), "r"))
-            for key, value in json_config.items():
-                setattr(cls, key, value)
+import click
+import cv2
+import numpy as np
+
+from .config import Config
+from .defaults import CONFIG_PATH, FOLDER_PATH
+from .commons import config_path_option
+
 
 class State(Enum):
     PLAYING = 0
@@ -50,7 +34,7 @@ def fix_time(x):
     return x if x > 0 else 1
 
 class Presentation:
-    def __init__(self, config, last_frame_next=False):
+    def __init__(self, config, last_frame_next: bool = False):
         self.last_frame_next = last_frame_next
         self.slides = config["slides"]
         self.files = config["files"]
@@ -164,9 +148,10 @@ class Presentation:
 
 
 class Display:
-    def __init__(self, presentations, start_paused=False, fullscreen=False):
+    def __init__(self, presentations, config, start_paused=False, fullscreen=False):
         self.presentations = presentations
         self.start_paused = start_paused
+        self.config = config
 
         self.state = State.PLAYING
         self.lastframe = None
@@ -243,25 +228,25 @@ class Display:
             ((grid_x[0]+grid_x[1])//2, grid_y[2]),
             *font_args
         )
-        
+
         cv2.imshow("Info", info)
     
     def handle_key(self):
         sleep_time = math.ceil(1000/self.current_presentation.fps)
         key = cv2.waitKeyEx(fix_time(sleep_time - self.lag))
         
-        if key == Config.QUIT_KEY:
+        if self.config.QUIT.match(key):
             self.quit()
-        elif self.state == State.PLAYING and key == Config.PLAYPAUSE_KEY:
+        elif self.state == State.PLAYING and self.config.PLAY_PAUSE.match(key):
             self.state = State.PAUSED
-        elif self.state == State.PAUSED and key == Config.PLAYPAUSE_KEY:
+        elif self.state == State.PAUSED and self.config.PLAY_PAUSE.match(key):
             self.state = State.PLAYING
-        elif self.state == State.WAIT and (key == Config.CONTINUE_KEY or key == Config.PLAYPAUSE_KEY):
+        elif self.state == State.WAIT and (self.config.CONTINUE.match(key) or self.config.PLAY_PAUSE.match(key)):
             self.current_presentation.next()
             self.state = State.PLAYING
-        elif self.state == State.PLAYING and key == Config.CONTINUE_KEY:
+        elif self.state == State.PLAYING and self.config.CONTINUE.match(key):
             self.current_presentation.next()
-        elif key == Config.BACK_KEY:
+        elif self.config.BACK.match(key):
             if self.current_presentation.current_slide_i == 0:
                 self.current_presentation_i = max(0, self.current_presentation_i - 1)
                 self.current_presentation.reset()
@@ -269,7 +254,7 @@ class Display:
             else:
                 self.current_presentation.prev()
                 self.state = State.PLAYING
-        elif key == Config.REWIND_KEY:
+        elif self.config.REWIND.match(key):
             self.current_presentation.rewind_slide()
             self.state = State.PLAYING
 
@@ -279,30 +264,29 @@ class Display:
         sys.exit()
 
 
-def main():
-    parser = argparse.ArgumentParser()
-
-    parser.add_argument("scenes", metavar="scenes", type=str, nargs="+", help="Scenes to present")
-    parser.add_argument("--folder", type=str, default="./presentation", help="Presentation files folder")
-    parser.add_argument("--start-paused", action="store_true", help="Start paused")
-    parser.add_argument("--fullscreen", action="store_true", help="Fullscreen")
-    parser.add_argument("--last-frame-next", action="store_true", help="Show the next animation first frame as last frame (hack)")
-    
-    args = parser.parse_args()
-    args.folder = os.path.normcase(args.folder)
-
-    Config.init()
+@click.command()
+@click.argument("scenes", nargs=-1)
+@config_path_option
+@click.option("--folder", default=FOLDER_PATH, type=click.Path(exists=True, file_okay=False), help="Set slides folder.")
+@click.option("--start-paused", is_flag=True, help="Start paused.")
+@click.option("--fullscreen", is_flag=True, help="Fullscreen mode.")
+@click.option("--last-frame-next", is_flag=True, help="Show the next animation first frame as last frame (hack).")
+@click.help_option("-h", "--help")
+def present(scenes, config_path, folder, start_paused, fullscreen, last_frame_next):
+    """Present the different scenes"""
 
     presentations = list()
-    for scene in args.scenes:
-        config_file = os.path.join(args.folder, f"{scene}.json")
+    for scene in scenes:
+        config_file = os.path.join(folder, f"{scene}.json")
         if not os.path.exists(config_file):
             raise Exception(f"File {config_file} does not exist, check the scene name and make sure to use Slide as your scene base class")
         config = json.load(open(config_file))
-        presentations.append(Presentation(config, last_frame_next=args.last_frame_next))
+        presentations.append(Presentation(config, last_frame_next=last_frame_next))
 
-    display = Display(presentations, start_paused=args.start_paused, fullscreen=args.fullscreen)
+    if os.path.exists(config_path):
+        config = Config.parse_file(config_path)
+    else:
+        config = Config()
+
+    display = Display(presentations, config=config, start_paused=start_paused, fullscreen=fullscreen)
     display.run()
-
-if __name__ == "__main__":
-    main()
