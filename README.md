@@ -1,4 +1,7 @@
-# manim-slides
+[![Latest Release][pypi-version-badge]][pypi-version-url]
+[![Python version][pypi-python-version-badge]][pypi-version-url]
+![PyPI - Downloads](https://img.shields.io/pypi/dm/manim-slides)
+# Manim Slides
 
 Tool for live presentations using either [manim](http://3b1b.github.io/manim/) or [manim-community](https://www.manim.community/).
 
@@ -128,3 +131,7 @@ Here are a few things that I implemented (or that I'm planning to implement) on 
 ## Contributions and license
 
 The code is released as Free Software under the [GNU/GPLv3](https://choosealicense.com/licenses/gpl-3.0/) license. Copying, adapting and republishing it is not only consent but also encouraged.
+
+[pypi-version-badge]: https://img.shields.io/pypi/v/manim-slides?label=manim-slides
+[pypi-version-url]: https://pypi.org/project/manim-slides/
+[pypi-python-version-badge]: https://img.shields.io/pypi/pyversions/manim-slides
