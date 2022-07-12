@@ -3,7 +3,7 @@ from click_default_group import DefaultGroup
 
 from . import __version__
 from .present import present
-from .wizard import wizard, init
+from .wizard import init, wizard
 
 
 @click.group(cls=DefaultGroup, default="present", default_if_no_args=True)

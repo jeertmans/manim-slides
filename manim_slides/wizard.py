@@ -5,8 +5,8 @@ import click
 import cv2
 import numpy as np
 
-from .config import Config
 from .commons import config_options
+from .config import Config
 from .defaults import CONFIG_PATH
 
 
@@ -37,7 +37,7 @@ def _init(config_path, force, merge, skip_interactive=False):
 
     if os.path.exists(config_path):
         click.secho(f"The `{CONFIG_PATH}` configuration file exists")
-        
+
         if not force and not merge:
             choice = click.prompt("Do you want to continue and (o)verwrite / (m)erge it, or (q)uit?", type=click.Choice(["o", "m", "q"], case_sensitive=False))
 

@@ -9,9 +9,9 @@ import click
 import cv2
 import numpy as np
 
+from .commons import config_path_option
 from .config import Config
 from .defaults import CONFIG_PATH, FOLDER_PATH
-from .commons import config_path_option
 
 
 class State(Enum):
@@ -42,7 +42,7 @@ class Presentation:
         self.lastframe = []
 
         self.caps = [None for _ in self.files]
-        self.reset()        
+        self.reset()
         self.add_last_slide()
 
     def add_last_slide(self):
@@ -62,14 +62,14 @@ class Presentation:
         self.load_this_cap(0)
         self.current_slide_i = 0
         self.slides[-1]["terminated"] = False
-    
+
     def next(self):
         if self.current_slide["type"] == "last":
             self.current_slide["terminated"] = True
         else:
             self.current_slide_i = min(len(self.slides) - 1, self.current_slide_i + 1)
             self.rewind_slide()
-    
+
     def prev(self):
         self.current_slide_i = max(0, self.current_slide_i - 1)
         self.rewind_slide()
@@ -77,7 +77,7 @@ class Presentation:
     def rewind_slide(self):
         self.current_animation = self.current_slide["start_animation"]
         self.current_cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
-    
+
     def load_this_cap(self,cap_number):
         if self.caps[cap_number] == None:
             # unload other caps
@@ -91,7 +91,7 @@ class Presentation:
     @property
     def current_slide(self):
         return self.slides[self.current_slide_i]
-    
+
     @property
     def current_cap(self):
         self.load_this_cap(self.current_animation)
@@ -143,7 +143,7 @@ class Presentation:
                 self.load_this_cap(self.current_animation)
                 # Reset video to position zero if it has been played before
                 self.current_cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
-            
+
         return self.lastframe, state
 
 
@@ -163,11 +163,11 @@ class Display:
         if fullscreen:
             cv2.namedWindow("Video", cv2.WND_PROP_FULLSCREEN)
             cv2.setWindowProperty("Video", cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
-    
+
     @property
     def current_presentation(self):
         return self.presentations[self.current_presentation_i]
-    
+
     def run(self):
         while True:
             self.lastframe, self.state = self.current_presentation.update_state(self.state)
@@ -184,11 +184,11 @@ class Display:
             self.handle_key()
             self.show_video()
             self.show_info()
-    
+
     def show_video(self):
         self.lag = now() - self.last_time
         self.last_time = now()
-        cv2.imshow("Video", self.lastframe) 
+        cv2.imshow("Video", self.lastframe)
 
     def show_info(self):
         info = np.zeros((130, 420), np.uint8)
@@ -230,11 +230,11 @@ class Display:
         )
 
         cv2.imshow("Info", info)
-    
+
     def handle_key(self):
         sleep_time = math.ceil(1000/self.current_presentation.fps)
         key = cv2.waitKeyEx(fix_time(sleep_time - self.lag))
-        
+
         if self.config.QUIT.match(key):
             self.quit()
         elif self.state == State.PLAYING and self.config.PLAY_PAUSE.match(key):
@@ -258,7 +258,7 @@ class Display:
             self.current_presentation.rewind_slide()
             self.state = State.PLAYING
 
-    
+
     def quit(self):
         cv2.destroyAllWindows()
         sys.exit()

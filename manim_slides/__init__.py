@@ -1,2 +1,2 @@
-from .slide import Slide, ThreeDSlide
 from .__version__ import __version__
+from .slide import Slide, ThreeDSlide

@@ -1,4 +1,5 @@
 import click
+
 from .defaults import CONFIG_PATH
 
 
