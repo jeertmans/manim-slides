@@ -9,3 +9,7 @@ __pycache__/
 /presentation
 
 /.vscode
+
+slides/
+
+.manim-slides.json
