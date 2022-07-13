@@ -18,7 +18,6 @@ class Slide(Scene):
         self.pause_start_animation = 0
 
     def play(self, *args, **kwargs):
-        print("PLAY", *args, kwargs.items())
         super().play(*args, **kwargs)
         self.current_animation += 1
 

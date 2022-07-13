@@ -46,8 +46,6 @@ class Presentation:
         self.slides = config["slides"]
         self.files = config["files"]
 
-        print(self.slides)
-
         self.lastframe = []
 
         self.caps = [None for _ in self.files]
