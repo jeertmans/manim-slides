@@ -28,19 +28,20 @@ class Example(Slide):
         # Each slide MUST end with an animation (a self.wait is considered an animation)
         self.play(dot.animate.move_to(ORIGIN))
 
+
 class ThreeDExample(ThreeDSlide):
     def construct(self):
         axes = ThreeDAxes()
-        circle=Circle()
+        circle = Circle()
 
-        self.set_camera_orientation(phi=75 * DEGREES, theta=30 * DEGREES)
-        self.add(circle,axes)
+        # self.set_camera_orientation(phi=75 * DEGREES, theta=30 * DEGREES)
+        self.add(circle, axes)
 
-        self.begin_ambient_camera_rotation(rate=0.1)
+        # self.begin_ambient_camera_rotation(rate=0.1)
         self.pause()
 
-        self.stop_ambient_camera_rotation()
-        self.move_camera(phi=75 * DEGREES, theta=30 * DEGREES)
+        # self.stop_ambient_camera_rotation()
+        # self.move_camera(phi=75 * DEGREES, theta=30 * DEGREES)
         self.wait()
 
         self.start_loop()

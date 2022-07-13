@@ -12,6 +12,7 @@ from .wizard import init, wizard
 def cli():
     pass
 
+
 cli.add_command(present)
 cli.add_command(wizard)
 cli.add_command(init)

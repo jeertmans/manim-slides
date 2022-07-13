@@ -21,23 +21,32 @@ class State(Enum):
     END = 3
 
     def __str__(self):
-        if self.value == 0: return "Playing"
-        if self.value == 1: return "Paused"
-        if self.value == 2: return "Wait"
-        if self.value == 3: return "End"
+        if self.value == 0:
+            return "Playing"
+        if self.value == 1:
+            return "Paused"
+        if self.value == 2:
+            return "Wait"
+        if self.value == 3:
+            return "End"
         return "..."
+
 
 def now():
     return round(time.time() * 1000)
 
+
 def fix_time(x):
     return x if x > 0 else 1
+
 
 class Presentation:
     def __init__(self, config, last_frame_next: bool = False):
         self.last_frame_next = last_frame_next
         self.slides = config["slides"]
         self.files = config["files"]
+
+        print(self.slides)
 
         self.lastframe = []
 
@@ -48,14 +57,15 @@ class Presentation:
     def add_last_slide(self):
         last_slide_end = self.slides[-1]["end_animation"]
         last_animation = len(self.files)
-        self.slides.append(dict(
-            start_animation = last_slide_end,
-            end_animation = last_animation,
-            type = "last",
-            number = len(self.slides) + 1,
-            terminated = False
-        ))
-
+        self.slides.append(
+            dict(
+                start_animation=last_slide_end,
+                end_animation=last_animation,
+                type="last",
+                number=len(self.slides) + 1,
+                terminated=False,
+            )
+        )
 
     def reset(self):
         self.current_animation = 0
@@ -78,7 +88,7 @@ class Presentation:
         self.current_animation = self.current_slide["start_animation"]
         self.current_cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
 
-    def load_this_cap(self,cap_number):
+    def load_this_cap(self, cap_number):
         if self.caps[cap_number] == None:
             # unload other caps
             for i in range(len(self.caps)):
@@ -135,7 +145,10 @@ class Presentation:
                     self.rewind_slide()
                 elif self.current_slide["type"] == "last":
                     self.current_slide["terminated"] = True
-            elif self.current_slide["type"] == "last" and self.current_slide["end_animation"] == self.current_animation:
+            elif (
+                self.current_slide["type"] == "last"
+                and self.current_slide["end_animation"] == self.current_animation
+            ):
                 state = State.WAIT
             else:
                 # Play next video!
@@ -162,7 +175,9 @@ class Display:
 
         if fullscreen:
             cv2.namedWindow("Video", cv2.WND_PROP_FULLSCREEN)
-            cv2.setWindowProperty("Video", cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
+            cv2.setWindowProperty(
+                "Video", cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN
+            )
 
     @property
     def current_presentation(self):
@@ -170,7 +185,9 @@ class Display:
 
     def run(self):
         while True:
-            self.lastframe, self.state = self.current_presentation.update_state(self.state)
+            self.lastframe, self.state = self.current_presentation.update_state(
+                self.state
+            )
             if self.state == State.PLAYING or self.state == State.PAUSED:
                 if self.start_paused:
                     self.state = State.PAUSED
@@ -200,39 +217,34 @@ class Display:
             info,
             f"Animation: {self.current_presentation.current_animation}",
             (grid_x[0], grid_y[0]),
-            *font_args
+            *font_args,
         )
-        cv2.putText(
-            info,
-            f"State: {self.state}",
-            (grid_x[1], grid_y[0]),
-            *font_args
-        )
+        cv2.putText(info, f"State: {self.state}", (grid_x[1], grid_y[0]), *font_args)
 
         cv2.putText(
             info,
             f"Slide {self.current_presentation.current_slide['number']}/{len(self.current_presentation.slides)}",
             (grid_x[0], grid_y[1]),
-            *font_args
+            *font_args,
         )
         cv2.putText(
             info,
             f"Slide Type: {self.current_presentation.current_slide['type']}",
             (grid_x[1], grid_y[1]),
-            *font_args
+            *font_args,
         )
 
         cv2.putText(
             info,
             f"Scene  {self.current_presentation_i + 1}/{len(self.presentations)}",
-            ((grid_x[0]+grid_x[1])//2, grid_y[2]),
-            *font_args
+            ((grid_x[0] + grid_x[1]) // 2, grid_y[2]),
+            *font_args,
         )
 
         cv2.imshow("Info", info)
 
     def handle_key(self):
-        sleep_time = math.ceil(1000/self.current_presentation.fps)
+        sleep_time = math.ceil(1000 / self.current_presentation.fps)
         key = cv2.waitKeyEx(fix_time(sleep_time - self.lag))
 
         if self.config.QUIT.match(key):
@@ -241,7 +253,9 @@ class Display:
             self.state = State.PAUSED
         elif self.state == State.PAUSED and self.config.PLAY_PAUSE.match(key):
             self.state = State.PLAYING
-        elif self.state == State.WAIT and (self.config.CONTINUE.match(key) or self.config.PLAY_PAUSE.match(key)):
+        elif self.state == State.WAIT and (
+            self.config.CONTINUE.match(key) or self.config.PLAY_PAUSE.match(key)
+        ):
             self.current_presentation.next()
             self.state = State.PLAYING
         elif self.state == State.PLAYING and self.config.CONTINUE.match(key):
@@ -258,7 +272,6 @@ class Display:
             self.current_presentation.rewind_slide()
             self.state = State.PLAYING
 
-
     def quit(self):
         cv2.destroyAllWindows()
         sys.exit()
@@ -267,10 +280,19 @@ class Display:
 @click.command()
 @click.argument("scenes", nargs=-1)
 @config_path_option
-@click.option("--folder", default=FOLDER_PATH, type=click.Path(exists=True, file_okay=False), help="Set slides folder.")
+@click.option(
+    "--folder",
+    default=FOLDER_PATH,
+    type=click.Path(exists=True, file_okay=False),
+    help="Set slides folder.",
+)
 @click.option("--start-paused", is_flag=True, help="Start paused.")
 @click.option("--fullscreen", is_flag=True, help="Fullscreen mode.")
-@click.option("--last-frame-next", is_flag=True, help="Show the next animation first frame as last frame (hack).")
+@click.option(
+    "--last-frame-next",
+    is_flag=True,
+    help="Show the next animation first frame as last frame (hack).",
+)
 @click.help_option("-h", "--help")
 def present(scenes, config_path, folder, start_paused, fullscreen, last_frame_next):
     """Present the different scenes"""
@@ -279,7 +301,9 @@ def present(scenes, config_path, folder, start_paused, fullscreen, last_frame_ne
     for scene in scenes:
         config_file = os.path.join(folder, f"{scene}.json")
         if not os.path.exists(config_file):
-            raise Exception(f"File {config_file} does not exist, check the scene name and make sure to use Slide as your scene base class")
+            raise Exception(
+                f"File {config_file} does not exist, check the scene name and make sure to use Slide as your scene base class"
+            )
         config = json.load(open(config_file))
         presentations.append(Presentation(config, last_frame_next=last_frame_next))
 
@@ -288,5 +312,7 @@ def present(scenes, config_path, folder, start_paused, fullscreen, last_frame_ne
     else:
         config = Config()
 
-    display = Display(presentations, config=config, start_paused=start_paused, fullscreen=fullscreen)
+    display = Display(
+        presentations, config=config, start_paused=start_paused, fullscreen=fullscreen
+    )
     display.run()
