@@ -1,10 +1,29 @@
 import json
 import os
+import platform
 import shutil
+import subprocess
 
-from manim import Scene, ThreeDScene, config
+from manim import Scene, ThreeDScene, config, logger
+from tqdm import tqdm
+
+try:  # For manim<v0.16.0.post0
+    from manim.constants import FFMPEG_BIN as ffmpeg_executable
+except ImportError:
+    ffmpeg_executable = config.ffmpeg_executable
 
 from .defaults import FOLDER_PATH
+
+
+def reverse_video_path(src: str) -> str:
+    file, ext = os.path.splitext(src)
+    return f"{file}_reversed{ext}"
+
+
+def reverse_video_file(src: str, dst: str):
+    command = [config.ffmpeg_executable, "-i", src, "-vf", "reverse", dst]
+    process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    process.communicate()
 
 
 class Slide(Scene):
@@ -79,14 +98,31 @@ class Slide(Scene):
             os.mkdir(scene_files_folder)
 
         files = list()
-        for src_file in self.renderer.file_writer.partial_movie_files:
+        for src_file in tqdm(
+            self.renderer.file_writer.partial_movie_files,
+            desc=f"Copying animation files to '{scene_files_folder}' and generating reversed animations",
+            leave=config["progress_bar"] == "leave",
+            ascii=True if platform.system() == "Windows" else None,
+            disable=config["progress_bar"] == "none",
+        ):
             dst_file = os.path.join(scene_files_folder, os.path.basename(src_file))
             shutil.copyfile(src_file, dst_file)
+            rev_file = reverse_video_path(dst_file)
+            reverse_video_file(src_file, rev_file)
             files.append(dst_file)
 
-        f = open(os.path.join(self.output_folder, "%s.json" % (scene_name,)), "w")
+        logger.info(
+            f"Copied {len(files)} animations to '{os.path.abspath(scene_files_folder)}' and generated reversed animations"
+        )
+
+        slide_path = os.path.join(self.output_folder, "%s.json" % (scene_name,))
+
+        f = open(slide_path, "w")
         json.dump(dict(slides=self.slides, files=files), f)
         f.close()
+        logger.info(
+            f"Slide '{scene_name}' configuration written in '{os.path.abspath(slide_path)}'"
+        )
 
 
 class ThreeDSlide(Slide, ThreeDScene):

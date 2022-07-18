@@ -12,6 +12,7 @@ import numpy as np
 from .commons import config_path_option
 from .config import Config
 from .defaults import CONFIG_PATH, FOLDER_PATH
+from .slide import reverse_video_path
 
 
 class State(Enum):
@@ -44,7 +45,7 @@ class Presentation:
     def __init__(self, config, last_frame_next: bool = False):
         self.last_frame_next = last_frame_next
         self.slides = config["slides"]
-        self.files = config["files"]
+        self.files = [reverse_video_path(path) for path in config["files"]]
 
         self.lastframe = []
 
@@ -81,6 +82,9 @@ class Presentation:
     def prev(self):
         self.current_slide_i = max(0, self.current_slide_i - 1)
         self.rewind_slide()
+
+    def reserve_slide(self):
+        pass
 
     def rewind_slide(self):
         self.current_animation = self.current_slide["start_animation"]
@@ -275,8 +279,28 @@ class Display:
         sys.exit()
 
 
+"""
 @click.command()
-@click.argument("scenes", nargs=-1)
+@click.option(
+    "--folder",
+    default=FOLDER_PATH,
+    type=click.Path(exists=True, file_okay=False),
+    help="Set slides folder.",
+)
+"""
+@click.help_option("-h", "--help")
+def list_scenes(folder):
+    scenes = []
+
+    for file in os.listdir(folder):
+        if file.endswith(".json"):
+            scenes.append(os.path.basename(file)[:-4])
+
+    return scenes
+
+
+@click.command()
+@click.option("--scenes", nargs=-1, prompt=True)
 @config_path_option
 @click.option(
     "--folder",
@@ -295,6 +319,20 @@ class Display:
 def present(scenes, config_path, folder, start_paused, fullscreen, last_frame_next):
     """Present the different scenes"""
 
+    if len(scenes) == 0:
+        print("ICI")
+        scene_choices = list_scenes(folder)
+
+        scene_choices = dict(enumerate(scene_choices, start=1))
+        choices = [str(i) for i in scene_choices.keys()]
+
+        def value_proc(value: str):
+            raise ValueError("Value:")
+        
+        print(scene_choices)
+        
+        scenes = click.prompt("Choose a scene", value_proc=value_proc)
+        
     presentations = list()
     for scene in scenes:
         config_file = os.path.join(folder, f"{scene}.json")
