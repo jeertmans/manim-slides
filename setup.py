@@ -2,9 +2,7 @@ import sys
 
 import setuptools
 
-sys.path.append("manim_slides")  # To avoid importing manim, which may not be installed
-
-from __version__ import __version__ as version
+from .__version__ import __version__ as version
 
 if sys.version_info < (3, 7):
     raise RuntimeError("This package requires Python 3.7+")
@@ -31,6 +29,7 @@ setuptools.setup(
     install_requires=[
         "click>=8.0",
         "click-default-group>=1.2",
+        "manim",
         "numpy>=1.19.3",
         "pydantic>=1.9.1",
         "opencv-python>=4.6",
