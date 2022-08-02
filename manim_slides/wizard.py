@@ -27,11 +27,13 @@ def wizard(config_path, force, merge):
     """Launch configuration wizard."""
     return _init(config_path, force, merge, skip_interactive=False)
 
+
 @click.command()
 @config_options
 def init(config_path, force, merge, skip_interactive=False):
     """Initialize a new default configuration file."""
     return _init(config_path, force, merge, skip_interactive=True)
+
 
 def _init(config_path, force, merge, skip_interactive=False):
 
@@ -39,7 +41,10 @@ def _init(config_path, force, merge, skip_interactive=False):
         click.secho(f"The `{CONFIG_PATH}` configuration file exists")
 
         if not force and not merge:
-            choice = click.prompt("Do you want to continue and (o)verwrite / (m)erge it, or (q)uit?", type=click.Choice(["o", "m", "q"], case_sensitive=False))
+            choice = click.prompt(
+                "Do you want to continue and (o)verwrite / (m)erge it, or (q)uit?",
+                type=click.Choice(["o", "m", "q"], case_sensitive=False),
+            )
 
             force = choice == "o"
             merge = choice == "m"
@@ -51,7 +56,6 @@ def _init(config_path, force, merge, skip_interactive=False):
         else:
             click.secho("Exiting.")
             sys.exit(0)
-
 
     config = Config()
 

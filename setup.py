@@ -30,7 +30,7 @@ setuptools.setup(
     python_requires=">=3.7",
     install_requires=[
         "click>=8.0",
-        "click-default-group>=1.2"
+        "click-default-group>=1.2",
         "numpy>=1.19.3",
         "pydantic>=1.9.1",
         "opencv-python>=4.6",

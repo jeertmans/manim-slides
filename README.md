@@ -123,7 +123,7 @@ Here are a few things that I implemented (or that I'm planning to implement) on 
 - [x] User can easily generate dummy config file
 - [x] Config file path can be manually set
 - [ ] Play animation in reverse [#9](https://github.com/galatolofederico/manim-presentation/issues/9)
-- [ ] Handle 3D scenes out of the box
+- [x] Handle 3D scenes out of the box
 - [ ] Can work with both community and 3b1b versions (not tested)
 - [ ] Generate docs online
 - [ ] Fix the quality problem on Windows platforms with `fullscreen` flag
