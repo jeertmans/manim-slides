@@ -293,7 +293,7 @@ class Display:
 )
 @click.help_option("-h", "--help")
 def present(scenes, config_path, folder, start_paused, fullscreen, last_frame_next):
-    """Present the different scenes"""
+    """Present the different scenes."""
 
     presentations = list()
     for scene in scenes:
