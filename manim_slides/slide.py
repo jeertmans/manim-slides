@@ -6,11 +6,7 @@ import subprocess
 
 from tqdm import tqdm
 
-try:
-    from .manim import Scene, ThreeDScene, config, logger
-except ImportError:
-    Scene = ThreeDScene = config = logger = None
-    # TODO: manage both manim and manimgl
+from manim import Scene, ThreeDScene, config, logger
 
 try:  # For manim<v0.16.0.post0
     from manim.constants import FFMPEG_BIN as ffmpeg_executable
