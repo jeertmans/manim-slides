@@ -1,9 +1,13 @@
 import json
 import math
 import os
+import platform
 import sys
 import time
-from enum import Enum
+from enum import IntEnum, auto, unique
+
+if platform.system() == "Windows":
+    import ctypes
 
 import click
 import cv2
@@ -14,29 +18,22 @@ from .config import Config
 from .defaults import CONFIG_PATH, FOLDER_PATH
 
 
-class State(Enum):
-    PLAYING = 0
-    PAUSED = 1
-    WAIT = 2
-    END = 3
+@unique
+class State(IntEnum):
+    PLAYING = auto()
+    PAUSED = auto()
+    WAIT = auto()
+    END = auto()
 
     def __str__(self):
-        if self.value == 0:
-            return "Playing"
-        if self.value == 1:
-            return "Paused"
-        if self.value == 2:
-            return "Wait"
-        if self.value == 3:
-            return "End"
-        return "..."
+        return self.name.capitalize()
 
 
-def now():
+def now() -> int:
     return round(time.time() * 1000)
 
 
-def fix_time(x):
+def fix_time(x: float) -> float:
     return x if x > 0 else 1
 
 
@@ -171,11 +168,25 @@ class Display:
         self.lag = 0
         self.last_time = now()
 
+        if platform.system() == "Windows":
+            user32 = ctypes.windll.user32
+            self.screen_width, self.screen_height = user32.GetSystemMetrics(0), user32.GetSystemMetrics(1)
+
         if fullscreen:
             cv2.namedWindow("Video", cv2.WND_PROP_FULLSCREEN)
             cv2.setWindowProperty(
                 "Video", cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN
             )
+
+    def resize_frame_to_screen(self, frame: np.ndarray):
+        frame_height, frame_width = frame.shape
+
+        scale_height = self.screen_height / frame_height
+        scale_width = self.screen_width / frame_width
+
+        scale = min(scale_height, scale_width)
+
+        return cv2.resize(frame, (int(scale * frame_height, scale * frame_width)))
 
     @property
     def current_presentation(self):
@@ -203,7 +214,13 @@ class Display:
     def show_video(self):
         self.lag = now() - self.last_time
         self.last_time = now()
-        cv2.imshow("Video", self.lastframe)
+
+        frame = self.lastframe
+
+        if platform.system() == "Windows":
+            frame = self.resize_frame_to_screen(frame)
+
+        cv2.imshow("Video", frame)
 
     def show_info(self):
         info = np.zeros((130, 420), np.uint8)
