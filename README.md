@@ -3,7 +3,7 @@
 ![PyPI - Downloads](https://img.shields.io/pypi/dm/manim-slides)
 # Manim Slides
 
-Tool for live presentations using either [manim-community](https://www.manim.community/). Currently, support for 3b1b's manim is not planned.
+Tool for live presentations extending [manim-community](https://www.manim.community/)'s capabilities. Currently, support for 3b1b's manim is not planned.
 
 > **_NOTE:_**  This project is a fork of [`manim-presentation`](https://github.com/galatolofederico/manim-presentation). Since the project seemed to be inactive, I decided to create my own fork to deploy new features more rapidly.
 
