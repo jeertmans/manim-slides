@@ -4,9 +4,8 @@ import platform
 import shutil
 import subprocess
 
-from tqdm import tqdm
-
 from manim import Scene, ThreeDScene, config, logger
+from tqdm import tqdm
 
 try:  # For manim<v0.16.0.post0
     from manim.constants import FFMPEG_BIN as ffmpeg_executable
