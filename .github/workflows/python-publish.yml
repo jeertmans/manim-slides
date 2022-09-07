@@ -13,7 +13,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
+        os: [ubuntu-latest]
 
     steps:
       - uses: actions/checkout@v2
@@ -21,7 +21,10 @@ jobs:
       # Used to host cibuildwheel
       - uses: actions/setup-python@v2
 
-      - name: Install package
+      - name: Install deps
+        run: sudo apt-get install libsdl-pango-dev
+
+      - name: Install packages
         run: python -m pip install -U manim tqdm
 
       - name: Install cibuildwheel
