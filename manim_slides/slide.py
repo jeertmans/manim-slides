@@ -8,7 +8,7 @@ from tqdm import tqdm
 
 try:
     from .manim import Scene, ThreeDScene, config, logger
-except ImportError
+except ImportError:
     Scene = ThreeDScene = config = logger = None
     # TODO: manage both manim and manimgl
 
