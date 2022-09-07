@@ -65,6 +65,7 @@ Default keybindings to control the presentation:
 | Right Arrow |    Continue/Next Slide   |
 |  Left Arrow |      Previous Slide      |
 |      R      | Re-Animate Current Slide |
+|      V      |   Reverse Current Slide  |
 |   Spacebar  |        Play/Pause        |
 |      Q      |           Quit           |
 
@@ -122,10 +123,10 @@ Here are a few things that I implemented (or that I'm planning to implement) on 
 - [x] Only one cli (to rule them all)
 - [x] User can easily generate dummy config file
 - [x] Config file path can be manually set
-- [ ] Play animation in reverse [#9](https://github.com/galatolofederico/manim-presentation/issues/9)
+- [x] Play animation in reverse [#9](https://github.com/galatolofederico/manim-presentation/issues/9)
 - [x] Handle 3D scenes out of the box
 - [ ] Generate docs online
-- [ ] Fix the quality problem on Windows platforms with `fullscreen` flag
+- [x] Fix the quality problem on Windows platforms with `fullscreen` flag
 
 ## Contributions and license
 

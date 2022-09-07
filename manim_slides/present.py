@@ -42,7 +42,9 @@ class Presentation:
     def __init__(self, config, last_frame_next: bool = False):
         self.last_frame_next = last_frame_next
         self.slides = config["slides"]
-        self.files = [reverse_video_path(path) for path in config["files"]]
+        self.files = [path for path in config["files"]]
+        self.reverse = False
+        self.reversed_slide = -1
 
         self.lastframe = []
 
@@ -80,22 +82,34 @@ class Presentation:
         self.current_slide_i = max(0, self.current_slide_i - 1)
         self.rewind_slide()
 
-    def reserve_slide(self):
-        pass
+    def reverse_slide(self):
+        self.rewind_slide(reverse=True)
 
-    def rewind_slide(self):
+    def rewind_slide(self, reverse: bool = False):
+        self.reverse = reverse
         self.current_animation = self.current_slide["start_animation"]
         self.current_cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
 
-    def load_this_cap(self, cap_number):
-        if self.caps[cap_number] == None:
+    def load_this_cap(self, cap_number: int):
+        if (
+            self.caps[cap_number] is None
+            or (self.reverse and self.reversed_slide != cap_number)
+            or (not self.reverse and self.reversed_slide == cap_number)
+        ):
             # unload other caps
             for i in range(len(self.caps)):
-                if self.caps[i] != None:
+                if not self.caps[i] is None:
                     self.caps[i].release()
                     self.caps[i] = None
             # load this cap
-            self.caps[cap_number] = cv2.VideoCapture(self.files[cap_number])
+            file = self.files[cap_number]
+            if self.reverse:
+                self.reversed_slide = cap_number
+                file = "{}_reversed{}".format(*os.path.splitext(file))
+            else:
+                self.reversed_slide = -1
+
+            self.caps[cap_number] = cv2.VideoCapture(file)
 
     @property
     def current_slide(self):
@@ -174,7 +188,9 @@ class Display:
 
         if platform.system() == "Windows":
             user32 = ctypes.windll.user32
-            self.screen_width, self.screen_height = user32.GetSystemMetrics(0), user32.GetSystemMetrics(1)
+            self.screen_width, self.screen_height = user32.GetSystemMetrics(
+                0
+            ), user32.GetSystemMetrics(1)
 
         if fullscreen:
             cv2.namedWindow("Video", cv2.WND_PROP_FULLSCREEN)
@@ -287,6 +303,9 @@ class Display:
             else:
                 self.current_presentation.prev()
                 self.state = State.PLAYING
+        elif self.config.REVERSE.match(key):
+            self.current_presentation.reverse_slide()
+            self.state = State.PLAYING
         elif self.config.REWIND.match(key):
             self.current_presentation.rewind_slide()
             self.state = State.PLAYING
@@ -296,7 +315,6 @@ class Display:
         sys.exit()
 
 
-"""
 @click.command()
 @click.option(
     "--folder",
@@ -304,20 +322,26 @@ class Display:
     type=click.Path(exists=True, file_okay=False),
     help="Set slides folder.",
 )
-"""
 @click.help_option("-h", "--help")
 def list_scenes(folder):
+    """List available scenes."""
+
+    for i, scene in enumerate(_list_scenes(folder), start=1):
+        click.secho(f"{i}: {scene}", fg="green")
+
+
+def _list_scenes(folder):
     scenes = []
 
     for file in os.listdir(folder):
         if file.endswith(".json"):
-            scenes.append(os.path.basename(file)[:-4])
+            scenes.append(os.path.basename(file)[:-5])
 
     return scenes
 
 
 @click.command()
-@click.option("--scenes", nargs=-1, prompt=True)
+@click.argument("scenes", nargs=-1)
 @config_path_option
 @click.option(
     "--folder",
@@ -337,19 +361,36 @@ def present(scenes, config_path, folder, start_paused, fullscreen, last_frame_ne
     """Present the different scenes."""
 
     if len(scenes) == 0:
-        print("ICI")
-        scene_choices = list_scenes(folder)
+        scene_choices = _list_scenes(folder)
 
         scene_choices = dict(enumerate(scene_choices, start=1))
-        choices = [str(i) for i in scene_choices.keys()]
+
+        for i, scene in scene_choices.items():
+            click.secho(f"{i}: {scene}", fg="green")
+
+        click.echo()
+
+        click.echo("Choose number corresponding to desired scene/arguments.")
+        click.echo("(Use comma separated list for multiple entries)")
 
         def value_proc(value: str):
-            raise ValueError("Value:")
-        
-        print(scene_choices)
-        
-        scenes = click.prompt("Choose a scene", value_proc=value_proc)
-        
+            indices = list(map(int, value.strip().replace(" ", "").split(",")))
+
+            if not all(map(lambda i: 0 < i <= len(scene_choices), indices)):
+                raise ValueError("Please only enter numbers displayed on the screen.")
+
+            return [scene_choices[i] for i in indices]
+
+        if len(scene_choices) == 0:
+            raise ValueError("No scenes were found, are you in the correct directory?")
+
+        while True:
+            try:
+                scenes = click.prompt("Choice(s)", value_proc=value_proc)
+                break
+            except ValueError as e:
+                click.secho(e, fg="red")
+
     presentations = list()
     for scene in scenes:
         config_file = os.path.join(folder, f"{scene}.json")

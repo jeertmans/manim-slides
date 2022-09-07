@@ -91,11 +91,12 @@ class Slide(Scene):
         scene_name = type(self).__name__
         scene_files_folder = os.path.join(files_folder, scene_name)
 
-        if os.path.exists(scene_files_folder):
-            shutil.rmtree(scene_files_folder)
+        old_animation_files = set()
 
         if not os.path.exists(scene_files_folder):
             os.mkdir(scene_files_folder)
+        else:
+            old_animation_files.update(os.listdir(scene_files_folder))
 
         files = list()
         for src_file in tqdm(
@@ -105,10 +106,25 @@ class Slide(Scene):
             ascii=True if platform.system() == "Windows" else None,
             disable=config["progress_bar"] == "none",
         ):
-            dst_file = os.path.join(scene_files_folder, os.path.basename(src_file))
-            shutil.copyfile(src_file, dst_file)
-            rev_file = reverse_video_path(dst_file)
-            reverse_video_file(src_file, rev_file)
+            filename = os.path.basename(src_file)
+            _hash, ext = os.path.splitext(filename)
+
+            rev_filename = f"{_hash}_reversed{ext}"
+
+            dst_file = os.path.join(scene_files_folder, filename)
+            # We only copy animation if it was not present
+            if filename in old_animation_files:
+                old_animation_files.remove(filename)
+            else:
+                shutil.copyfile(src_file, dst_file)
+
+            # We only reverse video if it was not present
+            if rev_filename in old_animation_files:
+                old_animation_files.remove(rev_filename)
+            else:
+                rev_file = os.path.join(scene_files_folder, rev_filename)
+                reverse_video_file(src_file, rev_file)
+
             files.append(dst_file)
 
         logger.info(

@@ -2,7 +2,7 @@ import sys
 
 import setuptools
 
-from .__version__ import __version__ as version
+from manim_slides import __version__ as version
 
 if sys.version_info < (3, 7):
     raise RuntimeError("This package requires Python 3.7+")

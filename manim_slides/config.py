@@ -23,6 +23,7 @@ class Config(BaseModel):
     QUIT: Key = Key(ids=[ord("q")], name="QUIT")
     CONTINUE: Key = Key(ids=[RIGHT_ARROW_KEY_CODE], name="CONTINUE / NEXT")
     BACK: Key = Key(ids=[LEFT_ARROW_KEY_CODE], name="BACK")
+    REVERSE: Key = Key(ids=[ord("v")], name="REVERSE")
     REWIND: Key = Key(ids=[ord("r")], name="REWIND")
     PLAY_PAUSE: Key = Key(ids=[32], name="PLAY / PAUSE")
 
@@ -33,7 +34,7 @@ class Config(BaseModel):
         for key in values.values():
             if len(ids.intersection(key.ids)) != 0:
                 raise ValueError(
-                    f"Two or more keys share a common key code: please make sure each key has distinc key codes"
+                    "Two or more keys share a common key code: please make sure each key has distinc key codes"
                 )
             ids.update(key.ids)
 
