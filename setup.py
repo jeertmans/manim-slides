@@ -29,7 +29,6 @@ setuptools.setup(
     install_requires=[
         "click>=8.0",
         "click-default-group>=1.2",
-        "manim",
         "numpy>=1.19.3",
         "pydantic>=1.9.1",
         "opencv-python>=4.6",
