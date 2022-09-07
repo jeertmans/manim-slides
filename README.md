@@ -3,7 +3,7 @@
 ![PyPI - Downloads](https://img.shields.io/pypi/dm/manim-slides)
 # Manim Slides
 
-Tool for live presentations using either [manim](http://3b1b.github.io/manim/) or [manim-community](https://www.manim.community/).
+Tool for live presentations using either [manim-community](https://www.manim.community/). Currently, support for 3b1b's manim is not planned.
 
 > **_NOTE:_**  This project is a fork of [`manim-presentation`](https://github.com/galatolofederico/manim-presentation). Since the project seemed to be inactive, I decided to create my own fork to deploy new features more rapidly.
 
@@ -65,6 +65,7 @@ Default keybindings to control the presentation:
 | Right Arrow |    Continue/Next Slide   |
 |  Left Arrow |      Previous Slide      |
 |      R      | Re-Animate Current Slide |
+|      V      |   Reverse Current Slide  |
 |   Spacebar  |        Play/Pause        |
 |      Q      |           Quit           |
 
@@ -122,11 +123,10 @@ Here are a few things that I implemented (or that I'm planning to implement) on 
 - [x] Only one cli (to rule them all)
 - [x] User can easily generate dummy config file
 - [x] Config file path can be manually set
-- [ ] Play animation in reverse [#9](https://github.com/galatolofederico/manim-presentation/issues/9)
+- [x] Play animation in reverse [#9](https://github.com/galatolofederico/manim-presentation/issues/9)
 - [x] Handle 3D scenes out of the box
-- [ ] Can work with both community and 3b1b versions (not tested)
 - [ ] Generate docs online
-- [ ] Fix the quality problem on Windows platforms with `fullscreen` flag
+- [x] Fix the quality problem on Windows platforms with `fullscreen` flag
 
 ## Contributions and license
 

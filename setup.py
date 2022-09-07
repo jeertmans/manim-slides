@@ -2,9 +2,7 @@ import sys
 
 import setuptools
 
-sys.path.append("manim_slides")  # To avoid importing manim, which may not be installed
-
-from __version__ import __version__ as version
+from manim_slides import __version__ as version
 
 if sys.version_info < (3, 7):
     raise RuntimeError("This package requires Python 3.7+")

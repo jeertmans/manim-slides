@@ -1,10 +1,34 @@
 import json
 import os
+import platform
 import shutil
+import subprocess
 
-from manim import Scene, ThreeDScene, config
+from tqdm import tqdm
+
+try:
+    from .manim import Scene, ThreeDScene, config, logger
+except ImportError:
+    Scene = ThreeDScene = config = logger = None
+    # TODO: manage both manim and manimgl
+
+try:  # For manim<v0.16.0.post0
+    from manim.constants import FFMPEG_BIN as ffmpeg_executable
+except ImportError:
+    ffmpeg_executable = config.ffmpeg_executable
 
 from .defaults import FOLDER_PATH
+
+
+def reverse_video_path(src: str) -> str:
+    file, ext = os.path.splitext(src)
+    return f"{file}_reversed{ext}"
+
+
+def reverse_video_file(src: str, dst: str):
+    command = [config.ffmpeg_executable, "-i", src, "-vf", "reverse", dst]
+    process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    process.communicate()
 
 
 class Slide(Scene):
@@ -72,21 +96,54 @@ class Slide(Scene):
         scene_name = type(self).__name__
         scene_files_folder = os.path.join(files_folder, scene_name)
 
-        if os.path.exists(scene_files_folder):
-            shutil.rmtree(scene_files_folder)
+        old_animation_files = set()
 
         if not os.path.exists(scene_files_folder):
             os.mkdir(scene_files_folder)
+        else:
+            old_animation_files.update(os.listdir(scene_files_folder))
 
         files = list()
-        for src_file in self.renderer.file_writer.partial_movie_files:
-            dst_file = os.path.join(scene_files_folder, os.path.basename(src_file))
-            shutil.copyfile(src_file, dst_file)
+        for src_file in tqdm(
+            self.renderer.file_writer.partial_movie_files,
+            desc=f"Copying animation files to '{scene_files_folder}' and generating reversed animations",
+            leave=config["progress_bar"] == "leave",
+            ascii=True if platform.system() == "Windows" else None,
+            disable=config["progress_bar"] == "none",
+        ):
+            filename = os.path.basename(src_file)
+            _hash, ext = os.path.splitext(filename)
+
+            rev_filename = f"{_hash}_reversed{ext}"
+
+            dst_file = os.path.join(scene_files_folder, filename)
+            # We only copy animation if it was not present
+            if filename in old_animation_files:
+                old_animation_files.remove(filename)
+            else:
+                shutil.copyfile(src_file, dst_file)
+
+            # We only reverse video if it was not present
+            if rev_filename in old_animation_files:
+                old_animation_files.remove(rev_filename)
+            else:
+                rev_file = os.path.join(scene_files_folder, rev_filename)
+                reverse_video_file(src_file, rev_file)
+
             files.append(dst_file)
 
-        f = open(os.path.join(self.output_folder, "%s.json" % (scene_name,)), "w")
+        logger.info(
+            f"Copied {len(files)} animations to '{os.path.abspath(scene_files_folder)}' and generated reversed animations"
+        )
+
+        slide_path = os.path.join(self.output_folder, "%s.json" % (scene_name,))
+
+        f = open(slide_path, "w")
         json.dump(dict(slides=self.slides, files=files), f)
         f.close()
+        logger.info(
+            f"Slide '{scene_name}' configuration written in '{os.path.abspath(slide_path)}'"
+        )
 
 
 class ThreeDSlide(Slide, ThreeDScene):

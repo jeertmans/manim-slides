@@ -2,7 +2,7 @@ import click
 from click_default_group import DefaultGroup
 
 from . import __version__
-from .present import present
+from .present import list_scenes, present
 from .wizard import init, wizard
 
 
@@ -13,6 +13,7 @@ def cli():
     pass
 
 
+cli.add_command(list_scenes)
 cli.add_command(present)
 cli.add_command(wizard)
 cli.add_command(init)
