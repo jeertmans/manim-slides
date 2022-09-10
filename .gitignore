@@ -13,3 +13,7 @@ __pycache__/
 slides/
 
 .manim-slides.json
+
+videos/
+
+images/

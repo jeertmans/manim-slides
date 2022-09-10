@@ -4,15 +4,10 @@ import platform
 import shutil
 import subprocess
 
-from manim import Scene, ThreeDScene, config, logger
 from tqdm import tqdm
 
-try:  # For manim<v0.16.0.post0
-    from manim.constants import FFMPEG_BIN as ffmpeg_executable
-except ImportError:
-    ffmpeg_executable = config.ffmpeg_executable
-
 from .defaults import FOLDER_PATH
+from .manim import FFMPEG_BIN, MANIMGL, Scene, ThreeDScene, config, logger
 
 
 def reverse_video_path(src: str) -> str:
@@ -21,20 +16,61 @@ def reverse_video_path(src: str) -> str:
 
 
 def reverse_video_file(src: str, dst: str):
-    command = [config.ffmpeg_executable, "-i", src, "-vf", "reverse", dst]
+    command = [FFMPEG_BIN, "-i", src, "-vf", "reverse", dst]
     process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     process.communicate()
 
 
 class Slide(Scene):
     def __init__(self, *args, output_folder=FOLDER_PATH, **kwargs):
+        if MANIMGL:
+            if not os.path.isdir("videos"):
+                os.mkdir("videos")
+            kwargs["file_writer_config"] = {
+                "break_into_partial_movies": True,
+                "output_directory": "",
+                "write_to_movie": True,
+            }
+
+            kwargs["preview"] = False
+
         super().__init__(*args, **kwargs)
+
         self.output_folder = output_folder
         self.slides = list()
         self.current_slide = 1
         self.current_animation = 0
         self.loop_start_animation = None
         self.pause_start_animation = 0
+
+    @property
+    def partial_movie_files(self):
+        if MANIMGL:
+            from manimlib.utils.file_ops import get_sorted_integer_files
+
+            kwargs = {
+                "remove_non_integer_files": True,
+                "extension": self.file_writer.movie_file_extension,
+            }
+            return get_sorted_integer_files(
+                self.file_writer.partial_movie_directory, **kwargs
+            )
+        else:
+            return self.renderer.file_writer.partial_movie_files
+
+    @property
+    def show_progress_bar(self):
+        if MANIMGL:
+            return getattr(super(Scene, self), "show_progress_bar", True)
+        else:
+            return config["progress_bar"] != "none"
+
+    @property
+    def leave_progress_bar(self):
+        if MANIMGL:
+            return getattr(super(Scene, self), "leave_progress_bars", False)
+        else:
+            return config["progress_bar"] == "leave"
 
     def play(self, *args, **kwargs):
         super().play(*args, **kwargs)
@@ -72,14 +108,7 @@ class Slide(Scene):
         self.loop_start_animation = None
         self.pause_start_animation = self.current_animation
 
-    def render(self, *args, **kwargs):
-        # We need to disable the caching limit since we rely on intermidiate files
-        max_files_cached = config["max_files_cached"]
-        config["max_files_cached"] = float("inf")
-
-        super().render(*args, **kwargs)
-
-        config["max_files_cached"] = max_files_cached
+    def save_slides(self, use_cache=True):
 
         if not os.path.exists(self.output_folder):
             os.mkdir(self.output_folder)
@@ -95,16 +124,19 @@ class Slide(Scene):
 
         if not os.path.exists(scene_files_folder):
             os.mkdir(scene_files_folder)
+        elif not use_cache:
+            shutil.rmtree(scene_files_folder)
+            os.mkdir(scene_files_folder)
         else:
             old_animation_files.update(os.listdir(scene_files_folder))
 
         files = list()
         for src_file in tqdm(
-            self.renderer.file_writer.partial_movie_files,
+            self.partial_movie_files,
             desc=f"Copying animation files to '{scene_files_folder}' and generating reversed animations",
-            leave=config["progress_bar"] == "leave",
+            leave=self.leave_progress_bar,
             ascii=True if platform.system() == "Windows" else None,
-            disable=config["progress_bar"] == "none",
+            disable=not self.show_progress_bar,
         ):
             filename = os.path.basename(src_file)
             _hash, ext = os.path.splitext(filename)
@@ -139,6 +171,23 @@ class Slide(Scene):
         logger.info(
             f"Slide '{scene_name}' configuration written in '{os.path.abspath(slide_path)}'"
         )
+
+    def run(self, *args, **kwargs):
+        """MANIMGL renderer"""
+        super().run(*args, **kwargs)
+        self.save_slides(use_cache=False)
+
+    def render(self, *args, **kwargs):
+        """MANIM render"""
+        # We need to disable the caching limit since we rely on intermidiate files
+        max_files_cached = config["max_files_cached"]
+        config["max_files_cached"] = float("inf")
+
+        super().render(*args, **kwargs)
+
+        config["max_files_cached"] = max_files_cached
+
+        self.save_slides()
 
 
 class ThreeDSlide(Slide, ThreeDScene):

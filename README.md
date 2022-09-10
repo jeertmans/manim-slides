@@ -3,9 +3,9 @@
 ![PyPI - Downloads](https://img.shields.io/pypi/dm/manim-slides)
 # Manim Slides
 
-Tool for live presentations using either [manim-community](https://www.manim.community/). Currently, support for 3b1b's manim is not planned.
+Tool for live presentations using either [manim-community](https://www.manim.community/) or [manimgl](https://3b1b.github.io/manim/). `manim-slides` will automatically detect the one you are using!
 
-> **_NOTE:_**  This project is a fork of [`manim-presentation`](https://github.com/galatolofederico/manim-presentation). Since the project seemed to be inactive, I decided to create my own fork to deploy new features more rapidly.
+> **_NOTE:_**  This project extends to work of [`manim-presentation`](https://github.com/galatolofederico/manim-presentation), with a lot more features!
 
 ## Install
 
@@ -29,6 +29,7 @@ call `self.pause()` when you want to pause the playback and wait for an input to
 Wrap a series of animations between `self.start_loop()` and `self.stop_loop()` when you want to loop them (until input to continue):
 ```python
 from manim import *
+# or: from manimlib import *
 from manim_slides import Slide
 
 class Example(Slide):
@@ -76,7 +77,7 @@ You can run the **configuration wizard** with:
 manim-slides wizard
 ```
 
-Alternatively you can specify different keybindings creating a file named `.manim-slides.json` with the keys: `QUIT` `CONTINUE` `BACK` `REWIND` and `PLAY_PAUSE`.
+Alternatively you can specify different keybindings creating a file named `.manim-slides.json` with the keys: `QUIT` `CONTINUE` `BACK` `REVERSE` `REWIND` and `PLAY_PAUSE`.
 
 A default file can be created with:
 ```
@@ -96,11 +97,15 @@ cd manim-slides
 Install `manim` and `manim-slides`:
 ```
 pip install manim manim-slides
+# or
+pip install manimgl manim-slides
 ```
 
 Render the example scene:
 ```
-manim -qh example.py
+manim -qh example.py Example
+# or
+manimgl --hd example.py Example
 ```
 
 Run the presentation
@@ -125,6 +130,7 @@ Here are a few things that I implemented (or that I'm planning to implement) on 
 - [x] Config file path can be manually set
 - [x] Play animation in reverse [#9](https://github.com/galatolofederico/manim-presentation/issues/9)
 - [x] Handle 3D scenes out of the box
+- [x] Support for both `manim` and `manimgl` modules
 - [ ] Generate docs online
 - [x] Fix the quality problem on Windows platforms with `fullscreen` flag
 

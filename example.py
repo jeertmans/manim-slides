@@ -1,4 +1,6 @@
-from manim import *
+# If you want to use manimgl, uncomment change
+# manim to manimlib
+from manimlib import *
 
 from manim_slides import Slide, ThreeDSlide
 
