@@ -5,7 +5,7 @@
 
 Tool for live presentations using either [manim-community](https://www.manim.community/) or [manimgl](https://3b1b.github.io/manim/). `manim-slides` will automatically detect the one you are using!
 
-> **_NOTE:_**  This project extends to work of [`manim-presentation`](https://github.com/galatolofederico/manim-presentation), with a lot more features!
+> **_NOTE:_**  This project extends the work of [`manim-presentation`](https://github.com/galatolofederico/manim-presentation), with a lot more features!
 
 ## Install
 
