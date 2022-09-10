@@ -377,25 +377,29 @@ def present(scenes, config_path, folder, start_paused, fullscreen, last_frame_ne
             indices = list(map(int, value.strip().replace(" ", "").split(",")))
 
             if not all(map(lambda i: 0 < i <= len(scene_choices), indices)):
-                raise ValueError("Please only enter numbers displayed on the screen.")
+                raise click.UsageError(
+                    "Please only enter numbers displayed on the screen."
+                )
 
             return [scene_choices[i] for i in indices]
 
         if len(scene_choices) == 0:
-            raise ValueError("No scenes were found, are you in the correct directory?")
+            raise click.UsageError(
+                "No scenes were found, are you in the correct directory?"
+            )
 
         while True:
             try:
                 scenes = click.prompt("Choice(s)", value_proc=value_proc)
                 break
             except ValueError as e:
-                click.secho(e, fg="red")
+                raise click.UsageError(e)
 
     presentations = list()
     for scene in scenes:
         config_file = os.path.join(folder, f"{scene}.json")
         if not os.path.exists(config_file):
-            raise Exception(
+            raise click.UsageError(
                 f"File {config_file} does not exist, check the scene name and make sure to use Slide as your scene base class"
             )
         config = json.load(open(config_file))
