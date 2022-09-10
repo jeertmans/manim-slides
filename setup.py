@@ -30,7 +30,6 @@ setuptools.setup(
         "click>=8.0",
         "click-default-group>=1.2",
         "numpy>=1.19.3",
-        "manim",
         "pydantic>=1.9.1",
         "opencv-python>=4.6",
     ],
