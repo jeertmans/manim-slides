@@ -377,12 +377,16 @@ def present(scenes, config_path, folder, start_paused, fullscreen, last_frame_ne
             indices = list(map(int, value.strip().replace(" ", "").split(",")))
 
             if not all(map(lambda i: 0 < i <= len(scene_choices), indices)):
-                raise click.UsageError("Please only enter numbers displayed on the screen.")
+                raise click.UsageError(
+                    "Please only enter numbers displayed on the screen."
+                )
 
             return [scene_choices[i] for i in indices]
 
         if len(scene_choices) == 0:
-            raise click.UsageError("No scenes were found, are you in the correct directory?")
+            raise click.UsageError(
+                "No scenes were found, are you in the correct directory?"
+            )
 
         while True:
             try:
