@@ -24,6 +24,9 @@ jobs:
       - name: Install Ubuntu dependencies
         if: matrix.os == 'ubuntu-latest'
         run: sudo apt install libcairo2-dev libpango1.0-dev ffmpeg
+      - name: Install Windows dependencies
+        if: matrix.os == 'windows-latex'
+        run: choco install manimce
       - name: Install Python packages
         run: pip install manim manimgl
       - name: Install manim-slides
