@@ -214,7 +214,7 @@ class Display:
 
         scale = min(scale_height, scale_width)
 
-        return cv2.resize(frame, (int(scale * frame_height, scale * frame_width)))
+        return cv2.resize(frame, (int(scale * frame_height), int(scale * frame_width)))
 
     @property
     def current_presentation(self):
