@@ -30,7 +30,7 @@ jobs:
       - name: Install Python packages
         run: python -m pip install manim manimgl
       - name: Install manim-slides
-        run: pyton -m pip install .
+        run: python -m pip install .
       - name: Build slides with manim
         if: matrix.manim == 'manim'
         run: manim -ql example.py Example ThreeDExample
