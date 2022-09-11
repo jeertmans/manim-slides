@@ -26,11 +26,15 @@ jobs:
         run: sudo apt install libcairo2-dev libpango1.0-dev ffmpeg freeglut3-dev xvfb
       - name: Install Windows dependencies
         if: matrix.os == 'windows-latest'
-        run: choco install ffmpeg manimce
-      - name: Install Python packages
-        run: python -m pip install --user manim manimgl
+        run: choco install ffmpeg
+      - name: Install manim
+        if: matrix.manim == 'manim'
+        run: python -m pip install --user manim
+      - name: Install manimgl
+        if: matrix.manim == 'manimgl'
+        run: python -m pip install --user manimgl
       - name: Install manim-slides
-        run: python -m pip install --user .
+        run: python -m pip install --user -e .
       - name: Build slides with manim
         if: matrix.manim == 'manim'
         run: python -m manim -ql example.py Example ThreeDExample
