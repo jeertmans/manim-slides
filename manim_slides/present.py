@@ -199,7 +199,7 @@ class Display:
             )
 
     def resize_frame_to_screen(self, frame: np.ndarray):
-        frame_height, frame_width = frame.shape
+        frame_height, frame_width = frame.shape[:2]
 
         scale_height = self.screen_height / frame_height
         scale_width = self.screen_width / frame_width
