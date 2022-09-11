@@ -32,6 +32,7 @@ setuptools.setup(
         "numpy>=1.19.3",
         "pydantic>=1.9.1",
         "opencv-python>=4.6",
+        "tqdm",
     ],
     classifiers=[
         "Programming Language :: Python :: 3",
