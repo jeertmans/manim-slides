@@ -25,10 +25,10 @@ jobs:
         if: matrix.os == 'ubuntu-latest'
         run: sudo apt install libcairo2-dev libpango1.0-dev ffmpeg freeglut3-dev xvfb
       - name: Install Windows dependencies
-        if: matrix.os == 'windows-latex'
+        if: matrix.os == 'windows-latest'
         run: choco install ffmpeg manimce
       - name: Install Python packages
-        run: pip install manim manimgl
+        run: python -m pip install manim manimgl
       - name: Install manim-slides
         run: pip install .
       - name: Build slides with manim
