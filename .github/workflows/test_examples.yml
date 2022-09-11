@@ -29,8 +29,8 @@ jobs:
       - name: Install manim-slides
         run: pip install .
       - name: Build slides with manim
-        if: matrix.manim == "manim"
+        if: matrix.manim == 'manim'
         run: manim -qh example.py Example ThreeDExample
       - name: Build slides with manim
-        if: matrix.manim == "manimgl"
+        if: matrix.manim == 'manimgl'
         run: manim-render --hd example.py Example ThreeDExample
