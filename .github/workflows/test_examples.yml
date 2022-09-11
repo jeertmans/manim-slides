@@ -23,7 +23,7 @@ jobs:
           python-version: ${{ matrix.pyversion }}
       - name: Install Ubuntu dependencies
         if: matrix.os == 'ubuntu-latest'
-        run: sudo apt install libcairo2-dev libpango1.0-dev ffmpeg freeglut3-dev
+        run: sudo apt install libcairo2-dev libpango1.0-dev ffmpeg freeglut3-dev xvfb
       - name: Install Windows dependencies
         if: matrix.os == 'windows-latex'
         run: choco install manimce
@@ -34,6 +34,9 @@ jobs:
       - name: Build slides with manim
         if: matrix.manim == 'manim'
         run: manim -ql example.py Example ThreeDExample
-      - name: Build slides with manimgl
-        if: matrix.manim == 'manimgl'
-        run: manim-render -l example.py Example ThreeDExample
+      - name: Build slides with manimgl on Ubuntu
+        if: matrix.manim == 'manimgl' && matrix.os == 'ubuntu-latest'
+        run: xvfb-run -s "-screen 0 1400x900x24" manim-render -l example.py Example ThreeDExample
+      - name: Build slides with manimgl on Windows
+        if: matrix.manim == 'manimgl' && matrix.os == 'windows-latest'
+        run: xvfb-run -s "-screen 0 1400x900x24" manim-render -l example.py Example ThreeDExample
