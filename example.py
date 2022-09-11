@@ -112,9 +112,7 @@ else:
             self.end_loop()
 
             frame.remove_updater(updater)
-            self.play(frame.animate.set_theta(
-                30 * DEGREES
-            ))
+            self.play(frame.animate.set_theta(30 * DEGREES))
             self.play(dot.animate.move_to(ORIGIN))
             self.pause()
 
