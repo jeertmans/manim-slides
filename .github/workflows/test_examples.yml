@@ -1,0 +1,35 @@
+on:
+  pull_request:
+    paths:
+      - '**.py'
+  workflow_dispatch:
+
+name: Test Examples
+
+jobs:
+  build-examples:
+    strategy:
+      matrix:
+        manim: [manim, manimgl]
+        os: [ubuntu-latest, windows-latest]
+        pyversion: ['3.10']
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: Install Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.pyversion }}
+      - name: Install Ubuntu dependencies
+        if: ${{ matrix.os }} == 'ubuntu-latest'
+        run: sudo apt install libcairo2-dev libpango1.0-dev ffmpeg
+      - name: Install Python packages
+        run: pip install manim manimgl .
+      - name: Build slides with manim
+        if: ${{ matrix.manim }} == "manim"
+        run: manim -qh example.py Example ThreeDExample
+      - name: Build slides with manim
+        if: ${{ matrix.manim }} == "manimgl"
+        run: manim-render --hd example.py Example ThreeDExample
+
