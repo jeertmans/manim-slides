@@ -32,3 +32,4 @@ jobs:
       - name: Build slides with manim
         if: ${{ matrix.manim }} == "manimgl"
         run: manim-render --hd example.py Example ThreeDExample
+
