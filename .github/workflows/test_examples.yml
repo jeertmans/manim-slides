@@ -33,7 +33,7 @@ jobs:
         run: pip install .
       - name: Build slides with manim
         if: matrix.manim == 'manim'
-        run: manim -qh example.py Example ThreeDExample
-      - name: Build slides with manim
+        run: manim -ql example.py Example ThreeDExample
+      - name: Build slides with manimgl
         if: matrix.manim == 'manimgl'
-        run: manim-render --hd example.py Example ThreeDExample
+        run: manim-render -l example.py Example ThreeDExample
