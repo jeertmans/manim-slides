@@ -1,6 +1,11 @@
-# If you want to use manimgl, uncomment change
-# manim to manimlib
-from manimlib import *
+import sys
+
+if "manim" in sys.modules:
+    from manim import *
+elif "manimlib" in sys.modules:
+    from manimlib import *
+else:
+    raise ImportError("This script must be run with either `manim` or `manimgl`")
 
 from manim_slides import Slide, ThreeDSlide
 
