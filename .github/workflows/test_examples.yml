@@ -26,7 +26,7 @@ jobs:
         run: sudo apt install libcairo2-dev libpango1.0-dev ffmpeg freeglut3-dev xvfb
       - name: Install Windows dependencies
         if: matrix.os == 'windows-latex'
-        run: choco install manimce
+        run: choco install ffmpeg manimce
       - name: Install Python packages
         run: pip install manim manimgl
       - name: Install manim-slides
