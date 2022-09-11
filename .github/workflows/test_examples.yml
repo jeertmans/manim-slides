@@ -28,7 +28,7 @@ jobs:
         if: matrix.os == 'windows-latex'
         run: choco install manimce
       - name: Install Python packages
-        run: pip install manim manimgl
+        run: pip install manim manimgl pyopengl pyopengl_accelerate
       - name: Install manim-slides
         run: pip install .
       - name: Build slides with manim
