@@ -174,10 +174,11 @@ class Presentation:
 
 
 class Display:
-    def __init__(self, presentations, config, start_paused=False, fullscreen=False):
+    def __init__(self, presentations, config, start_paused=False, fullscreen=False, skip_all=False):
         self.presentations = presentations
         self.start_paused = start_paused
         self.config = config
+        self.skip_all = skip_all
 
         self.state = State.PLAYING
         self.lastframe = None
@@ -293,7 +294,7 @@ class Display:
         ):
             self.current_presentation.next()
             self.state = State.PLAYING
-        elif self.state == State.PLAYING and self.config.CONTINUE.match(key):
+        elif (self.state == State.PLAYING and self.config.CONTINUE.match(key)) or self.skip_all:
             self.current_presentation.next()
         elif self.config.BACK.match(key):
             if self.current_presentation.current_slide_i == 0:
@@ -356,8 +357,13 @@ def _list_scenes(folder):
     is_flag=True,
     help="Show the next animation first frame as last frame (hack).",
 )
+@click.option(
+    "--skip-all",
+    is_flag=True,
+    help="Skip all slides, useful the test if slides are working.",
+)
 @click.help_option("-h", "--help")
-def present(scenes, config_path, folder, start_paused, fullscreen, last_frame_next):
+def present(scenes, config_path, folder, start_paused, fullscreen, last_frame_next, skip_all):
     """Present the different scenes."""
 
     if len(scenes) == 0:
@@ -411,6 +417,6 @@ def present(scenes, config_path, folder, start_paused, fullscreen, last_frame_ne
         config = Config()
 
     display = Display(
-        presentations, config=config, start_paused=start_paused, fullscreen=fullscreen
+        presentations, config=config, start_paused=start_paused, fullscreen=fullscreen, skip_all=skip_all
     )
     display.run()

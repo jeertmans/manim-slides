@@ -40,3 +40,9 @@ jobs:
       - name: Build slides with manimgl on Windows
         if: matrix.manim == 'manimgl' && matrix.os == 'windows-latest'
         run: xvfb-run -s "-screen 0 1400x900x24" manim-render -l example.py Example ThreeDExample
+      - name: Test slides on Ubuntu
+        if: matrix.os == 'ubuntu-latest'
+        run: xvfb-run -s "-screen 0 1400x900x24" manim-slides Example ThreeDExample --skip-all
+      - name: Test slides on Windows
+        if: matrix.os == 'windows-latest'
+        run: manim-slides Example ThreeDExample --skip-all
