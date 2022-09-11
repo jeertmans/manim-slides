@@ -28,9 +28,9 @@ jobs:
         if: matrix.os == 'windows-latest'
         run: choco install ffmpeg manimce
       - name: Install Python packages
-        run: python -m pip --user install manim manimgl
+        run: python -m pip install --user manim manimgl
       - name: Install manim-slides
-        run: python -m pip --user install .
+        run: python -m pip install --user .
       - name: Build slides with manim
         if: matrix.manim == 'manim'
         run: python -m manim -ql example.py Example ThreeDExample
