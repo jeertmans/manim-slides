@@ -27,6 +27,9 @@ jobs:
       - name: Install Windows dependencies
         if: matrix.os == 'windows-latest'
         run: choco install ffmpeg
+      - name: Install msys2 on Windows
+        if: matrix.os == 'windows-latest' && matrix.manim == 'manimgl'
+        uses: msys2/setup-msys2@v2
       - name: Install OpenGL on Windows
         if: matrix.os == 'windows-latest' && matrix.manim == 'manimgl'
         run: pacman -S mingw-w64-x86_64-freeglut
