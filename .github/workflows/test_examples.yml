@@ -11,7 +11,7 @@ jobs:
     strategy:
       matrix:
         manim: [manim, manimgl]
-        os: [macos-latest, ubuntu-latest, windows-latest]
+        os: [macos-latest]
         pyversion: ['3.10']
         exclude:
         # excludes manimgl on Windows because if throws errors
@@ -21,7 +21,6 @@ jobs:
           manim: manimgl
         - os: macos-latest
           manim: manimgl
-        - os: ubuntu-latest
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout repository
