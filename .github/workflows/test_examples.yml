@@ -12,13 +12,26 @@ jobs:
       matrix:
         manim: [manim, manimgl]
         os: [macos-latest, ubuntu-latest, windows-latest]
-        pyversion: ['3.10']
+        pyversion: ['3.7', '3.8', '3.9', '3.10']
         exclude:
         # excludes manimgl on Windows because if throws errors
         # related to OpenGL, which seems hard to fix:
         # Your graphics drivers do not support OpenGL 2.0.
         - os: windows-latest
           manim: manimgl
+        # We only test Python 3.10 on Windows and MacOS
+        - os: windows-latest
+          pyversion: '3.7'
+        - os: windows-latest
+          pyversion: '3.8'
+        - os: windows-latest
+          pyversion: '3.9'
+        - os: macos-latest
+          pyversion: '3.7'
+        - os: macos-latest
+          pyversion: '3.8'
+        - os: macos-latest
+          pyversion: '3.9'
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout repository
