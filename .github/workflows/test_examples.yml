@@ -1,0 +1,100 @@
+on:
+  pull_request:
+    paths:
+      - '**.py'
+  workflow_dispatch:
+
+name: Test Examples
+
+jobs:
+  build-examples:
+    strategy:
+      matrix:
+        manim: [manim, manimgl]
+        os: [macos-latest, ubuntu-latest, windows-latest]
+        pyversion: ['3.7', '3.8', '3.9', '3.10']
+        exclude:
+        # excludes manimgl on Windows because if throws errors
+        # related to OpenGL, which seems hard to fix:
+        # Your graphics drivers do not support OpenGL 2.0.
+        - os: windows-latest
+          manim: manimgl
+        # manimgl actually requires Python >= 3.8, see:
+        # https://github.com/3b1b/manim/issues/1808
+        - manim: manimgl
+          pyversion: '3.7'
+        # We only test Python 3.10 on Windows and MacOS
+        - os: windows-latest
+          pyversion: '3.7'
+        - os: windows-latest
+          pyversion: '3.8'
+        - os: windows-latest
+          pyversion: '3.9'
+        - os: macos-latest
+          pyversion: '3.7'
+        - os: macos-latest
+          pyversion: '3.8'
+        - os: macos-latest
+          pyversion: '3.9'
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: Install Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.pyversion }}
+      - name: Append to Path on MacOS and Ubuntu
+        if: matrix.os == 'macos-latest' || matrix.os == 'ubuntu-latest'
+        run: echo "${HOME}/.local/bin" >> $GITHUB_PATH
+      - name: Append to Path on Windows
+        if: matrix.os == 'windows-latest'
+        run: echo "${HOME}/.local/bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+      - name: Install MacOS dependencies (manim only)
+        if: matrix.os == 'macos-latest' && matrix.manim == 'manim'
+        run: brew install py3cairo
+      - name: Install MacOS dependencies
+        if: matrix.os == 'macos-latest'
+        run: brew install ffmpeg
+      - name: Install Ubuntu dependencies
+        if: matrix.os == 'ubuntu-latest'
+        run: sudo apt install libcairo2-dev libpango1.0-dev ffmpeg freeglut3-dev xvfb
+      - name: Install Windows dependencies
+        if: matrix.os == 'windows-latest'
+        run: choco install ffmpeg
+      - name: Install manim on MacOs
+        if: matrix.manim == 'manim' && matrix.os == 'macos-latest'
+        run: pip3 install --user manim
+      - name: Install manim on Ubuntu and Windows
+        if: matrix.manim == 'manim' && (matrix.os == 'ubuntu-latest' || matrix.os == 'windows-latest')
+        run: python -m pip install --user manim
+      - name: Install manimgl on MacOs
+        if: matrix.manim == 'manimgl' && matrix.os == 'macos-latest'
+        run: pip3 install --user manimgl
+      - name: Install manimgl on Ubuntu and Windows
+        if: matrix.manim == 'manimgl' && matrix.os != 'macos-latest'
+        run: python -m pip install --user manimgl
+      - name: Install manim-slides on MacOS
+        if: matrix.os == 'macos-latest'
+        run: pip3 install --user .
+      - name: Install manim-slides on Ubuntu
+        if: matrix.os == 'ubuntu-latest'
+        run: xvfb-run -a -s "-screen 0 1400x900x24" python -m pip install --user .
+      - name: Install manim-slides on Windows
+        if: matrix.os == 'windows-latest'
+        run: pip3 install -e .
+      - name: Build slides with manim
+        if: matrix.manim == 'manim'
+        run: python -m manim -ql example.py Example ThreeDExample
+      - name: Build slides with manimgl on Ubuntu
+        if: matrix.manim == 'manimgl' && matrix.os == 'ubuntu-latest'
+        run: xvfb-run -a -s "-screen 0 1400x900x24" manim-render -l example.py Example ThreeDExample
+      - name: Build slides with manimgl on MacOS or Windows
+        if: matrix.manim == 'manimgl' && (matrix.os == 'macos-latest' || matrix.os == 'windows-latest')
+        run: manimgl -l example.py Example ThreeDExample
+      - name: Test slides on Ubuntu
+        if: matrix.os == 'ubuntu-latest'
+        run: xvfb-run -a -s "-screen 0 1400x900x24" manim-slides Example ThreeDExample --skip-all
+      - name: Test slides on MacOS or Windows
+        if: matrix.os == 'macos-latest' || matrix.os == 'windows-latest'
+        run: manim-slides Example ThreeDExample --skip-all
