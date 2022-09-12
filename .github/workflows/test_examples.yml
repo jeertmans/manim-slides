@@ -33,7 +33,7 @@ jobs:
       - name: Install OpenGL on Windows
         if: matrix.os == 'windows-latest' && matrix.manim == 'manimgl'
         shell: msys2 {0}
-        run: pacman -S mingw-w64-x86_64-freeglut
+        run: yes | pacman -S mingw-w64-x86_64-freeglut
       - name: Install manim
         if: matrix.manim == 'manim'
         run: python -m pip install --user manim
