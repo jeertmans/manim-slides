@@ -19,6 +19,8 @@ jobs:
         # Your graphics drivers do not support OpenGL 2.0.
         - os: windows-latest
           manim: manimgl
+        - os: macos-latest
+          manim: manimgl
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout repository
