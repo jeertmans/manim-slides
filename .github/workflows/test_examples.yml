@@ -29,6 +29,12 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.pyversion }}
+      - name: Append to Path on MacOS and Ubuntu
+        if: matrix.os == 'macos-latest' || matrix.os == 'ubuntu-latest'
+        run: echo "${HOME}/.local/bin" >> $GITHUB_PATH
+      - name: Append to Path on Windows
+        if: matrix.os == 'windows-latest'
+        run: echo "${HOME}/.local/bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
       - name: Install MacOS dependencies (manim only)
         if: matrix.os == 'macos-latest' && matrix.manim == 'manim'
         run: brew install py3cairo
@@ -45,7 +51,7 @@ jobs:
         if: matrix.manim == 'manim' && matrix.os == 'macos-latest'
         run: pip3 install --user manim
       - name: Install manim on Ubuntu and Windows
-        if: matrix.manim == 'manim' && matrix.os != 'macos-latest'
+        if: matrix.manim == 'manim' && (matrix.os == 'ubuntu-latest' || matrix.os == 'windows-latest')
         run: python -m pip install --user manim
       - name: Install manimgl on MacOs
         if: matrix.manim == 'manimgl' && matrix.os == 'macos-latest'
@@ -70,7 +76,7 @@ jobs:
         run: xvfb-run -s "-screen 0 1400x900x24" manim-render -l example.py Example ThreeDExample
       - name: Build slides with manimgl on MacOS or Windows
         if: matrix.manim == 'manimgl' && (matrix.os == 'macos-latest' || matrix.os == 'windows-latest')
-        run: manim-render -l example.py Example ThreeDExample
+        run: manimgl -l example.py Example ThreeDExample
       - name: Test slides on Ubuntu
         if: matrix.os == 'ubuntu-latest'
         run: xvfb-run -s "-screen 0 1400x900x24" manim-slides Example ThreeDExample --skip-all
