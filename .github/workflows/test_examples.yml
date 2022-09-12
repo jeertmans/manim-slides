@@ -54,7 +54,7 @@ jobs:
       - name: Install manimgl on MacOs
         if: matrix.manim == 'manimgl' && matrix.os == 'macos-latest'
         run: pip3 install --user manimgl
-      - name: Install manim on Ubuntu and Windows
+      - name: Install manimgl on Ubuntu and Windows
         if: matrix.manim == 'manimgl' && matrix.os != 'macos-latest'
         run: python -m pip install --user manimgl
       - name: Install manim-slides on MacOS
