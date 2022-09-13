@@ -1,5 +1,19 @@
+import os
 import sys
+from contextlib import contextmanager
 from importlib.util import find_spec
+
+
+@contextmanager
+def suppress_stdout():
+    with open(os.devnull, "w") as devnull:
+        old_stdout = sys.stdout
+        sys.stdout = devnull
+        try:
+            yield
+        finally:
+            sys.stdout = old_stdout
+
 
 MANIM_PACKAGE_NAME = "manim"
 MANIM_AVAILABLE = find_spec(MANIM_PACKAGE_NAME) is not None
@@ -17,14 +31,20 @@ if MANIM_IMPORTED and MANIMGL_IMPORTED:
     )
     MANIM = True
     MANIMGL = False
-elif MANIM_AVAILABLE and not MANIMGL_IMPORTED:
+elif MANIM_IMPORTED:
+    MANIM = True
+    MANIMGL = False
+elif MANIMGL_IMPORTED:
+    MANIM = False
+    MANIMGL = True
+elif MANIM_AVAILABLE:
     MANIM = True
     MANIMGL = False
 elif MANIMGL_AVAILABLE:
     MANIM = False
     MANIMGL = True
 else:
-    raise ImportError(
+    raise ModuleNotFoundError(
         "Either manim (community) or manimgl (3b1b) package must be installed"
     )
 
@@ -37,9 +57,10 @@ if MANIMGL:
     from manimlib.logger import log as logger
 
 else:
-    from manim import Scene, ThreeDScene, config, logger
+    with suppress_stdout():  # Avoids printing "Manim Community v..."
+        from manim import Scene, ThreeDScene, config, logger
 
-    try:  # For manim<v0.16.0.post0
-        from manim.constants import FFMPEG_BIN as FFMPEG_BIN
-    except ImportError:
-        FFMPEG_BIN = config.ffmpeg_executable
+        try:  # For manim<v0.16.0.post0
+            from manim.constants import FFMPEG_BIN as FFMPEG_BIN
+        except ImportError:
+            FFMPEG_BIN = config.ffmpeg_executable
