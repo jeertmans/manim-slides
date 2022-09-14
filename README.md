@@ -140,7 +140,7 @@ manim-slides init
 
 ## Other Examples
 
-Other examples are available in the `example.py` file, if you downloaded the git repository.
+Other examples are available in the [`example.py`](https://raw.githubusercontent.com/jeertmans/manim-slides/main/example.py) file, if you downloaded the git repository.
 
 Below is a small recording of me playing with the slides back and forth.
 
