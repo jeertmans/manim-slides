@@ -15,9 +15,13 @@ class ManimSlidesLogo(Scene):
         slides = MathTex(r"\mathbb{S}\text{lides}", fill_color=logo_black).scale(4)
         slides.next_to(ds_m, DOWN)
         slides.shift(DOWN)
-        book = Tex(r"\faStepBackward\faStepForward", fill_color=logo_black, tex_template=tex_template).scale(4)
+        book = Tex(
+            r"\faStepBackward\faStepForward",
+            fill_color=logo_black,
+            tex_template=tex_template,
+        ).scale(4)
         book.next_to(ds_m, LEFT)
-        book.shift(LEFT + .5 * DOWN)
+        book.shift(LEFT + 0.5 * DOWN)
         circle = Circle(color=logo_green, fill_opacity=1).shift(LEFT)
         square = Square(color=logo_blue, fill_opacity=1).shift(UP)
         triangle = Triangle(color=logo_red, fill_opacity=1).shift(RIGHT)
