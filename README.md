@@ -155,18 +155,18 @@ Below is a non-exhaustive list of features:
 |:--------|:--------------:|:--------------------:|
 | Support for Manim | :heavy_check_mark: | :heavy_check_mark: |
 | Support for ManimGL | :heavy_check_mark: | :heavy_multiplication_x: |
-| Configurable key bindings | :heavy:check_mark: | :heavy_check_mark: |
-| Configurable paths | :heavy:check_mark: | :heavy_multiplication_x: |
-| Play / Pause slides | :heavy:check_mark: | :heavy_check_mark: |
-| Next / Previous slide | :heavy:check_mark: | :heavy_check_mark: |
-| Replay slide | :heavy:check_mark: | :heavy_check_mark: |
-| Reverse slide | :heavy:check_mark: | :heavy_multiplication_x: |
-| Multiple key per actions | :heavy:check_mark: | :heavy_multiplication_x: |
-| One command line tool | :heavy:check_mark: | :heavy_multiplication_x: |
-| Robust config file parsing | :heavy:check_mark: | :heavy_multiplication_x: |
-| Support for 3D Scenes | :heavy:check_mark: | :heavy_multiplication_x: |
+| Configurable key bindings | :heavy_check_mark: | :heavy_check_mark: |
+| Configurable paths | :heavy_check_mark: | :heavy_multiplication_x: |
+| Play / Pause slides | :heavy_check_mark: | :heavy_check_mark: |
+| Next / Previous slide | :heavy_check_mark: | :heavy_check_mark: |
+| Replay slide | :heavy_check_mark: | :heavy_check_mark: |
+| Reverse slide | :heavy_check_mark: | :heavy_multiplication_x: |
+| Multiple key per actions | :heavy_check_mark: | :heavy_multiplication_x: |
+| One command line tool | :heavy_check_mark: | :heavy_multiplication_x: |
+| Robust config file parsing | :heavy_check_mark: | :heavy_multiplication_x: |
+| Support for 3D Scenes | :heavy_check_mark: | :heavy_multiplication_x: |
 | Documented code | WIP | :heavy_multiplication_x: |
-| Tested on Unix, MacOS, and Windows | :heavy:check_mark: | :heavy_multiplication_x: |
+| Tested on Unix, MacOS, and Windows | :heavy_check_mark: | :heavy_multiplication_x: |
 
 
 ## Contributing
