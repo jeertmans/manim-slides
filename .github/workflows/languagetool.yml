@@ -1,0 +1,15 @@
+on:
+  pull_request:
+  workflow_dispatch:
+
+name: LanguageTool check
+
+jobs:
+  languagetool_check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - uses: reviewdog/action-languagetool@v1
+        with:
+          reporter: github-pr-review
+          level: warning
