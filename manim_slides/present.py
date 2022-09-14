@@ -18,7 +18,6 @@ from .config import Config
 from .defaults import CONFIG_PATH, FOLDER_PATH
 from .slide import reverse_video_path
 
-
 WINDOW_NAME = "Manim Slides"
 
 
