@@ -75,14 +75,14 @@ class Example(Slide):
         dot = Dot()
 
         self.play(GrowFromCenter(circle))
-        self.pause()  # Wait use to press continue to go to the next slide
+        self.pause()  # Waits user to press continue to go to the next slide
 
         self.start_loop()  # Start loop
         self.play(MoveAlongPath(dot, circle), run_time=2, rate_func=linear)
         self.end_loop()  # This will loop until user inputs a key
 
         self.play(dot.animate.move_to(ORIGIN))
-        self.pause()  # Wait use to press continue to go to the next slide
+        self.pause()  # Waits user to press continue to go to the next slide
 
         self.wait()  # The presentation directly exits after last animation
 ```
@@ -166,7 +166,7 @@ Below is a non-exhaustive list of features:
 | Robust config file parsing | :heavy_check_mark: | :heavy_multiplication_x: |
 | Support for 3D Scenes | :heavy_check_mark: | :heavy_multiplication_x: |
 | Documented code | WIP | :heavy_multiplication_x: |
-| Tested on Unix, MacOS, and Windows | :heavy_check_mark: | :heavy_multiplication_x: |
+| Tested on Unix, macOS, and Windows | :heavy_check_mark: | :heavy_multiplication_x: |
 
 
 ## Contributing
