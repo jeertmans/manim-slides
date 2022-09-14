@@ -73,6 +73,12 @@ class Presentation:
         self.current_slide_i = 0
         self.slides[-1]["terminated"] = False
 
+    def start_last_slide(self):
+        self.current_animation = self.slides[-1]["start_animation"]
+        self.load_this_cap(self.current_animation)
+        self.current_slide_i = len(self.slides[-1])
+        self.slides[-1]["terminated"] = False
+
     def next(self):
         if self.current_slide["type"] == "last":
             self.current_slide["terminated"] = True
@@ -312,7 +318,7 @@ class Display:
         elif self.config.BACK.match(key):
             if self.current_presentation.current_slide_i == 0:
                 self.current_presentation_i = max(0, self.current_presentation_i - 1)
-                self.current_presentation.reset()
+                self.current_presentation.start_last_slide()
                 self.state = State.PLAYING
             else:
                 self.current_presentation.prev()
