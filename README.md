@@ -1,3 +1,5 @@
+![Manim Slides Logo](https://raw.githubusercontent.com/jeertmans/manim-slides/main/static/logo.png)
+
 [![Latest Release][pypi-version-badge]][pypi-version-url]
 [![Python version][pypi-python-version-badge]][pypi-version-url]
 ![PyPI - Downloads](https://img.shields.io/pypi/dm/manim-slides)
