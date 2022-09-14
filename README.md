@@ -153,20 +153,20 @@ Below is a non-exhaustive list of features:
 
 | Feature | `manim-slides` | `manim-presentation` |
 |:--------|:--------------:|:--------------------:|
-| Support for Manim | :heavy_checkmark: | :heavy_checkmark: |
-| Support for ManimGL | :heavy_checkmark: | :heavy_multiplication_x: |
-| Configurable key bindings | :heavy:checkmark: | :heavy_checkmark: |
-| Configurable paths | :heavy:checkmark: | :heavy_multiplication_x: |
-| Play / Pause slides | :heavy:checkmark: | :heavy_checkmark: |
-| Next / Previous slide | :heavy:checkmark: | :heavy_checkmark: |
-| Replay slide | :heavy:checkmark: | :heavy_checkmark: |
-| Reverse slide | :heavy:checkmark: | :heavy_multiplication_x: |
-| Multiple key per actions | :heavy:checkmark: | :heavy_multiplication_x: |
-| One command line tool | :heavy:checkmark: | :heavy_multiplication_x: |
-| Robust config file parsing | :heavy:checkmark: | :heavy_multiplication_x: |
-| Support for 3D Scenes | :heavy:checkmark: | :heavy_multiplication_x: |
+| Support for Manim | :heavy_check_mark: | :heavy_check_mark: |
+| Support for ManimGL | :heavy_check_mark: | :heavy_multiplication_x: |
+| Configurable key bindings | :heavy:check_mark: | :heavy_check_mark: |
+| Configurable paths | :heavy:check_mark: | :heavy_multiplication_x: |
+| Play / Pause slides | :heavy:check_mark: | :heavy_check_mark: |
+| Next / Previous slide | :heavy:check_mark: | :heavy_check_mark: |
+| Replay slide | :heavy:check_mark: | :heavy_check_mark: |
+| Reverse slide | :heavy:check_mark: | :heavy_multiplication_x: |
+| Multiple key per actions | :heavy:check_mark: | :heavy_multiplication_x: |
+| One command line tool | :heavy:check_mark: | :heavy_multiplication_x: |
+| Robust config file parsing | :heavy:check_mark: | :heavy_multiplication_x: |
+| Support for 3D Scenes | :heavy:check_mark: | :heavy_multiplication_x: |
 | Documented code | WIP | :heavy_multiplication_x: |
-| Tested on Unix, MacOS, and Windows | :heavy:checkmark: | :heavy_multiplication_x: |
+| Tested on Unix, MacOS, and Windows | :heavy:check_mark: | :heavy_multiplication_x: |
 
 
 ## Contributing
