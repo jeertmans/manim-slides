@@ -19,6 +19,9 @@ from .defaults import CONFIG_PATH, FOLDER_PATH
 from .slide import reverse_video_path
 
 
+WINDOW_NAME = "Manim Slides"
+
+
 @unique
 class State(IntEnum):
     PLAYING = auto()
@@ -186,6 +189,8 @@ class Display:
         self.start_paused = start_paused
         self.config = config
         self.skip_all = skip_all
+        self.fullscreen = fullscreen
+        self.is_windows = platform.system() == "Windows"
 
         self.state = State.PLAYING
         self.lastframe = None
@@ -194,16 +199,16 @@ class Display:
         self.lag = 0
         self.last_time = now()
 
-        if platform.system() == "Windows":
+        if self.is_windows:
             user32 = ctypes.windll.user32
             self.screen_width, self.screen_height = user32.GetSystemMetrics(
                 0
             ), user32.GetSystemMetrics(1)
 
-        if fullscreen:
-            cv2.namedWindow("Video", cv2.WND_PROP_FULLSCREEN)
+        if self.fullscreen:
+            cv2.namedWindow(WINDOW_NAME, cv2.WND_PROP_FULLSCREEN)
             cv2.setWindowProperty(
-                "Video", cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN
+                WINDOW_NAME, cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN
             )
 
     def resize_frame_to_screen(self, frame: np.ndarray):
@@ -245,10 +250,10 @@ class Display:
 
         frame = self.lastframe
 
-        if platform.system() == "Windows":
+        if self.is_windows and self.fullscreen:
             frame = self.resize_frame_to_screen(frame)
 
-        cv2.imshow("Video", frame)
+        cv2.imshow(WINDOW_NAME, frame)
 
     def show_info(self):
         info = np.zeros((130, 420), np.uint8)
@@ -284,7 +289,7 @@ class Display:
             *font_args,
         )
 
-        cv2.imshow("Info", info)
+        cv2.imshow(f"{WINDOW_NAME}: Info", info)
 
     def handle_key(self):
         sleep_time = math.ceil(1000 / self.current_presentation.fps)
