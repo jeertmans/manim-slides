@@ -17,7 +17,7 @@ Tool for live presentations using either [Manim (community edition)](https://www
   * [Basic Example](#basic-example)
   * [Key Bindings](#key-bindings)
   * [Other Examples](#other-examples)
-- [Features and Comparison with Original manim-presentation](#features-and-comparison-with-original-manim-presentation-)
+- [Features and Comparison with Original manim-presentation](#features-and-comparison-with-original-manim-presentation)
 - [Contributing](#contributing)
 
 ## Installation
