@@ -6,22 +6,23 @@ import subprocess
 
 from tqdm import tqdm
 
+from .config import PresentationConfig, SlideConfig, SlideType
 from .defaults import FOLDER_PATH
 from .manim import FFMPEG_BIN, MANIMGL, Scene, ThreeDScene, config, logger
 
 
-def reverse_video_path(src: str) -> str:
-    file, ext = os.path.splitext(src)
-    return f"{file}_reversed{ext}"
-
-
 def reverse_video_file(src: str, dst: str):
+    """Reverses a video file, writting the result to `dst`."""
     command = [FFMPEG_BIN, "-i", src, "-vf", "reverse", dst]
     process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     process.communicate()
 
 
 class Slide(Scene):
+    """
+    Inherits from `manim.Scene` or `manimlib.Scene` and provide necessary tools for slides rendering.
+    """
+
     def __init__(self, *args, output_folder=FOLDER_PATH, **kwargs):
         if MANIMGL:
             if not os.path.isdir("videos"):
@@ -44,7 +45,8 @@ class Slide(Scene):
         self.pause_start_animation = 0
 
     @property
-    def partial_movie_files(self):
+    def partial_movie_files(self) -> list[str]:
+        """Returns a list of partial movie files, a.k.a animations."""
         if MANIMGL:
             from manimlib.utils.file_ops import get_sorted_integer_files
 
@@ -59,7 +61,8 @@ class Slide(Scene):
             return self.renderer.file_writer.partial_movie_files
 
     @property
-    def show_progress_bar(self):
+    def show_progress_bar(self) -> bool:
+        """Returns True if progress bar should be displayed."""
         if MANIMGL:
             return getattr(super(Scene, self), "show_progress_bar", True)
         else:
@@ -67,19 +70,22 @@ class Slide(Scene):
 
     @property
     def leave_progress_bar(self):
+        """Returns True if progress bar should be left after completed."""
         if MANIMGL:
             return getattr(super(Scene, self), "leave_progress_bars", False)
         else:
             return config["progress_bar"] == "leave"
 
     def play(self, *args, **kwargs):
+        """Overloads `self.play` and increment animation count."""
         super().play(*args, **kwargs)
         self.current_animation += 1
 
     def pause(self):
+        """Creates a new slide with previous animations."""
         self.slides.append(
-            dict(
-                type="slide",
+            SlideConfig(
+                type=SlideType.slide,
                 start_animation=self.pause_start_animation,
                 end_animation=self.current_animation,
                 number=self.current_slide,
@@ -89,16 +95,18 @@ class Slide(Scene):
         self.pause_start_animation = self.current_animation
 
     def start_loop(self):
+        """Starts a loop."""
         assert self.loop_start_animation is None, "You cannot nest loops"
         self.loop_start_animation = self.current_animation
 
     def end_loop(self):
+        """Ends an existing loop."""
         assert (
             self.loop_start_animation is not None
         ), "You have to start a loop before ending it"
         self.slides.append(
-            dict(
-                type="loop",
+            SlideConfig(
+                type=SlideType.loop,
                 start_animation=self.loop_start_animation,
                 end_animation=self.current_animation,
                 number=self.current_slide,
@@ -109,7 +117,11 @@ class Slide(Scene):
         self.pause_start_animation = self.current_animation
 
     def save_slides(self, use_cache=True):
+        """
+        Saves slides, optionally using cached files.
 
+        Note that cached files only work with Manim.
+        """
         if not os.path.exists(self.output_folder):
             os.mkdir(self.output_folder)
 
@@ -139,9 +151,7 @@ class Slide(Scene):
             disable=not self.show_progress_bar,
         ):
             filename = os.path.basename(src_file)
-            _hash, ext = os.path.splitext(filename)
-
-            rev_filename = f"{_hash}_reversed{ext}"
+            rev_filename = "{}_reversed{}".format(*os.path.splitext(filename))
 
             dst_file = os.path.join(scene_files_folder, filename)
             # We only copy animation if it was not present
@@ -165,9 +175,9 @@ class Slide(Scene):
 
         slide_path = os.path.join(self.output_folder, "%s.json" % (scene_name,))
 
-        f = open(slide_path, "w")
-        json.dump(dict(slides=self.slides, files=files), f)
-        f.close()
+        with open(slide_path, "w") as f:
+            f.write(PresentationConfig(slides=self.slides, files=files).json(indent=2))
+
         logger.info(
             f"Slide '{scene_name}' configuration written in '{os.path.abspath(slide_path)}'"
         )
@@ -191,4 +201,10 @@ class Slide(Scene):
 
 
 class ThreeDSlide(Slide, ThreeDScene):
+    """
+    Inherits from `manim.ThreeDScene` or `manimlib.ThreeDScene` and provide necessary tools for slides rendering.
+
+    Note that ManimGL does not need ThreeDScene for 3D rendering in recent versions, see `example.py`.
+    """
+
     pass

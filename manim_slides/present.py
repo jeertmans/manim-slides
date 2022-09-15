@@ -5,6 +5,7 @@ import platform
 import sys
 import time
 from enum import IntEnum, auto, unique
+from typing import Tuple
 
 if platform.system() == "Windows":
     import ctypes
@@ -17,7 +18,6 @@ from pydantic import ValidationError
 from .commons import config_path_option
 from .config import Config, PresentationConfig, SlideConfig, SlideType
 from .defaults import CONFIG_PATH, FOLDER_PATH
-from .slide import reverse_video_path
 
 WINDOW_NAME = "Manim Slides"
 
@@ -36,11 +36,13 @@ class State(IntEnum):
 
 
 def now() -> int:
+    """Returns time.time() in seconds."""
     return round(time.time() * 1000)
 
 
-def fix_time(x: float) -> float:
-    return x if x > 0 else 1
+def fix_time(t: float) -> float:
+    """Clips time t such that it is always positive."""
+    return t if t > 0 else 1
 
 
 class Presentation:
@@ -57,11 +59,10 @@ class Presentation:
         self.cap = None  # cap = cv2.VideoCapture
 
         self.reverse = False
-        self.reversed_slide = -10
+        self.reversed_animation = -1
 
         self.lastframe = None
 
-        self.caps = [None for _ in self.files]
         self.reset()
         self.add_last_slide()
 
@@ -80,18 +81,30 @@ class Presentation:
         """Returns last slide."""
         return self.slides[-1]
 
-    def load_animation_cap(self, animation: int):
-        """Loads video file of given animation."""
-
-        if self.loaded_animation_cap == animation:  # cap already loaded
-            return
-
+    def release_cap(self):
+        """Releases current Video Capture, if existing."""
         if not self.cap is None:
             self.cap.release()
 
-        file = self.files[animation]
-        self.cap = cv2.VideoCapture(file)
-        self.loaded_animation_cap = animation
+        self.loaded_animation_cap = -1
+
+    def load_animation_cap(self, animation: int):
+        """Loads video file of given animation."""
+        # We must load a new VideoCapture file if:
+        if (self.loaded_animation_cap != animation) or (
+            self.reverse and self.reversed_animation != animation
+        ):  # cap already loaded
+
+            self.release_cap()
+
+            file = self.files[animation]
+
+            if self.reverse:
+                file = "{}_reversed{}".format(*os.path.splitext(file))
+                self.reversed_animation = animation
+
+            self.cap = cv2.VideoCapture(file)
+            self.loaded_animation_cap = animation
 
     @property
     def current_cap(self) -> cv2.VideoCapture:
@@ -115,7 +128,11 @@ class Presentation:
 
     def load_next_slide(self):
         """Loads next slide."""
-        if self.current_slide.is_last():
+        if self.reverse:
+            self.reverse = False
+            self.release_cap()
+            self.rewind_current_slide()
+        elif self.current_slide.is_last():
             self.current_slide.terminated = True
         else:
             self.current_slide_index = min(
@@ -145,66 +162,45 @@ class Presentation:
         )
 
     def reset(self):
+        """Rests current presentation."""
         self.current_animation = 0
         self.load_animation_cap(0)
         self.current_slide_index = 0
         self.slides[-1].terminated = False
 
-    def start_last_slide(self):
-        self.current_slide_i = len(self.slides) - 2
+    def load_last_slide(self):
+        """Loads last slide."""
+        self.current_slide_index = len(self.slides) - 2
         assert (
-            self.current_slide_i >= 0
+            self.current_slide_index >= 0
         ), "Slides should be at list of a least two elements"
         self.current_animation = self.current_slide.start_animation
         self.load_animation_cap(self.current_animation)
         self.slides[-1].terminated = False
 
     @property
-    def next_animation(self):
+    def next_animation(self) -> int:
+        """Returns the next animation."""
         if self.reverse:
             return self.current_animation - 1
         else:
             return self.current_animation + 1
 
     @property
-    def is_last_animation(self):
+    def is_last_animation(self) -> int:
+        """Returns True if current animation is the last one of current slide."""
         if self.reverse:
             return self.current_animation == self.current_slide.start_animation
         else:
             return self.next_animation == self.current_slide.end_animation
 
-    """
-    def load_this_cap(self, cap_number: int):
-        if (
-            self.caps[cap_number] is None
-            or (self.reverse and self.reversed_slide != cap_number)
-            or (not self.reverse and self.reversed_slide + 1 == cap_number)
-        ):
-            if self.reversed_slide + 1 == cap_number:
-                cap_number = max(0, cap_number - 1)
-            print("LOADING another cap:", cap_number)
-            # unload other caps
-            for i in range(len(self.caps)):
-                if not self.caps[i] is None:
-                    self.caps[i].release()
-                    self.caps[i] = None
-            # load this cap
-            file = self.files[cap_number]
-            if self.reverse:
-                self.reversed_slide = cap_number
-                file = "{}_reversed{}".format(*os.path.splitext(file))
-            else:
-                self.reversed_slide = -10
+    def update_state(self, state) -> Tuple[np.ndarray, State]:
+        """
+        Updates the current state given the previous one.
 
-            self.caps[cap_number] = cv2.VideoCapture(file)
-
-        return self.caps[cap_number]
-    """
-
-    # This function updates the state given the previous state.
-    # It does this by reading the video information and checking if the state is still correct.
-    # It returns the frame to show (lastframe) and the new state.
-    def update_state(self, state):
+        It does this by reading the video information and checking if the state is still correct.
+        It returns the frame to show (lastframe) and the new state.
+        """
         if state == State.PAUSED:
             if self.lastframe is None:
                 _, self.lastframe = self.current_cap.read()
@@ -216,34 +212,28 @@ class Presentation:
             return self.lastframe, state
         elif self.current_slide.is_last() and self.current_slide.terminated:
             return self.lastframe, State.END
-
-        if not still_playing:
-            print("No still playing...")
+        else:  # not still playing
             if self.is_last_animation:
-                print("Last animation")
-                if self.reverse:
-                    self.reverse = False
-                    return self.lastframe, State.WAIT
-                print(self.current_slide.type)
-                if self.current_slide.is_slide() or self.reverse:
-                    self.reverse = False
-                    print("finished slide")
+                if self.current_slide.is_slide():
                     state = State.WAIT
                 elif self.current_slide.is_loop():
-                    self.current_animation = self.current_slide.start_animation
-                    state = State.PLAYING
-                    self.rewind_current_slide()
+                    if self.reverse:
+                        state = State.WAIT
+                    else:
+                        self.current_animation = self.current_slide.start_animation
+                        state = State.PLAYING
+                        self.rewind_current_slide()
                 elif self.current_slide.is_last():
-                    self.current_slide.terminated
+                    self.current_slide.terminated = True
             elif (
                 self.current_slide.is_last()
                 and self.current_slide.end_animation == self.current_animation
             ):
+                print("HERE")
                 state = State.WAIT
             else:
                 # Play next video!
                 self.current_animation = self.next_animation
-                print("Playing animation", self.current_animation)
                 self.load_animation_cap(self.current_animation)
                 # Reset video to position zero if it has been played before
                 self.current_cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
@@ -252,6 +242,8 @@ class Presentation:
 
 
 class Display:
+    """Displays one or more presentations one after each other."""
+
     def __init__(
         self,
         presentations,
@@ -269,7 +261,8 @@ class Display:
 
         self.state = State.PLAYING
         self.lastframe = None
-        self.current_presentation_i = 0
+        self.current_presentation_index = 0
+        self.exit = False
 
         self.lag = 0
         self.last_time = now()
@@ -287,6 +280,12 @@ class Display:
             )
 
     def resize_frame_to_screen(self, frame: np.ndarray):
+        """
+        Resizes a given frame to match screen dimensions.
+
+        Only works on Windows.
+        """
+        assert self.is_windows, "Only Windows platforms need this method"
         frame_height, frame_width = frame.shape[:2]
 
         scale_height = self.screen_height / frame_height
@@ -297,11 +296,13 @@ class Display:
         return cv2.resize(frame, (int(scale * frame_height), int(scale * frame_width)))
 
     @property
-    def current_presentation(self):
-        return self.presentations[self.current_presentation_i]
+    def current_presentation(self) -> Presentation:
+        """Returns the current presentation"""
+        return self.presentations[self.current_presentation_index]
 
     def run(self):
-        while True:
+        """Runs a series of presentations until end or exit."""
+        while not self.exit:
             self.lastframe, self.state = self.current_presentation.update_state(
                 self.state
             )
@@ -310,16 +311,18 @@ class Display:
                     self.state = State.PAUSED
                     self.start_paused = False
             if self.state == State.END:
-                if self.current_presentation_i == len(self.presentations) - 1:
+                if self.current_presentation_index == len(self.presentations) - 1:
                     self.quit()
+                    continue
                 else:
-                    self.current_presentation_i += 1
+                    self.current_presentation_index += 1
                     self.state = State.PLAYING
             self.handle_key()
             self.show_video()
             self.show_info()
 
     def show_video(self):
+        """Shows updated video."""
         self.lag = now() - self.last_time
         self.last_time = now()
 
@@ -331,6 +334,7 @@ class Display:
         cv2.imshow(WINDOW_NAME, frame)
 
     def show_info(self):
+        """Shows updated information about presentations."""
         info = np.zeros((130, 420), np.uint8)
         font_args = (cv2.FONT_HERSHEY_SIMPLEX, 0.7, 255)
         grid_x = [30, 230]
@@ -359,7 +363,7 @@ class Display:
 
         cv2.putText(
             info,
-            f"Scene  {self.current_presentation_i + 1}/{len(self.presentations)}",
+            f"Scene  {self.current_presentation_index + 1}/{len(self.presentations)}",
             ((grid_x[0] + grid_x[1]) // 2, grid_y[2]),
             *font_args,
         )
@@ -367,6 +371,7 @@ class Display:
         cv2.imshow(f"{WINDOW_NAME}: Info", info)
 
     def handle_key(self):
+        """Handles key strokes."""
         sleep_time = math.ceil(1000 / self.current_presentation.fps)
         key = cv2.waitKeyEx(fix_time(sleep_time - self.lag))
 
@@ -387,8 +392,11 @@ class Display:
             self.current_presentation.load_next_slide()
         elif self.config.BACK.match(key):
             if self.current_presentation.current_slide_index == 0:
-                self.current_presentation_i = max(0, self.current_presentation_i - 1)
-                self.current_presentation.start_last_slide()
+                if self.current_presentation_index == 0:
+                    self.current_presentation.rewind_current_slide()
+                else:
+                    self.current_presentation_index -= 1
+                    self.current_presentation.load_last_slide()
                 self.state = State.PLAYING
             else:
                 self.current_presentation.load_previous_slide()
@@ -401,8 +409,9 @@ class Display:
             self.state = State.PLAYING
 
     def quit(self):
+        """Destroys all windows created by presentations and exits gracefully."""
         cv2.destroyAllWindows()
-        sys.exit()
+        self.exit = True
 
 
 @click.command()
