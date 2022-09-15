@@ -230,7 +230,6 @@ class Presentation:
                 self.current_slide.is_last()
                 and self.current_slide.end_animation == self.current_animation
             ):
-                print("HERE")
                 state = State.WAIT
             else:
                 # Play next video!
