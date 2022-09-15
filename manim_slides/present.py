@@ -6,7 +6,6 @@ import sys
 import time
 from enum import IntEnum, auto, unique
 from typing import Tuple
-
 if platform.system() == "Windows":
     import ctypes
 
@@ -130,6 +129,7 @@ class Presentation:
         """Loads next slide."""
         if self.reverse:
             self.reverse = False
+            self.reversed_animation = -1
             self.release_cap()
             self.rewind_current_slide()
         elif self.current_slide.is_last():
