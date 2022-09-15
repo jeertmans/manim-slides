@@ -165,7 +165,7 @@ Below is a non-exhaustive list of features:
 | One command line tool | :heavy_check_mark: | :heavy_multiplication_x: |
 | Robust config file parsing | :heavy_check_mark: | :heavy_multiplication_x: |
 | Support for 3D Scenes | :heavy_check_mark: | :heavy_multiplication_x: |
-| Documented code | WIP | :heavy_multiplication_x: |
+| Documented code | :heavy_check_mark: | :heavy_multiplication_x: |
 | Tested on Unix, macOS, and Windows | :heavy_check_mark: | :heavy_multiplication_x: |
 
 
