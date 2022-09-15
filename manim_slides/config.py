@@ -1,11 +1,14 @@
+from enum import Enum
 from typing import Optional, Set
 
-from pydantic import BaseModel, root_validator, validator
+from pydantic import BaseModel, FilePath, root_validator, validator
 
 from .defaults import LEFT_ARROW_KEY_CODE, RIGHT_ARROW_KEY_CODE
 
 
 class Key(BaseModel):
+    """Represents a list of key codes, with optionally a name."""
+
     ids: Set[int]
     name: Optional[str] = None
 
@@ -20,6 +23,8 @@ class Key(BaseModel):
 
 
 class Config(BaseModel):
+    """General Manim Slides config"""
+
     QUIT: Key = Key(ids=[ord("q")], name="QUIT")
     CONTINUE: Key = Key(ids=[RIGHT_ARROW_KEY_CODE], name="CONTINUE / NEXT")
     BACK: Key = Key(ids=[LEFT_ARROW_KEY_CODE], name="BACK")
@@ -47,3 +52,65 @@ class Config(BaseModel):
             key.name = other_key.name or key.name
 
         return self
+
+
+class SlideType(str, Enum):
+    slide = "slide"
+    loop = "loop"
+    last = "last"
+
+
+class SlideConfig(BaseModel):
+    type: SlideType
+    start_animation: int
+    end_animation: int
+    number: int
+    terminated: bool = False
+
+    @validator("start_animation", "end_animation")
+    def index_is_posint(cls, v: int):
+        if v < 0:
+            raise ValueError("Animation index (start or end) cannot be negative")
+        return v
+
+    @validator("number")
+    def number_is_strictly_posint(cls, v: int):
+        if v <= 0:
+            raise ValueError("Slide number cannot be negative or zero")
+        return v
+
+    @root_validator
+    def start_animation_is_before_end(cls, values):
+        if values["start_animation"] >= values["end_animation"]:
+
+            raise ValueError(
+                "Start animation index must be strictly lower than end animation index"
+            )
+
+        return values
+
+    def is_slide(self):
+        return self.type == SlideType.slide
+
+    def is_loop(self):
+        return self.type == SlideType.loop
+
+    def is_last(self):
+        return self.type == SlideType.last
+
+
+class PresentationConfig(BaseModel):
+    slides: list[SlideConfig]
+    files: list[FilePath]
+
+    @root_validator
+    def animation_indices_match_files(cls, values):
+        n_files = len(values["files"])
+
+        for slide in values["slides"]:
+            if slide.end_animation > n_files:
+                raise ValueError(
+                    f"The following slide's contains animations not listed in files {files}: {slide}"
+                )
+
+        return values

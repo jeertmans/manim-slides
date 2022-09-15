@@ -12,9 +12,10 @@ if platform.system() == "Windows":
 import click
 import cv2
 import numpy as np
+from pydantic import BaseModel
 
 from .commons import config_path_option
-from .config import Config
+from .config import Config, PresentationConfig, SlideConfig, SlideType
 from .defaults import CONFIG_PATH, FOLDER_PATH
 from .slide import reverse_video_path
 
@@ -23,12 +24,14 @@ WINDOW_NAME = "Manim Slides"
 
 @unique
 class State(IntEnum):
+    """Represents all possible states of a slide presentation."""
+
     PLAYING = auto()
     PAUSED = auto()
     WAIT = auto()
     END = auto()
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name.capitalize()
 
 
@@ -41,52 +44,71 @@ def fix_time(x: float) -> float:
 
 
 class Presentation:
-    def __init__(self, config, last_frame_next: bool = False):
-        self.last_frame_next = last_frame_next
-        self.slides = config["slides"]
-        self.files = [path for path in config["files"]]
-        self.reverse = False
-        self.reversed_slide = -1
+    """Creates presentation from a configuration object."""
 
-        self.lastframe = []
+    def __init__(self, config: PresentationConfig):
+        self.slides = config.slides
+        self.files = [path.as_posix() for path in config.files]
+
+        self.current_slide_index = 0
+        self.current_animation = self.current_slide.start_animation
+
+        self.reverse = False
+        self.reversed_slide = -10
+
+        self.lastframe = None
 
         self.caps = [None for _ in self.files]
         self.reset()
         self.add_last_slide()
 
+    @property
+    def current_slide(self):
+        return self.slides[self.current_slide_index]
+
+    @property
+    def first_slide(self):
+        return self.slides[0]
+
+    @property
+    def last_slide(self):
+        return self.slides[-1]
+
     def add_last_slide(self):
-        last_slide_end = self.slides[-1]["end_animation"]
-        last_animation = len(self.files)
         self.slides.append(
-            dict(
-                start_animation=last_slide_end,
-                end_animation=last_animation,
-                type="last",
-                number=len(self.slides) + 1,
-                terminated=False,
+            SlideConfig(
+                start_animation=self.last_slide.end_animation,
+                end_animation=self.last_slide.end_animation + 1,
+                type=SlideType.last,
+                number=self.last_slide.number + 1,
             )
         )
 
     def reset(self):
         self.current_animation = 0
         self.load_this_cap(0)
-        self.current_slide_i = 0
-        self.slides[-1]["terminated"] = False
+        self.current_slide_index = 0
+        self.slides[-1].terminated = False
 
     def start_last_slide(self):
-        self.current_animation = self.slides[-1]["start_animation"]
+        self.current_slide_i = len(self.slides) - 2
+        assert (
+            self.current_slide_i >= 0
+        ), "Slides should be at list of a least two elements"
+        self.current_animation = self.current_slide.start_animation
         self.load_this_cap(self.current_animation)
-        self.current_slide_i = len(self.slides[-1])
-        self.slides[-1]["terminated"] = False
+        self.slides[-1].terminated = False
 
-    def next(self):
-        if self.current_slide["type"] == "last":
-            self.current_slide["terminated"] = True
+    def next_slide(self):
+        if self.current_slide.is_last():
+            self.current_slide.terminated = True
         else:
-            self.current_slide_i = min(len(self.slides) - 1, self.current_slide_i + 1)
+            self.current_slide_index = min(
+                len(self.slides) - 1, self.current_slide_i + 1
+            )
             self.rewind_slide()
 
-    def prev(self):
+    def previous_slide(self):
         self.current_slide_i = max(0, self.current_slide_i - 1)
         self.rewind_slide()
 
@@ -95,15 +117,35 @@ class Presentation:
 
     def rewind_slide(self, reverse: bool = False):
         self.reverse = reverse
-        self.current_animation = self.current_slide["start_animation"]
+        if self.reverse:
+            self.current_animation = self.current_slide["end_animation"] - 1
+        else:
+            self.current_animation = self.current_slide["start_animation"]
         self.current_cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
+
+    @property
+    def next_animation(self):
+        if self.reverse:
+            return self.current_animation - 1
+        else:
+            return self.current_animation + 1
+
+    @property
+    def is_last_animation(self):
+        if self.reverse:
+            return self.current_animation == self.current_slide["start_animation"]
+        else:
+            return self.next_animation == self.current_slide["end_animation"]
 
     def load_this_cap(self, cap_number: int):
         if (
             self.caps[cap_number] is None
             or (self.reverse and self.reversed_slide != cap_number)
-            or (not self.reverse and self.reversed_slide == cap_number)
+            or (not self.reverse and self.reversed_slide + 1 == cap_number)
         ):
+            if self.reversed_slide + 1 == cap_number:
+                cap_number = max(0, cap_number - 1)
+            print("LOADING another cap:", cap_number)
             # unload other caps
             for i in range(len(self.caps)):
                 if not self.caps[i] is None:
@@ -115,9 +157,11 @@ class Presentation:
                 self.reversed_slide = cap_number
                 file = "{}_reversed{}".format(*os.path.splitext(file))
             else:
-                self.reversed_slide = -1
+                self.reversed_slide = -10
 
             self.caps[cap_number] = cv2.VideoCapture(file)
+
+        return self.caps[cap_number]
 
     @property
     def current_slide(self):
@@ -125,8 +169,7 @@ class Presentation:
 
     @property
     def current_cap(self):
-        self.load_this_cap(self.current_animation)
-        return self.caps[self.current_animation]
+        return self.load_this_cap(self.current_animation)
 
     @property
     def fps(self):
@@ -137,7 +180,7 @@ class Presentation:
     # It returns the frame to show (lastframe) and the new state.
     def update_state(self, state):
         if state == State.PAUSED:
-            if len(self.lastframe) == 0:
+            if self.lastframe is None:
                 _, self.lastframe = self.current_cap.read()
             return self.lastframe, state
         still_playing, frame = self.current_cap.read()
@@ -149,16 +192,16 @@ class Presentation:
             return self.lastframe, State.END
 
         if not still_playing:
-            if self.current_slide["end_animation"] == self.current_animation + 1:
-                if self.current_slide["type"] == "slide":
-                    # To fix "it always ends one frame before the animation", uncomment this.
-                    # But then clears on the next slide will clear the stationary after this slide.
-                    if self.last_frame_next:
-                        self.load_this_cap(self.next_cap)
-                        self.next_cap = self.caps[self.current_animation + 1]
-
-                        self.next_cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
-                        _, self.lastframe = self.next_cap.read()
+            print("No still playing...")
+            if self.is_last_animation:
+                print("Last animation")
+                if self.reverse:
+                    self.reverse = False
+                    return self.lastframe, State.WAIT
+                print(self.current_slide["type"])
+                if self.current_slide["type"] == "slide" or self.reverse:
+                    self.reverse = False
+                    print("finished slide")
                     state = State.WAIT
                 elif self.current_slide["type"] == "loop":
                     self.current_animation = self.current_slide["start_animation"]
@@ -173,7 +216,8 @@ class Presentation:
                 state = State.WAIT
             else:
                 # Play next video!
-                self.current_animation += 1
+                self.current_animation = self.next_animation
+                print("Playing animation", self.current_animation)
                 self.load_this_cap(self.current_animation)
                 # Reset video to position zero if it has been played before
                 self.current_cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
@@ -350,12 +394,18 @@ def list_scenes(folder):
         click.secho(f"{i}: {scene}", fg="green")
 
 
-def _list_scenes(folder):
+def _list_scenes(folder) -> list[str]:
+    """Lists available scenes in given directory."""
     scenes = []
 
     for file in os.listdir(folder):
         if file.endswith(".json"):
-            scenes.append(os.path.basename(file)[:-5])
+            try:
+                filepath = os.path.join(folder, file)
+                _ = PresentationConfig.parse_file(filepath)
+                scenes.append(os.path.basename(file)[:-5])
+            except Exception as e:  # Could not parse this file as a proper presentation config
+                pass
 
     return scenes
 
@@ -372,19 +422,12 @@ def _list_scenes(folder):
 @click.option("--start-paused", is_flag=True, help="Start paused.")
 @click.option("--fullscreen", is_flag=True, help="Fullscreen mode.")
 @click.option(
-    "--last-frame-next",
-    is_flag=True,
-    help="Show the next animation first frame as last frame (hack).",
-)
-@click.option(
     "--skip-all",
     is_flag=True,
     help="Skip all slides, useful the test if slides are working.",
 )
 @click.help_option("-h", "--help")
-def present(
-    scenes, config_path, folder, start_paused, fullscreen, last_frame_next, skip_all
-):
+def present(scenes, config_path, folder, start_paused, fullscreen, skip_all):
     """Present the different scenes."""
 
     if len(scenes) == 0:
@@ -429,8 +472,8 @@ def present(
             raise click.UsageError(
                 f"File {config_file} does not exist, check the scene name and make sure to use Slide as your scene base class"
             )
-        config = json.load(open(config_file))
-        presentations.append(Presentation(config, last_frame_next=last_frame_next))
+        config = PresentationConfig.parse_file(config_file)
+        presentations.append(Presentation(config))
 
     if os.path.exists(config_path):
         config = Config.parse_file(config_path)
