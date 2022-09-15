@@ -6,6 +6,7 @@ import sys
 import time
 from enum import IntEnum, auto, unique
 from typing import Tuple
+
 if platform.system() == "Windows":
     import ctypes
 

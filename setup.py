@@ -1,18 +1,25 @@
+import importlib.util
+import os
 import sys
 
 import setuptools
 
-from manim_slides import __version__ as version
-
 if sys.version_info < (3, 7):
     raise RuntimeError("This package requires Python 3.7+")
+
+spec = importlib.util.spec_from_file_location(
+    "__version__", os.path.join("manim_slides", "__version__.py")
+)
+version = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(version)
+
 
 with open("README.md", "r") as f:
     long_description = f.read()
 
 setuptools.setup(
     name="manim-slides",
-    version=version,
+    version=version.__version__,
     author="Jérome Eertmans (previously, Federico A. Galatolo)",
     author_email="jeertmans@icloud.com (resp., federico.galatolo@ing.unipi.it)",
     description="Tool for live presentations using manim",
