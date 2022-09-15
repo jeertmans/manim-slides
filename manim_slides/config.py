@@ -1,3 +1,4 @@
+import os
 from enum import Enum
 from typing import Optional, Set
 
@@ -101,13 +102,31 @@ class SlideConfig(BaseModel):
 
 class PresentationConfig(BaseModel):
     slides: list[SlideConfig]
-    files: list[FilePath]
+    files: list[str]
+
+    @validator("files", pre=True, each_item=True)
+    def is_file_and_exists(cls, v):
+        if not os.path.exists(v):
+            raise ValueError(
+                f"Animation file {v} does not exist. Are you in the right directory?"
+            )
+
+        if not os.path.isfile(v):
+            raise ValueError(f"Animation file {v} is not a file")
+
+        return v
 
     @root_validator
     def animation_indices_match_files(cls, values):
-        n_files = len(values["files"])
+        files = values.get("files")
+        slides = values.get("slides")
 
-        for slide in values["slides"]:
+        if files is None or slides is None:
+            return values
+
+        n_files = len(files)
+
+        for slide in slides:
             if slide.end_animation > n_files:
                 raise ValueError(
                     f"The following slide's contains animations not listed in files {files}: {slide}"
