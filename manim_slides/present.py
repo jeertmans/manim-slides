@@ -5,7 +5,7 @@ import platform
 import sys
 import time
 from enum import IntEnum, auto, unique
-from typing import Tuple
+from typing import List, Tuple
 
 if platform.system() == "Windows":
     import ctypes
@@ -49,8 +49,8 @@ class Presentation:
     """Creates presentation from a configuration object."""
 
     def __init__(self, config: PresentationConfig):
-        self.slides: list[SlideConfig] = config.slides
-        self.files: list[str] = config.files
+        self.slides: List[SlideConfig] = config.slides
+        self.files: List[str] = config.files
 
         self.current_slide_index = 0
         self.current_animation = self.current_slide.start_animation
@@ -430,7 +430,7 @@ def list_scenes(folder):
         click.secho(f"{i}: {scene}", fg="green")
 
 
-def _list_scenes(folder) -> list[str]:
+def _list_scenes(folder) -> List[str]:
     """Lists available scenes in given directory."""
     scenes = []
 

@@ -3,6 +3,7 @@ import os
 import platform
 import shutil
 import subprocess
+from typing import List
 
 from tqdm import tqdm
 
@@ -45,7 +46,7 @@ class Slide(Scene):
         self.pause_start_animation = 0
 
     @property
-    def partial_movie_files(self) -> list[str]:
+    def partial_movie_files(self) -> List[str]:
         """Returns a list of partial movie files, a.k.a animations."""
         if MANIMGL:
             from manimlib.utils.file_ops import get_sorted_integer_files

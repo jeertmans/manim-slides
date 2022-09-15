@@ -1,6 +1,6 @@
 import os
 from enum import Enum
-from typing import Optional, Set
+from typing import List, Optional, Set
 
 from pydantic import BaseModel, FilePath, root_validator, validator
 
@@ -101,8 +101,8 @@ class SlideConfig(BaseModel):
 
 
 class PresentationConfig(BaseModel):
-    slides: list[SlideConfig]
-    files: list[str]
+    slides: List[SlideConfig]
+    files: List[str]
 
     @validator("files", pre=True, each_item=True)
     def is_file_and_exists(cls, v):
