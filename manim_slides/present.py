@@ -17,9 +17,10 @@ from pydantic import ValidationError
 
 from .commons import config_path_option
 from .config import Config, PresentationConfig, SlideConfig, SlideType
-from .defaults import CONFIG_PATH, FOLDER_PATH
+from .defaults import CONFIG_PATH, FOLDER_PATH, FONT_ARGS
 
 WINDOW_NAME = "Manim Slides"
+WINDOW_INFO_NAME = f"{WINDOW_NAME}: Info"
 
 
 @unique
@@ -251,6 +252,7 @@ class Display:
         start_paused=False,
         fullscreen=False,
         skip_all=False,
+        resolution=(1280, 720),
     ):
         self.presentations = presentations
         self.start_paused = start_paused
@@ -267,6 +269,11 @@ class Display:
         self.lag = 0
         self.last_time = now()
 
+        cv2.namedWindow(
+            WINDOW_INFO_NAME,
+            cv2.WINDOW_GUI_NORMAL | cv2.WINDOW_FREERATIO | cv2.WINDOW_AUTOSIZE,
+        )
+
         if self.is_windows:
             user32 = ctypes.windll.user32
             self.screen_width, self.screen_height = user32.GetSystemMetrics(
@@ -278,6 +285,12 @@ class Display:
             cv2.setWindowProperty(
                 WINDOW_NAME, cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN
             )
+        else:
+            cv2.namedWindow(
+                WINDOW_NAME,
+                cv2.WINDOW_GUI_NORMAL | cv2.WINDOW_FREERATIO | cv2.WINDOW_NORMAL,
+            )
+            cv2.resizeWindow(WINDOW_NAME, *resolution)
 
     def resize_frame_to_screen(self, frame: np.ndarray):
         """
@@ -318,6 +331,8 @@ class Display:
                     self.current_presentation_index += 1
                     self.state = State.PLAYING
             self.handle_key()
+            if self.exit:
+                continue
             self.show_video()
             self.show_info()
 
@@ -336,7 +351,7 @@ class Display:
     def show_info(self):
         """Shows updated information about presentations."""
         info = np.zeros((130, 420), np.uint8)
-        font_args = (cv2.FONT_HERSHEY_SIMPLEX, 0.7, 255)
+        font_args = (FONT_ARGS[0], 0.7, *FONT_ARGS[2:])
         grid_x = [30, 230]
         grid_y = [30, 70, 110]
 
@@ -368,7 +383,7 @@ class Display:
             *font_args,
         )
 
-        cv2.imshow(f"{WINDOW_NAME}: Info", info)
+        cv2.imshow(WINDOW_INFO_NAME, info)
 
     def handle_key(self):
         """Handles key strokes."""
@@ -461,8 +476,17 @@ def _list_scenes(folder) -> List[str]:
     is_flag=True,
     help="Skip all slides, useful the test if slides are working.",
 )
+@click.option(
+    "--resolution",
+    type=(int, int),
+    default=(1280, 720),
+    help="Window resolution used if fullscreen is not set. You may manually resize the window afterward.",
+    show_default=True,
+)
 @click.help_option("-h", "--help")
-def present(scenes, config_path, folder, start_paused, fullscreen, skip_all):
+def present(
+    scenes, config_path, folder, start_paused, fullscreen, skip_all, resolution
+):
     """Present the different scenes."""
 
     if len(scenes) == 0:
@@ -527,5 +551,6 @@ def present(scenes, config_path, folder, start_paused, fullscreen, skip_all):
         start_paused=start_paused,
         fullscreen=fullscreen,
         skip_all=skip_all,
+        resolution=resolution,
     )
     display.run()
