@@ -7,17 +7,32 @@ import numpy as np
 
 from .commons import config_options
 from .config import Config
-from .defaults import CONFIG_PATH
+from .defaults import CONFIG_PATH, FONT_ARGS, PIXELS_PER_CHARACTER
+
+WINDOW_NAME = "Manim Slides Configuration Wizard"
+WINDOW_SIZE = (120, 620)
+
+
+def center_text_horizontally(text, window_size, font_args) -> int:
+    """Returns centered position for text to be displayed in current window."""
+    _, width = window_size
+    font, scale, _, thickness, _ = font_args
+    (size_in_pixels, _), _ = cv2.getTextSize(text, font, scale, thickness)
+    return (width - size_in_pixels) // 2
 
 
 def prompt(question: str) -> int:
-    font_args = (cv2.FONT_HERSHEY_SIMPLEX, 0.7, 255)
-    display = np.zeros((130, 420), np.uint8)
+    """Diplays some question in current window and waits for key press."""
+    display = np.zeros(WINDOW_SIZE, np.uint8)
 
-    cv2.putText(display, "* Manim Slides Wizard *", (70, 33), *font_args)
-    cv2.putText(display, question, (30, 85), *font_args)
+    text = "* Manim Slides Wizard *"
+    text_org = center_text_horizontally(text, WINDOW_SIZE, FONT_ARGS), 33
+    question_org = center_text_horizontally(question, WINDOW_SIZE, FONT_ARGS), 85
 
-    cv2.imshow("Manim Slides Configuration Wizard", display)
+    cv2.putText(display, "* Manim Slides Wizard *", text_org, *FONT_ARGS)
+    cv2.putText(display, question, question_org, *FONT_ARGS)
+
+    cv2.imshow(WINDOW_NAME, display)
     return cv2.waitKeyEx(-1)
 
 
@@ -61,6 +76,11 @@ def _init(config_path, force, merge, skip_interactive=False):
 
     if not skip_interactive:
 
+        cv2.namedWindow(
+            WINDOW_NAME,
+            cv2.WINDOW_GUI_NORMAL | cv2.WINDOW_FREERATIO | cv2.WINDOW_AUTOSIZE,
+        )
+
         prompt("Press any key to continue")
 
         for _, key in config:
@@ -70,6 +90,6 @@ def _init(config_path, force, merge, skip_interactive=False):
         config = Config.parse_file(config_path).merge_with(config)
 
     with open(config_path, "w") as config_file:
-        config_file.write(config.json(indent=4))
+        config_file.write(config.json(indent=2))
 
     click.echo(f"Configuration file successfully save to `{config_path}`")
