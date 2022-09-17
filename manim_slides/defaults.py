@@ -3,7 +3,6 @@ import platform
 import cv2
 
 FONT_ARGS = (cv2.FONT_HERSHEY_SIMPLEX, 1, 255, 1, cv2.LINE_AA)
-PIXELS_PER_CHARACTER = 20
 FOLDER_PATH: str = "./slides"
 CONFIG_PATH: str = ".manim-slides.json"
 
