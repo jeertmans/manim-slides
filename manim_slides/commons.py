@@ -1,9 +1,12 @@
+from typing import Callable
+
 import click
 
 from .defaults import CONFIG_PATH
 
 
-def config_path_option(function):
+def config_path_option(function) -> Callable:
+    """Wraps a function to add configuration path option."""
     return click.option(
         "-c",
         "--config",
@@ -14,7 +17,8 @@ def config_path_option(function):
     )(function)
 
 
-def config_options(function):
+def config_options(function) -> Callable:
+    """Wraps a function to add configuration options."""
     function = config_path_option(function)
     function = click.option(
         "-f", "--force", is_flag=True, help="Overwrite any existing configuration file."

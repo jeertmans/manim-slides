@@ -37,7 +37,7 @@ class State(IntEnum):
 
 
 def now() -> int:
-    """Returns time.time() in seconds."""
+    """Returns time.time() in milliseconds."""
     return round(time.time() * 1000)
 
 
@@ -292,7 +292,7 @@ class Display:
             )
             cv2.resizeWindow(WINDOW_NAME, *resolution)
 
-    def resize_frame_to_screen(self, frame: np.ndarray):
+    def resize_frame_to_screen(self, frame: np.ndarray) -> np.ndarray:
         """
         Resizes a given frame to match screen dimensions.
 

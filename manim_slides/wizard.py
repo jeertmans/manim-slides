@@ -7,7 +7,7 @@ import numpy as np
 
 from .commons import config_options
 from .config import Config
-from .defaults import CONFIG_PATH, FONT_ARGS, PIXELS_PER_CHARACTER
+from .defaults import CONFIG_PATH, FONT_ARGS
 
 WINDOW_NAME = "Manim Slides Configuration Wizard"
 WINDOW_SIZE = (120, 620)
@@ -51,6 +51,7 @@ def init(config_path, force, merge, skip_interactive=False):
 
 
 def _init(config_path, force, merge, skip_interactive=False):
+    """Actual initialization code for configuration file, with optional interactive mode."""
 
     if os.path.exists(config_path):
         click.secho(f"The `{CONFIG_PATH}` configuration file exists")
