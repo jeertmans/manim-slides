@@ -6,7 +6,7 @@ repos:
     -   id: end-of-file-fixer
     -   id: trailing-whitespace
 -   repo: https://github.com/psf/black
-    rev: 22.6.0
+    rev: 22.8.0
     hooks:
     -   id: black
 -   repo: https://github.com/pycqa/isort
@@ -19,3 +19,7 @@ repos:
     rev: 22.8.0
     hooks:
       - id: black
+-   repo: https://github.com/jendrikseipp/vulture
+    rev: v2.3
+    hooks:
+      - id: vulture
