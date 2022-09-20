@@ -17,13 +17,13 @@ from .config import Config, PresentationConfig, SlideConfig, SlideType
 from .defaults import CONFIG_PATH, FOLDER_PATH, FONT_ARGS
 
 INTERPOLATION_FLAGS = {
-        "nearest": cv2.INTER_NEAREST,
-        "linear": cv2.INTER_LINEAR,
-        "cubic": cv2.INTER_CUBIC,
-        "area": cv2.INTER_AREA,
-        "lanczos4": cv2.INTER_LANCZOS4,
-        "linear-exact": cv2.INTER_LINEAR_EXACT,
-        "nearest-exact": cv2.INTER_NEAREST_EXACT,
+    "nearest": cv2.INTER_NEAREST,
+    "linear": cv2.INTER_LINEAR,
+    "cubic": cv2.INTER_CUBIC,
+    "area": cv2.INTER_AREA,
+    "lanczos4": cv2.INTER_LANCZOS4,
+    "linear-exact": cv2.INTER_LINEAR_EXACT,
+    "nearest-exact": cv2.INTER_NEAREST_EXACT,
 }
 
 WINDOW_NAME = "Manim Slides"
@@ -261,7 +261,7 @@ class Display:
         fullscreen=False,
         skip_all=False,
         resolution=(1980, 1080),
-        interpolation_flag=cv2.INTER_LINEAR
+        interpolation_flag=cv2.INTER_LINEAR,
     ):
         self.presentations = presentations
         self.start_paused = start_paused
@@ -493,7 +493,14 @@ def _list_scenes(folder) -> List[str]:
 )
 @click.help_option("-h", "--help")
 def present(
-    scenes, config_path, folder, start_paused, fullscreen, skip_all, resolution, interpolation_flag
+    scenes,
+    config_path,
+    folder,
+    start_paused,
+    fullscreen,
+    skip_all,
+    resolution,
+    interpolation_flag,
 ):
     """Present the different scenes."""
 
