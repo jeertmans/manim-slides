@@ -256,7 +256,9 @@ class Display:
         self.skip_all = skip_all
         self.fullscreen = fullscreen
         self.resolution = resolution
-        self.window_flags = cv2.WINDOW_GUI_NORMAL | cv2.WINDOW_FREERATIO | cv2.WINDOW_NORMAL
+        self.window_flags = (
+            cv2.WINDOW_GUI_NORMAL | cv2.WINDOW_FREERATIO | cv2.WINDOW_NORMAL
+        )
 
         self.state = State.PLAYING
         self.lastframe = None
@@ -266,22 +268,20 @@ class Display:
         self.lag = 0
         self.last_time = now()
 
-
         cv2.namedWindow(
             WINDOW_INFO_NAME,
             cv2.WINDOW_GUI_NORMAL | cv2.WINDOW_FREERATIO | cv2.WINDOW_AUTOSIZE,
         )
 
         if self.fullscreen:
-            cv2.namedWindow(WINDOW_NAME, cv2.WINDOW_GUI_NORMAL | cv2.WND_PROP_FULLSCREEN)
+            cv2.namedWindow(
+                WINDOW_NAME, cv2.WINDOW_GUI_NORMAL | cv2.WND_PROP_FULLSCREEN
+            )
             cv2.setWindowProperty(
                 WINDOW_NAME, cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN
             )
         else:
-            cv2.namedWindow(
-                WINDOW_NAME,
-                self.window_flags
-            )
+            cv2.namedWindow(WINDOW_NAME, self.window_flags)
             cv2.resizeWindow(WINDOW_NAME, *self.resolution)
 
     @property
@@ -322,10 +322,7 @@ class Display:
         # If Window was manually closed (impossible in fullscreen),
         # we reopen it
         if cv2.getWindowProperty(WINDOW_NAME, cv2.WND_PROP_VISIBLE) < 1:
-            cv2.namedWindow(
-                WINDOW_NAME,
-                self.window_flags
-            )
+            cv2.namedWindow(WINDOW_NAME, self.window_flags)
             cv2.resizeWindow(WINDOW_NAME, *self.resolution)
 
         _, _, w, h = cv2.getWindowImageRect(WINDOW_NAME)
