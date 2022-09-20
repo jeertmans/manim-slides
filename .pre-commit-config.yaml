@@ -19,3 +19,7 @@ repos:
     rev: 22.8.0
     hooks:
       - id: black
+-   repo: https://github.com/jendrikseipp/vulture
+    rev: v2.3
+    hooks:
+      - id: vulture
