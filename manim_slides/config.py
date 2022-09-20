@@ -2,7 +2,7 @@ import os
 from enum import Enum
 from typing import List, Optional, Set
 
-from pydantic import BaseModel, FilePath, root_validator, validator
+from pydantic import BaseModel, root_validator, validator
 
 from .defaults import LEFT_ARROW_KEY_CODE, RIGHT_ARROW_KEY_CODE
 
