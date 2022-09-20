@@ -1,6 +1,7 @@
 import json
 import math
 import os
+import platform
 import sys
 import time
 from enum import IntEnum, auto, unique
@@ -17,6 +18,7 @@ from .defaults import CONFIG_PATH, FOLDER_PATH, FONT_ARGS
 
 WINDOW_NAME = "Manim Slides"
 WINDOW_INFO_NAME = f"{WINDOW_NAME}: Info"
+WINDOWS = platform.system() == "Windows"
 
 
 @unique
@@ -325,8 +327,10 @@ class Display:
             cv2.namedWindow(WINDOW_NAME, self.window_flags)
             cv2.resizeWindow(WINDOW_NAME, *self.resolution)
 
-        _, _, w, h = cv2.getWindowImageRect(WINDOW_NAME)
-        frame = cv2.resize(frame, (w, h), cv2.INTER_LINEAR)
+        if WINDOWS:  # Only resize on Windows
+            _, _, w, h = cv2.getWindowImageRect(WINDOW_NAME)
+            frame = cv2.resize(frame, (w, h), cv2.INTER_LINEAR)
+
         cv2.imshow(WINDOW_NAME, frame)
 
     def show_info(self):
