@@ -1,0 +1,2 @@
+[tool.vulture]
+paths = ["manim_slides"]
