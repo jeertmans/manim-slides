@@ -1,14 +1,10 @@
 import json
 import math
 import os
-import platform
 import sys
 import time
 from enum import IntEnum, auto, unique
 from typing import List, Tuple
-
-if platform.system() == "Windows":
-    import ctypes
 
 import click
 import cv2
@@ -259,7 +255,8 @@ class Display:
         self.config = config
         self.skip_all = skip_all
         self.fullscreen = fullscreen
-        self.is_windows = platform.system() == "Windows"
+        self.resolution = resolution
+        self.window_flags = cv2.WINDOW_GUI_NORMAL | cv2.WINDOW_FREERATIO | cv2.WINDOW_NORMAL
 
         self.state = State.PLAYING
         self.lastframe = None
@@ -269,44 +266,23 @@ class Display:
         self.lag = 0
         self.last_time = now()
 
+
         cv2.namedWindow(
             WINDOW_INFO_NAME,
             cv2.WINDOW_GUI_NORMAL | cv2.WINDOW_FREERATIO | cv2.WINDOW_AUTOSIZE,
         )
 
-        if self.is_windows:
-            user32 = ctypes.windll.user32
-            self.screen_width, self.screen_height = user32.GetSystemMetrics(
-                0
-            ), user32.GetSystemMetrics(1)
-
         if self.fullscreen:
-            cv2.namedWindow(WINDOW_NAME, cv2.WND_PROP_FULLSCREEN)
+            cv2.namedWindow(WINDOW_NAME, cv2.WINDOW_GUI_NORMAL | cv2.WND_PROP_FULLSCREEN)
             cv2.setWindowProperty(
                 WINDOW_NAME, cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN
             )
         else:
             cv2.namedWindow(
                 WINDOW_NAME,
-                cv2.WINDOW_GUI_NORMAL | cv2.WINDOW_FREERATIO | cv2.WINDOW_NORMAL,
+                self.window_flags
             )
-            cv2.resizeWindow(WINDOW_NAME, *resolution)
-
-    def resize_frame_to_screen(self, frame: np.ndarray) -> np.ndarray:
-        """
-        Resizes a given frame to match screen dimensions.
-
-        Only works on Windows.
-        """
-        assert self.is_windows, "Only Windows platforms need this method"
-        frame_height, frame_width = frame.shape[:2]
-
-        scale_height = self.screen_height / frame_height
-        scale_width = self.screen_width / frame_width
-
-        scale = min(scale_height, scale_width)
-
-        return cv2.resize(frame, (int(scale * frame_height), int(scale * frame_width)))
+            cv2.resizeWindow(WINDOW_NAME, *self.resolution)
 
     @property
     def current_presentation(self) -> Presentation:
@@ -343,9 +319,17 @@ class Display:
 
         frame = self.lastframe
 
-        if self.is_windows and self.fullscreen:
-            frame = self.resize_frame_to_screen(frame)
+        # If Window was manually closed (impossible in fullscreen),
+        # we reopen it
+        if cv2.getWindowProperty(WINDOW_NAME, cv2.WND_PROP_VISIBLE) < 1:
+            cv2.namedWindow(
+                WINDOW_NAME,
+                self.window_flags
+            )
+            cv2.resizeWindow(WINDOW_NAME, *self.resolution)
 
+        _, _, w, h = cv2.getWindowImageRect(WINDOW_NAME)
+        frame = cv2.resize(frame, (w, h), cv2.INTER_LINEAR)
         cv2.imshow(WINDOW_NAME, frame)
 
     def show_info(self):
