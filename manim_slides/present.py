@@ -11,6 +11,7 @@ import click
 import cv2
 import numpy as np
 from pydantic import ValidationError
+from tqdm import tqdm
 
 from .commons import config_path_option
 from .config import Config, PresentationConfig, SlideConfig, SlideType
@@ -63,6 +64,7 @@ class Presentation:
 
         self.current_slide_index = 0
         self.current_animation = self.current_slide.start_animation
+        self.current_file = None
 
         self.loaded_animation_cap = -1
         self.cap = None  # cap = cv2.VideoCapture
@@ -111,6 +113,8 @@ class Presentation:
             if self.reverse:
                 file = "{}_reversed{}".format(*os.path.splitext(file))
                 self.reversed_animation = animation
+
+            self.current_file = file
 
             self.cap = cv2.VideoCapture(file)
             self.loaded_animation_cap = animation
@@ -204,6 +208,11 @@ class Presentation:
         else:
             return self.next_animation == self.current_slide.end_animation
 
+    @property
+    def current_frame_number(self) -> int:
+        """Returns current frame number."""
+        return int(self.current_cap.get(cv2.CAP_PROP_POS_FRAMES))
+
     def update_state(self, state) -> Tuple[np.ndarray, State]:
         """
         Updates the current state given the previous one.
@@ -262,6 +271,7 @@ class Display:
         skip_all=False,
         resolution=(1980, 1080),
         interpolation_flag=cv2.INTER_LINEAR,
+        record_to=None,
     ):
         self.presentations = presentations
         self.start_paused = start_paused
@@ -270,6 +280,8 @@ class Display:
         self.fullscreen = fullscreen
         self.resolution = resolution
         self.interpolation_flag = interpolation_flag
+        self.record_to = record_to
+        self.recordings = []
         self.window_flags = (
             cv2.WINDOW_GUI_NORMAL | cv2.WINDOW_FREERATIO | cv2.WINDOW_NORMAL
         )
@@ -300,7 +312,7 @@ class Display:
 
     @property
     def current_presentation(self) -> Presentation:
-        """Returns the current presentation"""
+        """Returns the current presentation."""
         return self.presentations[self.current_presentation_index]
 
     def run(self):
@@ -330,6 +342,12 @@ class Display:
         """Shows updated video."""
         self.lag = now() - self.last_time
         self.last_time = now()
+
+        if not self.record_to is None:
+            pres = self.current_presentation
+            self.recordings.append(
+                (pres.current_file, pres.current_frame_number, pres.fps)
+            )
 
         frame = self.lastframe
 
@@ -425,6 +443,35 @@ class Display:
     def quit(self):
         """Destroys all windows created by presentations and exits gracefully."""
         cv2.destroyAllWindows()
+
+        if not self.record_to is None and len(self.recordings) > 0:
+            file, frame_number, fps = self.recordings[0]
+
+            cap = cv2.VideoCapture(file)
+            cap.set(cv2.CAP_PROP_POS_FRAMES, frame_number - 1)
+            _, frame = cap.read()
+
+            w, h = frame.shape[:2]
+            fourcc = cv2.VideoWriter_fourcc(*"XVID")
+            out = cv2.VideoWriter(self.record_to, fourcc, fps, (h, w))
+
+            out.write(frame)
+
+            for _file, frame_number, _ in tqdm(
+                self.recordings[1:], desc="Creating recording file", leave=False
+            ):
+                if file != _file:
+                    cap.release()
+                    file = _file
+                    cap = cv2.VideoCapture(_file)
+
+                cap.set(cv2.CAP_PROP_POS_FRAMES, frame_number - 1)
+                _, frame = cap.read()
+                out.write(frame)
+
+            cap.release()
+            out.release()
+
         self.exit = True
 
 
@@ -493,6 +540,12 @@ def _list_scenes(folder) -> List[str]:
     help="Set the interpolation flag to be used when resizing image. See OpenCV cv::InterpolationFlags.",
     show_default=True,
 )
+@click.option(
+    "--record-to",
+    type=click.Path(dir_okay=False),
+    default=None,
+    help="If set, the presentation will be recorded into a AVI video file with given name.",
+)
 @click.help_option("-h", "--help")
 def present(
     scenes,
@@ -503,6 +556,7 @@ def present(
     skip_all,
     resolution,
     interpolation_flag,
+    record_to,
 ):
     """Present the different scenes."""
 
@@ -562,6 +616,13 @@ def present(
     else:
         config = Config()
 
+    if not record_to is None:
+        _, ext = os.path.splitext(record_to)
+        if ext.lower() != ".avi":
+            raise click.UsageError(
+                f"Recording only support '.avi' extension. For other video formats, please convert the resulting '.avi' file afterwards."
+            )
+
     display = Display(
         presentations,
         config=config,
@@ -570,5 +631,6 @@ def present(
         skip_all=skip_all,
         resolution=resolution,
         interpolation_flag=INTERPOLATION_FLAGS[interpolation_flag],
+        record_to=record_to,
     )
     display.run()
