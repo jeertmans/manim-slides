@@ -7,9 +7,6 @@ import time
 from enum import IntEnum, auto, unique
 from typing import List, Tuple
 
-if platform.system() == "Windows":
-    import ctypes
-
 import click
 import cv2
 import numpy as np
@@ -19,8 +16,19 @@ from .commons import config_path_option
 from .config import Config, PresentationConfig, SlideConfig, SlideType
 from .defaults import CONFIG_PATH, FOLDER_PATH, FONT_ARGS
 
+INTERPOLATION_FLAGS = {
+    "nearest": cv2.INTER_NEAREST,
+    "linear": cv2.INTER_LINEAR,
+    "cubic": cv2.INTER_CUBIC,
+    "area": cv2.INTER_AREA,
+    "lanczos4": cv2.INTER_LANCZOS4,
+    "linear-exact": cv2.INTER_LINEAR_EXACT,
+    "nearest-exact": cv2.INTER_NEAREST_EXACT,
+}
+
 WINDOW_NAME = "Manim Slides"
 WINDOW_INFO_NAME = f"{WINDOW_NAME}: Info"
+WINDOWS = platform.system() == "Windows"
 
 
 @unique
@@ -252,14 +260,19 @@ class Display:
         start_paused=False,
         fullscreen=False,
         skip_all=False,
-        resolution=(1280, 720),
+        resolution=(1980, 1080),
+        interpolation_flag=cv2.INTER_LINEAR,
     ):
         self.presentations = presentations
         self.start_paused = start_paused
         self.config = config
         self.skip_all = skip_all
         self.fullscreen = fullscreen
-        self.is_windows = platform.system() == "Windows"
+        self.resolution = resolution
+        self.interpolation_flag = interpolation_flag
+        self.window_flags = (
+            cv2.WINDOW_GUI_NORMAL | cv2.WINDOW_FREERATIO | cv2.WINDOW_NORMAL
+        )
 
         self.state = State.PLAYING
         self.lastframe = None
@@ -274,39 +287,16 @@ class Display:
             cv2.WINDOW_GUI_NORMAL | cv2.WINDOW_FREERATIO | cv2.WINDOW_AUTOSIZE,
         )
 
-        if self.is_windows:
-            user32 = ctypes.windll.user32
-            self.screen_width, self.screen_height = user32.GetSystemMetrics(
-                0
-            ), user32.GetSystemMetrics(1)
-
         if self.fullscreen:
-            cv2.namedWindow(WINDOW_NAME, cv2.WND_PROP_FULLSCREEN)
+            cv2.namedWindow(
+                WINDOW_NAME, cv2.WINDOW_GUI_NORMAL | cv2.WND_PROP_FULLSCREEN
+            )
             cv2.setWindowProperty(
                 WINDOW_NAME, cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN
             )
         else:
-            cv2.namedWindow(
-                WINDOW_NAME,
-                cv2.WINDOW_GUI_NORMAL | cv2.WINDOW_FREERATIO | cv2.WINDOW_NORMAL,
-            )
-            cv2.resizeWindow(WINDOW_NAME, *resolution)
-
-    def resize_frame_to_screen(self, frame: np.ndarray) -> np.ndarray:
-        """
-        Resizes a given frame to match screen dimensions.
-
-        Only works on Windows.
-        """
-        assert self.is_windows, "Only Windows platforms need this method"
-        frame_height, frame_width = frame.shape[:2]
-
-        scale_height = self.screen_height / frame_height
-        scale_width = self.screen_width / frame_width
-
-        scale = min(scale_height, scale_width)
-
-        return cv2.resize(frame, (int(scale * frame_height), int(scale * frame_width)))
+            cv2.namedWindow(WINDOW_NAME, self.window_flags)
+            cv2.resizeWindow(WINDOW_NAME, *self.resolution)
 
     @property
     def current_presentation(self) -> Presentation:
@@ -343,8 +333,17 @@ class Display:
 
         frame = self.lastframe
 
-        if self.is_windows and self.fullscreen:
-            frame = self.resize_frame_to_screen(frame)
+        # If Window was manually closed (impossible in fullscreen),
+        # we reopen it
+        if cv2.getWindowProperty(WINDOW_NAME, cv2.WND_PROP_VISIBLE) < 1:
+            cv2.namedWindow(WINDOW_NAME, self.window_flags)
+            cv2.resizeWindow(WINDOW_NAME, *self.resolution)
+
+        if WINDOWS:  # Only resize on Windows
+            _, _, w, h = cv2.getWindowImageRect(WINDOW_NAME)
+
+            if (h, w) != frame.shape[:2]:  # Only if shape is different
+                frame = cv2.resize(frame, (w, h), self.interpolation_flag)
 
         cv2.imshow(WINDOW_NAME, frame)
 
@@ -477,15 +476,31 @@ def _list_scenes(folder) -> List[str]:
     help="Skip all slides, useful the test if slides are working.",
 )
 @click.option(
+    "-r",
     "--resolution",
     type=(int, int),
-    default=(1280, 720),
+    default=(1920, 1080),
     help="Window resolution used if fullscreen is not set. You may manually resize the window afterward.",
+    show_default=True,
+)
+@click.option(
+    "-i",
+    "--interpolation-flag",
+    type=click.Choice(INTERPOLATION_FLAGS.keys(), case_sensitive=False),
+    default="linear",
+    help="Set the interpolation flag to be used when resizing image. See OpenCV cv::InterpolationFlags.",
     show_default=True,
 )
 @click.help_option("-h", "--help")
 def present(
-    scenes, config_path, folder, start_paused, fullscreen, skip_all, resolution
+    scenes,
+    config_path,
+    folder,
+    start_paused,
+    fullscreen,
+    skip_all,
+    resolution,
+    interpolation_flag,
 ):
     """Present the different scenes."""
 
@@ -552,5 +567,6 @@ def present(
         fullscreen=fullscreen,
         skip_all=skip_all,
         resolution=resolution,
+        interpolation_flag=INTERPOLATION_FLAGS[interpolation_flag],
     )
     display.run()
