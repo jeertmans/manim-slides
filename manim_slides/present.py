@@ -481,6 +481,7 @@ class Display:
     default=FOLDER_PATH,
     type=click.Path(exists=True, file_okay=False),
     help="Set slides folder.",
+    show_default=True,
 )
 @click.help_option("-h", "--help")
 def list_scenes(folder):
@@ -514,6 +515,7 @@ def _list_scenes(folder) -> List[str]:
     default=FOLDER_PATH,
     type=click.Path(exists=True, file_okay=False),
     help="Set slides folder.",
+    show_default=True,
 )
 @click.option("--start-paused", is_flag=True, help="Start paused.")
 @click.option("--fullscreen", is_flag=True, help="Fullscreen mode.")

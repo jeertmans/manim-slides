@@ -10,6 +10,11 @@ from .wizard import init, wizard
 @click.version_option(__version__, "-v", "--version")
 @click.help_option("-h", "--help")
 def cli():
+    """
+    Manim Slides command-line utilities.
+
+    If not command is specified, defaults to `present`.
+    """
     pass
 
 

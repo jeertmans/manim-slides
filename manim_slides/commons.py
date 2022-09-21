@@ -14,6 +14,7 @@ def config_path_option(function) -> Callable:
         default=CONFIG_PATH,
         type=click.Path(dir_okay=False),
         help="Set path to configuration file.",
+        show_default=True,
     )(function)
 
 
