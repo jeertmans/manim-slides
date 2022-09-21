@@ -59,6 +59,8 @@ Using Manim Slides is a two-step process:
 1. Render animations using `Slide` (resp. `ThreeDSlide`) as a base class instead of `Scene` (resp. `ThreeDScene`), and add calls to `self.pause()` everytime you want to create a new slide.
 2. Run `manim-slides` on rendered animations and display them like a *Power Point* presentation.
 
+The command-line documentation is available [online](https://eertmans.be/manim-slides/).
+
 ### Basic Example
 
 
