@@ -345,7 +345,9 @@ class Display:
 
         if not self.record_to is None:
             pres = self.current_presentation
-            self.recordings.append((pres.current_file, pres.current_frame_number, pres.fps))
+            self.recordings.append(
+                (pres.current_file, pres.current_frame_number, pres.fps)
+            )
 
         frame = self.lastframe
 
@@ -452,10 +454,12 @@ class Display:
             w, h = frame.shape[:2]
             fourcc = cv2.VideoWriter_fourcc(*"XVID")
             out = cv2.VideoWriter(self.record_to, fourcc, fps, (h, w))
-            
+
             out.write(frame)
 
-            for _file, frame_number, _ in tqdm(self.recordings[1:], desc="Creating recording file", leave=False):
+            for _file, frame_number, _ in tqdm(
+                self.recordings[1:], desc="Creating recording file", leave=False
+            ):
                 if file != _file:
                     cap.release()
                     file = _file
@@ -613,7 +617,9 @@ def present(
     if not record_to is None:
         _, ext = os.path.splitext(record_to)
         if ext.lower() != ".avi":
-            raise click.UsageError(f"Recording only support '.avi' extension. For other video formats, please convert the resulting '.avi' file afterwards.")
+            raise click.UsageError(
+                f"Recording only support '.avi' extension. For other video formats, please convert the resulting '.avi' file afterwards."
+            )
 
     display = Display(
         presentations,
