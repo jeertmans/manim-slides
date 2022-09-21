@@ -9,7 +9,7 @@ Tool for live presentations using either [Manim (community edition)](https://www
 
 > **_NOTE:_**  This project extends the work of [`manim-presentation`](https://github.com/galatolofederico/manim-presentation), with a lot more features!
 
-- [Install](#install)
+- [Installation](#installation)
   * [Dependencies](#dependencies)
   * [Pip install](#pip-install)
   * [Install From Repository](#install-from-repository)
@@ -18,6 +18,8 @@ Tool for live presentations using either [Manim (community edition)](https://www
   * [Key Bindings](#key-bindings)
   * [Other Examples](#other-examples)
 - [Features and Comparison with Original manim-presentation](#features-and-comparison-with-original-manim-presentation)
+- [F.A.Q](#faq)
+  * [How to increase quality on Windows](#how-to-increase-quality-on-windows)
 - [Contributing](#contributing)
 
 ## Installation
@@ -168,6 +170,16 @@ Below is a non-exhaustive list of features:
 | Documented code | :heavy_check_mark: | :heavy_multiplication_x: |
 | Tested on Unix, macOS, and Windows | :heavy_check_mark: | :heavy_multiplication_x: |
 
+## F.A.Q
+
+### How to increase quality on Windows
+
+On Windows platform, one may encounter a lower image resolution than expected. Usually, this is observed because Windows rescales every application to fit the screen.
+As found by [@arashash](https://github.com/arashash), in [#20](https://github.com/jeertmans/manim-slides/issues/20), the problem can be addressed by changing the scaling factor to 100%:
+
+![Windows Fix Scaling](static/windows_quality_fix.png)
+
+in *Settings*->*Display*.
 
 ## Contributing
 
