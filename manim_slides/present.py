@@ -134,6 +134,13 @@ class Presentation:
 
         self.current_cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
 
+    def cancel_reverse(self):
+        """Cancels any effet produced by a reversed slide."""
+        if self.reverse:
+            self.reverse = False
+            self.reversed_animation = -1
+            self.release_cap()
+
     def reverse_current_slide(self):
         """Reverses current slide."""
         self.reverse = True
@@ -142,9 +149,7 @@ class Presentation:
     def load_next_slide(self):
         """Loads next slide."""
         if self.reverse:
-            self.reverse = False
-            self.reversed_animation = -1
-            self.release_cap()
+            self.cancel_reverse()
             self.rewind_current_slide()
         elif self.current_slide.is_last():
             self.current_slide.terminated = True
@@ -156,6 +161,7 @@ class Presentation:
 
     def load_previous_slide(self):
         """Loads previous slide."""
+        self.cancel_reverse()
         self.current_slide_index = max(0, self.current_slide_index - 1)
         self.rewind_current_slide()
 
@@ -425,7 +431,7 @@ class Display:
         elif self.config.BACK.match(key):
             if self.current_presentation.current_slide_index == 0:
                 if self.current_presentation_index == 0:
-                    self.current_presentation.rewind_current_slide()
+                    self.current_presentation.load_previous_slide()
                 else:
                     self.current_presentation_index -= 1
                     self.current_presentation.load_last_slide()
@@ -437,6 +443,7 @@ class Display:
             self.current_presentation.reverse_current_slide()
             self.state = State.PLAYING
         elif self.config.REWIND.match(key):
+            self.current_presentation.cancel_reverse()
             self.current_presentation.rewind_current_slide()
             self.state = State.PLAYING
 
