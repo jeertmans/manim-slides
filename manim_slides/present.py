@@ -161,7 +161,7 @@ class Presentation:
 
     def load_previous_slide(self):
         """Loads previous slide."""
-        self.cancel_reverse() 
+        self.cancel_reverse()
         self.current_slide_index = max(0, self.current_slide_index - 1)
         self.rewind_current_slide()
 
