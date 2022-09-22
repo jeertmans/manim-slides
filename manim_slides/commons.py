@@ -10,7 +10,6 @@ def config_path_option(function) -> Callable:
     return click.option(
         "-c",
         "--config",
-        "config_path",
         default=CONFIG_PATH,
         type=click.Path(dir_okay=False),
         help="Set path to configuration file.",

@@ -3,8 +3,17 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to manim-slides's documentation!
-========================================
+.. image:: _static/logo.png
+    :width: 600
+    :align: center
+    :alt: Manim Slide logo
+
+Welcome to Manim Slide's CLI documentation!
+===========================================
+
+This page contains an exhaustive list of all the commands available with `manim-slides`.
+
+If you need help installing or using Manim Slide, please refer to the `GitHub README <https://github.com/jeertmans/manim-slides>`_.
 
 .. click:: manim_slides.main:cli
     :prog: manim-slides

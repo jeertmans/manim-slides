@@ -501,7 +501,7 @@ def _list_scenes(folder) -> List[str]:
                 filepath = os.path.join(folder, file)
                 _ = PresentationConfig.parse_file(filepath)
                 scenes.append(os.path.basename(file)[:-5])
-            except Exception as e:  # Could not parse this file as a proper presentation config
+            except Exception:  # Could not parse this file as a proper presentation config
                 pass
 
     return scenes
@@ -529,7 +529,7 @@ def _list_scenes(folder) -> List[str]:
     "--resolution",
     type=(int, int),
     default=(1920, 1080),
-    help="Window resolution used if fullscreen is not set. You may manually resize the window afterward.",
+    help="Window resolution WIDTH HEIGHT used if fullscreen is not set. You may manually resize the window afterward.",
     show_default=True,
 )
 @click.option(
@@ -558,7 +558,15 @@ def present(
     interpolation_flag,
     record_to,
 ):
-    """Present the different scenes."""
+    """
+    Present SCENE(s), one at a time, in order.
+
+    Each SCENE parameter must be the name of a Manim scene, with existing SCENE.json config file.
+
+    You can present the same SCENE multiple times by repeating the parameter.
+
+    Use `manim-slide list-scenes` to list all available scenes in a given folder.
+    """
 
     if len(scenes) == 0:
         scene_choices = _list_scenes(folder)
