@@ -38,6 +38,7 @@ def prompt(question: str) -> int:
 
 @click.command()
 @config_options
+@click.help_option("-h", "--help")
 def wizard(config_path, force, merge):
     """Launch configuration wizard."""
     return _init(config_path, force, merge, skip_interactive=False)
@@ -45,6 +46,7 @@ def wizard(config_path, force, merge):
 
 @click.command()
 @config_options
+@click.help_option("-h", "--help")
 def init(config_path, force, merge, skip_interactive=False):
     """Initialize a new default configuration file."""
     return _init(config_path, force, merge, skip_interactive=True)
