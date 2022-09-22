@@ -558,7 +558,15 @@ def present(
     interpolation_flag,
     record_to,
 ):
-    """Present the different scenes."""
+    """
+    Present SCENE(s), one at a time, in order.
+
+    Each SCENE parameter must be the name of a Manim scene, with existing SCENE.json config file.
+
+    You can present the same SCENE multiple times by repeating the parameter.
+
+    Use `manim-slide list-scenes` to list all available scenes in a given folder.
+    """
 
     if len(scenes) == 0:
         scene_choices = _list_scenes(folder)
