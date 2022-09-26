@@ -85,7 +85,9 @@ class SlideConfig(BaseModel):
         if values["start_animation"] >= values["end_animation"]:
 
             if values["start_animation"] == values["end_animation"] == 0:
-                raise ValueError("You have to play at least one animation (e.g., `self.wait()`) before pausing. If you want to start paused, use the approriate command-line option when presenting.")
+                raise ValueError(
+                    "You have to play at least one animation (e.g., `self.wait()`) before pausing. If you want to start paused, use the approriate command-line option when presenting."
+                )
 
             raise ValueError(
                 "Start animation index must be strictly lower than end animation index"
