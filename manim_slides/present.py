@@ -14,7 +14,14 @@ from pydantic import ValidationError
 from tqdm import tqdm
 
 from .commons import config_path_option
-from .config import Config, PresentationConfig, SlideConfig, SlideType, FOLDER_PATH, CONFIG_PATH
+from .config import (
+    CONFIG_PATH,
+    FOLDER_PATH,
+    Config,
+    PresentationConfig,
+    SlideConfig,
+    SlideType,
+)
 
 INTERPOLATION_FLAGS = {
     "nearest": cv2.INTER_NEAREST,
