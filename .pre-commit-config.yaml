@@ -19,10 +19,6 @@ repos:
     rev: 22.8.0
     hooks:
       - id: black
--   repo: https://github.com/jendrikseipp/vulture
-    rev: v2.6
-    hooks:
-      - id: vulture
 -   repo: https://github.com/PyCQA/flake8
     rev: 5.0.4
     hooks:
