@@ -13,7 +13,7 @@ from tqdm import tqdm
 
 from .commons import config_path_option
 from .config import Config, PresentationConfig, SlideConfig, SlideType
-from .defaults import CONFIG_PATH, FOLDER_PATH, FONT_ARGS
+from .defaults import FOLDER_PATH, FONT_ARGS
 
 INTERPOLATION_FLAGS = {
     "nearest": cv2.INTER_NEAREST,
@@ -548,7 +548,7 @@ def _list_scenes(folder) -> List[str]:
 @click.option(
     "--record-to",
     type=click.Path(dir_okay=False),
-    default=CONFIG_PATH,
+    default=None,
     help="If set, the presentation will be recorded into a AVI video file with given name.",
 )
 @click.help_option("-h", "--help")
