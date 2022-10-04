@@ -14,8 +14,7 @@ from pydantic import ValidationError
 from tqdm import tqdm
 
 from .commons import config_path_option
-from .config import Config, PresentationConfig, SlideConfig, SlideType
-from .defaults import CONFIG_PATH, FOLDER_PATH, FONT_ARGS
+from .config import Config, PresentationConfig, SlideConfig, SlideType, FOLDER_PATH, CONFIG_PATH
 
 INTERPOLATION_FLAGS = {
     "nearest": cv2.INTER_NEAREST,
@@ -550,7 +549,7 @@ def _list_scenes(folder) -> List[str]:
 @click.option(
     "--record-to",
     type=click.Path(dir_okay=False),
-    default=None,
+    default=CONFIG_PATH,
     help="If set, the presentation will be recorded into a AVI video file with given name.",
 )
 @click.help_option("-h", "--help")

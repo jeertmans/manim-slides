@@ -1,0 +1,4 @@
+[flake8]
+extend-ignore =
+    # E501: line too long
+    E501,
