@@ -1,4 +1,3 @@
-import json
 import os
 import platform
 import shutil
@@ -39,7 +38,7 @@ class Slide(Scene):
         super().__init__(*args, **kwargs)
 
         self.output_folder = output_folder
-        self.slides = list()
+        self.slides = []
         self.current_slide = 1
         self.current_animation = 0
         self.loop_start_animation = None
@@ -143,7 +142,7 @@ class Slide(Scene):
         else:
             old_animation_files.update(os.listdir(scene_files_folder))
 
-        files = list()
+        files = []
         for src_file in tqdm(
             self.partial_movie_files,
             desc=f"Copying animation files to '{scene_files_folder}' and generating reversed animations",

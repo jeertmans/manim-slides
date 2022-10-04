@@ -1,8 +1,6 @@
-import json
 import math
 import os
 import platform
-import sys
 import time
 from enum import IntEnum, auto, unique
 from typing import List, Tuple
@@ -14,14 +12,8 @@ from pydantic import ValidationError
 from tqdm import tqdm
 
 from .commons import config_path_option
-from .config import (
-    CONFIG_PATH,
-    FOLDER_PATH,
-    Config,
-    PresentationConfig,
-    SlideConfig,
-    SlideType,
-)
+from .config import Config, PresentationConfig, SlideConfig, SlideType
+from .defaults import CONFIG_PATH, FOLDER_PATH, FONT_ARGS
 
 INTERPOLATION_FLAGS = {
     "nearest": cv2.INTER_NEAREST,
@@ -100,7 +92,7 @@ class Presentation:
 
     def release_cap(self):
         """Releases current Video Capture, if existing."""
-        if not self.cap is None:
+        if self.cap is not None:
             self.cap.release()
 
         self.loaded_animation_cap = -1
@@ -355,7 +347,7 @@ class Display:
         self.lag = now() - self.last_time
         self.last_time = now()
 
-        if not self.record_to is None:
+        if self.record_to is not None:
             pres = self.current_presentation
             self.recordings.append(
                 (pres.current_file, pres.current_frame_number, pres.fps)
@@ -457,7 +449,7 @@ class Display:
         """Destroys all windows created by presentations and exits gracefully."""
         cv2.destroyAllWindows()
 
-        if not self.record_to is None and len(self.recordings) > 0:
+        if self.record_to is not None and len(self.recordings) > 0:
             file, frame_number, fps = self.recordings[0]
 
             cap = cv2.VideoCapture(file)
@@ -597,7 +589,7 @@ def present(
         def value_proc(value: str):
             indices = list(map(int, value.strip().replace(" ", "").split(",")))
 
-            if not all(map(lambda i: 0 < i <= len(scene_choices), indices)):
+            if not all(0 < i <= len(scene_choices) for i in indices):
                 raise click.UsageError(
                     "Please only enter numbers displayed on the screen."
                 )
@@ -616,7 +608,7 @@ def present(
             except ValueError as e:
                 raise click.UsageError(e)
 
-    presentations = list()
+    presentations = []
     for scene in scenes:
         config_file = os.path.join(folder, f"{scene}.json")
         if not os.path.exists(config_file):
@@ -637,11 +629,11 @@ def present(
     else:
         config = Config()
 
-    if not record_to is None:
+    if record_to is not None:
         _, ext = os.path.splitext(record_to)
         if ext.lower() != ".avi":
             raise click.UsageError(
-                f"Recording only support '.avi' extension. For other video formats, please convert the resulting '.avi' file afterwards."
+                "Recording only support '.avi' extension. For other video formats, please convert the resulting '.avi' file afterwards."
             )
 
     display = Display(
