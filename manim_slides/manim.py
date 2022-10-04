@@ -3,6 +3,20 @@ import sys
 from contextlib import contextmanager
 from importlib.util import find_spec
 
+__all__ = [
+    "MANIM" "MANIM_PACKAGE_NAME",
+    "MANIM_AVAILABLE",
+    "MANIM_IMPORTED",
+    "MANIMGL" "MANIMGL_PACKAGE_NAME",
+    "MANIMGL_AVAILABLE",
+    "MANIMGL_IMPORTED",
+    "logger",
+    "Scene",
+    "ThreeDScene",
+    "config",
+    "FFMPEG_BIN",
+]
+
 
 @contextmanager
 def suppress_stdout():
