@@ -1,6 +1,7 @@
 name: Bug
 description: Report an issue to help improve the project.
 labels: "bug"
+title: '[BUG] <description>'
 body:
   - type: textarea
     id: description
