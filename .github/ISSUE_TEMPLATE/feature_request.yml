@@ -1,5 +1,6 @@
 name: Feature Request
 description: Have a new idea/feature? Please suggest!
+label: "enhancement"
 title: '[FEATURE] <description>'
 body:
   - type: textarea
@@ -23,4 +24,3 @@ body:
       description: Is there anything else we should know about this idea?
     validations:
       required: false
-
