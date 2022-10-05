@@ -3,6 +3,22 @@ import sys
 from contextlib import contextmanager
 from importlib.util import find_spec
 
+__all__ = [
+    "MANIM",
+    "MANIM_PACKAGE_NAME",
+    "MANIM_AVAILABLE",
+    "MANIM_IMPORTED",
+    "MANIMGL",
+    "MANIMGL_PACKAGE_NAME",
+    "MANIMGL_AVAILABLE",
+    "MANIMGL_IMPORTED",
+    "logger",
+    "Scene",
+    "ThreeDScene",
+    "config",
+    "FFMPEG_BIN",
+]
+
 
 @contextmanager
 def suppress_stdout():
@@ -61,6 +77,6 @@ else:
         from manim import Scene, ThreeDScene, config, logger
 
         try:  # For manim<v0.16.0.post0
-            from manim.constants import FFMPEG_BIN as FFMPEG_BIN
+            from manim.constants import FFMPEG_BIN
         except ImportError:
             FFMPEG_BIN = config.ffmpeg_executable

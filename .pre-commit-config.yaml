@@ -19,7 +19,12 @@ repos:
     rev: 22.8.0
     hooks:
       - id: black
--   repo: https://github.com/jendrikseipp/vulture
-    rev: v2.6
+-   repo: https://github.com/PyCQA/flake8
+    rev: 5.0.4
     hooks:
-      - id: vulture
+      - id: flake8
+        additional_dependencies:
+        - flake8-bugbear
+        - flake8-comprehensions
+        - flake8-tidy-imports
+        - flake8-typing-imports
