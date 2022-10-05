@@ -30,7 +30,7 @@ While installing Manim Slides and its dependencies on your global Python is fine
 
 Manim Slides requires either Manim or ManimGL to be installed. Having both packages installed is fine too.
 
-If none of those packages are installed, please refer to their specifc installation guidelines:
+If none of those packages are installed, please refer to their specific installation guidelines:
 - [Manim](https://docs.manim.community/en/stable/installation.html)
 - [ManimGL](https://3b1b.github.io/manim/getting_started/installation.html)
 
