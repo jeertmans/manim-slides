@@ -12,14 +12,14 @@ body:
       required: true
   - type: textarea
     id: version
-    attributes: 
+    attributes:
       label: Version
       description: Which version of Manim Slides are you using? You can use `manim-slides --version` to get that information.
     validations:
       required: true
   - type: textarea
     id: platform
-    attributes: 
+    attributes:
       label: Platform
       description: What is your platform. Linux, macOS, or Windows?
     validations:
