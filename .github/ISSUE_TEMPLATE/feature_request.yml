@@ -1,7 +1,7 @@
-name: 💡 General Feature Request
-description: Have a new idea/feature for LinkFree? Please suggest!
+name: Feature Request
+description: Have a new idea/feature? Please suggest!
+label: "enhancement"
 title: '[FEATURE] <description>'
-labels: ['⭐ goal: addition']
 body:
   - type: textarea
     id: description
@@ -24,3 +24,4 @@ body:
       description: Is there anything else we should know about this idea?
     validations:
       required: false
+
