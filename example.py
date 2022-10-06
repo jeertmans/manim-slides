@@ -1,4 +1,5 @@
 # flake8: noqa: F403, F405
+# type: ignore
 import sys
 
 if "manim" in sys.modules:
