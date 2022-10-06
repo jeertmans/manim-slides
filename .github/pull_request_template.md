@@ -10,7 +10,7 @@
 
 <!-- Describe all the proposed changes in your PR -->
 
-## Check List (Check all the applicable boxes) 
+## Check List (Check all the applicable boxes)
 
 - [ ] I understand that my contributions needs to pass the checks.
 - [ ] If I create new functions / methods, I documented them and add type hints.
