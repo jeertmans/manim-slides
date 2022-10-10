@@ -9,6 +9,9 @@ CONFIG_PATH: str = ".manim-slides.json"
 if platform.system() == "Windows":
     RIGHT_ARROW_KEY_CODE = 2555904
     LEFT_ARROW_KEY_CODE = 2424832
+elif platform.system() == "Darwin":
+    RIGHT_ARROW_KEY_CODE = 63235
+    LEFT_ARROW_KEY_CODE = 63234
 else:
     RIGHT_ARROW_KEY_CODE = 65363
     LEFT_ARROW_KEY_CODE = 65361
