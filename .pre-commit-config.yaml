@@ -33,6 +33,9 @@ repos:
     hooks:
     -   id: mypy
         args:
+        - --install-types
+        - --non-interactive
+        - --ignore-missing-imports
         # Disallow dynamic typing
         - --disallow-any-unimported
         - --disallow-any-expr
@@ -42,7 +45,6 @@ repos:
         - --disallow-subclassing-any
 
         # Disallow untyped definitions and calls
-        - --disallow-untyped-calls
         - --disallow-untyped-defs
         - --disallow-incomplete-defs
         - --check-untyped-defs
