@@ -21,7 +21,7 @@ __all__ = [
 
 
 @contextmanager
-def suppress_stdout():
+def suppress_stdout() -> None:
     with open(os.devnull, "w") as devnull:
         old_stdout = sys.stdout
         sys.stdout = devnull

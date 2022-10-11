@@ -56,7 +56,7 @@ def fix_time(t: float) -> float:
 class Presentation:
     """Creates presentation from a configuration object."""
 
-    def __init__(self, config: PresentationConfig):
+    def __init__(self, config: PresentationConfig) -> None:
         self.slides: List[SlideConfig] = config.slides
         self.files: List[str] = config.files
 
@@ -90,14 +90,14 @@ class Presentation:
         """Returns last slide."""
         return self.slides[-1]
 
-    def release_cap(self):
+    def release_cap(self) -> None:
         """Releases current Video Capture, if existing."""
         if self.cap is not None:
             self.cap.release()
 
         self.loaded_animation_cap = -1
 
-    def load_animation_cap(self, animation: int):
+    def load_animation_cap(self, animation: int) -> None:
         """Loads video file of given animation."""
         # We must load a new VideoCapture file if:
         if (self.loaded_animation_cap != animation) or (
@@ -123,7 +123,7 @@ class Presentation:
         self.load_animation_cap(self.current_animation)
         return self.cap
 
-    def rewind_current_slide(self):
+    def rewind_current_slide(self) -> None:
         """Rewinds current slide to first frame."""
         if self.reverse:
             self.current_animation = self.current_slide.end_animation - 1
@@ -132,19 +132,19 @@ class Presentation:
 
         self.current_cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
 
-    def cancel_reverse(self):
+    def cancel_reverse(self) -> None:
         """Cancels any effet produced by a reversed slide."""
         if self.reverse:
             self.reverse = False
             self.reversed_animation = -1
             self.release_cap()
 
-    def reverse_current_slide(self):
+    def reverse_current_slide(self) -> None:
         """Reverses current slide."""
         self.reverse = True
         self.rewind_current_slide()
 
-    def load_next_slide(self):
+    def load_next_slide(self) -> None:
         """Loads next slide."""
         if self.reverse:
             self.cancel_reverse()
@@ -157,7 +157,7 @@ class Presentation:
             )
             self.rewind_current_slide()
 
-    def load_previous_slide(self):
+    def load_previous_slide(self) -> None:
         """Loads previous slide."""
         self.cancel_reverse()
         self.current_slide_index = max(0, self.current_slide_index - 1)
@@ -168,7 +168,7 @@ class Presentation:
         """Returns the number of frames per second of the current video."""
         return self.current_cap.get(cv2.CAP_PROP_FPS)
 
-    def add_last_slide(self):
+    def add_last_slide(self) -> None:
         """Add a 'last' slide to the end of slides."""
         self.slides.append(
             SlideConfig(
@@ -179,14 +179,14 @@ class Presentation:
             )
         )
 
-    def reset(self):
+    def reset(self) -> None:
         """Rests current presentation."""
         self.current_animation = 0
         self.load_animation_cap(0)
         self.current_slide_index = 0
         self.slides[-1].terminated = False
 
-    def load_last_slide(self):
+    def load_last_slide(self) -> None:
         """Loads last slide."""
         self.current_slide_index = len(self.slides) - 2
         assert (
@@ -276,7 +276,7 @@ class Display:
         resolution=(1980, 1080),
         interpolation_flag=cv2.INTER_LINEAR,
         record_to=None,
-    ):
+    ) -> None:
         self.presentations = presentations
         self.start_paused = start_paused
         self.config = config
@@ -319,7 +319,7 @@ class Display:
         """Returns the current presentation."""
         return self.presentations[self.current_presentation_index]
 
-    def run(self):
+    def run(self) -> None:
         """Runs a series of presentations until end or exit."""
         while not self.exit:
             self.lastframe, self.state = self.current_presentation.update_state(
@@ -342,7 +342,7 @@ class Display:
             self.show_video()
             self.show_info()
 
-    def show_video(self):
+    def show_video(self) -> None:
         """Shows updated video."""
         self.lag = now() - self.last_time
         self.last_time = now()
@@ -369,7 +369,7 @@ class Display:
 
         cv2.imshow(WINDOW_NAME, frame)
 
-    def show_info(self):
+    def show_info(self) -> None:
         """Shows updated information about presentations."""
         info = np.zeros((130, 420), np.uint8)
         font_args = (FONT_ARGS[0], 0.7, *FONT_ARGS[2:])
@@ -406,7 +406,7 @@ class Display:
 
         cv2.imshow(WINDOW_INFO_NAME, info)
 
-    def handle_key(self):
+    def handle_key(self) -> None:
         """Handles key strokes."""
         sleep_time = math.ceil(1000 / self.current_presentation.fps)
         key = cv2.waitKeyEx(fix_time(sleep_time - self.lag))
@@ -445,7 +445,7 @@ class Display:
             self.current_presentation.rewind_current_slide()
             self.state = State.PLAYING
 
-    def quit(self):
+    def quit(self) -> None:
         """Destroys all windows created by presentations and exits gracefully."""
         cv2.destroyAllWindows()
 
@@ -489,7 +489,7 @@ class Display:
     show_default=True,
 )
 @click.help_option("-h", "--help")
-def list_scenes(folder):
+def list_scenes(folder) -> None:
     """List available scenes."""
 
     for i, scene in enumerate(_list_scenes(folder), start=1):
@@ -562,7 +562,7 @@ def present(
     resolution,
     interpolation_flag,
     record_to,
-):
+) -> None:
     """
     Present SCENE(s), one at a time, in order.
 
@@ -586,7 +586,7 @@ def present(
         click.echo("Choose number corresponding to desired scene/arguments.")
         click.echo("(Use comma separated list for multiple entries)")
 
-        def value_proc(value: str):
+        def value_proc(value: str) -> List[str]:
             indices = list(map(int, value.strip().replace(" ", "").split(",")))
 
             if not all(0 < i <= len(scene_choices) for i in indices):
