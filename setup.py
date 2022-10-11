@@ -1,3 +1,4 @@
+# type: ignore
 import importlib.util
 import os
 import sys

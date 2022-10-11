@@ -11,7 +11,7 @@ from .defaults import FOLDER_PATH
 from .manim import FFMPEG_BIN, MANIMGL, Scene, ThreeDScene, config, logger
 
 
-def reverse_video_file(src: str, dst: str):
+def reverse_video_file(src: str, dst: str) -> None:
     """Reverses a video file, writting the result to `dst`."""
     command = [FFMPEG_BIN, "-i", src, "-vf", "reverse", dst]
     process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -23,7 +23,7 @@ class Slide(Scene):
     Inherits from `manim.Scene` or `manimlib.Scene` and provide necessary tools for slides rendering.
     """
 
-    def __init__(self, *args, output_folder=FOLDER_PATH, **kwargs):
+    def __init__(self, *args, output_folder=FOLDER_PATH, **kwargs) -> None:
         if MANIMGL:
             if not os.path.isdir("videos"):
                 os.mkdir("videos")
@@ -69,19 +69,19 @@ class Slide(Scene):
             return config["progress_bar"] != "none"
 
     @property
-    def leave_progress_bar(self):
+    def leave_progress_bar(self) -> None:
         """Returns True if progress bar should be left after completed."""
         if MANIMGL:
             return getattr(super(Scene, self), "leave_progress_bars", False)
         else:
             return config["progress_bar"] == "leave"
 
-    def play(self, *args, **kwargs):
+    def play(self, *args, **kwargs) -> None:
         """Overloads `self.play` and increment animation count."""
         super().play(*args, **kwargs)
         self.current_animation += 1
 
-    def pause(self):
+    def pause(self) -> None:
         """Creates a new slide with previous animations."""
         self.slides.append(
             SlideConfig(
@@ -94,12 +94,12 @@ class Slide(Scene):
         self.current_slide += 1
         self.pause_start_animation = self.current_animation
 
-    def start_loop(self):
+    def start_loop(self) -> None:
         """Starts a loop."""
         assert self.loop_start_animation is None, "You cannot nest loops"
         self.loop_start_animation = self.current_animation
 
-    def end_loop(self):
+    def end_loop(self) -> None:
         """Ends an existing loop."""
         assert (
             self.loop_start_animation is not None
@@ -116,7 +116,7 @@ class Slide(Scene):
         self.loop_start_animation = None
         self.pause_start_animation = self.current_animation
 
-    def save_slides(self, use_cache=True):
+    def save_slides(self, use_cache=True) -> None:
         """
         Saves slides, optionally using cached files.
 
@@ -182,12 +182,12 @@ class Slide(Scene):
             f"Slide '{scene_name}' configuration written in '{os.path.abspath(slide_path)}'"
         )
 
-    def run(self, *args, **kwargs):
+    def run(self, *args, **kwargs) -> None:
         """MANIMGL renderer"""
         super().run(*args, **kwargs)
         self.save_slides(use_cache=False)
 
-    def render(self, *args, **kwargs):
+    def render(self, *args, **kwargs) -> None:
         """MANIM render"""
         # We need to disable the caching limit since we rely on intermidiate files
         max_files_cached = config["max_files_cached"]
