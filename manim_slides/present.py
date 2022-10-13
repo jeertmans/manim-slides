@@ -1,16 +1,16 @@
 import math
 import os
 import platform
+import sys
 import time
 from enum import IntEnum, auto, unique
-import sys
 from typing import List, Tuple
-from PyQt5.QtWidgets import QWidget, QApplication
 
 import click
 import cv2
 import numpy as np
 from pydantic import ValidationError
+from PyQt5.QtWidgets import QApplication, QWidget
 from tqdm import tqdm
 
 from .commons import config_path_option, verbosity_option
