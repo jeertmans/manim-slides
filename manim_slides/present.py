@@ -4,19 +4,25 @@ import platform
 import sys
 import time
 from enum import IntEnum, auto, unique
-from typing import List, Tuple
+from typing import List, Tuple, Optional
 
 import click
 import cv2
+from PyQt5 import QtGui
+from PyQt5.QtCore import Qt, QThread, pyqtSignal, pyqtSlot
+from PyQt5.QtGui import QPixmap
+from PyQt5.QtWidgets import QApplication, QLabel, QVBoxLayout, QWidget
+
 import numpy as np
 from pydantic import ValidationError
-from PyQt5.QtWidgets import QApplication, QWidget
 from tqdm import tqdm
 
 from .commons import config_path_option, verbosity_option
 from .config import Config, PresentationConfig, SlideConfig, SlideType
 from .defaults import FOLDER_PATH, FONT_ARGS
 from .manim import logger
+
+os.environ.pop("QT_QPA_PLATFORM_PLUGIN_PATH")  # See why here: https://stackoverflow.com/a/67863156
 
 INTERPOLATION_FLAGS = {
     "nearest": cv2.INTER_NEAREST,
@@ -63,17 +69,17 @@ class Presentation:
         self.slides: List[SlideConfig] = config.slides
         self.files: List[str] = config.files
 
-        self.current_slide_index = 0
-        self.current_animation = self.current_slide.start_animation
-        self.current_file = None
+        self.current_slide_index: int = 0
+        self.current_animation: int = self.current_slide.start_animation
+        self.current_file: Optional[str] = None
 
-        self.loaded_animation_cap = -1
+        self.loaded_animation_cap: int = -1
         self.cap = None  # cap = cv2.VideoCapture
 
-        self.reverse = False
-        self.reversed_animation = -1
+        self.reverse: bool = False
+        self.reversed_animation: int = -1
 
-        self.lastframe = None
+        self.lastframe: Optional[np.ndarray] = None
 
         self.reset()
         self.add_last_slide()
@@ -109,7 +115,7 @@ class Presentation:
 
             self.release_cap()
 
-            file = self.files[animation]
+            file: str = self.files[animation]
 
             if self.reverse:
                 file = "{}_reversed{}".format(*os.path.splitext(file))
@@ -266,8 +272,11 @@ class Presentation:
         return self.lastframe, state
 
 
-class Display(QWidget):
+class Display(QThread):
     """Displays one or more presentations one after each other."""
+
+    change_video_signal = pyqtSignal(np.ndarray)
+    change_info_signal = pyqtSignal(dict)
 
     def __init__(
         self,
@@ -281,9 +290,6 @@ class Display(QWidget):
         record_to=None,
     ) -> None:
         super().__init__()
-        self.setWindowTitle("Qt live label demo")
-        self.disply_width = 640
-        self.display_height = 480
         self.presentations = presentations
         self.start_paused = start_paused
         self.config = config
@@ -297,29 +303,14 @@ class Display(QWidget):
             cv2.WINDOW_GUI_NORMAL | cv2.WINDOW_FREERATIO | cv2.WINDOW_NORMAL
         )
 
+
         self.state = State.PLAYING
-        self.lastframe = None
+        self.lastframe: Optional[np.ndarray] = None
         self.current_presentation_index = 0
         self.exit = False
 
         self.lag = 0
         self.last_time = now()
-
-        cv2.namedWindow(
-            WINDOW_INFO_NAME,
-            cv2.WINDOW_GUI_NORMAL | cv2.WINDOW_FREERATIO | cv2.WINDOW_AUTOSIZE,
-        )
-
-        if self.fullscreen:
-            cv2.namedWindow(
-                WINDOW_NAME, cv2.WINDOW_GUI_NORMAL | cv2.WND_PROP_FULLSCREEN
-            )
-            cv2.setWindowProperty(
-                WINDOW_NAME, cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN
-            )
-        else:
-            cv2.namedWindow(WINDOW_NAME, self.window_flags)
-            cv2.resizeWindow(WINDOW_NAME, *self.resolution)
 
     @property
     def current_presentation(self) -> Presentation:
@@ -360,21 +351,9 @@ class Display(QWidget):
                 (pres.current_file, pres.current_frame_number, pres.fps)
             )
 
-        frame = self.lastframe
+        frame: np.ndarray = self.lastframe
 
-        # If Window was manually closed (impossible in fullscreen),
-        # we reopen it
-        if cv2.getWindowProperty(WINDOW_NAME, cv2.WND_PROP_VISIBLE) < 1:
-            cv2.namedWindow(WINDOW_NAME, self.window_flags)
-            cv2.resizeWindow(WINDOW_NAME, *self.resolution)
-
-        if WINDOWS:  # Only resize on Windows
-            _, _, w, h = cv2.getWindowImageRect(WINDOW_NAME)
-
-            if (h, w) != frame.shape[:2]:  # Only if shape is different
-                frame = cv2.resize(frame, (w, h), self.interpolation_flag)
-
-        cv2.imshow(WINDOW_NAME, frame)
+        self.change_video_signal.emit(frame)
 
     def show_info(self) -> None:
         """Shows updated information about presentations."""
@@ -411,12 +390,15 @@ class Display(QWidget):
             *font_args,
         )
 
-        cv2.imshow(WINDOW_INFO_NAME, info)
+        #cv2.imshow(WINDOW_INFO_NAME, info)
+        self.change_info_signal.emit({"prout": "ok"})
 
     def handle_key(self) -> None:
         """Handles key strokes."""
         sleep_time = math.ceil(1000 / self.current_presentation.fps)
-        key = cv2.waitKeyEx(fix_time(sleep_time - self.lag))
+        #key = cv2.waitKeyEx(fix_time(sleep_time - self.lag))
+        time.sleep(fix_time(sleep_time - self.lag) / 1000)
+        key = 0
 
         if self.config.QUIT.match(key):
             self.quit()
@@ -488,6 +470,72 @@ class Display(QWidget):
             out.release()
 
         self.exit = True
+
+    def stop(self):
+        self.exit = True
+        self.wait()
+
+
+class App(QWidget):
+    def __init__(self, *args, **kwargs):
+        super().__init__()
+        #self.showFullScreen()
+        self.setWindowTitle("Qt live label demo")
+        self.display_width = 640
+        self.display_height = 480
+
+        self.setCursor(Qt.BlankCursor)
+        self.label = QLabel(self)
+        self.label.resize(self.display_width, self.display_height)
+
+        self.pixmap = QPixmap(self.width(), self.height())
+        self.label.setPixmap(self.pixmap)
+        self.label.setMinimumSize(1, 1)
+
+        # create the video capture thread
+        self.thread = Display(*args, **kwargs)
+        # connect its signal to the update_image slot
+        self.thread.change_video_signal.connect(self.update_image)
+        self.thread.change_info_signal.connect(self.update_info)
+        # start the thread
+        self.thread.start()
+
+    def keyPressEvent(self, event):
+        print(event.key())
+        event.accept()
+
+    def resizeEvent(self, event):
+        self.pixmap = self.pixmap.scaled(self.width(), self.height())
+        self.label.setPixmap(self.pixmap)
+        self.label.resize(self.width(), self.height())
+
+    def closeEvent(self, event):
+        self.thread.stop()
+        event.accept()
+
+    @pyqtSlot(np.ndarray)
+    def update_image(self, cv_img):
+        """Updates the image_label with a new opencv image"""
+        self.pixmap = self.convert_cv_qt(cv_img)
+        self.label.setPixmap(self.pixmap)
+
+    @pyqtSlot(dict)
+    def update_info(self, info):
+        """Updates the image_label with a new opencv image"""
+        pass
+
+    def convert_cv_qt(self, cv_img):
+        """Convert from an opencv image to QPixmap"""
+        rgb_image = cv2.cvtColor(cv_img, cv2.COLOR_BGR2RGB)
+        h, w, ch = rgb_image.shape
+        bytes_per_line = ch * w
+        convert_to_Qt_format = QtGui.QImage(
+            rgb_image.data, w, h, bytes_per_line, QtGui.QImage.Format_RGB888
+        )
+        p = convert_to_Qt_format.scaled(
+            self.width(), self.height(), Qt.IgnoreAspectRatio
+        )
+        return QPixmap.fromImage(p)
 
 
 @click.command()
@@ -655,7 +703,7 @@ def present(
             )
 
     app = QApplication(sys.argv)
-    display = Display(
+    a = App(
         presentations,
         config=config,
         start_paused=start_paused,
@@ -665,6 +713,6 @@ def present(
         interpolation_flag=INTERPOLATION_FLAGS[interpolation_flag],
         record_to=record_to,
     )
-    display.show()
+    a.show()
     sys.exit(app.exec_())
-    display.run()
+    a.run()
