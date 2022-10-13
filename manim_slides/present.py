@@ -4,17 +4,16 @@ import platform
 import sys
 import time
 from enum import IntEnum, auto, unique
-from typing import List, Tuple, Optional
+from typing import List, Optional, Tuple
 
 import click
 import cv2
+import numpy as np
+from pydantic import ValidationError
 from PyQt5 import QtGui
 from PyQt5.QtCore import Qt, QThread, pyqtSignal, pyqtSlot
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import QApplication, QLabel, QVBoxLayout, QWidget
-
-import numpy as np
-from pydantic import ValidationError
 from tqdm import tqdm
 
 from .commons import config_path_option, verbosity_option
@@ -22,7 +21,9 @@ from .config import Config, PresentationConfig, SlideConfig, SlideType
 from .defaults import FOLDER_PATH, FONT_ARGS
 from .manim import logger
 
-os.environ.pop("QT_QPA_PLATFORM_PLUGIN_PATH")  # See why here: https://stackoverflow.com/a/67863156
+os.environ.pop(
+    "QT_QPA_PLATFORM_PLUGIN_PATH"
+)  # See why here: https://stackoverflow.com/a/67863156
 
 INTERPOLATION_FLAGS = {
     "nearest": cv2.INTER_NEAREST,
@@ -303,7 +304,6 @@ class Display(QThread):
             cv2.WINDOW_GUI_NORMAL | cv2.WINDOW_FREERATIO | cv2.WINDOW_NORMAL
         )
 
-
         self.state = State.PLAYING
         self.lastframe: Optional[np.ndarray] = None
         self.current_presentation_index = 0
@@ -390,13 +390,13 @@ class Display(QThread):
             *font_args,
         )
 
-        #cv2.imshow(WINDOW_INFO_NAME, info)
+        # cv2.imshow(WINDOW_INFO_NAME, info)
         self.change_info_signal.emit({"prout": "ok"})
 
     def handle_key(self) -> None:
         """Handles key strokes."""
         sleep_time = math.ceil(1000 / self.current_presentation.fps)
-        #key = cv2.waitKeyEx(fix_time(sleep_time - self.lag))
+        # key = cv2.waitKeyEx(fix_time(sleep_time - self.lag))
         time.sleep(fix_time(sleep_time - self.lag) / 1000)
         key = 0
 
@@ -479,7 +479,7 @@ class Display(QThread):
 class App(QWidget):
     def __init__(self, *args, **kwargs):
         super().__init__()
-        #self.showFullScreen()
+        # self.showFullScreen()
         self.setWindowTitle("Qt live label demo")
         self.display_width = 640
         self.display_height = 480
