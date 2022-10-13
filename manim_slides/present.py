@@ -3,7 +3,9 @@ import os
 import platform
 import time
 from enum import IntEnum, auto, unique
+import sys
 from typing import List, Tuple
+from PyQt5.QtWidgets import QWidget, QApplication
 
 import click
 import cv2
@@ -264,7 +266,7 @@ class Presentation:
         return self.lastframe, state
 
 
-class Display:
+class Display(QWidget):
     """Displays one or more presentations one after each other."""
 
     def __init__(
@@ -278,6 +280,10 @@ class Display:
         interpolation_flag=cv2.INTER_LINEAR,
         record_to=None,
     ) -> None:
+        super().__init__()
+        self.setWindowTitle("Qt live label demo")
+        self.disply_width = 640
+        self.display_height = 480
         self.presentations = presentations
         self.start_paused = start_paused
         self.config = config
@@ -648,6 +654,7 @@ def present(
                 "Recording only support '.avi' extension. For other video formats, please convert the resulting '.avi' file afterwards."
             )
 
+    app = QApplication(sys.argv)
     display = Display(
         presentations,
         config=config,
@@ -658,4 +665,6 @@ def present(
         interpolation_flag=INTERPOLATION_FLAGS[interpolation_flag],
         record_to=record_to,
     )
+    display.show()
+    sys.exit(app.exec_())
     display.run()
