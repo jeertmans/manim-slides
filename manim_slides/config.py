@@ -3,8 +3,8 @@ from enum import Enum
 from typing import List, Optional, Set
 
 from pydantic import BaseModel, root_validator, validator
-from PyQt5.QtWidgets import QLabel, QVBoxLayout
 from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QLabel, QVBoxLayout
 
 from .manim import logger
 
@@ -68,9 +68,6 @@ class Config(BaseModel):
             layout.addWidget(label)
 
         return layout
-
-
-
 
     def from_qt_widget(self):
         pass

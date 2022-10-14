@@ -334,11 +334,11 @@ class Display(QThread):
                 else:
                     self.current_presentation_index += 1
                     self.state = State.PLAYING
-            #self.handle_key()
+            # self.handle_key()
             if self.exit:
                 continue
             self.show_video()
-            #self.show_info()
+            # self.show_info()
 
     def show_video(self) -> None:
         """Shows updated video."""
@@ -356,10 +356,10 @@ class Display(QThread):
         self.last_time = now()
 
         self.change_video_signal.emit(frame)
-        
+
         sleep_time = 1 / self.current_presentation.fps
         # key = cv2.waitKeyEx(fix_time(sleep_time - self.lag))
-        #time.sleep(max(sleep_time - self.lag, 0))
+        # time.sleep(max(sleep_time - self.lag, 0))
 
     def show_info(self) -> None:
         """Shows updated information about presentations."""
@@ -507,7 +507,6 @@ class App(QWidget):
         # start the thread
         self.thread.start()
 
-    
     def keyPressEvent(self, event):
         self.thread.handle_key(event.key())
         event.accept()

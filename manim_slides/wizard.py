@@ -2,21 +2,21 @@ import os
 import sys
 
 import click
+from PyQt5.QtWidgets import QApplication, QLabel, QVBoxLayout, QWidget
 
 from .commons import config_options, verbosity_option
 from .config import Config
 from .defaults import CONFIG_PATH
 
-from PyQt5.QtWidgets import QApplication, QLabel, QVBoxLayout, QWidget
-
 WINDOW_NAME = "Manim Slides Configuration Wizard"
 WINDOW_SIZE = (120, 620)
+
 
 class KeyInput(QWidget):
     pass
 
-class Wizard(QWidget):
 
+class Wizard(QWidget):
     def __init__(self, config):
 
         super().__init__()
@@ -25,6 +25,7 @@ class Wizard(QWidget):
         self.resize(*WINDOW_SIZE)
 
         self.setLayout(config.into_qt_widget())
+
 
 def prompt(question: str) -> int:
     """Diplays some question in current window and waits for key press."""
