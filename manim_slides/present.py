@@ -18,7 +18,7 @@ from tqdm import tqdm
 
 from .commons import config_path_option, verbosity_option
 from .config import Config, PresentationConfig, SlideConfig, SlideType
-from .defaults import FOLDER_PATH, FONT_ARGS
+from .defaults import FOLDER_PATH
 from .manim import logger
 
 os.environ.pop(
@@ -334,16 +334,15 @@ class Display(QThread):
                 else:
                     self.current_presentation_index += 1
                     self.state = State.PLAYING
-            self.handle_key()
+            #self.handle_key()
             if self.exit:
                 continue
             self.show_video()
-            self.show_info()
+            #self.show_info()
 
     def show_video(self) -> None:
         """Shows updated video."""
-        self.lag = now() - self.last_time
-        self.last_time = now()
+        print("Show video")
 
         if self.record_to is not None:
             pres = self.current_presentation
@@ -353,7 +352,14 @@ class Display(QThread):
 
         frame: np.ndarray = self.lastframe
 
+        self.lag = now() - self.last_time
+        self.last_time = now()
+
         self.change_video_signal.emit(frame)
+        
+        sleep_time = 1 / self.current_presentation.fps
+        # key = cv2.waitKeyEx(fix_time(sleep_time - self.lag))
+        #time.sleep(max(sleep_time - self.lag, 0))
 
     def show_info(self) -> None:
         """Shows updated information about presentations."""
@@ -393,12 +399,13 @@ class Display(QThread):
         # cv2.imshow(WINDOW_INFO_NAME, info)
         self.change_info_signal.emit({"prout": "ok"})
 
-    def handle_key(self) -> None:
+    def keyPressEvent(self, event):
+        print(event.key())
+        event.accept()
+
+    def handle_key(self, key) -> None:
         """Handles key strokes."""
-        sleep_time = math.ceil(1000 / self.current_presentation.fps)
-        # key = cv2.waitKeyEx(fix_time(sleep_time - self.lag))
-        time.sleep(fix_time(sleep_time - self.lag) / 1000)
-        key = 0
+        print("key", key)
 
         if self.config.QUIT.match(key):
             self.quit()
@@ -480,7 +487,7 @@ class App(QWidget):
     def __init__(self, *args, **kwargs):
         super().__init__()
         # self.showFullScreen()
-        self.setWindowTitle("Qt live label demo")
+        self.setWindowTitle(WINDOW_NAME)
         self.display_width = 640
         self.display_height = 480
 
@@ -500,8 +507,9 @@ class App(QWidget):
         # start the thread
         self.thread.start()
 
+    
     def keyPressEvent(self, event):
-        print(event.key())
+        self.thread.handle_key(event.key())
         event.accept()
 
     def resizeEvent(self, event):

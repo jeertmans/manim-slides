@@ -3,10 +3,10 @@ from enum import Enum
 from typing import List, Optional, Set
 
 from pydantic import BaseModel, root_validator, validator
+from PyQt5.QtWidgets import QLabel, QVBoxLayout
+from PyQt5.QtCore import Qt
 
-from .defaults import LEFT_ARROW_KEY_CODE, RIGHT_ARROW_KEY_CODE
 from .manim import logger
-
 
 class Key(BaseModel):
     """Represents a list of key codes, with optionally a name."""
@@ -32,12 +32,12 @@ class Key(BaseModel):
 class Config(BaseModel):
     """General Manim Slides config"""
 
-    QUIT: Key = Key(ids=[ord("q")], name="QUIT")
-    CONTINUE: Key = Key(ids=[RIGHT_ARROW_KEY_CODE], name="CONTINUE / NEXT")
-    BACK: Key = Key(ids=[LEFT_ARROW_KEY_CODE], name="BACK")
-    REVERSE: Key = Key(ids=[ord("v")], name="REVERSE")
-    REWIND: Key = Key(ids=[ord("r")], name="REWIND")
-    PLAY_PAUSE: Key = Key(ids=[32], name="PLAY / PAUSE")
+    QUIT: Key = Key(ids=[Qt.Key_Q], name="QUIT")
+    CONTINUE: Key = Key(ids=[Qt.Key_Right], name="CONTINUE / NEXT")
+    BACK: Key = Key(ids=[Qt.Key_Left], name="BACK")
+    REVERSE: Key = Key(ids=[Qt.Key_V], name="REVERSE")
+    REWIND: Key = Key(ids=[Qt.Key_R], name="REWIND")
+    PLAY_PAUSE: Key = Key(ids=[Qt.Key_Space], name="PLAY / PAUSE")
 
     @root_validator
     def ids_are_unique_across_keys(cls, values):
@@ -59,6 +59,21 @@ class Config(BaseModel):
             key.name = other_key.name or key.name
 
         return self
+
+    def into_qt_widget(self):
+        layout = QVBoxLayout()
+        for key, value in self.dict().items():
+            label = QLabel()
+            label.setText(key)
+            layout.addWidget(label)
+
+        return layout
+
+
+
+
+    def from_qt_widget(self):
+        pass
 
 
 class SlideType(str, Enum):

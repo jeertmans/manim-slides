@@ -2,24 +2,29 @@ import os
 import sys
 
 import click
-import cv2
-import numpy as np
 
 from .commons import config_options, verbosity_option
 from .config import Config
-from .defaults import CONFIG_PATH, FONT_ARGS
+from .defaults import CONFIG_PATH
+
+from PyQt5.QtWidgets import QApplication, QLabel, QVBoxLayout, QWidget
 
 WINDOW_NAME = "Manim Slides Configuration Wizard"
 WINDOW_SIZE = (120, 620)
 
+class KeyInput(QWidget):
+    pass
 
-def center_text_horizontally(text, window_size, font_args) -> int:
-    """Returns centered position for text to be displayed in current window."""
-    _, width = window_size
-    font, scale, _, thickness, _ = font_args
-    (size_in_pixels, _), _ = cv2.getTextSize(text, font, scale, thickness)
-    return (width - size_in_pixels) // 2
+class Wizard(QWidget):
 
+    def __init__(self, config):
+
+        super().__init__()
+
+        self.setWindowTitle(WINDOW_NAME)
+        self.resize(*WINDOW_SIZE)
+
+        self.setLayout(config.into_qt_widget())
 
 def prompt(question: str) -> int:
     """Diplays some question in current window and waits for key press."""
@@ -78,6 +83,12 @@ def _init(config_path, force, merge, skip_interactive=False):
             sys.exit(0)
 
     config = Config()
+
+    app = QApplication(sys.argv)
+    print(config.into_qt_widget())
+    window = Wizard(config)
+    window.show()
+    app.exec()
 
     if not skip_interactive:
 
