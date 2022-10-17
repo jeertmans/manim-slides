@@ -4,7 +4,6 @@ from typing import List, Optional, Set
 
 from pydantic import BaseModel, root_validator, validator
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QLabel, QVBoxLayout
 
 from .manim import logger
 
@@ -15,13 +14,16 @@ class Key(BaseModel):
     ids: Set[int]
     name: Optional[str] = None
 
+    def set_ids(self, *ids: int) -> None:
+        self.ids = set(ids)
+
     @validator("ids", each_item=True)
-    def id_is_posint(cls, v: int):
+    def id_is_posint(cls, v: int) -> int:
         if v < 0:
             raise ValueError("Key ids cannot be negative integers")
         return v
 
-    def match(self, key_id: int):
+    def match(self, key_id: int) -> bool:
         m = key_id in self.ids
 
         if m:
@@ -47,7 +49,7 @@ class Config(BaseModel):
         for key in values.values():
             if len(ids.intersection(key.ids)) != 0:
                 raise ValueError(
-                    "Two or more keys share a common key code: please make sure each key has distinc key codes"
+                    "Two or more keys share a common key code: please make sure each key has distinct key codes"
                 )
             ids.update(key.ids)
 
@@ -60,18 +62,6 @@ class Config(BaseModel):
             key.name = other_key.name or key.name
 
         return self
-
-    def into_qt_widget(self):
-        layout = QVBoxLayout()
-        for key, value in self.dict().items():
-            label = QLabel()
-            label.setText(key)
-            layout.addWidget(label)
-
-        return layout
-
-    def from_qt_widget(self):
-        pass
 
 
 class SlideType(str, Enum):
