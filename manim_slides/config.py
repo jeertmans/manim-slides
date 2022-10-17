@@ -1,13 +1,13 @@
 import os
 from enum import Enum
 from typing import List, Optional, Set
-from .manim import logger
 
 from pydantic import BaseModel, root_validator, validator
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QLabel, QVBoxLayout
 
 from .manim import logger
+
 
 class Key(BaseModel):
     """Represents a list of key codes, with optionally a name."""
