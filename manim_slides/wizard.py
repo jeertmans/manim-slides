@@ -39,7 +39,7 @@ def prompt(question: str) -> int:
 @click.command()
 @config_options
 @click.help_option("-h", "--help")
-@version_option
+@verbosity_option
 def wizard(config_path, force, merge):
     """Launch configuration wizard."""
     return _init(config_path, force, merge, skip_interactive=False)
