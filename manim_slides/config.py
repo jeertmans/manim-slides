@@ -5,6 +5,7 @@ from typing import List, Optional, Set
 from pydantic import BaseModel, root_validator, validator
 
 from .defaults import LEFT_ARROW_KEY_CODE, RIGHT_ARROW_KEY_CODE
+from .manim import logger
 
 
 class Key(BaseModel):
@@ -20,7 +21,12 @@ class Key(BaseModel):
         return v
 
     def match(self, key_id: int):
-        return key_id in self.ids
+        m = key_id in self.ids
+
+        if m:
+            logger.debug(f"Pressed key: {self.name}")
+
+        return m
 
 
 class Config(BaseModel):

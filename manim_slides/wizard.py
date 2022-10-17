@@ -5,7 +5,7 @@ import click
 import cv2
 import numpy as np
 
-from .commons import config_options
+from .commons import config_options, verbosity_option
 from .config import Config
 from .defaults import CONFIG_PATH, FONT_ARGS
 
@@ -39,6 +39,7 @@ def prompt(question: str) -> int:
 @click.command()
 @config_options
 @click.help_option("-h", "--help")
+@verbosity_option
 def wizard(config_path, force, merge):
     """Launch configuration wizard."""
     return _init(config_path, force, merge, skip_interactive=False)
@@ -47,6 +48,7 @@ def wizard(config_path, force, merge):
 @click.command()
 @config_options
 @click.help_option("-h", "--help")
+@verbosity_option
 def init(config_path, force, merge, skip_interactive=False):
     """Initialize a new default configuration file."""
     return _init(config_path, force, merge, skip_interactive=True)
