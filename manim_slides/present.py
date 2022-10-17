@@ -140,12 +140,7 @@ class Presentation:
         else:
             self.current_animation = self.current_slide.start_animation
 
-        print("HERE")
-
-        print(self.current_cap)
-        self.current_cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
-
-        print("THERE")
+        #self.current_cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
 
     def cancel_reverse(self) -> None:
         """Cancels any effet produced by a reversed slide."""
@@ -161,6 +156,7 @@ class Presentation:
 
     def load_next_slide(self) -> None:
         """Loads next slide."""
+        logger.debug("Loading next slide")
         if self.reverse:
             self.cancel_reverse()
             self.rewind_current_slide()
@@ -174,6 +170,7 @@ class Presentation:
 
     def load_previous_slide(self) -> None:
         """Loads previous slide."""
+        logger.debug("Loading previous slide")
         self.cancel_reverse()
         self.current_slide_index = max(0, self.current_slide_index - 1)
         self.rewind_current_slide()
@@ -181,7 +178,7 @@ class Presentation:
     @property
     def fps(self) -> int:
         """Returns the number of frames per second of the current video."""
-        return self.current_cap.get(cv2.CAP_PROP_FPS)
+        return max(self.current_cap.get(cv2.CAP_PROP_FPS), 1)  # TODO: understand why we sometimes get 0 fps
 
     def add_last_slide(self) -> None:
         """Add a 'last' slide to the end of slides."""
@@ -273,7 +270,7 @@ class Presentation:
                 self.current_animation = self.next_animation
                 self.load_animation_cap(self.current_animation)
                 # Reset video to position zero if it has been played before
-                self.current_cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
+                #self.current_cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
 
         return self.lastframe, state
 
@@ -283,6 +280,7 @@ class Display(QThread):
 
     change_video_signal = pyqtSignal(np.ndarray)
     change_info_signal = pyqtSignal(dict)
+
 
     def __init__(
         self,
@@ -305,14 +303,11 @@ class Display(QThread):
         self.interpolation_flag = interpolation_flag
         self.record_to = record_to
         self.recordings = []
-        self.window_flags = (
-            cv2.WINDOW_GUI_NORMAL | cv2.WINDOW_FREERATIO | cv2.WINDOW_NORMAL
-        )
 
         self.state = State.PLAYING
         self.lastframe: Optional[np.ndarray] = None
         self.current_presentation_index = 0
-        self.exit = False
+        self.run_flag = True
 
         self.lag = 0
         self.last_time = now()
@@ -324,7 +319,7 @@ class Display(QThread):
 
     def run(self) -> None:
         """Runs a series of presentations until end or exit."""
-        while not self.exit:
+        while self.run_flag:
             self.lastframe, self.state = self.current_presentation.update_state(
                 self.state
             )
@@ -334,21 +329,25 @@ class Display(QThread):
                     self.start_paused = False
             if self.state == State.END:
                 if self.current_presentation_index == len(self.presentations) - 1:
-                    self.quit()
+                    self.run_flag = False
                     continue
                 else:
                     self.current_presentation_index += 1
                     self.state = State.PLAYING
-            # self.handle_key()
-            if self.exit:
+            if not self.run_flag:
                 continue
             self.show_video()
-            # self.show_info()
+ 
+            self.lag = now() - self.last_time
+            self.last_time = now()
+
+            sleep_time = 1 / self.current_presentation.fps
+            time.sleep(max(sleep_time - self.lag, 0))           #self.show_info()
+
+        self.current_presentation.release_cap()
 
     def show_video(self) -> None:
         """Shows updated video."""
-        print("Show video")
-
         if self.record_to is not None:
             pres = self.current_presentation
             self.recordings.append(
@@ -356,15 +355,7 @@ class Display(QThread):
             )
 
         frame: np.ndarray = self.lastframe
-
-        self.lag = now() - self.last_time
-        self.last_time = now()
-
         self.change_video_signal.emit(frame)
-
-        sleep_time = 1 / self.current_presentation.fps
-        # key = cv2.waitKeyEx(fix_time(sleep_time - self.lag))
-        # time.sleep(max(sleep_time - self.lag, 0))
 
     def show_info(self) -> None:
         """Shows updated information about presentations."""
@@ -404,16 +395,11 @@ class Display(QThread):
         # cv2.imshow(WINDOW_INFO_NAME, info)
         self.change_info_signal.emit({"prout": "ok"})
 
-    def keyPressEvent(self, event):
-        print(event.key())
-        event.accept()
-
     def handle_key(self, key) -> None:
         """Handles key strokes."""
-        print("key", key)
 
         if self.config.QUIT.match(key):
-            self.quit()
+            self.run_flag = False
         elif self.state == State.PLAYING and self.config.PLAY_PAUSE.match(key):
             self.state = State.PAUSED
         elif self.state == State.PAUSED and self.config.PLAY_PAUSE.match(key):
@@ -426,7 +412,6 @@ class Display(QThread):
         elif (
             self.state == State.PLAYING and self.config.CONTINUE.match(key)
         ) or self.skip_all:
-            print("Load next slide")
             self.current_presentation.load_next_slide()
         elif self.config.BACK.match(key):
             if self.current_presentation.current_slide_index == 0:
@@ -449,43 +434,10 @@ class Display(QThread):
 
     def quit(self) -> None:
         """Destroys all windows created by presentations and exits gracefully."""
-        cv2.destroyAllWindows()
-
-        if self.record_to is not None and len(self.recordings) > 0:
-            logger.debug(
-                f"A total of {len(self.recordings)} frames will be saved to {self.record_to}"
-            )
-            file, frame_number, fps = self.recordings[0]
-
-            cap = cv2.VideoCapture(file)
-            cap.set(cv2.CAP_PROP_POS_FRAMES, frame_number - 1)
-            _, frame = cap.read()
-
-            w, h = frame.shape[:2]
-            fourcc = cv2.VideoWriter_fourcc(*"XVID")
-            out = cv2.VideoWriter(self.record_to, fourcc, fps, (h, w))
-
-            out.write(frame)
-
-            for _file, frame_number, _ in tqdm(
-                self.recordings[1:], desc="Creating recording file", leave=False
-            ):
-                if file != _file:
-                    cap.release()
-                    file = _file
-                    cap = cv2.VideoCapture(_file)
-
-                cap.set(cv2.CAP_PROP_POS_FRAMES, frame_number - 1)
-                _, frame = cap.read()
-                out.write(frame)
-
-            cap.release()
-            out.release()
-
         self.exit = True
 
     def stop(self):
-        self.exit = True
+        self.run_flag = True
         self.wait()
 
 
@@ -526,14 +478,46 @@ class App(QWidget):
         self.thread.stop()
         event.accept()
 
+    #@pyqtSlot(List[Tuple[str, int, int]])
+    def recordMovie(self, recordings: List[Tuple[str, int, int]]) -> None:
+        logger.debug(
+            f"A total of {len(self.recordings)} frames will be saved to {self.record_to}"
+        )
+        file, frame_number, fps = recordings[0]
+
+        cap = cv2.VideoCapture(file)
+        #cap.set(cv2.CAP_PROP_POS_FRAMES, frame_number - 1)
+        _, frame = cap.read()
+
+        w, h = frame.shape[:2]
+        fourcc = cv2.VideoWriter_fourcc(*"XVID")
+        out = cv2.VideoWriter(self.record_to, fourcc, fps, (h, w))
+
+        out.write(frame)
+
+        for _file, frame_number, _ in tqdm(
+            self.recordings[1:], desc="Creating recording file", leave=False
+        ):
+            if file != _file:
+                cap.release()
+                file = _file
+                cap = cv2.VideoCapture(_file)
+
+            cap.set(cv2.CAP_PROP_POS_FRAMES, frame_number - 1)
+            _, frame = cap.read()
+            out.write(frame)
+
+        cap.release()
+        out.release()
+
     @pyqtSlot(np.ndarray)
-    def update_image(self, cv_img):
+    def update_image(self, cv_img: dict):
         """Updates the image_label with a new opencv image"""
         self.pixmap = self.convert_cv_qt(cv_img)
         self.label.setPixmap(self.pixmap)
 
     @pyqtSlot(dict)
-    def update_info(self, info):
+    def update_info(self, info: dict):
         """Updates the image_label with a new opencv image"""
         pass
 
