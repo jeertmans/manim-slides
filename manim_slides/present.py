@@ -11,9 +11,10 @@ import numpy as np
 from pydantic import ValidationError
 from tqdm import tqdm
 
-from .commons import config_path_option
+from .commons import config_path_option, verbosity_option
 from .config import Config, PresentationConfig, SlideConfig, SlideType
 from .defaults import FOLDER_PATH, FONT_ARGS
+from .manim import logger
 
 INTERPOLATION_FLAGS = {
     "nearest": cv2.INTER_NEAREST,
@@ -450,6 +451,9 @@ class Display:
         cv2.destroyAllWindows()
 
         if self.record_to is not None and len(self.recordings) > 0:
+            logger.debug(
+                f"A total of {len(self.recordings)} frames will be saved to {self.record_to}"
+            )
             file, frame_number, fps = self.recordings[0]
 
             cap = cv2.VideoCapture(file)
@@ -489,6 +493,7 @@ class Display:
     show_default=True,
 )
 @click.help_option("-h", "--help")
+@verbosity_option
 def list_scenes(folder) -> None:
     """List available scenes."""
 
@@ -502,12 +507,17 @@ def _list_scenes(folder) -> List[str]:
 
     for file in os.listdir(folder):
         if file.endswith(".json"):
+            filepath = os.path.join(folder, file)
             try:
-                filepath = os.path.join(folder, file)
                 _ = PresentationConfig.parse_file(filepath)
                 scenes.append(os.path.basename(file)[:-5])
-            except Exception:  # Could not parse this file as a proper presentation config
+            except Exception as e:  # Could not parse this file as a proper presentation config
+                logger.warn(
+                    f"Something went wrong with parsing presentation config `{filepath}`: {e}"
+                )
                 pass
+
+    logger.info(f"Found {len(scenes)} valid scene configuration files in `{folder}`.")
 
     return scenes
 
@@ -552,6 +562,7 @@ def _list_scenes(folder) -> List[str]:
     help="If set, the presentation will be recorded into a AVI video file with given name.",
 )
 @click.help_option("-h", "--help")
+@verbosity_option
 def present(
     scenes,
     config_path,
@@ -616,8 +627,8 @@ def present(
                 f"File {config_file} does not exist, check the scene name and make sure to use Slide as your scene base class"
             )
         try:
-            config = PresentationConfig.parse_file(config_file)
-            presentations.append(Presentation(config))
+            pres_config = PresentationConfig.parse_file(config_file)
+            presentations.append(Presentation(pres_config))
         except ValidationError as e:
             raise click.UsageError(str(e))
 
@@ -627,6 +638,7 @@ def present(
         except ValidationError as e:
             raise click.UsageError(str(e))
     else:
+        logger.info("No configuration file found, using default configuration.")
         config = Config()
 
     if record_to is not None:
