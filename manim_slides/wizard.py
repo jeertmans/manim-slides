@@ -113,9 +113,10 @@ class Wizard(QWidget):
         button = self.buttons[button_number]
         dialog = KeyInput()
         dialog.exec_()
-        key_name = keymap[dialog.key]
-        key.set_ids(dialog.key)
-        button.setText(key_name)
+        if dialog.key is not None:
+            key_name = keymap[dialog.key]
+            key.set_ids(dialog.key)
+            button.setText(key_name)
 
 
 @click.command()
