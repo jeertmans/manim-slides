@@ -1,6 +1,7 @@
 import os
 from enum import Enum
 from typing import List, Optional, Set
+from .manim import logger
 
 from pydantic import BaseModel, root_validator, validator
 from PyQt5.QtCore import Qt

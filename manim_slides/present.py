@@ -140,7 +140,12 @@ class Presentation:
         else:
             self.current_animation = self.current_slide.start_animation
 
+        print("HERE")
+
+        print(self.current_cap)
         self.current_cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
+
+        print("THERE")
 
     def cancel_reverse(self) -> None:
         """Cancels any effet produced by a reversed slide."""
@@ -421,6 +426,7 @@ class Display(QThread):
         elif (
             self.state == State.PLAYING and self.config.CONTINUE.match(key)
         ) or self.skip_all:
+            print("Load next slide")
             self.current_presentation.load_next_slide()
         elif self.config.BACK.match(key):
             if self.current_presentation.current_slide_index == 0:
