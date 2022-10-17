@@ -140,7 +140,7 @@ class Presentation:
         else:
             self.current_animation = self.current_slide.start_animation
 
-        #self.current_cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
+        # self.current_cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
 
     def cancel_reverse(self) -> None:
         """Cancels any effet produced by a reversed slide."""
@@ -178,7 +178,9 @@ class Presentation:
     @property
     def fps(self) -> int:
         """Returns the number of frames per second of the current video."""
-        return max(self.current_cap.get(cv2.CAP_PROP_FPS), 1)  # TODO: understand why we sometimes get 0 fps
+        return max(
+            self.current_cap.get(cv2.CAP_PROP_FPS), 1
+        )  # TODO: understand why we sometimes get 0 fps
 
     def add_last_slide(self) -> None:
         """Add a 'last' slide to the end of slides."""
@@ -270,7 +272,7 @@ class Presentation:
                 self.current_animation = self.next_animation
                 self.load_animation_cap(self.current_animation)
                 # Reset video to position zero if it has been played before
-                #self.current_cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
+                # self.current_cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
 
         return self.lastframe, state
 
@@ -280,7 +282,6 @@ class Display(QThread):
 
     change_video_signal = pyqtSignal(np.ndarray)
     change_info_signal = pyqtSignal(dict)
-
 
     def __init__(
         self,
@@ -337,12 +338,12 @@ class Display(QThread):
             if not self.run_flag:
                 continue
             self.show_video()
- 
+
             self.lag = now() - self.last_time
             self.last_time = now()
 
             sleep_time = 1 / self.current_presentation.fps
-            time.sleep(max(sleep_time - self.lag, 0))           #self.show_info()
+            time.sleep(max(sleep_time - self.lag, 0))  # self.show_info()
 
         self.current_presentation.release_cap()
 
@@ -478,7 +479,7 @@ class App(QWidget):
         self.thread.stop()
         event.accept()
 
-    #@pyqtSlot(List[Tuple[str, int, int]])
+    # @pyqtSlot(List[Tuple[str, int, int]])
     def recordMovie(self, recordings: List[Tuple[str, int, int]]) -> None:
         logger.debug(
             f"A total of {len(self.recordings)} frames will be saved to {self.record_to}"
@@ -486,7 +487,7 @@ class App(QWidget):
         file, frame_number, fps = recordings[0]
 
         cap = cv2.VideoCapture(file)
-        #cap.set(cv2.CAP_PROP_POS_FRAMES, frame_number - 1)
+        # cap.set(cv2.CAP_PROP_POS_FRAMES, frame_number - 1)
         _, frame = cap.read()
 
         w, h = frame.shape[:2]
