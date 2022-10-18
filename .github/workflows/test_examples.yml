@@ -6,6 +6,9 @@ on:
 
 name: Test Examples
 
+env:
+  QT_QPA_PLATFORM: offscreen
+
 jobs:
   build-examples:
     strategy:
