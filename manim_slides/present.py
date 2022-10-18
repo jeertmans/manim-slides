@@ -13,7 +13,14 @@ from pydantic import ValidationError
 from PyQt5 import QtGui
 from PyQt5.QtCore import Qt, QThread, pyqtSignal, pyqtSlot
 from PyQt5.QtGui import QPixmap
-from PyQt5.QtWidgets import QApplication, QLabel, QVBoxLayout, QWidget, QDialog, QGridLayout
+from PyQt5.QtWidgets import (
+    QApplication,
+    QDialog,
+    QGridLayout,
+    QLabel,
+    QVBoxLayout,
+    QWidget,
+)
 from tqdm import tqdm
 
 from .commons import config_path_option, verbosity_option
@@ -395,15 +402,17 @@ class Display(QThread):
 
     def show_info(self) -> None:
         """Shows updated information about presentations."""
-        self.change_info_signal.emit({
-            "animation": self.current_presentation.current_animation,
-            "state": self.state,
-            "slide_index":self.current_presentation.current_slide.number,
-            "n_slides":len(self.current_presentation.slides),
-            "type": self.current_presentation.current_slide.type,
-            "scene_index":self.current_presentation_index + 1,
-            "n_scenes":len(self.presentations),
-            })
+        self.change_info_signal.emit(
+            {
+                "animation": self.current_presentation.current_animation,
+                "state": self.state,
+                "slide_index": self.current_presentation.current_slide.number,
+                "n_slides": len(self.current_presentation.slides),
+                "type": self.current_presentation.current_slide.type,
+                "scene_index": self.current_presentation_index + 1,
+                "n_scenes": len(self.presentations),
+            }
+        )
 
     @pyqtSlot(int)
     def set_key(self, key: int) -> None:
@@ -456,6 +465,7 @@ class Display(QThread):
         self.run_flag = False
         self.wait()
 
+
 class Info(QDialog):
     def __init__(self):
         super().__init__()
@@ -483,9 +493,17 @@ class Info(QDialog):
     def update_info(self, info: dict):
         self.animationLabel.setText("Animation: {}".format(info.get("state", "na")))
         self.stateLabel.setText("State: {}".format(info.get("state", "unknown")))
-        self.slideLabel.setText("Slide: {}/{}".format(info.get("slide_index", "na"), info.get("n_slides", "na")))
+        self.slideLabel.setText(
+            "Slide: {}/{}".format(
+                info.get("slide_index", "na"), info.get("n_slides", "na")
+            )
+        )
         self.typeLabel.setText("Slide Type: {}".format(info.get("type", "unknown")))
-        self.sceneLabel.setText("Scene: {}/{}".format(info.get("scene_index", "na"), info.get("n_scenes", "na")))
+        self.sceneLabel.setText(
+            "Scene: {}/{}".format(
+                info.get("scene_index", "na"), info.get("n_scenes", "na")
+            )
+        )
 
 
 class App(QWidget):
