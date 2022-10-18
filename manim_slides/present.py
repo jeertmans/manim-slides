@@ -341,15 +341,16 @@ class Display(QThread):
                     self.current_presentation_index += 1
                     self.state = State.PLAYING
 
+            self.last_time = now()
             self.handle_key()
             self.show_video()
             self.show_info()
 
             self.lag = now() - self.last_time
-            self.last_time = now()
 
             sleep_time = 1 / self.current_presentation.fps
-            time.sleep(max(sleep_time - self.lag, 0))
+            sleep_time = max(sleep_time - self.lag, 0)
+            time.sleep(sleep_time)
         self.current_presentation.release_cap()
 
         if self.record_to is not None:
@@ -466,7 +467,7 @@ class Display(QThread):
         self.wait()
 
 
-class Info(QDialog):
+class Info(QWidget):
     def __init__(self):
         super().__init__()
         self.setWindowTitle(WINDOW_INFO_NAME)
@@ -491,7 +492,7 @@ class Info(QDialog):
 
     @pyqtSlot(dict)
     def update_info(self, info: dict):
-        self.animationLabel.setText("Animation: {}".format(info.get("state", "na")))
+        self.animationLabel.setText("Animation: {}".format(info.get("animation", "na")))
         self.stateLabel.setText("State: {}".format(info.get("state", "unknown")))
         self.slideLabel.setText(
             "Slide: {}/{}".format(
@@ -504,6 +505,20 @@ class Info(QDialog):
                 info.get("scene_index", "na"), info.get("n_scenes", "na")
             )
         )
+
+class InfoThread(QThread):
+    def __init__(self):
+        super().__init__()
+        self.dialog = Info()
+        self.run_flag = True
+
+    def start(self):
+        super().start()
+
+        self.dialog.show()
+    
+    def stop(self):
+        self.dialog.deleteLater()
 
 
 class App(QWidget):
@@ -536,6 +551,10 @@ class App(QWidget):
         self.thread = Display(*args, **kwargs)
         # create the info dialog
         self.info = Info()
+        self.info.show()
+
+        # info widget will also listen to key presses
+        self.info.keyPressEvent = self.keyPressEvent
 
         if fullscreen:
             self.showFullScreen()
@@ -543,7 +562,7 @@ class App(QWidget):
         # connect signals
         self.thread.change_video_signal.connect(self.update_image)
         self.thread.change_info_signal.connect(self.info.update_info)
-        self.thread.finished.connect(self.deleteLater)
+        self.thread.finished.connect(self.closeAll)
         self.send_key_signal.connect(self.thread.set_key)
 
         # start the thread
@@ -555,13 +574,19 @@ class App(QWidget):
         self.send_key_signal.emit(key)
         event.accept()
 
+    def closeAll(self):
+        logger.debug("Closing all QT windows")
+        self.thread.stop()
+        self.info.deleteLater()
+        self.deleteLater()
+
     def resizeEvent(self, event):
         self.pixmap = self.pixmap.scaled(self.width(), self.height())
         self.label.setPixmap(self.pixmap)
         self.label.resize(self.width(), self.height())
 
     def closeEvent(self, event):
-        self.thread.stop()
+        self.closeAll()
         event.accept()
 
     @pyqtSlot(np.ndarray)
@@ -622,7 +647,7 @@ def _list_scenes(folder) -> List[str]:
                 )
                 pass
 
-    logger.info(f"Found {len(scenes)} valid scene configuration files in `{folder}`.")
+    logger.debug(f"Found {len(scenes)} valid scene configuration files in `{folder}`.")
 
     return scenes
 
@@ -749,7 +774,7 @@ def present(
         except ValidationError as e:
             raise click.UsageError(str(e))
     else:
-        logger.info("No configuration file found, using default configuration.")
+        logger.debug("No configuration file found, using default configuration.")
         config = Config()
 
     if record_to is not None:

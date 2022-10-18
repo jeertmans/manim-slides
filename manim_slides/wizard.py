@@ -93,6 +93,10 @@ class Wizard(QWidget):
         self.deleteLater()
         sys.exit(0)
 
+    def closeEvent(self, event):
+        self.closeWithoutSaving()
+        event.accept()
+
     def saveConfig(self):
         try:
             Config.parse_obj(self.config.dict())
