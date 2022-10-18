@@ -506,6 +506,7 @@ class Info(QWidget):
             )
         )
 
+
 class InfoThread(QThread):
     def __init__(self):
         super().__init__()
@@ -516,7 +517,7 @@ class InfoThread(QThread):
         super().start()
 
         self.dialog.show()
-    
+
     def stop(self):
         self.dialog.deleteLater()
 
