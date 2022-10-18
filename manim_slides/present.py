@@ -13,7 +13,7 @@ from pydantic import ValidationError
 from PyQt5 import QtGui
 from PyQt5.QtCore import Qt, QThread, pyqtSignal, pyqtSlot
 from PyQt5.QtGui import QPixmap
-from PyQt5.QtWidgets import QApplication, QLabel, QVBoxLayout, QWidget
+from PyQt5.QtWidgets import QApplication, QLabel, QVBoxLayout, QWidget, QDialog, QGridLayout
 from tqdm import tqdm
 
 from .commons import config_path_option, verbosity_option
@@ -24,16 +24,6 @@ from .manim import logger
 os.environ.pop(
     "QT_QPA_PLATFORM_PLUGIN_PATH"
 )  # See why here: https://stackoverflow.com/a/67863156
-
-INTERPOLATION_FLAGS = {
-    "nearest": cv2.INTER_NEAREST,
-    "linear": cv2.INTER_LINEAR,
-    "cubic": cv2.INTER_CUBIC,
-    "area": cv2.INTER_AREA,
-    "lanczos4": cv2.INTER_LANCZOS4,
-    "linear-exact": cv2.INTER_LINEAR_EXACT,
-    "nearest-exact": cv2.INTER_NEAREST_EXACT,
-}
 
 WINDOW_NAME = "Manim Slides"
 WINDOW_INFO_NAME = f"{WINDOW_NAME}: Info"
@@ -114,6 +104,8 @@ class Presentation:
             self.reverse and self.reversed_animation != animation
         ):  # cap already loaded
 
+            logger.debug(f"Loading new cap for animation #{animation}")
+
             self.release_cap()
 
             file: str = self.files[animation]
@@ -135,16 +127,19 @@ class Presentation:
 
     def rewind_current_slide(self) -> None:
         """Rewinds current slide to first frame."""
+        logger.debug("Rewinding curring slide")
         if self.reverse:
             self.current_animation = self.current_slide.end_animation - 1
         else:
             self.current_animation = self.current_slide.start_animation
 
-        # self.current_cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
+        cap = self.current_cap
+        cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
 
     def cancel_reverse(self) -> None:
         """Cancels any effet produced by a reversed slide."""
         if self.reverse:
+            logger.debug("Cancelling effects from previous 'reverse' action'")
             self.reverse = False
             self.reversed_animation = -1
             self.release_cap()
@@ -178,9 +173,12 @@ class Presentation:
     @property
     def fps(self) -> int:
         """Returns the number of frames per second of the current video."""
-        return max(
-            self.current_cap.get(cv2.CAP_PROP_FPS), 1
-        )  # TODO: understand why we sometimes get 0 fps
+        fps = self.current_cap.get(cv2.CAP_PROP_FPS)
+        if fps == 0:
+            logger.warn(
+                f"Something is wrong with video file {self.current_file}, as the fps returned by frame {self.current_frame_number} is 0"
+            )
+        return max(fps, 1)  # TODO: understand why we sometimes get 0 fps
 
     def add_last_slide(self) -> None:
         """Add a 'last' slide to the end of slides."""
@@ -272,7 +270,7 @@ class Presentation:
                 self.current_animation = self.next_animation
                 self.load_animation_cap(self.current_animation)
                 # Reset video to position zero if it has been played before
-                # self.current_cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
+                self.current_cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
 
         return self.lastframe, state
 
@@ -282,28 +280,24 @@ class Display(QThread):
 
     change_video_signal = pyqtSignal(np.ndarray)
     change_info_signal = pyqtSignal(dict)
+    finished = pyqtSignal()
 
     def __init__(
         self,
         presentations,
         config,
         start_paused=False,
-        fullscreen=False,
         skip_all=False,
-        resolution=(1980, 1080),
-        interpolation_flag=cv2.INTER_LINEAR,
         record_to=None,
+        exit_after_last_slide=False,
     ) -> None:
         super().__init__()
         self.presentations = presentations
         self.start_paused = start_paused
         self.config = config
         self.skip_all = skip_all
-        self.fullscreen = fullscreen
-        self.resolution = resolution
-        self.interpolation_flag = interpolation_flag
         self.record_to = record_to
-        self.recordings = []
+        self.recordings: List[Tuple[str, int, int]] = []
 
         self.state = State.PLAYING
         self.lastframe: Optional[np.ndarray] = None
@@ -312,6 +306,9 @@ class Display(QThread):
 
         self.lag = 0
         self.last_time = now()
+
+        self.key = -1
+        self.exit_after_last_slide = exit_after_last_slide
 
     @property
     def current_presentation(self) -> Presentation:
@@ -330,22 +327,60 @@ class Display(QThread):
                     self.start_paused = False
             if self.state == State.END:
                 if self.current_presentation_index == len(self.presentations) - 1:
-                    self.run_flag = False
-                    continue
+                    if self.exit_after_last_slide:
+                        self.run_flag = False
+                        continue
                 else:
                     self.current_presentation_index += 1
                     self.state = State.PLAYING
-            if not self.run_flag:
-                continue
+
+            self.handle_key()
             self.show_video()
+            self.show_info()
 
             self.lag = now() - self.last_time
             self.last_time = now()
 
             sleep_time = 1 / self.current_presentation.fps
-            time.sleep(max(sleep_time - self.lag, 0))  # self.show_info()
-
+            time.sleep(max(sleep_time - self.lag, 0))
         self.current_presentation.release_cap()
+
+        if self.record_to is not None:
+            self.record_movie()
+
+        logger.debug("Closing video thread gracully and exiting")
+        self.finished.emit()
+
+    def record_movie(self) -> None:
+        logger.debug(
+            f"A total of {len(self.recordings)} frames will be saved to {self.record_to}"
+        )
+        file, frame_number, fps = self.recordings[0]
+
+        cap = cv2.VideoCapture(file)
+        cap.set(cv2.CAP_PROP_POS_FRAMES, frame_number - 1)
+        _, frame = cap.read()
+
+        w, h = frame.shape[:2]
+        fourcc = cv2.VideoWriter_fourcc(*"XVID")
+        out = cv2.VideoWriter(self.record_to, fourcc, fps, (h, w))
+
+        out.write(frame)
+
+        for _file, frame_number, _ in tqdm(
+            self.recordings[1:], desc="Creating recording file", leave=False
+        ):
+            if file != _file:
+                cap.release()
+                file = _file
+                cap = cv2.VideoCapture(_file)
+
+            cap.set(cv2.CAP_PROP_POS_FRAMES, frame_number - 1)
+            _, frame = cap.read()
+            out.write(frame)
+
+        cap.release()
+        out.release()
 
     def show_video(self) -> None:
         """Shows updated video."""
@@ -360,44 +395,25 @@ class Display(QThread):
 
     def show_info(self) -> None:
         """Shows updated information about presentations."""
-        info = np.zeros((130, 420), np.uint8)
-        font_args = (FONT_ARGS[0], 0.7, *FONT_ARGS[2:])
-        grid_x = [30, 230]
-        grid_y = [30, 70, 110]
+        self.change_info_signal.emit({
+            "animation": self.current_presentation.current_animation,
+            "state": self.state,
+            "slide_index":self.current_presentation.current_slide.number,
+            "n_slides":len(self.current_presentation.slides),
+            "type": self.current_presentation.current_slide.type,
+            "scene_index":self.current_presentation_index + 1,
+            "n_scenes":len(self.presentations),
+            })
 
-        cv2.putText(
-            info,
-            f"Animation: {self.current_presentation.current_animation}",
-            (grid_x[0], grid_y[0]),
-            *font_args,
-        )
-        cv2.putText(info, f"State: {self.state}", (grid_x[1], grid_y[0]), *font_args)
+    @pyqtSlot(int)
+    def set_key(self, key: int) -> None:
+        """Sets the next key to be handled."""
+        self.key = key
 
-        cv2.putText(
-            info,
-            f"Slide {self.current_presentation.current_slide.number}/{len(self.current_presentation.slides)}",
-            (grid_x[0], grid_y[1]),
-            *font_args,
-        )
-        cv2.putText(
-            info,
-            f"Slide Type: {self.current_presentation.current_slide.type}",
-            (grid_x[1], grid_y[1]),
-            *font_args,
-        )
-
-        cv2.putText(
-            info,
-            f"Scene  {self.current_presentation_index + 1}/{len(self.presentations)}",
-            ((grid_x[0] + grid_x[1]) // 2, grid_y[2]),
-            *font_args,
-        )
-
-        # cv2.imshow(WINDOW_INFO_NAME, info)
-        self.change_info_signal.emit({"prout": "ok"})
-
-    def handle_key(self, key) -> None:
+    def handle_key(self) -> None:
         """Handles key strokes."""
+
+        key = self.key
 
         if self.config.QUIT.match(key):
             self.run_flag = False
@@ -433,24 +449,64 @@ class Display(QThread):
             self.current_presentation.rewind_current_slide()
             self.state = State.PLAYING
 
-    def quit(self) -> None:
-        """Destroys all windows created by presentations and exits gracefully."""
-        self.exit = True
+        self.key = -1  # No more key to be handled
 
     def stop(self):
-        self.run_flag = True
+        """Stops current thread, without doing anything after."""
+        self.run_flag = False
         self.wait()
+
+class Info(QDialog):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle(WINDOW_INFO_NAME)
+
+        self.layout = QGridLayout()
+
+        self.setLayout(self.layout)
+
+        self.animationLabel = QLabel()
+        self.stateLabel = QLabel()
+        self.slideLabel = QLabel()
+        self.typeLabel = QLabel()
+        self.sceneLabel = QLabel()
+
+        self.layout.addWidget(self.animationLabel, 0, 0, 1, 2)
+        self.layout.addWidget(self.stateLabel, 1, 0)
+        self.layout.addWidget(self.slideLabel, 1, 1)
+        self.layout.addWidget(self.typeLabel, 2, 0)
+        self.layout.addWidget(self.sceneLabel, 2, 1)
+
+        self.update_info({})
+
+    @pyqtSlot(dict)
+    def update_info(self, info: dict):
+        self.animationLabel.setText("Animation: {}".format(info.get("state", "na")))
+        self.stateLabel.setText("State: {}".format(info.get("state", "unknown")))
+        self.slideLabel.setText("Slide: {}/{}".format(info.get("slide_index", "na"), info.get("n_slides", "na")))
+        self.typeLabel.setText("Slide Type: {}".format(info.get("type", "unknown")))
+        self.sceneLabel.setText("Scene: {}/{}".format(info.get("scene_index", "na"), info.get("n_scenes", "na")))
 
 
 class App(QWidget):
-    def __init__(self, *args, **kwargs):
-        super().__init__()
-        # self.showFullScreen()
-        self.setWindowTitle(WINDOW_NAME)
-        self.display_width = 640
-        self.display_height = 480
+    send_key_signal = pyqtSignal(int)
 
-        self.setCursor(Qt.BlankCursor)
+    def __init__(
+        self,
+        *args,
+        fullscreen=False,
+        resolution=(1980, 1080),
+        hide_mouse=False,
+        **kwargs,
+    ):
+        super().__init__()
+
+        self.setWindowTitle(WINDOW_NAME)
+        self.display_width, self.display_height = resolution
+
+        if hide_mouse:
+            self.setCursor(Qt.BlankCursor)
+
         self.label = QLabel(self)
         self.label.resize(self.display_width, self.display_height)
 
@@ -460,14 +516,25 @@ class App(QWidget):
 
         # create the video capture thread
         self.thread = Display(*args, **kwargs)
-        # connect its signal to the update_image slot
+        # create the info dialog
+        self.info = Info()
+
+        if fullscreen:
+            self.showFullScreen()
+
+        # connect signals
         self.thread.change_video_signal.connect(self.update_image)
-        self.thread.change_info_signal.connect(self.update_info)
+        self.thread.change_info_signal.connect(self.info.update_info)
+        self.thread.finished.connect(self.deleteLater)
+        self.send_key_signal.connect(self.thread.set_key)
+
         # start the thread
         self.thread.start()
 
     def keyPressEvent(self, event):
-        self.thread.handle_key(event.key())
+        key = event.key()
+        # We send key to be handled by video display
+        self.send_key_signal.emit(key)
         event.accept()
 
     def resizeEvent(self, event):
@@ -478,38 +545,6 @@ class App(QWidget):
     def closeEvent(self, event):
         self.thread.stop()
         event.accept()
-
-    # @pyqtSlot(List[Tuple[str, int, int]])
-    def recordMovie(self, recordings: List[Tuple[str, int, int]]) -> None:
-        logger.debug(
-            f"A total of {len(self.recordings)} frames will be saved to {self.record_to}"
-        )
-        file, frame_number, fps = recordings[0]
-
-        cap = cv2.VideoCapture(file)
-        # cap.set(cv2.CAP_PROP_POS_FRAMES, frame_number - 1)
-        _, frame = cap.read()
-
-        w, h = frame.shape[:2]
-        fourcc = cv2.VideoWriter_fourcc(*"XVID")
-        out = cv2.VideoWriter(self.record_to, fourcc, fps, (h, w))
-
-        out.write(frame)
-
-        for _file, frame_number, _ in tqdm(
-            self.recordings[1:], desc="Creating recording file", leave=False
-        ):
-            if file != _file:
-                cap.release()
-                file = _file
-                cap = cv2.VideoCapture(_file)
-
-            cap.set(cv2.CAP_PROP_POS_FRAMES, frame_number - 1)
-            _, frame = cap.read()
-            out.write(frame)
-
-        cap.release()
-        out.release()
 
     @pyqtSlot(np.ndarray)
     def update_image(self, cv_img: dict):
@@ -589,7 +624,7 @@ def _list_scenes(folder) -> List[str]:
 @click.option(
     "--skip-all",
     is_flag=True,
-    help="Skip all slides, useful the test if slides are working.",
+    help="Skip all slides, useful the test if slides are working. Automatically sets `--skip-after-last-slide` to True.",
 )
 @click.option(
     "-r",
@@ -600,18 +635,20 @@ def _list_scenes(folder) -> List[str]:
     show_default=True,
 )
 @click.option(
-    "-i",
-    "--interpolation-flag",
-    type=click.Choice(INTERPOLATION_FLAGS.keys(), case_sensitive=False),
-    default="linear",
-    help="Set the interpolation flag to be used when resizing image. See OpenCV cv::InterpolationFlags.",
-    show_default=True,
-)
-@click.option(
     "--record-to",
     type=click.Path(dir_okay=False),
     default=None,
     help="If set, the presentation will be recorded into a AVI video file with given name.",
+)
+@click.option(
+    "--exit-after-last-slide",
+    is_flag=True,
+    help="At the end of last slide, the application will be exited.",
+)
+@click.option(
+    "--hide-mouse",
+    is_flag=True,
+    help="Hide mouse cursor.",
 )
 @click.help_option("-h", "--help")
 @verbosity_option
@@ -623,8 +660,9 @@ def present(
     fullscreen,
     skip_all,
     resolution,
-    interpolation_flag,
     record_to,
+    exit_after_last_slide,
+    hide_mouse,
 ) -> None:
     """
     Present SCENE(s), one at a time, in order.
@@ -635,6 +673,9 @@ def present(
 
     Use `manim-slide list-scenes` to list all available scenes in a given folder.
     """
+
+    if skip_all:
+        exit_after_last_slide = True
 
     if len(scenes) == 0:
         scene_choices = _list_scenes(folder)
@@ -708,9 +749,10 @@ def present(
         fullscreen=fullscreen,
         skip_all=skip_all,
         resolution=resolution,
-        interpolation_flag=INTERPOLATION_FLAGS[interpolation_flag],
         record_to=record_to,
+        exit_after_last_slide=exit_after_last_slide,
+        hide_mouse=hide_mouse,
     )
     a.show()
     sys.exit(app.exec_())
-    a.run()
+    logger.debug("After")
