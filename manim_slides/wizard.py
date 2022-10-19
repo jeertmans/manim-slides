@@ -173,6 +173,7 @@ def _init(config_path, force, merge, skip_interactive=False):
             config = Config.parse_file(config_path)
 
         app = QApplication(sys.argv)
+        app.setApplicationName("Manim Slides Wizard")
         window = Wizard(config)
         window.show()
         app.exec()

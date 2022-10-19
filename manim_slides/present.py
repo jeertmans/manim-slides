@@ -791,6 +791,7 @@ def present(
             )
 
     app = QApplication(sys.argv)
+    app.setApplicationName("Manim Slides")
     a = App(
         presentations,
         config=config,
