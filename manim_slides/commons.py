@@ -60,3 +60,7 @@ def verbosity_option(function: Callable) -> Callable:
         show_envvar=True,
         callback=callback,
     )(function)
+
+
+def get_icon_path(self):
+    raise NotImplementedError

@@ -6,6 +6,7 @@ from typing import Any
 import click
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
+from PyQt5.QtGui import QIcon
     QApplication,
     QDialog,
     QDialogButtonBox,
@@ -54,6 +55,8 @@ class Wizard(QWidget):
 
         self.setWindowTitle(WINDOW_NAME)
         self.config = config
+        self.icon = QIcon("static/icon.png")
+        self.setWindowIcon(self.icon)
 
         QBtn = QDialogButtonBox.Save | QDialogButtonBox.Cancel
 
