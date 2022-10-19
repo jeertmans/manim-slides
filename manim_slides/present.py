@@ -29,8 +29,7 @@ from .defaults import FOLDER_PATH
 from .manim import logger
 
 os.environ.pop(
-    "QT_QPA_PLATFORM_PLUGIN_PATH",
-    None
+    "QT_QPA_PLATFORM_PLUGIN_PATH", None
 )  # See why here: https://stackoverflow.com/a/67863156
 
 WINDOW_NAME = "Manim Slides"
