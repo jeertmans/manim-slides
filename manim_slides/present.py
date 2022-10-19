@@ -36,6 +36,11 @@ WINDOW_NAME = "Manim Slides"
 WINDOW_INFO_NAME = f"{WINDOW_NAME}: Info"
 WINDOWS = platform.system() == "Windows"
 
+ASPECT_RATIO_MODES = {
+    "ignore": Qt.IgnoreAspectRatio,
+    "keep": Qt.KeepAspectRatio,
+}
+
 
 @unique
 class State(IntEnum):
@@ -528,20 +533,23 @@ class App(QWidget):
     def __init__(
         self,
         *args,
-        fullscreen=False,
-        resolution=(1980, 1080),
-        hide_mouse=False,
+        fullscreen: bool = False,
+        resolution: Tuple[int, int] = (1980, 1080),
+        hide_mouse: bool = False,
+        aspect_ratio: Qt.AspectRatioMode = Qt.IgnoreAspectRatio,
         **kwargs,
     ):
         super().__init__()
 
         self.setWindowTitle(WINDOW_NAME)
         self.display_width, self.display_height = resolution
+        self.aspect_ratio = aspect_ratio
 
         if hide_mouse:
             self.setCursor(Qt.BlankCursor)
 
         self.label = QLabel(self)
+        self.label.setAlignment(Qt.AlignCenter)
         self.label.resize(self.display_width, self.display_height)
 
         self.pixmap = QPixmap(self.width(), self.height())
@@ -582,7 +590,7 @@ class App(QWidget):
         self.deleteLater()
 
     def resizeEvent(self, event):
-        self.pixmap = self.pixmap.scaled(self.width(), self.height())
+        self.pixmap = self.pixmap.scaled(self.width(), self.height(), self.aspect_ratio)
         self.label.setPixmap(self.pixmap)
         self.label.resize(self.width(), self.height())
 
@@ -610,7 +618,9 @@ class App(QWidget):
             rgb_image.data, w, h, bytes_per_line, QtGui.QImage.Format_RGB888
         )
         p = convert_to_Qt_format.scaled(
-            self.width(), self.height(), Qt.IgnoreAspectRatio
+            self.width(),
+            self.height(),
+            self.aspect_ratio,
         )
         return QPixmap.fromImage(p)
 
@@ -666,6 +676,7 @@ def _list_scenes(folder) -> List[str]:
 @click.option("--start-paused", is_flag=True, help="Start paused.")
 @click.option("--fullscreen", is_flag=True, help="Fullscreen mode.")
 @click.option(
+    "-s",
     "--skip-all",
     is_flag=True,
     help="Skip all slides, useful the test if slides are working. Automatically sets `--skip-after-last-slide` to True.",
@@ -679,7 +690,9 @@ def _list_scenes(folder) -> List[str]:
     show_default=True,
 )
 @click.option(
+    "--to",
     "--record-to",
+    "record_to",
     type=click.Path(dir_okay=False),
     default=None,
     help="If set, the presentation will be recorded into a AVI video file with given name.",
@@ -694,6 +707,13 @@ def _list_scenes(folder) -> List[str]:
     is_flag=True,
     help="Hide mouse cursor.",
 )
+@click.option(
+    "--aspect-ratio",
+    type=click.Choice(ASPECT_RATIO_MODES.keys(), case_sensitive=False),
+    default="ignore",
+    help="Set the aspect ratio mode to be used when rescaling video.",
+    show_default=True,
+)
 @click.help_option("-h", "--help")
 @verbosity_option
 def present(
@@ -707,6 +727,7 @@ def present(
     record_to,
     exit_after_last_slide,
     hide_mouse,
+    aspect_ratio,
 ) -> None:
     """
     Present SCENE(s), one at a time, in order.
@@ -796,6 +817,7 @@ def present(
         record_to=record_to,
         exit_after_last_slide=exit_after_last_slide,
         hide_mouse=hide_mouse,
+        aspect_ratio=ASPECT_RATIO_MODES[aspect_ratio],
     )
     a.show()
     sys.exit(app.exec_())
