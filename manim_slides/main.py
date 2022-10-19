@@ -13,7 +13,7 @@ def cli() -> None:
     """
     Manim Slides command-line utilities.
 
-    If not command is specified, defaults to `present`.
+    If no command is specified, defaults to `present`.
     """
     pass
 
