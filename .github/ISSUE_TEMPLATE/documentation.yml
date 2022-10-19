@@ -57,4 +57,3 @@ body:
       description: A clear and concise description of how you want to update it.
     validations:
       required: false
-
