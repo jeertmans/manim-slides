@@ -2,7 +2,7 @@ import os
 import platform
 import shutil
 import subprocess
-from typing import List
+from typing import Any, List, Optional
 
 from tqdm import tqdm
 
@@ -23,7 +23,9 @@ class Slide(Scene):
     Inherits from `manim.Scene` or `manimlib.Scene` and provide necessary tools for slides rendering.
     """
 
-    def __init__(self, *args, output_folder=FOLDER_PATH, **kwargs) -> None:
+    def __init__(
+        self, *args: Any, output_folder: str = FOLDER_PATH, **kwargs: Any
+    ) -> None:
         if MANIMGL:
             if not os.path.isdir("videos"):
                 os.mkdir("videos")
@@ -38,10 +40,10 @@ class Slide(Scene):
         super().__init__(*args, **kwargs)
 
         self.output_folder = output_folder
-        self.slides = []
+        self.slides: List[SlideConfig] = []
         self.current_slide = 1
         self.current_animation = 0
-        self.loop_start_animation = None
+        self.loop_start_animation: Optional[int] = None
         self.pause_start_animation = 0
 
     @property
@@ -69,14 +71,14 @@ class Slide(Scene):
             return config["progress_bar"] != "none"
 
     @property
-    def leave_progress_bar(self) -> None:
+    def leave_progress_bar(self) -> bool:
         """Returns True if progress bar should be left after completed."""
         if MANIMGL:
             return getattr(super(Scene, self), "leave_progress_bars", False)
         else:
             return config["progress_bar"] == "leave"
 
-    def play(self, *args, **kwargs) -> None:
+    def play(self, *args: Any, **kwargs: Any) -> None:
         """Overloads `self.play` and increment animation count."""
         super().play(*args, **kwargs)
         self.current_animation += 1
@@ -116,7 +118,7 @@ class Slide(Scene):
         self.loop_start_animation = None
         self.pause_start_animation = self.current_animation
 
-    def save_slides(self, use_cache=True) -> None:
+    def save_slides(self, use_cache: bool = True) -> None:
         """
         Saves slides, optionally using cached files.
 
@@ -182,12 +184,12 @@ class Slide(Scene):
             f"Slide '{scene_name}' configuration written in '{os.path.abspath(slide_path)}'"
         )
 
-    def run(self, *args, **kwargs) -> None:
+    def run(self, *args: Any, **kwargs: Any) -> None:
         """MANIMGL renderer"""
         super().run(*args, **kwargs)
         self.save_slides(use_cache=False)
 
-    def render(self, *args, **kwargs) -> None:
+    def render(self, *args: Any, **kwargs: Any) -> None:
         """MANIM render"""
         # We need to disable the caching limit since we rely on intermidiate files
         max_files_cached = config["max_files_cached"]

@@ -1,4 +1,3 @@
-import math
 import os
 import platform
 import sys
@@ -13,14 +12,7 @@ from pydantic import ValidationError
 from PyQt5 import QtGui
 from PyQt5.QtCore import Qt, QThread, pyqtSignal, pyqtSlot
 from PyQt5.QtGui import QPixmap
-from PyQt5.QtWidgets import (
-    QApplication,
-    QDialog,
-    QGridLayout,
-    QLabel,
-    QVBoxLayout,
-    QWidget,
-)
+from PyQt5.QtWidgets import QApplication, QGridLayout, QLabel, QWidget
 from tqdm import tqdm
 
 from .commons import config_path_option, verbosity_option

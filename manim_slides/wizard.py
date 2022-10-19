@@ -1,6 +1,7 @@
 import os
 import sys
 from functools import partial
+from typing import Any
 
 import click
 from PyQt5.QtCore import Qt
@@ -30,7 +31,7 @@ for key, value in vars(Qt).items():
 
 
 class KeyInput(QDialog):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.key = None
 
@@ -41,7 +42,7 @@ class KeyInput(QDialog):
         self.layout.addWidget(self.label)
         self.setLayout(self.layout)
 
-    def keyPressEvent(self, event):
+    def keyPressEvent(self, event: Any) -> None:
         self.key = event.key()
         self.deleteLater()
         event.accept()
@@ -88,16 +89,16 @@ class Wizard(QWidget):
 
         self.setLayout(self.layout)
 
-    def closeWithoutSaving(self):
+    def closeWithoutSaving(self) -> None:
         logger.debug("Closing configuration wizard without saving")
         self.deleteLater()
         sys.exit(0)
 
-    def closeEvent(self, event):
+    def closeEvent(self, event: Any) -> None:
         self.closeWithoutSaving()
         event.accept()
 
-    def saveConfig(self):
+    def saveConfig(self) -> None:
         try:
             Config.parse_obj(self.config.dict())
         except ValueError:
@@ -113,7 +114,7 @@ class Wizard(QWidget):
 
         self.deleteLater()
 
-    def openDialog(self, button_number: int, key: Key):
+    def openDialog(self, button_number: int, key: Key) -> None:
         button = self.buttons[button_number]
         dialog = KeyInput()
         dialog.exec_()

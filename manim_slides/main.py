@@ -9,7 +9,7 @@ from .wizard import init, wizard
 @click.group(cls=DefaultGroup, default="present", default_if_no_args=True)
 @click.version_option(__version__, "-v", "--version")
 @click.help_option("-h", "--help")
-def cli():
+def cli() -> None:
     """
     Manim Slides command-line utilities.
 
