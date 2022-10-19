@@ -47,14 +47,9 @@ class State(IntEnum):
         return self.name.capitalize()
 
 
-def now() -> int:
-    """Returns time.time() in milliseconds."""
-    return round(time.time() * 1000)
-
-
-def fix_time(t: float) -> float:
-    """Clips time t such that it is always positive."""
-    return t if t > 0 else 1
+def now() -> float:
+    """Returns time.time() in seconds."""
+    return time.time()
 
 
 class Presentation:
@@ -308,9 +303,6 @@ class Display(QThread):
         self.current_presentation_index = 0
         self.run_flag = True
 
-        self.lag = 0
-        self.last_time = now()
-
         self.key = -1
         self.exit_after_last_slide = exit_after_last_slide
 
@@ -322,6 +314,7 @@ class Display(QThread):
     def run(self) -> None:
         """Runs a series of presentations until end or exit."""
         while self.run_flag:
+            last_time = now()
             self.lastframe, self.state = self.current_presentation.update_state(
                 self.state
             )
@@ -338,16 +331,15 @@ class Display(QThread):
                     self.current_presentation_index += 1
                     self.state = State.PLAYING
 
-            self.last_time = now()
             self.handle_key()
             self.show_video()
             self.show_info()
 
-            self.lag = now() - self.last_time
-
+            lag = now() - last_time
             sleep_time = 1 / self.current_presentation.fps
-            sleep_time = max(sleep_time - self.lag, 0)
+            sleep_time = max(sleep_time - lag, 0)
             time.sleep(sleep_time)
+            last_time = now()
         self.current_presentation.release_cap()
 
         if self.record_to is not None:
