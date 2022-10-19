@@ -2,6 +2,7 @@ import os
 import sys
 from contextlib import contextmanager
 from importlib.util import find_spec
+from typing import Iterator
 
 __all__ = [
     "MANIM",
@@ -21,7 +22,7 @@ __all__ = [
 
 
 @contextmanager
-def suppress_stdout() -> None:
+def suppress_stdout() -> Iterator[None]:
     with open(os.devnull, "w") as devnull:
         old_stdout = sys.stdout
         sys.stdout = devnull
@@ -64,8 +65,6 @@ else:
         "Either manim (community) or manimgl (3b1b) package must be installed"
     )
 
-
-FFMPEG_BIN = None
 
 if MANIMGL:
     from manimlib import Scene, ThreeDScene, config

@@ -3,8 +3,8 @@ from enum import Enum
 from typing import List, Optional, Set
 
 from pydantic import BaseModel, root_validator, validator
+from PyQt5.QtCore import Qt
 
-from .defaults import LEFT_ARROW_KEY_CODE, RIGHT_ARROW_KEY_CODE
 from .manim import logger
 
 
@@ -14,13 +14,16 @@ class Key(BaseModel):
     ids: Set[int]
     name: Optional[str] = None
 
+    def set_ids(self, *ids: int) -> None:
+        self.ids = set(ids)
+
     @validator("ids", each_item=True)
-    def id_is_posint(cls, v: int):
+    def id_is_posint(cls, v: int) -> int:
         if v < 0:
             raise ValueError("Key ids cannot be negative integers")
         return v
 
-    def match(self, key_id: int):
+    def match(self, key_id: int) -> bool:
         m = key_id in self.ids
 
         if m:
@@ -32,12 +35,12 @@ class Key(BaseModel):
 class Config(BaseModel):
     """General Manim Slides config"""
 
-    QUIT: Key = Key(ids=[ord("q")], name="QUIT")
-    CONTINUE: Key = Key(ids=[RIGHT_ARROW_KEY_CODE], name="CONTINUE / NEXT")
-    BACK: Key = Key(ids=[LEFT_ARROW_KEY_CODE], name="BACK")
-    REVERSE: Key = Key(ids=[ord("v")], name="REVERSE")
-    REWIND: Key = Key(ids=[ord("r")], name="REWIND")
-    PLAY_PAUSE: Key = Key(ids=[32], name="PLAY / PAUSE")
+    QUIT: Key = Key(ids=[Qt.Key_Q], name="QUIT")
+    CONTINUE: Key = Key(ids=[Qt.Key_Right], name="CONTINUE / NEXT")
+    BACK: Key = Key(ids=[Qt.Key_Left], name="BACK")
+    REVERSE: Key = Key(ids=[Qt.Key_V], name="REVERSE")
+    REWIND: Key = Key(ids=[Qt.Key_R], name="REWIND")
+    PLAY_PAUSE: Key = Key(ids=[Qt.Key_Space], name="PLAY / PAUSE")
 
     @root_validator
     def ids_are_unique_across_keys(cls, values):
@@ -46,7 +49,7 @@ class Config(BaseModel):
         for key in values.values():
             if len(ids.intersection(key.ids)) != 0:
                 raise ValueError(
-                    "Two or more keys share a common key code: please make sure each key has distinc key codes"
+                    "Two or more keys share a common key code: please make sure each key has distinct key codes"
                 )
             ids.update(key.ids)
 

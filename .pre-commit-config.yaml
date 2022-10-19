@@ -38,17 +38,13 @@ repos:
         - --ignore-missing-imports
         # Disallow dynamic typing
         - --disallow-any-unimported
-        - --disallow-any-expr
-        - --disallow-any-decorated
         - --disallow-any-generics
-        - --disallow-any-explicit
         - --disallow-subclassing-any
 
         # Disallow untyped definitions and calls
         - --disallow-untyped-defs
         - --disallow-incomplete-defs
         - --check-untyped-defs
-        - --disallow-untyped-decorators
 
         # None and optional handling
         - --no-implicit-optional
