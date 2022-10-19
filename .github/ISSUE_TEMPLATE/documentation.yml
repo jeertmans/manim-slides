@@ -9,12 +9,16 @@ body:
       value: >
         **Thank you for wanting to report a problem with manim-slides docs!**
 
+
         If the problem seems straightforward, feel free to submit a PR instead!
+
 
         ⚠
         Verify first that your issue is not already reported on GitHub[Issues].
 
-        [Issues]: https://github.com/jeertmans/manim-slides/issues
+
+        [Issues]:
+        https://github.com/jeertmans/manim-slides/issues
 
   - type: textarea
     attributes:
