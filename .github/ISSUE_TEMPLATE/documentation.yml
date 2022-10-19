@@ -64,7 +64,7 @@ body:
       description: |
         Read the [Manim Slides Code of Conduct][CoC] first.
 
-        [CoC]: 
+        [CoC]:
       options:
         - label: I agree to follow the Code of Conduct
           required: true
