@@ -57,14 +57,3 @@ body:
       description: A clear and concise description of how you want to update it.
     validations:
       required: false
-
-  - type: checkboxes
-    attributes:
-      label: Code of Conduct
-      description: |
-        Read the [Manim Slides Code of Conduct][CoC] first.
-
-        [CoC]:
-      options:
-        - label: I agree to follow the Code of Conduct
-          required: true
