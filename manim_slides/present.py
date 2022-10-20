@@ -528,8 +528,8 @@ class App(QWidget):
         self.setWindowTitle(WINDOW_NAME)
         self.display_width, self.display_height = resolution
         self.aspect_ratio = aspect_ratio
-
-        if hide_mouse:
+        self.hide_mouse=hide_mouse
+        if self.hide_mouse:
             self.setCursor(Qt.BlankCursor)
 
         self.label = QLabel(self)
@@ -562,7 +562,15 @@ class App(QWidget):
         self.thread.start()
 
     def keyPressEvent(self, event):
+        self.config=Config()
+        
         key = event.key()
+        if self.hide_mouse == False and self.config.HIDE_MOUSE.match(key):
+            self.setCursor(Qt.BlankCursor)
+            self.hide_mouse =True;
+        elif self.hide_mouse == True and self.config.HIDE_MOUSE.match(key):
+            self.setCursor(Qt.ArrowCursor)
+            self.hide_mouse = False;
         # We send key to be handled by video display
         self.send_key_signal.emit(key)
         event.accept()

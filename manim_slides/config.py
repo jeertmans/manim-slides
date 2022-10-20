@@ -41,6 +41,7 @@ class Config(BaseModel):
     REVERSE: Key = Key(ids=[Qt.Key_V], name="REVERSE")
     REWIND: Key = Key(ids=[Qt.Key_R], name="REWIND")
     PLAY_PAUSE: Key = Key(ids=[Qt.Key_Space], name="PLAY / PAUSE")
+    HIDE_MOUSE: Key = Key(ids=[Qt.Key_H], name="HIDE / SHOW MOUSE")
 
     @root_validator
     def ids_are_unique_across_keys(cls, values):
