@@ -1,0 +1,14 @@
+name: Question/Help/Support
+description: Ask us about Manim Slides
+title: "Support: Ask us anything"
+labels: ['help', 'question']
+
+body:
+  - type: textarea
+    attributes:
+      label: "Please explain the issue you're experiencing (with as much detail as possible):"
+      description: >
+        Please make sure to leave a reference to the document/code you're
+        referring to.
+    validations:
+      required: true
