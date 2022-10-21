@@ -284,7 +284,7 @@ class Display(QThread):
     def __init__(
         self,
         presentations,
-        config,
+        config: Config = Config(),
         start_paused=False,
         skip_all=False,
         record_to=None,
@@ -517,6 +517,7 @@ class App(QWidget):
     def __init__(
         self,
         *args,
+        config: Config = Config (),
         fullscreen: bool = False,
         resolution: Tuple[int, int] = (1980, 1080),
         hide_mouse: bool = False,
@@ -529,6 +530,7 @@ class App(QWidget):
         self.display_width, self.display_height = resolution
         self.aspect_ratio = aspect_ratio
         self.hide_mouse=hide_mouse
+        self.config=config
         if self.hide_mouse:
             self.setCursor(Qt.BlankCursor)
 
@@ -541,7 +543,7 @@ class App(QWidget):
         self.label.setMinimumSize(1, 1)
 
         # create the video capture thread
-        self.thread = Display(*args, **kwargs)
+        self.thread = Display(*args, config=config, **kwargs)
         # create the info dialog
         self.info = Info()
         self.info.show()
@@ -562,15 +564,15 @@ class App(QWidget):
         self.thread.start()
 
     def keyPressEvent(self, event):
-        self.config=Config()
         
         key = event.key()
-        if self.hide_mouse == False and self.config.HIDE_MOUSE.match(key):
-            self.setCursor(Qt.BlankCursor)
-            self.hide_mouse =True;
-        elif self.hide_mouse == True and self.config.HIDE_MOUSE.match(key):
-            self.setCursor(Qt.ArrowCursor)
-            self.hide_mouse = False;
+        if self.config.HIDE_MOUSE.match(key):
+            if self.hide_mouse:
+                self.setCursor(Qt.ArrowCursor)
+                self.hide_mouse = False;
+            else:
+                self.setCursor(Qt.BlankCursor)
+                self.hide_mouse = True;
         # We send key to be handled by video display
         self.send_key_signal.emit(key)
         event.accept()

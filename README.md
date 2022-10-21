@@ -26,6 +26,8 @@ Tool for live presentations using either [Manim (community edition)](https://www
 
 While installing Manim Slides and its dependencies on your global Python is fine, I recommend using a [virtualenv](https://docs.python.org/3/tutorial/venv.html) for a local installation.
 
+> **_NOTE:_** Startin with version 4.2, Manim Slides seems to have **troubles installing on mac M1 chips**. An issue has been created [#53](https://github.com/jeertmans/manim-slides/issues/53), and we recommend following its evolution for any update.
+
 ### Dependencies
 
 Manim Slides requires either Manim or ManimGL to be installed. Having both packages installed is fine too.
@@ -171,6 +173,7 @@ Below is a non-exhaustive list of features:
 | Support for 3D Scenes | :heavy_check_mark: | :heavy_multiplication_x: |
 | Documented code | :heavy_check_mark: | :heavy_multiplication_x: |
 | Tested on Unix, macOS, and Windows | :heavy_check_mark: | :heavy_multiplication_x: |
+| Hide mouse cursor | :heavy_check_mark: | :heavy_multiplication_x: |
 
 ## F.A.Q
 
