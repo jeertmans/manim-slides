@@ -9,7 +9,7 @@ body:
       label: Criticality
       description: >
         Please select the criticality of the support you're requesting for
-        
+
         1 - highest priority
         5 - Lowest priority
         <details>
@@ -27,7 +27,7 @@ body:
       required: true
 
   - type: textarea
-    attributes: 
+    attributes:
       label: "Please explain the issue you're experiencing (with as much detail as possible):"
       description: >
         Please make sure to leave a reference to the document/code you're
