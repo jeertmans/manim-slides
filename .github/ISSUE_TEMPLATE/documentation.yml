@@ -1,6 +1,6 @@
 name: Documentation
 description: Ask / Report an issue related to the documentation.
-title: "DOC: Report an issue"
+title: "DOC: <description>"
 labels: ['bug', 'docs']
 
 body:
