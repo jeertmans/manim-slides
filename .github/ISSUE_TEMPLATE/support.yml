@@ -4,28 +4,6 @@ title: "Support: Ask us anything"
 labels: ['help', 'question']
 
 body:
-  - type: dropdown
-    attributes:
-      label: Criticality
-      description: >
-        Please select the criticality of the support you're requesting for
-
-        1 - highest priority
-        5 - Lowest priority
-        <details>
-          <summary>
-            <em>Priority?</em>
-          </summary>
-        </details>
-      options:
-        - "1"
-        - "2"
-        - "3"
-        - "4"
-        - "5"
-    validations:
-      required: true
-
   - type: textarea
     attributes:
       label: "Please explain the issue you're experiencing (with as much detail as possible):"
