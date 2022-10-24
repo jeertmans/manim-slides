@@ -119,14 +119,8 @@ manim-slides Example
 
 The default key bindings to control the presentation are:
 
-|  Keybinding |          Action          |
-|:-----------:|:------------------------:|
-| Right Arrow |    Continue/Next Slide   |
-|  Left Arrow |      Previous Slide      |
-|      R      |   Replay Current Slide   |
-|      V      |   Reverse Current Slide  |
-|   Spacebar  |        Play/Pause        |
-|      Q      |           Quit           |
+![manim-wizard](https://user-images.githubusercontent.com/27275099/197468787-19c83a81-d757-47b9-8f68-218427d30298.png)
+
 
 You can run the **configuration wizard** to change those key bindings:
 
@@ -134,15 +128,13 @@ You can run the **configuration wizard** to change those key bindings:
 manim-slides wizard
 ```
 
-Alternatively you can specify different key bindings creating a file named `.manim-slides.json` with the keys: `QUIT` `CONTINUE` `BACK` `REVERSE` `REWIND` and `PLAY_PAUSE`.
-
 A default file can be created with:
 
 ```bash
 manim-slides init
 ```
 
-> **_NOTE:_**  `manim-slides` uses `cv2.waitKeyEx()` to wait for keypresses, and directly registers the key code.
+> **_NOTE:_**  `manim-slides` uses key codes, which are platform dependent. Using the configuration wizard is therefore highly recommended.
 
 ## Other Examples
 
