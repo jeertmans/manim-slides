@@ -148,3 +148,6 @@ class PresentationConfig(BaseModel):
                 )
 
         return values
+
+
+DEFAULT_CONFIG = Config()
