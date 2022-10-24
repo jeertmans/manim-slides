@@ -16,7 +16,7 @@ from PyQt5.QtWidgets import QApplication, QGridLayout, QLabel, QWidget
 from tqdm import tqdm
 
 from .commons import config_path_option, verbosity_option
-from .config import Config, PresentationConfig, SlideConfig, SlideType
+from .config import DEFAULT_CONFIG, Config, PresentationConfig, SlideConfig, SlideType
 from .defaults import FOLDER_PATH
 from .manim import logger
 
@@ -31,6 +31,11 @@ WINDOWS = platform.system() == "Windows"
 ASPECT_RATIO_MODES = {
     "ignore": Qt.IgnoreAspectRatio,
     "keep": Qt.KeepAspectRatio,
+}
+
+RESIZE_MODES = {
+    "fast": Qt.FastTransformation,
+    "smooth": Qt.SmoothTransformation,
 }
 
 
@@ -284,7 +289,7 @@ class Display(QThread):
     def __init__(
         self,
         presentations,
-        config: Config = Config(),
+        config: Config = DEFAULT_CONFIG,
         start_paused=False,
         skip_all=False,
         record_to=None,
@@ -517,11 +522,12 @@ class App(QWidget):
     def __init__(
         self,
         *args,
-        config: Config = Config(),
+        config: Config = DEFAULT_CONFIG,
         fullscreen: bool = False,
         resolution: Tuple[int, int] = (1980, 1080),
         hide_mouse: bool = False,
         aspect_ratio: Qt.AspectRatioMode = Qt.IgnoreAspectRatio,
+        resize_mode: Qt.TransformationMode = Qt.SmoothTransformation,
         **kwargs,
     ):
         super().__init__()
@@ -529,6 +535,7 @@ class App(QWidget):
         self.setWindowTitle(WINDOW_NAME)
         self.display_width, self.display_height = resolution
         self.aspect_ratio = aspect_ratio
+        self.resize_mode = resize_mode
         self.hide_mouse = hide_mouse
         self.config = config
         if self.hide_mouse:
@@ -584,7 +591,9 @@ class App(QWidget):
         self.deleteLater()
 
     def resizeEvent(self, event):
-        self.pixmap = self.pixmap.scaled(self.width(), self.height(), self.aspect_ratio)
+        self.pixmap = self.pixmap.scaled(
+            self.width(), self.height(), self.aspect_ratio, self.resize_mode
+        )
         self.label.setPixmap(self.pixmap)
         self.label.resize(self.width(), self.height())
 
@@ -615,6 +624,7 @@ class App(QWidget):
             self.width(),
             self.height(),
             self.aspect_ratio,
+            self.resize_mode,
         )
         return QPixmap.fromImage(p)
 
@@ -708,6 +718,13 @@ def _list_scenes(folder) -> List[str]:
     help="Set the aspect ratio mode to be used when rescaling video.",
     show_default=True,
 )
+@click.option(
+    "--resize-mode",
+    type=click.Choice(RESIZE_MODES.keys(), case_sensitive=False),
+    default="smooth",
+    help="Set the resize (i.e., transformation) mode to be used when rescaling video.",
+    show_default=True,
+)
 @click.help_option("-h", "--help")
 @verbosity_option
 def present(
@@ -722,6 +739,7 @@ def present(
     exit_after_last_slide,
     hide_mouse,
     aspect_ratio,
+    resize_mode,
 ) -> None:
     """
     Present SCENE(s), one at a time, in order.
@@ -813,6 +831,7 @@ def present(
         exit_after_last_slide=exit_after_last_slide,
         hide_mouse=hide_mouse,
         aspect_ratio=ASPECT_RATIO_MODES[aspect_ratio],
+        resize_mode=RESIZE_MODES[resize_mode],
     )
     a.show()
     sys.exit(app.exec_())
