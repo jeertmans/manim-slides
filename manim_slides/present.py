@@ -528,6 +528,7 @@ class App(QWidget):
         hide_mouse: bool = False,
         aspect_ratio: Qt.AspectRatioMode = Qt.IgnoreAspectRatio,
         resize_mode: Qt.TransformationMode = Qt.SmoothTransformation,
+        background_color: str = "black",
         **kwargs,
     ):
         super().__init__()
@@ -544,6 +545,7 @@ class App(QWidget):
         self.label = QLabel(self)
         self.label.setAlignment(Qt.AlignCenter)
         self.label.resize(self.display_width, self.display_height)
+        self.label.setStyleSheet(f"background-color: {background_color}")
 
         self.pixmap = QPixmap(self.width(), self.height())
         self.label.setPixmap(self.pixmap)
@@ -725,6 +727,16 @@ def _list_scenes(folder) -> List[str]:
     help="Set the resize (i.e., transformation) mode to be used when rescaling video.",
     show_default=True,
 )
+@click.option(
+    "--background-color",
+    "--bgcolor",
+    "background_color",
+    metavar="COLOR",
+    type=str,
+    default="black",
+    help='Set the background color for borders when using "keep" resize mode. Can be any valid CSS color, e.g., "green", "#FF6500" or "rgba(255, 255, 0, .5)".',
+    show_default=True,
+)
 @click.help_option("-h", "--help")
 @verbosity_option
 def present(
@@ -740,6 +752,7 @@ def present(
     hide_mouse,
     aspect_ratio,
     resize_mode,
+    background_color,
 ) -> None:
     """
     Present SCENE(s), one at a time, in order.
@@ -832,6 +845,7 @@ def present(
         hide_mouse=hide_mouse,
         aspect_ratio=ASPECT_RATIO_MODES[aspect_ratio],
         resize_mode=RESIZE_MODES[resize_mode],
+        background_color=background_color,
     )
     a.show()
     sys.exit(app.exec_())
