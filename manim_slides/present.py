@@ -734,7 +734,7 @@ def _list_scenes(folder) -> List[str]:
     metavar="COLOR",
     type=str,
     default="black",
-    help="Set the background color for borders when using \"keep\" resize mode. Can be any valid CSS color, e.g., \"green\", \"#FF6500\" or \"rgba(255, 255, 0, .5)\".",
+    help='Set the background color for borders when using "keep" resize mode. Can be any valid CSS color, e.g., "green", "#FF6500" or "rgba(255, 255, 0, .5)".',
     show_default=True,
 )
 @click.help_option("-h", "--help")
