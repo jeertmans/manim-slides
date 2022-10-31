@@ -4,8 +4,8 @@ from functools import partial
 from typing import Any
 
 import click
-from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import (
+from PySide6.QtCore import Qt
+from PySide6.QtWidgets import (
     QApplication,
     QDialog,
     QDialogButtonBox,
@@ -25,9 +25,8 @@ from .manim import logger
 WINDOW_NAME: str = "Configuration Wizard"
 
 keymap = {}
-for key, value in vars(Qt).items():
-    if isinstance(value, Qt.Key):
-        keymap[value] = key.partition("_")[2]
+for key in Qt.Key:
+    keymap[key.value] = key.name.partition("_")[2]
 
 
 class KeyInput(QDialog):
