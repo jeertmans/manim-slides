@@ -37,7 +37,7 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v2
       - name: Install Linux Dependencies
-        run: sudo apt install libcairo2-dev libpango1.0-dev ffmpeg libgl1-mesa-glx
+        run: sudo apt install libcairo2-dev libpango1.0-dev ffmpeg libgl1-mesa-glx libopengl0
       - name: Install Python dependencies
         run: pip install manim sphinx sphinx_click furo
       - name: Install local Python package
