@@ -56,5 +56,7 @@ def verbosity_option(function: Callable) -> Callable:
         help="Verbosity of CLI output",
         default=None,
         expose_value=False,
+        envvar="MANIM_SLIDES_VERBOSITY",
+        show_envvar=True,
         callback=callback,
     )(function)

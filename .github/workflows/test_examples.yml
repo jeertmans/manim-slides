@@ -8,6 +8,7 @@ name: Test Examples
 
 env:
   QT_QPA_PLATFORM: offscreen
+  MANIM_SLIDES_VERBOSITY: debug
 
 jobs:
   build-examples:
