@@ -9,10 +9,10 @@ import click
 import cv2
 import numpy as np
 from pydantic import ValidationError
-from PyQt5 import QtGui
-from PyQt5.QtCore import Qt, QThread, pyqtSignal, pyqtSlot
-from PyQt5.QtGui import QPixmap
-from PyQt5.QtWidgets import QApplication, QGridLayout, QLabel, QWidget
+from PySide6 import QtGui
+from PySide6.QtCore import Qt, QThread, Signal as pyqtSignal, Slot as pyqtSlot
+from PySide6.QtGui import QPixmap
+from PySide6.QtWidgets import QApplication, QGridLayout, QLabel, QWidget
 from tqdm import tqdm
 
 from .commons import config_path_option, verbosity_option

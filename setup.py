@@ -39,7 +39,7 @@ setuptools.setup(
         "click-default-group>=1.2",
         "numpy>=1.19.3",
         "pydantic>=1.9.1",
-        "pyqt5>=5.15",
+        "pyside6>=6.4",
         "opencv-python>=4.6",
         "tqdm>=4.62.3",
     ],

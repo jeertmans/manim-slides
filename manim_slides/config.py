@@ -3,7 +3,7 @@ from enum import Enum
 from typing import List, Optional, Set
 
 from pydantic import BaseModel, root_validator, validator
-from PyQt5.QtCore import Qt
+from PySide6.QtCore import Qt
 
 from .manim import logger
 
