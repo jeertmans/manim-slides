@@ -634,6 +634,7 @@ class App(QWidget):
 @click.command()
 @click.option(
     "--folder",
+    metavar="DIRECTORY",
     default=FOLDER_PATH,
     type=click.Path(exists=True, file_okay=False),
     help="Set slides folder.",
@@ -674,6 +675,7 @@ def _list_scenes(folder) -> List[str]:
 @config_path_option
 @click.option(
     "--folder",
+    metavar="DIRECTORY",
     default=FOLDER_PATH,
     type=click.Path(exists=True, file_okay=False),
     help="Set slides folder.",
@@ -690,6 +692,7 @@ def _list_scenes(folder) -> List[str]:
 @click.option(
     "-r",
     "--resolution",
+    metavar="<WIDTH HEIGHT>",
     type=(int, int),
     default=(1920, 1080),
     help="Window resolution WIDTH HEIGHT used if fullscreen is not set. You may manually resize the window afterward.",
@@ -699,6 +702,7 @@ def _list_scenes(folder) -> List[str]:
     "--to",
     "--record-to",
     "record_to",
+    metavar="FILE",
     type=click.Path(dir_okay=False),
     default=None,
     help="If set, the presentation will be recorded into a AVI video file with given name.",

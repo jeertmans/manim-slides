@@ -13,6 +13,7 @@ def config_path_option(function: Callable) -> Callable:
         "-c",
         "--config",
         "config_path",
+        metavar="FILE",
         default=CONFIG_PATH,
         type=click.Path(dir_okay=False),
         help="Set path to configuration file.",
