@@ -10,7 +10,7 @@ import cv2
 import numpy as np
 from pydantic import ValidationError
 from PySide6 import QtGui
-from PySide6.QtCore import Qt, QThread, Signal as pyqtSignal, Slot as pyqtSlot
+from PySide6.QtCore import Qt, QThread, Signal, Slot
 from PySide6.QtGui import QPixmap
 from PySide6.QtWidgets import QApplication, QGridLayout, QLabel, QWidget
 from tqdm import tqdm
@@ -282,9 +282,9 @@ class Presentation:
 class Display(QThread):
     """Displays one or more presentations one after each other."""
 
-    change_video_signal = pyqtSignal(np.ndarray)
-    change_info_signal = pyqtSignal(dict)
-    finished = pyqtSignal()
+    change_video_signal = Signal(np.ndarray)
+    change_info_signal = Signal(dict)
+    finished = Signal()
 
     def __init__(
         self,
@@ -409,7 +409,7 @@ class Display(QThread):
             }
         )
 
-    @pyqtSlot(int)
+    @Slot(int)
     def set_key(self, key: int) -> None:
         """Sets the next key to be handled."""
         self.key = key
@@ -484,7 +484,7 @@ class Info(QWidget):
 
         self.update_info({})
 
-    @pyqtSlot(dict)
+    @Slot(dict)
     def update_info(self, info: dict):
         self.animationLabel.setText("Animation: {}".format(info.get("animation", "na")))
         self.stateLabel.setText("State: {}".format(info.get("state", "unknown")))
@@ -517,7 +517,7 @@ class InfoThread(QThread):
 
 
 class App(QWidget):
-    send_key_signal = pyqtSignal(int)
+    send_key_signal = Signal(int)
 
     def __init__(
         self,
@@ -603,13 +603,13 @@ class App(QWidget):
         self.closeAll()
         event.accept()
 
-    @pyqtSlot(np.ndarray)
+    @Slot(np.ndarray)
     def update_image(self, cv_img: dict):
         """Updates the image_label with a new opencv image"""
         self.pixmap = self.convert_cv_qt(cv_img)
         self.label.setPixmap(self.pixmap)
 
-    @pyqtSlot(dict)
+    @Slot(dict)
     def update_info(self, info: dict):
         """Updates the image_label with a new opencv image"""
         pass
