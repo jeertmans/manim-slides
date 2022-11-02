@@ -11,7 +11,7 @@ import numpy as np
 from pydantic import ValidationError
 from PySide6 import QtGui
 from PySide6.QtCore import Qt, QThread, Signal, Slot
-from PySide6.QtGui import QPixmap
+from PySide6.QtGui import QIcon, QPixmap
 from PySide6.QtWidgets import QApplication, QGridLayout, QLabel, QWidget
 from tqdm import tqdm
 
@@ -19,6 +19,7 @@ from .commons import config_path_option, verbosity_option
 from .config import DEFAULT_CONFIG, Config, PresentationConfig, SlideConfig, SlideType
 from .defaults import FOLDER_PATH
 from .manim import logger
+from .resources import *  # noqa: F401, F403
 
 os.environ.pop(
     "QT_QPA_PLATFORM_PLUGIN_PATH", None
@@ -534,6 +535,8 @@ class App(QWidget):
         super().__init__()
 
         self.setWindowTitle(WINDOW_NAME)
+        self.icon = QIcon(":/icon.png")
+        self.setWindowIcon(self.icon)
         self.display_width, self.display_height = resolution
         self.aspect_ratio = aspect_ratio
         self.resize_mode = resize_mode
