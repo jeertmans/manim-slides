@@ -5,6 +5,7 @@ from typing import Any
 
 import click
 from PySide6.QtCore import Qt
+from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import (
     QApplication,
     QDialog,
@@ -21,6 +22,7 @@ from .commons import config_options, verbosity_option
 from .config import Config, Key
 from .defaults import CONFIG_PATH
 from .manim import logger
+from .resources import *  # noqa: F401, F403
 
 WINDOW_NAME: str = "Configuration Wizard"
 
@@ -54,6 +56,8 @@ class Wizard(QWidget):
 
         self.setWindowTitle(WINDOW_NAME)
         self.config = config
+        self.icon = QIcon(":/icon.png")
+        self.setWindowIcon(self.icon)
 
         QBtn = QDialogButtonBox.Save | QDialogButtonBox.Cancel
 
