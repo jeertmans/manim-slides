@@ -239,7 +239,7 @@ class Example(Slide):
         self.add(square)
         self.tinywait()
         self.pause()
-        self.play(Rotate(square, angle=PI/4))
+        self.play(Rotate(square, angle=PI / 4))
         self.tinywait()
         self.pause()
 
