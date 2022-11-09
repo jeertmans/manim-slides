@@ -78,7 +78,6 @@ class Presentation:
         self.lastframe: Optional[np.ndarray] = None
 
         self.reset()
-        self.add_last_slide()
 
     @property
     def current_slide(self) -> SlideConfig:
@@ -185,17 +184,7 @@ class Presentation:
             )
         return max(fps, 1)  # TODO: understand why we sometimes get 0 fps
 
-    def add_last_slide(self) -> None:
-        """Add a 'last' slide to the end of slides."""
-        self.slides.append(
-            SlideConfig(
-                start_animation=self.last_slide.end_animation,
-                end_animation=self.last_slide.end_animation + 1,
-                type=SlideType.last,
-                number=self.last_slide.number + 1,
-            )
-        )
-
+    
     def reset(self) -> None:
         """Rests current presentation."""
         self.current_animation = 0

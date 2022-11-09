@@ -176,7 +176,7 @@ class Example(Slide):
             language="console",
         )
 
-        or_text = Text("or").scale(0.5)
+        or_text = Text("or generate HTML presentation").scale(0.5)
 
         code_step_7 = Code(
             code="manim-slides convert Example slides.html --open",
@@ -185,7 +185,7 @@ class Example(Slide):
 
         self.clear()
 
-        self.play(Create(code))
+        self.play(FadeIn(code))
         self.tinywait()
         self.pause()
 
@@ -246,12 +246,11 @@ class Example(Slide):
         learn_more_text = VGroup(
             Text("Learn more about Manim Slides:"),
             Text("https://github.com/jeertmans/manim-slides", color=YELLOW),
-        ).arrange(DOWN)
+        ).arrange(DOWN).scale(0.75)
 
+        self.play(Transform(square, learn_more_text))
+        self.tinywait()
 
-        self.play(Uncreate(square))
-        self.play(Write(Text("OK")))
-        self.wait()
 
 
 # For ThreeDExample, things are different

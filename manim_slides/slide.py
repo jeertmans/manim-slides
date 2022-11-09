@@ -103,6 +103,18 @@ class Slide(Scene):
         self.current_slide += 1
         self.pause_start_animation = self.current_animation
 
+    def add_last_slide(self) -> None:
+        """Adds a 'last' slide to the end of slides."""
+        self.slides.append(
+            SlideConfig(
+                type=SlideType.last,
+                start_animation=self.pause_start_animation,
+                end_animation=self.current_animation,
+                number=self.current_slide,
+            )
+        )
+
+
     def start_loop(self) -> None:
         """Starts a loop."""
         assert self.loop_start_animation is None, "You cannot nest loops"
@@ -131,6 +143,8 @@ class Slide(Scene):
 
         Note that cached files only work with Manim.
         """
+        self.add_last_slide()
+
         if not os.path.exists(self.output_folder):
             os.mkdir(self.output_folder)
 
