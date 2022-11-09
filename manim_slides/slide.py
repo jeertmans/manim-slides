@@ -114,7 +114,6 @@ class Slide(Scene):
             )
         )
 
-
     def start_loop(self) -> None:
         """Starts a loop."""
         assert self.loop_start_animation is None, "You cannot nest loops"

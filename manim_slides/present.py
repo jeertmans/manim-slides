@@ -184,7 +184,6 @@ class Presentation:
             )
         return max(fps, 1)  # TODO: understand why we sometimes get 0 fps
 
-    
     def reset(self) -> None:
         """Rests current presentation."""
         self.current_animation = 0

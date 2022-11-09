@@ -243,14 +243,17 @@ class Example(Slide):
         self.tinywait()
         self.pause()
 
-        learn_more_text = VGroup(
-            Text("Learn more about Manim Slides:"),
-            Text("https://github.com/jeertmans/manim-slides", color=YELLOW),
-        ).arrange(DOWN).scale(0.75)
+        learn_more_text = (
+            VGroup(
+                Text("Learn more about Manim Slides:"),
+                Text("https://github.com/jeertmans/manim-slides", color=YELLOW),
+            )
+            .arrange(DOWN)
+            .scale(0.75)
+        )
 
         self.play(Transform(square, learn_more_text))
         self.tinywait()
-
 
 
 # For ThreeDExample, things are different
