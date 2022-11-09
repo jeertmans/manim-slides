@@ -89,16 +89,16 @@ jobs:
         run: pip3 install -e .
       - name: Build slides with manim
         if: matrix.manim == 'manim'
-        run: python -m manim -ql example.py Example ThreeDExample
+        run: python -m manim -ql example.py Example ThreeDExample ConvertExample
       - name: Build slides with manimgl on Ubuntu
         if: matrix.manim == 'manimgl' && matrix.os == 'ubuntu-latest'
-        run: xvfb-run -a -s "-screen 0 1400x900x24" manim-render -l example.py Example ThreeDExample
+        run: xvfb-run -a -s "-screen 0 1400x900x24" manim-render -l example.py Example ThreeDExample ConvertExample
       - name: Build slides with manimgl on MacOS or Windows
         if: matrix.manim == 'manimgl' && (matrix.os == 'macos-latest' || matrix.os == 'windows-latest')
-        run: manimgl -l example.py Example ThreeDExample
+        run: manimgl -l example.py Example ThreeDExample ConvertExample
       - name: Test slides on Ubuntu
         if: matrix.os == 'ubuntu-latest'
-        run: xvfb-run -a -s "-screen 0 1400x900x24" manim-slides Example ThreeDExample --skip-all
+        run: xvfb-run -a -s "-screen 0 1400x900x24" manim-slides Example ThreeDExample ConvertExample --skip-all
       - name: Test slides on MacOS or Windows
         if: matrix.os == 'macos-latest' || matrix.os == 'windows-latest'
-        run: manim-slides Example ThreeDExample --skip-all
+        run: manim-slides Example ThreeDExample ConvertExample --skip-all
