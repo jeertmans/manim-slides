@@ -239,7 +239,7 @@ class Example(Slide):
         self.add(square)
         self.tinywait()
         self.pause()
-        self.play(Rotate(square, angle=PI/4))
+        self.play(Rotate(square, angle=PI / 4))
         self.tinywait()
         self.pause()
 
@@ -247,7 +247,6 @@ class Example(Slide):
             Text("Learn more about Manim Slides:"),
             Text("https://github.com/jeertmans/manim-slides", color=YELLOW),
         ).arrange(DOWN)
-
 
         self.play(Uncreate(square))
         self.play(Write(Text("OK")))
