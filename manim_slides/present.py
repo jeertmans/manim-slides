@@ -3,7 +3,7 @@ import platform
 import sys
 import time
 from enum import IntEnum, auto, unique
-from typing import List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple
 
 import click
 import cv2
@@ -78,7 +78,6 @@ class Presentation:
         self.lastframe: Optional[np.ndarray] = None
 
         self.reset()
-        self.add_last_slide()
 
     @property
     def current_slide(self) -> SlideConfig:
@@ -184,17 +183,6 @@ class Presentation:
                 f"Something is wrong with video file {self.current_file}, as the fps returned by frame {self.current_frame_number} is 0"
             )
         return max(fps, 1)  # TODO: understand why we sometimes get 0 fps
-
-    def add_last_slide(self) -> None:
-        """Add a 'last' slide to the end of slides."""
-        self.slides.append(
-            SlideConfig(
-                start_animation=self.last_slide.end_animation,
-                end_animation=self.last_slide.end_animation + 1,
-                type=SlideType.last,
-                number=self.last_slide.number + 1,
-            )
-        )
 
     def reset(self) -> None:
         """Rests current presentation."""
@@ -673,6 +661,63 @@ def _list_scenes(folder) -> List[str]:
     return scenes
 
 
+def prompt_for_scenes(folder: str) -> List[str]:
+    """Prompts the user to select scenes within a given folder."""
+
+    scene_choices = dict(enumerate(_list_scenes(folder), start=1))
+
+    for i, scene in scene_choices.items():
+        click.secho(f"{i}: {scene}", fg="green")
+
+    click.echo()
+
+    click.echo("Choose number corresponding to desired scene/arguments.")
+    click.echo("(Use comma separated list for multiple entries)")
+
+    def value_proc(value: Optional[str]) -> List[str]:
+        indices = list(map(int, (value or "").strip().replace(" ", "").split(",")))
+
+        if not all(0 < i <= len(scene_choices) for i in indices):
+            raise click.UsageError("Please only enter numbers displayed on the screen.")
+
+        return [scene_choices[i] for i in indices]
+
+    if len(scene_choices) == 0:
+        raise click.UsageError(
+            "No scenes were found, are you in the correct directory?"
+        )
+
+    while True:
+        try:
+            scenes = click.prompt("Choice(s)", value_proc=value_proc)
+            return scenes
+        except ValueError as e:
+            raise click.UsageError(str(e))
+
+
+def get_scenes_presentation_config(
+    scenes: List[str], folder: str
+) -> List[PresentationConfig]:
+    """Returns a list of presentation configurations based on the user input."""
+
+    if len(scenes) == 0:
+        scenes = prompt_for_scenes(folder)
+
+    presentation_configs = []
+    for scene in scenes:
+        config_file = os.path.join(folder, f"{scene}.json")
+        if not os.path.exists(config_file):
+            raise click.UsageError(
+                f"File {config_file} does not exist, check the scene name and make sure to use Slide as your scene base class"
+            )
+        try:
+            presentation_configs.append(PresentationConfig.parse_file(config_file))
+        except ValidationError as e:
+            raise click.UsageError(str(e))
+
+    return presentation_configs
+
+
 @click.command()
 @click.argument("scenes", nargs=-1)
 @config_path_option
@@ -774,53 +819,10 @@ def present(
     if skip_all:
         exit_after_last_slide = True
 
-    if len(scenes) == 0:
-        scene_choices = _list_scenes(folder)
-
-        scene_choices = dict(enumerate(scene_choices, start=1))
-
-        for i, scene in scene_choices.items():
-            click.secho(f"{i}: {scene}", fg="green")
-
-        click.echo()
-
-        click.echo("Choose number corresponding to desired scene/arguments.")
-        click.echo("(Use comma separated list for multiple entries)")
-
-        def value_proc(value: str) -> List[str]:
-            indices = list(map(int, value.strip().replace(" ", "").split(",")))
-
-            if not all(0 < i <= len(scene_choices) for i in indices):
-                raise click.UsageError(
-                    "Please only enter numbers displayed on the screen."
-                )
-
-            return [scene_choices[i] for i in indices]
-
-        if len(scene_choices) == 0:
-            raise click.UsageError(
-                "No scenes were found, are you in the correct directory?"
-            )
-
-        while True:
-            try:
-                scenes = click.prompt("Choice(s)", value_proc=value_proc)
-                break
-            except ValueError as e:
-                raise click.UsageError(e)
-
-    presentations = []
-    for scene in scenes:
-        config_file = os.path.join(folder, f"{scene}.json")
-        if not os.path.exists(config_file):
-            raise click.UsageError(
-                f"File {config_file} does not exist, check the scene name and make sure to use Slide as your scene base class"
-            )
-        try:
-            pres_config = PresentationConfig.parse_file(config_file)
-            presentations.append(Presentation(pres_config))
-        except ValidationError as e:
-            raise click.UsageError(str(e))
+    presentations = [
+        Presentation(presentation_config)
+        for presentation_config in get_scenes_presentation_config(scenes, folder)
+    ]
 
     if os.path.exists(config_path):
         try:

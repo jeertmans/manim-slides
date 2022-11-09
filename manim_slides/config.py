@@ -1,11 +1,27 @@
 import os
+import shutil
+import subprocess
+import tempfile
 from enum import Enum
 from typing import List, Optional, Set
 
 from pydantic import BaseModel, root_validator, validator
 from PySide6.QtCore import Qt
 
-from .manim import logger
+from .manim import FFMPEG_BIN, logger
+
+
+def merge_basenames(files: List[str]) -> str:
+    """
+    Merge multiple filenames by concatenating basenames.
+    """
+
+    dirname = os.path.dirname(files[0])
+    _, ext = os.path.splitext(files[0])
+
+    basename = "_".join(os.path.splitext(os.path.basename(file))[0] for file in files)
+
+    return os.path.join(dirname, basename + ext)
 
 
 class Key(BaseModel):
@@ -96,7 +112,7 @@ class SlideConfig(BaseModel):
 
             if values["start_animation"] == values["end_animation"] == 0:
                 raise ValueError(
-                    "You have to play at least one animation (e.g., `self.wait()`) before pausing. If you want to start paused, use the approriate command-line option when presenting."
+                    "You have to play at least one animation (e.g., `self.wait()`) before pausing. If you want to start paused, use the approriate command-line option when presenting. IMPORTANT: when using ManimGL, `self.wait()` is not considered to be an animation, so prefer to directly use `self.play(...)`."
                 )
 
             raise ValueError(
@@ -105,14 +121,18 @@ class SlideConfig(BaseModel):
 
         return values
 
-    def is_slide(self):
+    def is_slide(self) -> bool:
         return self.type == SlideType.slide
 
-    def is_loop(self):
+    def is_loop(self) -> bool:
         return self.type == SlideType.loop
 
-    def is_last(self):
+    def is_last(self) -> bool:
         return self.type == SlideType.last
+
+    @property
+    def slides_slice(self) -> slice:
+        return slice(self.start_animation, self.end_animation)
 
 
 class PresentationConfig(BaseModel):
@@ -148,6 +168,80 @@ class PresentationConfig(BaseModel):
                 )
 
         return values
+
+    def move_to(self, dest: str, copy=True) -> "PresentationConfig":
+        """
+        Moves (or copy) the files to a given directory.
+        """
+        move = shutil.copy if copy else shutil.move
+
+        n = len(self.files)
+        for i in range(n):
+            file = self.files[i]
+            basename = os.path.basename(file)
+            dest_path = os.path.join(dest, basename)
+            logger.debug(f"Moving / copying {file} to {dest_path}")
+            move(file, dest_path)
+            self.files[i] = dest_path
+
+        return self
+
+    def concat_animations(self, dest: Optional[str] = None) -> "PresentationConfig":
+        """
+        Concatenate animations such that each slide contains one animation.
+        """
+
+        dest_paths = []
+
+        for i, slide_config in enumerate(self.slides):
+            files = self.files[slide_config.slides_slice]
+
+            if len(files) > 1:
+                dest_path = merge_basenames(files)
+
+                f = tempfile.NamedTemporaryFile(mode="w", delete=False)
+                f.writelines(f"file {os.path.abspath(path)}\n" for path in files)
+                f.close()
+
+                command = [
+                    FFMPEG_BIN,
+                    "-f",
+                    "concat",
+                    "-safe",
+                    "0",
+                    "-i",
+                    f.name,
+                    "-c",
+                    "copy",
+                    dest_path,
+                    "-y",
+                ]
+                logger.debug(" ".join(command))
+                process = subprocess.Popen(
+                    command, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+                )
+                output, error = process.communicate()
+
+                if output:
+                    logger.debug(output.decode())
+
+                if error:
+                    logger.debug(error.decode())
+
+                dest_paths.append(dest_path)
+
+            else:
+                dest_paths.append(files[0])
+
+            slide_config.start_animation = i
+            slide_config.end_animation = i + 1
+
+        self.files = dest_paths
+
+        if dest:
+            return self.move_to(dest)
+
+        return self
 
 
 DEFAULT_CONFIG = Config()
