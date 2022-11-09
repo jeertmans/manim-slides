@@ -1,38 +1,125 @@
-import click
-from typing import Callable
-from click import Context, Parameter
-
-from .commons import verbosity_option
-
-
+import os
 import webbrowser
+from enum import Enum
+from typing import Any, Callable, Dict, Generator, List, Type
+
+import click
+from click import Context, Parameter
+from pydantic import BaseModel
+
+from .commons import folder_path_option, verbosity_option
+from .config import PresentationConfig
+from .defaults import REVEALJS_TEMPLATE
+from .present import get_scenes_presentation_config
 
 
-class Converter:
-    config = dict(a="test", b="hello")
+def validate_config_option(
+    ctx: Context, param: Parameter, value: Any
+) -> Dict[str, str]:
 
-    def __init__(self, scenes, **config):
+    config = {}
 
-        self.scenes = scenes
-        self.config.update(**config)
+    for c_option in value:
+        try:
+            key, value = c_option.split("=")
+            config[key] = value
+        except ValueError:
+            raise click.BadParameter(
+                f"Configuration options `{c_option}` could not be parsed into a proper (key, value) pair. Please use an `=` sign to separate key from value."
+            )
 
-    def convert(self, dest: str):
+    return config
+
+
+class Converter(BaseModel):
+    presentation_configs: List[PresentationConfig] = []
+    assets_dir: str = "{basename}_assets"
+
+    def convert_to(self, dest: str):
+        """Converts self, i.e., a list of presentations, into a given format."""
         raise NotImplementedError
 
-    def open(self, file: str):
-        raise NotImplementedError
+    def open(self, file: str) -> bool:
+        """Opens a file, generated with converter, using appropriate application."""
+        return webbrowser.open(file)
 
     @classmethod
-    def from_string(cls, s: str) -> "Converter":
+    def from_string(cls, s: str) -> Type["Converter"]:
+        """Returns the appropriate converter from a string name."""
         return {
             "html": RevealJS,
         }[s]
 
 
+class JSBool(str, Enum):
+    true = "true"
+    false = "false"
+
+
+class RevealTheme(str, Enum):
+    black = "black"
+    white = "white"
+    league = "league"
+    beige = "beige"
+    sky = "sky"
+    night = "night"
+    serif = "serif"
+    simple = "simple"
+    soralized = "solarized"
+    blood = "blood"
+    moon = "moon"
+
+
 class RevealJS(Converter):
-    def convert(self, dest):
+    background_color: str = "black"
+    controls: JSBool = JSBool.false
+    embedded: JSBool = JSBool.false
+    fragments: JSBool = JSBool.false
+    height: str = "100%"
+    loop: JSBool = JSBool.false
+    progress: JSBool = JSBool.false
+    reveal_version: str = "3.7.0"
+    reveal_theme: RevealTheme = RevealTheme.black
+    shuffle: JSBool = JSBool.false
+    title: str = "Manim Slides"
+    width: str = "100%"
+
+    class Config:
+        use_enum_values = True
+
+    def get_sections_iter(self) -> Generator[str, None, None]:
+        """Generates a sequence of sections, one per slide, that will be included into the html template."""
+        for presentation_config in self.presentation_configs:
+            for slide_config in presentation_config.slides:
+                file = presentation_config.files[slide_config.start_animation]
+                file = os.path.join(self.assets_dir, os.path.basename(file))
+
+                if slide_config.is_loop():
+                    yield f'<section data-background-video="{file}" data-background-video-loop></section>'
+                else:
+                    yield f'<section data-background-video="{file}"></section>'
+
+    def convert_to(self, dest: str):
+        dirname = os.path.dirname(dest)
+        basename, ext = os.path.splitext(os.path.basename(dest))
+
+        self.assets_dir = self.assets_dir.format(
+            dirname=dirname, basename=basename, ext=ext
+        )
+        full_assets_dir = os.path.join(dirname, self.assets_dir)
+
+        os.makedirs(full_assets_dir, exist_ok=True)
+
+        for presentation_config in self.presentation_configs:
+            presentation_config.concat_animations().move_to(full_assets_dir)
+
         with open(dest, "w") as f:
-            pass
+
+            sections = "".join(self.get_sections_iter())
+
+            content = REVEALJS_TEMPLATE.format(sections=sections, **self.dict())
+
+            f.write(content)
 
 
 def show_config_options(function: Callable) -> Callable:
@@ -46,8 +133,9 @@ def show_config_options(function: Callable) -> Callable:
         to = ctx.params.get("to")
 
         if to:
-            for key, value in Converter.from_string(to).config.items():
-                click.echo(f"{key}: {value}")
+            converter = Converter.from_string(to)(scenes=[])
+            for key, value in converter.dict().items():
+                click.echo(f"{key}: {repr(value)}")
 
             ctx.exit()
 
@@ -68,8 +156,8 @@ def show_config_options(function: Callable) -> Callable:
 
 
 @click.command()
-@click.pass_context
 @click.argument("scenes", nargs=-1)
+@folder_path_option
 @click.argument("dest")
 @click.option(
     "--to",
@@ -90,31 +178,23 @@ def show_config_options(function: Callable) -> Callable:
     "--config",
     "config_options",
     multiple=True,
-    help="Configuration options passed to the converter.",
+    callback=validate_config_option,
+    help="Configuration options passed to the converter. E.g., pass `-cbackground_color=red` to set the background color to red (if supported).",
 )
 @show_config_options
 @verbosity_option
-def convert(ctx, scenes, dest, to, open_result, force, config_options):
+def convert(scenes, folder, dest, to, open_result, force, config_options):
     """
     Convert SCENE(s) into a given format and writes the result in DEST.
     """
-    
-    config = {}
 
-    for c_option in config_options:
-        try:
-            key, value = c_option.split("=")
-            config[key] = value
-        except ValueError:
-            raise click.UsageError(f"Configuration options `{c_option}` could not be parsed into a proper (key, value) pair. Please use an `=` sign to separate key from value.")
-        
+    presentation_configs = get_scenes_presentation_config(scenes, folder)
 
-    print(config)
+    converter = Converter.from_string(to)(
+        presentation_configs=presentation_configs, **config_options
+    )
 
-    print(scenes)
-    print(dest)
+    converter.convert_to(dest)
 
-    config = dict([item.strip("--").split("=") for item in ctx.args])
-    print(config)
-
-    converter = Converter.from_string(to)
+    if open_result:
+        converter.open(dest)

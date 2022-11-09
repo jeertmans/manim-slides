@@ -14,8 +14,15 @@ from .manim import FFMPEG_BIN, MANIMGL, Scene, ThreeDScene, config, logger
 def reverse_video_file(src: str, dst: str) -> None:
     """Reverses a video file, writting the result to `dst`."""
     command = [FFMPEG_BIN, "-i", src, "-vf", "reverse", dst]
+    logger.debug(" ".join(command))
     process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    process.communicate()
+    output, error = process.communicate()
+
+    if output:
+        logger.debug(output.decode())
+
+    if error:
+        logger.debug(error.decode())
 
 
 class Slide(Scene):

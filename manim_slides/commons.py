@@ -3,7 +3,7 @@ from typing import Callable
 import click
 from click import Context, Parameter
 
-from .defaults import CONFIG_PATH
+from .defaults import CONFIG_PATH, FOLDER_PATH
 from .manim import logger
 
 
@@ -59,4 +59,16 @@ def verbosity_option(function: Callable) -> Callable:
         envvar="MANIM_SLIDES_VERBOSITY",
         show_envvar=True,
         callback=callback,
+    )(function)
+
+
+def folder_path_option(function: Callable) -> Callable:
+    """Wraps a function to add folder path option."""
+    return click.option(
+        "--folder",
+        metavar="DIRECTORY",
+        default=FOLDER_PATH,
+        type=click.Path(exists=True, file_okay=False),
+        help="Set slides folder.",
+        show_default=True,
     )(function)
