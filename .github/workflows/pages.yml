@@ -45,7 +45,7 @@ jobs:
       - name: Build animation and convert it into HTML slides
         run: |
           manim example.py ConvertExample
-          manim-slides convert ConvertExample docs/source/_static/slides.html -cembedded -ccontrols=true
+          manim-slides convert ConvertExample docs/source/_static/slides.html -cembedded=true -ccontrols=true
       - name: Build docs
         run: cd docs && make html
       - name: Upload artifact
