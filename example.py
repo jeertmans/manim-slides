@@ -66,9 +66,8 @@ class ConvertExample(Slide):
 
         step = step_1
 
-        self.add(title)
+        self.play(FadeIn(title))
 
-        self.wait()
         self.pause()
 
         code = Code(
