@@ -187,4 +187,4 @@ REVEALJS_TEMPLATE: str = """
 </body>
 
 </html>
-"""
+"""  # noqa W191
