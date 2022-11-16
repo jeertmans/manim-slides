@@ -9,7 +9,7 @@ from pydantic import BaseModel
 
 from .commons import folder_path_option, verbosity_option
 from .config import PresentationConfig
-from .defaults import REVEALJS_TEMPLATE
+from .defaults import REVEALJS_TEMPLATE_PATH
 from .present import get_scenes_presentation_config
 
 
@@ -99,6 +99,10 @@ class RevealJS(Converter):
                 else:
                     yield f'<section data-background-video="{file}"></section>'
 
+    def load_template(self):
+        with open(REVEALJS_TEMPLATE_PATH, "r") as content_file:
+            return content_file.read()
+
     def convert_to(self, dest: str):
         dirname = os.path.dirname(dest)
         basename, ext = os.path.splitext(os.path.basename(dest))
@@ -117,7 +121,8 @@ class RevealJS(Converter):
 
             sections = "".join(self.get_sections_iter())
 
-            content = REVEALJS_TEMPLATE.format(sections=sections, **self.dict())
+            revealjs_template = self.load_template()
+            content = revealjs_template.format(sections=sections, **self.dict())
 
             f.write(content)
 
