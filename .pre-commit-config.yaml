@@ -10,11 +10,12 @@ repos:
     hooks:
       - id: isort
         name: isort (python)
-        args: ["--profile", "black"]
+        args: ["--python-version", "37", "--profile", "black"]
 -   repo: https://github.com/psf/black
     rev: 22.10.0
     hooks:
       - id: black
+        args: ["--target-version", "py37"]
 -   repo: https://github.com/PyCQA/flake8
     rev: 5.0.4
     hooks:
