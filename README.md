@@ -24,7 +24,7 @@ Tool for live presentations using either [Manim (community edition)](https://www
 
 ## Installation
 
-While installing Manim Slides and its dependencies on your global Python is fine, I recommend using a virtual environment (e.g. [venv](https://docs.python.org/3/tutorial/venv.html)) for a local installation.
+While installing Manim Slides and its dependencies on your global Python is fine, I recommend using a virtual environment (e.g., [venv](https://docs.python.org/3/tutorial/venv.html)) for a local installation.
 
 ### Dependencies
 
