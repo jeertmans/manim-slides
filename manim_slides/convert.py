@@ -10,7 +10,6 @@ from pydantic import BaseModel
 
 from .commons import folder_path_option, verbosity_option
 from .config import PresentationConfig
-from .defaults import REVEALJS_TEMPLATE_PATH
 from .present import get_scenes_presentation_config
 
 
