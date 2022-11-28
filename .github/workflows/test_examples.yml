@@ -69,11 +69,6 @@ jobs:
       - name: Install Windows dependencies
         if: matrix.os == 'windows-latest'
         run: choco install ffmpeg
-      - name: Install Python Linux dependencies (manimgl only)
-        if: matrix.os == 'ubuntu-latest' && matrix.manim == 'manimgl'
-        run: |
-          pip3 install manimpango --no-binary ':all:'
-          pip3 install PyOpenGL PyOpenGL_accelerate
       - name: Install manim on MacOs
         if: matrix.manim == 'manim' && matrix.os == 'macos-latest'
         run: pip install --user manim
@@ -86,6 +81,10 @@ jobs:
       - name: Install manimgl on Ubuntu and Windows
         if: matrix.manim == 'manimgl' && matrix.os != 'macos-latest'
         run: python -m pip install --user manimgl
+      - name: Check ManimPango on Ubuntu (manimgl only)
+        if: matrix.os == 'ubuntu-latest' && matrix.manim == 'manimgl'
+        run: |
+          python -c "import manimpango"
       - name: Install manim-slides on MacOS
         if: matrix.os == 'macos-latest'
         run: pip3 install --user .
