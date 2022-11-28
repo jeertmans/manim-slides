@@ -64,7 +64,7 @@ jobs:
         run: brew install ffmpeg
       - name: Install Ubuntu dependencies
         if: matrix.os == 'ubuntu-latest'
-        run: sudo apt install libcairo2-dev libpango1.0-dev ffmpeg freeglut3-dev xvfb pkg-config python3-devel
+        run: sudo apt install libcairo2-dev libpango1.0-dev ffmpeg freeglut3-dev xvfb pkg-config python3-dev
       - name: Install Windows dependencies
         if: matrix.os == 'windows-latest'
         run: choco install ffmpeg
