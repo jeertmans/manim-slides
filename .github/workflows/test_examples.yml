@@ -84,6 +84,7 @@ jobs:
       - name: Check ManimPango on Ubuntu (manimgl only)
         if: matrix.os == 'ubuntu-latest' && matrix.manim == 'manimgl'
         run: |
+          python -m pip install manimpango --no-binary :all: --force
           python -c "import manimpango"
       - name: Install manim-slides on MacOS
         if: matrix.os == 'macos-latest'
