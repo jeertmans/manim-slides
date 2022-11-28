@@ -96,16 +96,16 @@ jobs:
         run: python -m manim -ql example.py Example ThreeDExample ConvertExample
       - name: Build slides with manimgl on Ubuntu
         if: matrix.manim == 'manimgl' && matrix.os == 'ubuntu-latest'
-        run: xvfb-run -a -s "-screen 0 1400x900x24" manim-render -l example.py Example ThreeDExample ConvertExample
+        run: xvfb-run -a -s "-screen 0 1400x900x24" manim-render -l example.py Example ThreeDExample
       - name: Build slides with manimgl on MacOS or Windows
         if: matrix.manim == 'manimgl' && (matrix.os == 'macos-latest' || matrix.os == 'windows-latest')
-        run: manimgl -l example.py Example ThreeDExample ConvertExample
+        run: manimgl -l example.py Example ThreeDExample
       - name: Test slides on Ubuntu
         if: matrix.os == 'ubuntu-latest'
-        run: xvfb-run -a -s "-screen 0 1400x900x24" manim-slides Example ThreeDExample ConvertExample --skip-all
+        run: xvfb-run -a -s "-screen 0 1400x900x24" manim-slides Example ThreeDExample --skip-all
       - name: Test slides on MacOS or Windows
         if: matrix.os == 'macos-latest' || matrix.os == 'windows-latest'
-        run: manim-slides Example ThreeDExample ConvertExample --skip-all
+        run: manim-slides Example ThreeDExample --skip-all
       - name: Test convert on Ubuntu
-        if: matrix.os == 'ubuntu-latest'
+        if: matrix.os == 'ubuntu-latest' && matrix.manim == 'manim'
         run: manim-slides convert --to=html ConvertExample index.html
