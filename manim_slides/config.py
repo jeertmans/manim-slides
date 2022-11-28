@@ -3,7 +3,7 @@ import shutil
 import subprocess
 import tempfile
 from enum import Enum
-from typing import List, Optional, Set
+from typing import Callable, Dict, List, Optional, Set, Union
 
 from pydantic import BaseModel, root_validator, validator
 from PySide6.QtCore import Qt
@@ -24,7 +24,7 @@ def merge_basenames(files: List[str]) -> str:
     return os.path.join(dirname, basename + ext)
 
 
-class Key(BaseModel):
+class Key(BaseModel):  # type: ignore
     """Represents a list of key codes, with optionally a name."""
 
     ids: Set[int]
@@ -48,7 +48,7 @@ class Key(BaseModel):
         return m
 
 
-class Config(BaseModel):
+class Config(BaseModel):  # type: ignore
     """General Manim Slides config"""
 
     QUIT: Key = Key(ids=[Qt.Key_Q], name="QUIT")
@@ -60,8 +60,8 @@ class Config(BaseModel):
     HIDE_MOUSE: Key = Key(ids=[Qt.Key_H], name="HIDE / SHOW MOUSE")
 
     @root_validator
-    def ids_are_unique_across_keys(cls, values):
-        ids = set()
+    def ids_are_unique_across_keys(cls, values: Dict[str, Key]) -> Dict[str, Key]:
+        ids: Set[int] = set()
 
         for key in values.values():
             if len(ids.intersection(key.ids)) != 0:
@@ -87,7 +87,7 @@ class SlideType(str, Enum):
     last = "last"
 
 
-class SlideConfig(BaseModel):
+class SlideConfig(BaseModel):  # type: ignore
     type: SlideType
     start_animation: int
     end_animation: int
@@ -95,20 +95,22 @@ class SlideConfig(BaseModel):
     terminated: bool = False
 
     @validator("start_animation", "end_animation")
-    def index_is_posint(cls, v: int):
+    def index_is_posint(cls, v: int) -> int:
         if v < 0:
             raise ValueError("Animation index (start or end) cannot be negative")
         return v
 
     @validator("number")
-    def number_is_strictly_posint(cls, v: int):
+    def number_is_strictly_posint(cls, v: int) -> int:
         if v <= 0:
             raise ValueError("Slide number cannot be negative or zero")
         return v
 
     @root_validator
-    def start_animation_is_before_end(cls, values):
-        if values["start_animation"] >= values["end_animation"]:
+    def start_animation_is_before_end(
+        cls, values: Dict[str, Union[SlideType, int, bool]]
+    ) -> Dict[str, Union[SlideType, int, bool]]:
+        if values["start_animation"] >= values["end_animation"]:  # type: ignore
 
             if values["start_animation"] == values["end_animation"] == 0:
                 raise ValueError(
@@ -135,12 +137,12 @@ class SlideConfig(BaseModel):
         return slice(self.start_animation, self.end_animation)
 
 
-class PresentationConfig(BaseModel):
+class PresentationConfig(BaseModel):  # type: ignore
     slides: List[SlideConfig]
     files: List[str]
 
     @validator("files", pre=True, each_item=True)
-    def is_file_and_exists(cls, v):
+    def is_file_and_exists(cls, v: str) -> str:
         if not os.path.exists(v):
             raise ValueError(
                 f"Animation file {v} does not exist. Are you in the right directory?"
@@ -152,7 +154,9 @@ class PresentationConfig(BaseModel):
         return v
 
     @root_validator
-    def animation_indices_match_files(cls, values):
+    def animation_indices_match_files(
+        cls, values: Dict[str, Union[List[SlideConfig], List[str]]]
+    ) -> Dict[str, Union[List[SlideConfig], List[str]]]:
         files = values.get("files")
         slides = values.get("slides")
 
@@ -162,18 +166,20 @@ class PresentationConfig(BaseModel):
         n_files = len(files)
 
         for slide in slides:
-            if slide.end_animation > n_files:
+            if slide.end_animation > n_files:  # type: ignore
                 raise ValueError(
                     f"The following slide's contains animations not listed in files {files}: {slide}"
                 )
 
         return values
 
-    def move_to(self, dest: str, copy=True) -> "PresentationConfig":
+    def move_to(self, dest: str, copy: bool = True) -> "PresentationConfig":
         """
         Moves (or copy) the files to a given directory.
         """
-        move = shutil.copy if copy else shutil.move
+        copy_func: Callable[[str, str], None] = shutil.copy
+        move_func: Callable[[str, str], None] = shutil.move
+        move = copy_func if copy else move_func
 
         n = len(self.files)
         for i in range(n):

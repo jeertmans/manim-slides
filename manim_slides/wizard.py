@@ -5,7 +5,7 @@ from typing import Any
 
 import click
 from PySide6.QtCore import Qt
-from PySide6.QtGui import QIcon
+from PySide6.QtGui import QIcon, QKeyEvent
 from PySide6.QtWidgets import (
     QApplication,
     QDialog,
@@ -31,7 +31,7 @@ for key in Qt.Key:
     keymap[key.value] = key.name.partition("_")[2]
 
 
-class KeyInput(QDialog):
+class KeyInput(QDialog):  # type: ignore
     def __init__(self) -> None:
         super().__init__()
         self.key = None
@@ -43,13 +43,13 @@ class KeyInput(QDialog):
         self.layout.addWidget(self.label)
         self.setLayout(self.layout)
 
-    def keyPressEvent(self, event: Any) -> None:
+    def keyPressEvent(self, event: QKeyEvent) -> None:
         self.key = event.key()
         self.deleteLater()
         event.accept()
 
 
-class Wizard(QWidget):
+class Wizard(QWidget):  # type: ignore
     def __init__(self, config: Config):
 
         super().__init__()
@@ -131,7 +131,7 @@ class Wizard(QWidget):
 @config_options
 @click.help_option("-h", "--help")
 @verbosity_option
-def wizard(config_path, force, merge):
+def wizard(config_path: str, force: bool, merge: bool) -> None:
     """Launch configuration wizard."""
     return _init(config_path, force, merge, skip_interactive=False)
 
@@ -140,12 +140,16 @@ def wizard(config_path, force, merge):
 @config_options
 @click.help_option("-h", "--help")
 @verbosity_option
-def init(config_path, force, merge, skip_interactive=False):
+def init(
+    config_path: str, force: bool, merge: bool, skip_interactive: bool = False
+) -> None:
     """Initialize a new default configuration file."""
     return _init(config_path, force, merge, skip_interactive=True)
 
 
-def _init(config_path, force, merge, skip_interactive=False):
+def _init(
+    config_path: str, force: bool, merge: bool, skip_interactive: bool = False
+) -> None:
     """Actual initialization code for configuration file, with optional interactive mode."""
 
     if os.path.exists(config_path):

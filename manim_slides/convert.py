@@ -31,11 +31,11 @@ def validate_config_option(
     return config
 
 
-class Converter(BaseModel):
+class Converter(BaseModel):  # type: ignore
     presentation_configs: List[PresentationConfig] = []
     assets_dir: str = "{basename}_assets"
 
-    def convert_to(self, dest: str):
+    def convert_to(self, dest: str) -> None:
         """Converts self, i.e., a list of presentations, into a given format."""
         raise NotImplementedError
 
@@ -105,7 +105,7 @@ class RevealJS(Converter):
             __name__, "data/revealjs_template.html"
         ).decode()
 
-    def convert_to(self, dest: str):
+    def convert_to(self, dest: str) -> None:
         """Converts this configuration into a RevealJS HTML presentation, saved to DEST."""
         dirname = os.path.dirname(dest)
         basename, ext = os.path.splitext(os.path.basename(dest))
@@ -130,7 +130,7 @@ class RevealJS(Converter):
             f.write(content)
 
 
-def show_config_options(function: Callable) -> Callable:
+def show_config_options(function: Callable[..., Any]) -> Callable[..., Any]:
     """Wraps a function to add a `--show-config` option."""
 
     def callback(ctx: Context, param: Parameter, value: bool) -> None:
@@ -191,7 +191,15 @@ def show_config_options(function: Callable) -> Callable:
 )
 @show_config_options
 @verbosity_option
-def convert(scenes, folder, dest, to, open_result, force, config_options):
+def convert(
+    scenes: List[str],
+    folder: str,
+    dest: str,
+    to: str,
+    open_result: bool,
+    force: bool,
+    config_options: Dict[str, str],
+) -> None:
     """
     Convert SCENE(s) into a given format and writes the result in DEST.
     """

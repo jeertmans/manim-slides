@@ -34,7 +34,6 @@ repos:
         - --non-interactive
         - --ignore-missing-imports
         # Disallow dynamic typing
-        - --disallow-any-unimported
         - --disallow-any-generics
         - --disallow-subclassing-any
 
@@ -49,7 +48,7 @@ repos:
         # Configuring warnings
         - --warn-unused-ignores
         - --warn-no-return
-        - --warn-return-any
+        - --no-warn-return-any
         - --warn-redundant-casts
 
         # Strict equality

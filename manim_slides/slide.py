@@ -25,7 +25,7 @@ def reverse_video_file(src: str, dst: str) -> None:
         logger.debug(error.decode())
 
 
-class Slide(Scene):
+class Slide(Scene):  # type:ignore
     """
     Inherits from `manim.Scene` or `manimlib.Scene` and provide necessary tools for slides rendering.
     """
@@ -222,7 +222,7 @@ class Slide(Scene):
         self.save_slides()
 
 
-class ThreeDSlide(Slide, ThreeDScene):
+class ThreeDSlide(Slide, ThreeDScene):  # type: ignore
     """
     Inherits from `manim.ThreeDScene` or `manimlib.ThreeDScene` and provide necessary tools for slides rendering.
 
