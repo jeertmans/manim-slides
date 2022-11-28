@@ -102,3 +102,6 @@ jobs:
       - name: Test slides on MacOS or Windows
         if: matrix.os == 'macos-latest' || matrix.os == 'windows-latest'
         run: manim-slides Example ThreeDExample ConvertExample --skip-all
+      - name: Test convert on Ubuntu
+        if: matrix.os == 'ubuntu-latest'
+        run: manim-slides convert --to=html ConvertExample index.html

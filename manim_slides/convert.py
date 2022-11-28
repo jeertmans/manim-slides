@@ -4,6 +4,7 @@ from enum import Enum
 from typing import Any, Callable, Dict, Generator, List, Type
 
 import click
+import pkg_resources
 from click import Context, Parameter
 from pydantic import BaseModel
 
@@ -99,11 +100,14 @@ class RevealJS(Converter):
                 else:
                     yield f'<section data-background-video="{file}"></section>'
 
-    def load_template(self):
-        with open(REVEALJS_TEMPLATE_PATH, "r") as content_file:
-            return content_file.read()
+    def load_template(self) -> str:
+        """Returns the RevealJS HTML template as a string."""
+        return pkg_resources.resource_string(
+            __name__, "data/revealjs_template.html"
+        ).decode()
 
     def convert_to(self, dest: str):
+        """Converts this configuration into a RevealJS HTML presentation, saved to DEST."""
         dirname = os.path.dirname(dest)
         basename, ext = os.path.splitext(os.path.basename(dest))
 
