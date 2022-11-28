@@ -13,6 +13,7 @@ env:
 jobs:
   build-examples:
     strategy:
+      fail-fast: false
       matrix:
         manim: [manim, manimgl]
         os: [macos-latest, ubuntu-latest, windows-latest]
@@ -27,7 +28,10 @@ jobs:
         # https://github.com/3b1b/manim/issues/1808
         - manim: manimgl
           pyversion: '3.7'
-        # We only test Python 3.10 on Windows and MacOS
+        # manimgl seems to have problems with Python 3.11
+        - manim: manimgl
+          pyversion: '3.11'
+        # We only test Python 3.11 on Windows and MacOS
         - os: windows-latest
           pyversion: '3.7'
         - os: windows-latest
@@ -36,6 +40,7 @@ jobs:
           pyversion: '3.9'
         - os: windows-latest
           pyversion: '3.10'
+          manim: manim
         - os: macos-latest
           pyversion: '3.7'
         - os: macos-latest
@@ -44,6 +49,7 @@ jobs:
           pyversion: '3.9'
         - os: macos-latest
           pyversion: '3.10'
+          manim: manim
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout repository
@@ -96,13 +102,16 @@ jobs:
         run: python -m manim -ql example.py Example ThreeDExample ConvertExample
       - name: Build slides with manimgl on Ubuntu
         if: matrix.manim == 'manimgl' && matrix.os == 'ubuntu-latest'
-        run: xvfb-run -a -s "-screen 0 1400x900x24" manim-render -l example.py Example ThreeDExample ConvertExample
+        run: xvfb-run -a -s "-screen 0 1400x900x24" manim-render -l example.py Example ThreeDExample
       - name: Build slides with manimgl on MacOS or Windows
         if: matrix.manim == 'manimgl' && (matrix.os == 'macos-latest' || matrix.os == 'windows-latest')
-        run: manimgl -l example.py Example ThreeDExample ConvertExample
+        run: manimgl -l example.py Example ThreeDExample
       - name: Test slides on Ubuntu
         if: matrix.os == 'ubuntu-latest'
-        run: xvfb-run -a -s "-screen 0 1400x900x24" manim-slides Example ThreeDExample ConvertExample --skip-all
+        run: xvfb-run -a -s "-screen 0 1400x900x24" manim-slides Example ThreeDExample --skip-all
       - name: Test slides on MacOS or Windows
         if: matrix.os == 'macos-latest' || matrix.os == 'windows-latest'
-        run: manim-slides Example ThreeDExample ConvertExample --skip-all
+        run: manim-slides Example ThreeDExample --skip-all
+      - name: Test convert on Ubuntu
+        if: matrix.os == 'ubuntu-latest' && matrix.manim == 'manim'
+        run: manim-slides convert --to=html ConvertExample index.html

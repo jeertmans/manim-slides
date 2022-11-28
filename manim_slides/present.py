@@ -3,7 +3,7 @@ import platform
 import sys
 import time
 from enum import IntEnum, auto, unique
-from typing import Dict, List, Optional, Tuple
+from typing import List, Optional, Tuple
 
 import click
 import cv2
@@ -16,7 +16,7 @@ from PySide6.QtWidgets import QApplication, QGridLayout, QLabel, QWidget
 from tqdm import tqdm
 
 from .commons import config_path_option, verbosity_option
-from .config import DEFAULT_CONFIG, Config, PresentationConfig, SlideConfig, SlideType
+from .config import DEFAULT_CONFIG, Config, PresentationConfig, SlideConfig
 from .defaults import FOLDER_PATH
 from .manim import logger
 from .resources import *  # noqa: F401, F403

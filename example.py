@@ -43,6 +43,8 @@ class Example(Slide):
 
 
 class ConvertExample(Slide):
+    """WARNING: this example does not seem to work with ManimGL."""
+
     def tinywait(self):
         self.wait(0.1)
 
