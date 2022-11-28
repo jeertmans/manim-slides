@@ -1,4 +1,4 @@
-from typing import Callable
+from typing import Any, Callable
 
 import click
 from click import Context, Parameter
@@ -6,10 +6,13 @@ from click import Context, Parameter
 from .defaults import CONFIG_PATH, FOLDER_PATH
 from .manim import logger
 
+F = Callable[..., Any]
+Wrapper = Callable[[F], F]
 
-def config_path_option(function: Callable) -> Callable:
+
+def config_path_option(function: F) -> F:
     """Wraps a function to add configuration path option."""
-    return click.option(
+    wrapper: Wrapper = click.option(
         "-c",
         "--config",
         "config_path",
@@ -18,10 +21,11 @@ def config_path_option(function: Callable) -> Callable:
         type=click.Path(dir_okay=False),
         help="Set path to configuration file.",
         show_default=True,
-    )(function)
+    )
+    return wrapper(function)
 
 
-def config_options(function: Callable) -> Callable:
+def config_options(function: F) -> F:
     """Wraps a function to add configuration options."""
     function = config_path_option(function)
     function = click.option(
@@ -36,7 +40,7 @@ def config_options(function: Callable) -> Callable:
     return function
 
 
-def verbosity_option(function: Callable) -> Callable:
+def verbosity_option(function: F) -> F:
     """Wraps a function to add verbosity option."""
 
     def callback(ctx: Context, param: Parameter, value: bool) -> None:
@@ -46,7 +50,7 @@ def verbosity_option(function: Callable) -> Callable:
 
         logger.setLevel(value)
 
-    return click.option(
+    wrapper: Wrapper = click.option(
         "-v",
         "--verbosity",
         type=click.Choice(
@@ -59,16 +63,20 @@ def verbosity_option(function: Callable) -> Callable:
         envvar="MANIM_SLIDES_VERBOSITY",
         show_envvar=True,
         callback=callback,
-    )(function)
+    )
+
+    return wrapper(function)
 
 
-def folder_path_option(function: Callable) -> Callable:
+def folder_path_option(function: F) -> F:
     """Wraps a function to add folder path option."""
-    return click.option(
+    wrapper: Wrapper = click.option(
         "--folder",
         metavar="DIRECTORY",
         default=FOLDER_PATH,
         type=click.Path(exists=True, file_okay=False),
         help="Set slides folder.",
         show_default=True,
-    )(function)
+    )
+
+    return wrapper(function)

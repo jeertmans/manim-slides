@@ -3,7 +3,7 @@ import platform
 import sys
 import time
 from enum import IntEnum, auto, unique
-from typing import List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 import click
 import cv2
@@ -11,7 +11,7 @@ import numpy as np
 from pydantic import ValidationError
 from PySide6 import QtGui
 from PySide6.QtCore import Qt, QThread, Signal, Slot
-from PySide6.QtGui import QIcon, QPixmap
+from PySide6.QtGui import QCloseEvent, QIcon, QKeyEvent, QPixmap, QResizeEvent
 from PySide6.QtWidgets import QApplication, QGridLayout, QLabel, QWidget
 from tqdm import tqdm
 
@@ -67,7 +67,7 @@ class Presentation:
 
         self.current_slide_index: int = 0
         self.current_animation: int = self.current_slide.start_animation
-        self.current_file: Optional[str] = None
+        self.current_file: str = ""
 
         self.loaded_animation_cap: int = -1
         self.cap = None  # cap = cv2.VideoCapture
@@ -222,7 +222,7 @@ class Presentation:
         """Returns current frame number."""
         return int(self.current_cap.get(cv2.CAP_PROP_POS_FRAMES))
 
-    def update_state(self, state) -> Tuple[np.ndarray, State]:
+    def update_state(self, state: State) -> Tuple[np.ndarray, State]:
         """
         Updates the current state given the previous one.
 
@@ -236,7 +236,7 @@ class Presentation:
         still_playing, frame = self.current_cap.read()
         if still_playing:
             self.lastframe = frame
-        elif state in [state.WAIT, state.PAUSED]:
+        elif state == state.WAIT or state == state.PAUSED:  # type: ignore
             return self.lastframe, state
         elif self.current_slide.is_last() and self.current_slide.terminated:
             return self.lastframe, State.END
@@ -268,7 +268,7 @@ class Presentation:
         return self.lastframe, state
 
 
-class Display(QThread):
+class Display(QThread):  # type: ignore
     """Displays one or more presentations one after each other."""
 
     change_video_signal = Signal(np.ndarray)
@@ -277,12 +277,12 @@ class Display(QThread):
 
     def __init__(
         self,
-        presentations,
+        presentations: List[PresentationConfig],
         config: Config = DEFAULT_CONFIG,
-        start_paused=False,
-        skip_all=False,
-        record_to=None,
-        exit_after_last_slide=False,
+        start_paused: bool = False,
+        skip_all: bool = False,
+        record_to: Optional[str] = None,
+        exit_after_last_slide: bool = False,
     ) -> None:
         super().__init__()
         self.presentations = presentations
@@ -444,14 +444,14 @@ class Display(QThread):
 
         self.key = -1  # No more key to be handled
 
-    def stop(self):
+    def stop(self) -> None:
         """Stops current thread, without doing anything after."""
         self.run_flag = False
         self.wait()
 
 
-class Info(QWidget):
-    def __init__(self):
+class Info(QWidget):  # type: ignore
+    def __init__(self) -> None:
         super().__init__()
         self.setWindowTitle(WINDOW_INFO_NAME)
 
@@ -474,7 +474,7 @@ class Info(QWidget):
         self.update_info({})
 
     @Slot(dict)
-    def update_info(self, info: dict):
+    def update_info(self, info: Dict[str, Union[str, int]]) -> None:
         self.animationLabel.setText("Animation: {}".format(info.get("animation", "na")))
         self.stateLabel.setText("State: {}".format(info.get("state", "unknown")))
         self.slideLabel.setText(
@@ -490,27 +490,27 @@ class Info(QWidget):
         )
 
 
-class InfoThread(QThread):
-    def __init__(self):
+class InfoThread(QThread):  # type: ignore
+    def __init__(self) -> None:
         super().__init__()
         self.dialog = Info()
         self.run_flag = True
 
-    def start(self):
+    def start(self) -> None:
         super().start()
 
         self.dialog.show()
 
-    def stop(self):
+    def stop(self) -> None:
         self.dialog.deleteLater()
 
 
-class App(QWidget):
+class App(QWidget):  # type: ignore
     send_key_signal = Signal(int)
 
     def __init__(
         self,
-        *args,
+        *args: Any,
         config: Config = DEFAULT_CONFIG,
         fullscreen: bool = False,
         resolution: Tuple[int, int] = (1980, 1080),
@@ -518,7 +518,7 @@ class App(QWidget):
         aspect_ratio: Qt.AspectRatioMode = Qt.IgnoreAspectRatio,
         resize_mode: Qt.TransformationMode = Qt.SmoothTransformation,
         background_color: str = "black",
-        **kwargs,
+        **kwargs: Any,
     ):
         super().__init__()
 
@@ -543,7 +543,8 @@ class App(QWidget):
         self.label.setMinimumSize(1, 1)
 
         # create the video capture thread
-        self.thread = Display(*args, config=config, **kwargs)
+        kwargs["config"] = config
+        self.thread = Display(*args, **kwargs)
         # create the info dialog
         self.info = Info()
         self.info.show()
@@ -563,7 +564,7 @@ class App(QWidget):
         # start the thread
         self.thread.start()
 
-    def keyPressEvent(self, event):
+    def keyPressEvent(self, event: QKeyEvent) -> None:
 
         key = event.key()
         if self.config.HIDE_MOUSE.match(key):
@@ -577,35 +578,30 @@ class App(QWidget):
         self.send_key_signal.emit(key)
         event.accept()
 
-    def closeAll(self):
+    def closeAll(self) -> None:
         logger.debug("Closing all QT windows")
         self.thread.stop()
         self.info.deleteLater()
         self.deleteLater()
 
-    def resizeEvent(self, event):
+    def resizeEvent(self, event: QResizeEvent) -> None:
         self.pixmap = self.pixmap.scaled(
             self.width(), self.height(), self.aspect_ratio, self.resize_mode
         )
         self.label.setPixmap(self.pixmap)
         self.label.resize(self.width(), self.height())
 
-    def closeEvent(self, event):
+    def closeEvent(self, event: QCloseEvent) -> None:
         self.closeAll()
         event.accept()
 
     @Slot(np.ndarray)
-    def update_image(self, cv_img: dict):
-        """Updates the image_label with a new opencv image"""
+    def update_image(self, cv_img: np.ndarray) -> None:
+        """Updates the (image) label with a new opencv image"""
         self.pixmap = self.convert_cv_qt(cv_img)
         self.label.setPixmap(self.pixmap)
 
-    @Slot(dict)
-    def update_info(self, info: dict):
-        """Updates the image_label with a new opencv image"""
-        pass
-
-    def convert_cv_qt(self, cv_img):
+    def convert_cv_qt(self, cv_img: np.ndarray) -> np.ndarray:
         """Convert from an opencv image to QPixmap"""
         rgb_image = cv2.cvtColor(cv_img, cv2.COLOR_BGR2RGB)
         h, w, ch = rgb_image.shape
@@ -633,14 +629,14 @@ class App(QWidget):
 )
 @click.help_option("-h", "--help")
 @verbosity_option
-def list_scenes(folder) -> None:
+def list_scenes(folder: str) -> None:
     """List available scenes."""
 
     for i, scene in enumerate(_list_scenes(folder), start=1):
         click.secho(f"{i}: {scene}", fg="green")
 
 
-def _list_scenes(folder) -> List[str]:
+def _list_scenes(folder: str) -> List[str]:
     """Lists available scenes in given directory."""
     scenes = []
 
@@ -792,19 +788,19 @@ def get_scenes_presentation_config(
 @click.help_option("-h", "--help")
 @verbosity_option
 def present(
-    scenes,
-    config_path,
-    folder,
-    start_paused,
-    fullscreen,
-    skip_all,
-    resolution,
-    record_to,
-    exit_after_last_slide,
-    hide_mouse,
-    aspect_ratio,
-    resize_mode,
-    background_color,
+    scenes: List[str],
+    config_path: str,
+    folder: str,
+    start_paused: bool,
+    fullscreen: bool,
+    skip_all: bool,
+    resolution: Tuple[int, int],
+    record_to: Optional[str],
+    exit_after_last_slide: bool,
+    hide_mouse: bool,
+    aspect_ratio: str,
+    resize_mode: str,
+    background_color: str,
 ) -> None:
     """
     Present SCENE(s), one at a time, in order.
