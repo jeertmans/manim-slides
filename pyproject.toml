@@ -41,6 +41,7 @@ dependencies = [
 dynamic = ["version"]
 
 [tool.setuptools]
+exclude = [".github/", "docs/"]
 packages = ["manim_slides"]
 
 [project.urls]

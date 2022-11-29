@@ -20,9 +20,6 @@ jobs:
 
       - uses: actions/setup-python@v2
 
-      - name: Install deps
-        run: sudo apt-get install libsdl-pango-dev
-
       - name: Install build package
         run: python -m pip install -U build
 
