@@ -1,12 +1,12 @@
 import os
 import webbrowser
 from enum import Enum
-from typing import Any, Callable, Dict, Generator, List, Type
+from typing import Any, Callable, Dict, Generator, List, Type, Union
 
 import click
 import pkg_resources
 from click import Context, Parameter
-from pydantic import BaseModel
+from pydantic import BaseModel, ValidationError
 
 from .commons import folder_path_option, verbosity_option
 from .config import PresentationConfig
@@ -51,9 +51,115 @@ class Converter(BaseModel):  # type: ignore
         }[s]
 
 
-class JSBool(str, Enum):
+class Str(str):
+    def __str__(self) -> str:
+        """Ensures that the string is correctly quoted."""
+        if self in ["true", "false", "null"]:
+            return super().__str__()
+        else:
+            return f"'{super().__str__()}'"
+
+
+class JsBool(Str, Enum):
     true = "true"
     false = "false"
+
+
+class JsNull(Str, Enum):
+    null = "null"
+
+
+class ControlsLayout(Str, Enum):
+    edges = "edges"
+    bottom_right = "bottom-right"
+
+
+class ControlsBackArrows(Str, Enum):
+    faded = "faded"
+    hidden = "hidden"
+    visibly = "visibly"
+
+
+class SlideNumber(Str, Enum):
+    true = "true"
+    false = "false"
+    hdotv = "h.v"
+    handv = "h/v"
+    c = "c"
+    candt = "c/t"
+    # TODO: add support for function
+
+
+class ShowSlideNumber(Str, Enum):
+    all = "all"
+    print = "print"
+    speaker = "speaker"
+
+
+class KeyboardCondition(Str, Enum):
+    null = "null"
+    focused = "focused"
+    # TODO: add support for function
+
+
+class NavigationMode(Str, Enum):
+    default = "default"
+    linear = "linear"
+    grid = "grid"
+
+
+class AutoPlayMedia(Str, Enum):
+    null = "null"
+    true = "true"
+    false = "false"
+
+
+PreloadIframes = AutoPlayMedia
+
+
+class AutoAnimateMatcher(Str, Enum):
+    null = "null"
+    # TODO: add support for element matcher
+
+
+class AutoAnimateEasing(Str, Enum):
+    ease = "ease"
+
+
+class AutoSlide(Str, Enum):
+    zero = "0"
+    onep = "1+"
+    false = "false"
+
+
+class AutoSlideMethod(Str, Enum):
+    null = "null"
+    # TODO: add support for method
+
+
+MouseWheel = Union[JsNull, float]
+
+
+class Transition(Str, Enum):
+    none = "none"
+    fade = "fade"
+    slide = "slide"
+    convex = "convex"
+    concave = "concave"
+    zoom = "zoom"
+
+
+class TransitionSpeed(Str, Enum):
+    default = "default"
+    fast = "fast"
+    slow = "slow"
+
+
+BackgroundTransition = Transition
+
+
+class Display(Str, Enum):
+    block = "block"
 
 
 class RevealTheme(str, Enum):
@@ -71,21 +177,90 @@ class RevealTheme(str, Enum):
 
 
 class RevealJS(Converter):
+    # Presentation size options from RevealJS
+    width: Union[Str, int] = Str("100%")
+    height: Union[Str, int] = Str("100%")
+    margin: float = 0.04
+    min_scale: float = 0.2
+    max_scale: float = 2.0
+    # Configuration options from RevealJS
+    controls: JsBool = JsBool.false
+    controls_tutorial: JsBool = JsBool.true
+    controls_layout: ControlsLayout = ControlsLayout.bottom_right
+    controls_back_arrows: ControlsBackArrows = ControlsBackArrows.faded
+    progress: JsBool = JsBool.false
+    slide_number: SlideNumber = SlideNumber.false
+    show_slide_number: ShowSlideNumber = ShowSlideNumber.all
+    hash_one_based_index: JsBool = JsBool.false
+    hash: JsBool = JsBool.false
+    respond_to_hash_changes: JsBool = JsBool.false
+    history: JsBool = JsBool.false
+    keyboard: JsBool = JsBool.true
+    keyboard_condition: KeyboardCondition = KeyboardCondition.null
+    disable_layout: JsBool = JsBool.false
+    overview: JsBool = JsBool.true
+    center: JsBool = JsBool.true
+    touch: JsBool = JsBool.true
+    loop: JsBool = JsBool.false
+    rtl: JsBool = JsBool.false
+    navigation_mode: NavigationMode = NavigationMode.default
+    shuffle: JsBool = JsBool.false
+    fragments: JsBool = JsBool.true
+    fragment_in_url: JsBool = JsBool.true
+    embedded: JsBool = JsBool.false
+    help: JsBool = JsBool.true
+    pause: JsBool = JsBool.true
+    show_notes: JsBool = JsBool.false
+    auto_play_media: AutoPlayMedia = AutoPlayMedia.null
+    preload_iframes: PreloadIframes = PreloadIframes.null
+    auto_animate: JsBool = JsBool.true
+    auto_animate_matcher: AutoAnimateMatcher = AutoAnimateMatcher.null
+    auto_animate_easing: AutoAnimateEasing = AutoAnimateEasing.ease
+    auto_animate_duration: float = 1.0
+    auto_animate_unmatched: JsBool = JsBool.true
+    auto_animate_styles: List[str] = [
+        "opacity",
+        "color",
+        "background-color",
+        "padding",
+        "font-size",
+        "line-height",
+        "letter-spacing",
+        "border-width",
+        "border-color",
+        "border-radius",
+        "outline",
+        "outline-offset",
+    ]
+    auto_slide: AutoSlide = AutoSlide.zero
+    auto_slide_stoppable: JsBool = JsBool.true
+    auto_slide_method: AutoSlideMethod = AutoSlideMethod.null
+    default_timing: Union[JsNull, int] = JsNull.null
+    mouse_wheel: JsBool = JsBool.false
+    preview_links: JsBool = JsBool.false
+    post_message: JsBool = JsBool.true
+    post_message_events: JsBool = JsBool.false
+    focus_body_on_page_visibility_change: JsBool = JsBool.true
+    transition: Transition = Transition.none
+    transition_speed: TransitionSpeed = TransitionSpeed.default
+    background_transition: BackgroundTransition = BackgroundTransition.none
+    pdf_max_pages_per_slide: Union[int, str] = "Infinity"
+    pdf_separate_fragments: JsBool = JsBool.true
+    pdf_page_height_offset: int = -1
+    view_distance: int = 3
+    mobile_view_distance: int = 2
+    display: Display = Display.block
+    hide_inactive_cursor: JsBool = JsBool.true
+    hide_cursor_time: int = 5000
+    # Add. options
     background_color: str = "black"
-    controls: JSBool = JSBool.false
-    embedded: JSBool = JSBool.false
-    fragments: JSBool = JSBool.false
-    height: str = "100%"
-    loop: JSBool = JSBool.false
-    progress: JSBool = JSBool.false
-    reveal_version: str = "3.7.0"
+    reveal_version: str = "4.4.0"
     reveal_theme: RevealTheme = RevealTheme.black
-    shuffle: JSBool = JSBool.false
     title: str = "Manim Slides"
-    width: str = "100%"
 
     class Config:
         use_enum_values = True
+        extra = "forbid"
 
     def get_sections_iter(self) -> Generator[str, None, None]:
         """Generates a sequence of sections, one per slide, that will be included into the html template."""
@@ -206,11 +381,27 @@ def convert(
 
     presentation_configs = get_scenes_presentation_config(scenes, folder)
 
-    converter = Converter.from_string(to)(
-        presentation_configs=presentation_configs, **config_options
-    )
+    try:
+        converter = Converter.from_string(to)(
+            presentation_configs=presentation_configs, **config_options
+        )
 
-    converter.convert_to(dest)
+        converter.convert_to(dest)
 
-    if open_result:
-        converter.open(dest)
+        if open_result:
+            converter.open(dest)
+
+    except ValidationError as e:
+
+        errors = e.errors()
+
+        msg = [
+            f"{len(errors)} error(s) occured with configuration options for '{to}', see below."
+        ]
+
+        for error in errors:
+            option = error["loc"][0]
+            _msg = error["msg"]
+            msg.append(f"Option '{option}': {_msg}")
+
+        raise click.UsageError("\n".join(msg))
