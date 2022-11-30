@@ -64,11 +64,14 @@ class Str(str):
 
 Function = str  # Basically, anything
 
+
 class JsTrue(str, Enum):
     true = "true"
 
+
 class JsFalse(str, Enum):
     false = "false"
+
 
 class JsBool(Str, Enum):
     true = "true"
@@ -131,6 +134,7 @@ class AutoAnimateMatcher(Str, Enum):
 
 class AutoAnimateEasing(Str, Enum):
     ease = "ease"
+
 
 AutoSlide = Union[PositiveInt, JsFalse]
 
