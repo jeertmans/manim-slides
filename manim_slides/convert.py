@@ -52,12 +52,17 @@ class Converter(BaseModel):  # type: ignore
 
 
 class Str(str):
+    """A simple string, but quoted when needed."""
+
     def __str__(self) -> str:
         """Ensures that the string is correctly quoted."""
         if self in ["true", "false", "null"]:
             return super().__str__()
         else:
             return f"'{super().__str__()}'"
+
+
+Function = str  # Basically, anything
 
 
 class JsBool(Str, Enum):
@@ -87,7 +92,6 @@ class SlideNumber(Str, Enum):
     handv = "h/v"
     c = "c"
     candt = "c/t"
-    # TODO: add support for function
 
 
 class ShowSlideNumber(Str, Enum):
@@ -99,7 +103,6 @@ class ShowSlideNumber(Str, Enum):
 class KeyboardCondition(Str, Enum):
     null = "null"
     focused = "focused"
-    # TODO: add support for function
 
 
 class NavigationMode(Str, Enum):
@@ -119,7 +122,6 @@ PreloadIframes = AutoPlayMedia
 
 class AutoAnimateMatcher(Str, Enum):
     null = "null"
-    # TODO: add support for element matcher
 
 
 class AutoAnimateEasing(Str, Enum):
@@ -134,7 +136,6 @@ class AutoSlide(Str, Enum):
 
 class AutoSlideMethod(Str, Enum):
     null = "null"
-    # TODO: add support for method
 
 
 MouseWheel = Union[JsNull, float]
@@ -190,13 +191,13 @@ class RevealJS(Converter):
     controls_back_arrows: ControlsBackArrows = ControlsBackArrows.faded
     progress: JsBool = JsBool.false
     slide_number: SlideNumber = SlideNumber.false
-    show_slide_number: ShowSlideNumber = ShowSlideNumber.all
+    show_slide_number: Union[ShowSlideNumber, Function] = ShowSlideNumber.all
     hash_one_based_index: JsBool = JsBool.false
     hash: JsBool = JsBool.false
     respond_to_hash_changes: JsBool = JsBool.false
     history: JsBool = JsBool.false
     keyboard: JsBool = JsBool.true
-    keyboard_condition: KeyboardCondition = KeyboardCondition.null
+    keyboard_condition: Union[KeyboardCondition, Function] = KeyboardCondition.null
     disable_layout: JsBool = JsBool.false
     overview: JsBool = JsBool.true
     center: JsBool = JsBool.true
@@ -214,7 +215,7 @@ class RevealJS(Converter):
     auto_play_media: AutoPlayMedia = AutoPlayMedia.null
     preload_iframes: PreloadIframes = PreloadIframes.null
     auto_animate: JsBool = JsBool.true
-    auto_animate_matcher: AutoAnimateMatcher = AutoAnimateMatcher.null
+    auto_animate_matcher: Union[AutoAnimateMatcher, Function] = AutoAnimateMatcher.null
     auto_animate_easing: AutoAnimateEasing = AutoAnimateEasing.ease
     auto_animate_duration: float = 1.0
     auto_animate_unmatched: JsBool = JsBool.true
@@ -234,7 +235,7 @@ class RevealJS(Converter):
     ]
     auto_slide: AutoSlide = AutoSlide.zero
     auto_slide_stoppable: JsBool = JsBool.true
-    auto_slide_method: AutoSlideMethod = AutoSlideMethod.null
+    auto_slide_method: Union[AutoSlideMethod, Function] = AutoSlideMethod.null
     default_timing: Union[JsNull, int] = JsNull.null
     mouse_wheel: JsBool = JsBool.false
     preview_links: JsBool = JsBool.false
@@ -253,7 +254,7 @@ class RevealJS(Converter):
     hide_inactive_cursor: JsBool = JsBool.true
     hide_cursor_time: int = 5000
     # Add. options
-    background_color: str = "black"
+    background_color: str = "black"  # TODO: use pydantic.color.Color
     reveal_version: str = "4.4.0"
     reveal_theme: RevealTheme = RevealTheme.black
     title: str = "Manim Slides"
