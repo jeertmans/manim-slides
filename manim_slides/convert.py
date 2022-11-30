@@ -6,7 +6,7 @@ from typing import Any, Callable, Dict, Generator, List, Type, Union
 import click
 import pkg_resources
 from click import Context, Parameter
-from pydantic import BaseModel, ValidationError
+from pydantic import BaseModel, PositiveInt, ValidationError
 
 from .commons import folder_path_option, verbosity_option
 from .config import PresentationConfig
@@ -64,6 +64,11 @@ class Str(str):
 
 Function = str  # Basically, anything
 
+class JsTrue(str, Enum):
+    true = "true"
+
+class JsFalse(str, Enum):
+    false = "false"
 
 class JsBool(Str, Enum):
     true = "true"
@@ -127,11 +132,7 @@ class AutoAnimateMatcher(Str, Enum):
 class AutoAnimateEasing(Str, Enum):
     ease = "ease"
 
-
-class AutoSlide(Str, Enum):
-    zero = "0"
-    onep = "1+"
-    false = "false"
+AutoSlide = Union[PositiveInt, JsFalse]
 
 
 class AutoSlideMethod(Str, Enum):
@@ -233,7 +234,7 @@ class RevealJS(Converter):
         "outline",
         "outline-offset",
     ]
-    auto_slide: AutoSlide = AutoSlide.zero
+    auto_slide: AutoSlide = 0
     auto_slide_stoppable: JsBool = JsBool.true
     auto_slide_method: Union[AutoSlideMethod, Function] = AutoSlideMethod.null
     default_timing: Union[JsNull, int] = JsNull.null
@@ -245,7 +246,7 @@ class RevealJS(Converter):
     transition: Transition = Transition.none
     transition_speed: TransitionSpeed = TransitionSpeed.default
     background_transition: BackgroundTransition = BackgroundTransition.none
-    pdf_max_pages_per_slide: Union[int, str] = "Infinity"
+    pdf_max_pages_per_slide: Union[int, str] = "Number.POSITIVE_INFINITY"
     pdf_separate_fragments: JsBool = JsBool.true
     pdf_page_height_offset: int = -1
     view_distance: int = 3
