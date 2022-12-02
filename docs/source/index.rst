@@ -23,6 +23,6 @@ This page contains an exhaustive list of all the commands available with `manim-
 
 If you need help installing or using Manim Slide, please refer to the `GitHub README <https://github.com/jeertmans/manim-slides>`_.
 
-.. click:: manim_slides.main:cli
+.. click:: manim_slides.__main__:cli
     :prog: manim-slides
     :nested: full
