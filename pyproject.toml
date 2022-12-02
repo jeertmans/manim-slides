@@ -49,4 +49,4 @@ documentation = "https://eertmans.be/manim-slides"
 repository = "https://github.com/jeertmans/manim-slides"
 
 [project.scripts]
-manim-slides = "manim_slides.main:cli"
+manim-slides = "manim_slides.__main__:cli"
