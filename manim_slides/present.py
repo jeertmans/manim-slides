@@ -11,7 +11,7 @@ import numpy as np
 from pydantic import ValidationError
 from PySide6 import QtGui
 from PySide6.QtCore import Qt, QThread, Signal, Slot
-from PySide6.QtGui import QCloseEvent, QIcon, QKeyEvent, QPixmap, QResizeEvent
+from PySide6.QtGui import QCloseEvent, QIcon, QImage, QKeyEvent, QPixmap, QResizeEvent
 from PySide6.QtWidgets import QApplication, QGridLayout, QLabel, QWidget
 from tqdm import tqdm
 
@@ -598,24 +598,16 @@ class App(QWidget):  # type: ignore
     @Slot(np.ndarray)
     def update_image(self, cv_img: np.ndarray) -> None:
         """Updates the (image) label with a new opencv image"""
-        self.pixmap = self.convert_cv_qt(cv_img)
-        self.label.setPixmap(self.pixmap)
-
-    def convert_cv_qt(self, cv_img: np.ndarray) -> np.ndarray:
-        """Convert from an opencv image to QPixmap"""
-        rgb_image = cv2.cvtColor(cv_img, cv2.COLOR_BGR2RGB)
-        h, w, ch = rgb_image.shape
+        h, w, ch = cv_img.shape
         bytes_per_line = ch * w
-        convert_to_Qt_format = QtGui.QImage(
-            rgb_image.data, w, h, bytes_per_line, QtGui.QImage.Format_RGB888
-        )
-        p = convert_to_Qt_format.scaled(
-            self.width(),
-            self.height(),
-            self.aspect_ratio,
-            self.resize_mode,
-        )
-        return QPixmap.fromImage(p)
+        qt_img = QImage(cv_img.data, w, h, bytes_per_line, QImage.Format_BGR888)
+
+        if w != self.width() or h != self.height():
+            qt_img = qt_img.scaled(
+                self.width(), self.height(), self.aspect_ratio, self.resize_mode
+            )
+
+        self.label.setPixmap(QPixmap.fromImage(qt_img))
 
 
 @click.command()
