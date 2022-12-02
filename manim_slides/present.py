@@ -11,7 +11,7 @@ import numpy as np
 from pydantic import ValidationError
 from PySide6 import QtGui
 from PySide6.QtCore import Qt, QThread, Signal, Slot
-from PySide6.QtGui import QCloseEvent, QIcon, QKeyEvent, QPixmap, QResizeEvent, QImage
+from PySide6.QtGui import QCloseEvent, QIcon, QImage, QKeyEvent, QPixmap, QResizeEvent
 from PySide6.QtWidgets import QApplication, QGridLayout, QLabel, QWidget
 from tqdm import tqdm
 
@@ -603,7 +603,9 @@ class App(QWidget):  # type: ignore
         qt_img = QImage(cv_img.data, w, h, bytes_per_line, QImage.Format_BGR888)
 
         if w != self.width() or h != self.height():
-            qt_img = qt_img.scaled(self.width(), self.height(), self.aspect_ratio, self.resize_mode)
+            qt_img = qt_img.scaled(
+                self.width(), self.height(), self.aspect_ratio, self.resize_mode
+            )
 
         self.label.setPixmap(QPixmap.fromImage(qt_img))
 
