@@ -29,7 +29,7 @@ repos:
     rev: 'v0.991'
     hooks:
     -   id: mypy
-        additional_dependencies: [types-setuptools]
+        additional_dependencies: [types-requests, types-setuptools]
         args:
         - --install-types
         - --non-interactive
