@@ -10,7 +10,7 @@ authors = [
 ]
 license = {file = "LICENSE.md"}
 readme = "README.md"
-requires-python = ">=3.7"
+requires-python = ">=3.8"
 
 keywords = ["manim", "slides", "plugin", "manimgl"]
 
