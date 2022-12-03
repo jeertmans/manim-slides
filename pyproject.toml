@@ -8,7 +8,7 @@ description = "Tool for live presentations using manim"
 authors = [
     { name = "Jérome Eertmans", email = "jeertmans@icloud.com" }
 ]
-version = "4.6.0"
+version = "4.7.0"
 license = {file = "LICENSE.md"}
 readme = "README.md"
 requires-python = ">=3.8"
