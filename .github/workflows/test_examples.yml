@@ -12,6 +12,7 @@ env:
   QT_DEBUG_PLUGINS: 1
   MANIM_SLIDES_VERBOSITY: debug
   PYTHONFAULTHANDLER: 1
+  DISPLAY: ":99"
 
 jobs:
   build-examples:
@@ -81,8 +82,7 @@ jobs:
         if: matrix.os == 'ubuntu-latest' && matrix.manim == 'manimgl'
         run: |
           sudo apt install xvfb
-          nohup Xvfb :99 &
-          export DISPLAY=:99
+          nohup Xvfb $DISPLAY &
       - name: Install Windows dependencies
         if: matrix.os == 'windows-latest'
         run: choco install ffmpeg
