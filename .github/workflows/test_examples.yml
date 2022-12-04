@@ -81,7 +81,7 @@ jobs:
 
       # Install manim / manimgl
       - name: Install manim / manimlib
-        run: pip3 install {{ matrix.manim }}
+        run: pip3 install ${{ matrix.manim }}
 
       # Install Manim Slides
       - name: Install Manim Slides
