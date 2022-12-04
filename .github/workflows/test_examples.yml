@@ -8,7 +8,7 @@ on:
 name: Test Examples
 
 env:
-  QT_QPA_PLATFORM: offscreen
+  QT_QPA_PLATFORM: minimal
   QT_DEBUG_PLUGINS: 1
   MANIM_SLIDES_VERBOSITY: debug
   PYTHONFAULTHANDLER: 1
@@ -73,7 +73,7 @@ jobs:
         run: brew install ffmpeg
       - name: Install manim dependencies on Ubuntu
         if: matrix.os == 'ubuntu-latest' && matrix.manim == 'manim'
-        run: sudo apt install libcairo2-dev libpango1.0-dev ffmpeg
+        run: sudo apt install libcairo2-dev libpango1.0-dev ffmpeg freeglut3-dev
       - name: Install manimgl dependencies on Ubuntu
         if: matrix.os == 'ubuntu-latest' && matrix.manim == 'manimgl'
         run: sudo apt install libpango1.0-dev ffmpeg freeglut3-dev
@@ -89,13 +89,7 @@ jobs:
         run: pip3 install ${{ matrix.manim }}
 
       # Install Manim Slides
-      - name: Install Manim Slides on Ubuntu
-        if: matrix.os == 'ubuntu-latest'
-        run: |
-          xvfb-run pip3 install .
-          xvfb-run python3 -m manim_slides --help
-      - name: Install Manim Slides elsewhere
-        if: matrix.os != 'ubuntu-latest'
+      - name: Install Manim Slides
         run: |
           pip3 install .
           python3 -m manim_slides --help
