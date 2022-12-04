@@ -2,12 +2,14 @@ on:
   pull_request:
     paths:
       - '**.py'
+      - '.github/workflows/test_examples.yml'
   workflow_dispatch:
 
 name: Test Examples
 
 env:
-  QT_QPA_PLATFORM: offscreen
+  QT_QPA_PLATFORM: minimal
+  QT_DEBUG_PLUGINS: 1
   MANIM_SLIDES_VERBOSITY: debug
   PYTHONFAULTHANDLER: 1
 
