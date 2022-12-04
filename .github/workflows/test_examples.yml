@@ -8,6 +8,7 @@ on:
 name: Test Examples
 
 env:
+  QT_QPA_PLATFORM: offscreen
   QT_DEBUG_PLUGINS: 1
   MANIM_SLIDES_VERBOSITY: debug
   PYTHONFAULTHANDLER: 1
