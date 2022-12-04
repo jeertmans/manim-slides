@@ -48,68 +48,62 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.pyversion }}
-      - name: Append to Path on MacOS and Ubuntu
-        if: matrix.os == 'macos-latest' || matrix.os == 'ubuntu-latest'
-        run: echo "${HOME}/.local/bin" >> $GITHUB_PATH
-      - name: Append Python bin scripts to Path on MacOS
+
+      # Path related stuff
+      - name: Append to Path on MacOS
         if: matrix.os == 'macos-latest'
-        run: echo "/Users/runner/Library/Python/${{ matrix.pyversion }}/bin" >> $GITHUB_PATH
+        run: |
+          echo "${HOME}/.local/bin" >> $GITHUB_PATH
+          echo "/Users/runner/Library/Python/${{ matrix.pyversion }}/bin" >> $GITHUB_PATH
+      - name: Append to Path on Ubuntu
+        if: matrix.os == 'ubuntu-latest'
+        run: echo "${HOME}/.local/bin" >> $GITHUB_PATH
       - name: Append to Path on Windows
         if: matrix.os == 'windows-latest'
         run: echo "${HOME}/.local/bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
-      - name: Install MacOS dependencies (manim only)
+
+      # OS depedencies
+      - name: Install manim dependencies on MacOs
         if: matrix.os == 'macos-latest' && matrix.manim == 'manim'
-        run: brew install py3cairo
-      - name: Install MacOS dependencies
-        if: matrix.os == 'macos-latest'
+        run: brew install ffmpeg py3cairo
+      - name: Install manimgl dependencies on MacOS
+        if: matrix.os == 'macos-latest' && matrix.manim == 'manimgl'
         run: brew install ffmpeg
-      - name: Install Ubuntu dependencies
-        if: matrix.os == 'ubuntu-latest'
-        run: sudo apt install libcairo2-dev libpango1.0-dev ffmpeg freeglut3-dev xvfb
+      - name: Install manim dependencies on Ubuntu
+        if: matrix.os == 'ubuntu-latest' && matrix.manim == 'manim'
+        run: sudo apt install libcairo2-dev libpango1.0-dev ffmpeg
+      - name: Install manimgl dependencies on Ubuntu
+        if: matrix.os == 'ubuntu-latest' && matrix.manim == 'manimgl'
+        run: sudo apt install libpango1.0-dev ffmpeg freeglut3-dev
       - name: Install Windows dependencies
         if: matrix.os == 'windows-latest'
         run: choco install ffmpeg
-      - name: Install manim on MacOs
-        if: matrix.manim == 'manim' && matrix.os == 'macos-latest'
-        run: pip install --user manim
-      - name: Install manim on Ubuntu and Windows
-        if: matrix.manim == 'manim' && (matrix.os == 'ubuntu-latest' || matrix.os == 'windows-latest')
-        run: python -m pip install --user manim
-      - name: Install manimgl on MacOs
-        if: matrix.manim == 'manimgl' && matrix.os == 'macos-latest'
-        run: pip3 install --user manimgl
-      - name: Install manimgl on Ubuntu and Windows
-        if: matrix.manim == 'manimgl' && matrix.os != 'macos-latest'
-        run: python -m pip install --user manimgl
-      - name: Check ManimPango on Ubuntu (manimgl only)
-        if: matrix.os == 'ubuntu-latest' && matrix.manim == 'manimgl'
+
+      # Install manim / manimgl
+      - name: Install manim / manimlib
+        run: pip3 install {{ matrix.manim }}
+
+      # Install Manim Slides
+      - name: Install Manim Slides
         run: |
-          python -m pip install manimpango --no-binary :all: --force
-          python -c "import manimpango"
-      - name: Install manim-slides on MacOS
-        if: matrix.os == 'macos-latest'
-        run: pip3 install --user .
-      - name: Install manim-slides on Ubuntu
-        if: matrix.os == 'ubuntu-latest'
-        run: xvfb-run -a -s "-screen 0 1400x900x24" python -m pip install --user .
-      - name: Install manim-slides on Windows
-        if: matrix.os == 'windows-latest'
-        run: pip3 install -e .
-      - name: Build slides with manim
+          pip3 install .
+          python3 -m manim_slides --help
+
+      # Render slides
+      - name: Render slides
         if: matrix.manim == 'manim'
-        run: python -m manim -ql example.py Example ThreeDExample ConvertExample
-      - name: Build slides with manimgl on Ubuntu
-        if: matrix.manim == 'manimgl' && matrix.os == 'ubuntu-latest'
-        run: xvfb-run -a -s "-screen 0 1400x900x24" manim-render -l example.py Example ThreeDExample
-      - name: Build slides with manimgl on MacOS or Windows
-        if: matrix.manim == 'manimgl' && (matrix.os == 'macos-latest' || matrix.os == 'windows-latest')
-        run: manimgl -l example.py Example ThreeDExample
-      - name: Test slides on Ubuntu
-        if: matrix.os == 'ubuntu-latest'
-        run: xvfb-run -a -s "-screen 0 1400x900x24" manim-slides Example ThreeDExample --skip-all
-      - name: Test slides on MacOS or Windows
-        if: matrix.os == 'macos-latest' || matrix.os == 'windows-latest'
-        run: manim-slides Example ThreeDExample --skip-all
+        run: python -m manim -ql example.py Example ThreeDExample
+      - name: Render slides
+        if: matrix.manim == 'manimgl'
+        run: python -m manimgl -l example.py Example ThreeDExample
+
+      # Play slides
+      - name: Test slides
+        run: python -m manim_slides Example ThreeDExample --skip-all
+
+      # Test slides to html
       - name: Test convert on Ubuntu
         if: matrix.os == 'ubuntu-latest' && matrix.manim == 'manim'
-        run: manim-slides convert --to=html ConvertExample index.html
+        run: |
+          manim -ql example.py ConvertExample
+          manim-slides convert --to=html ConvertExample index.html
