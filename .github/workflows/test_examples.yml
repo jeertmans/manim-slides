@@ -106,7 +106,9 @@ jobs:
         run: manim -ql example.py Example ThreeDExample
       - name: Render slides
         if: matrix.manim == 'manimgl'
-        run: manimgl -l example.py Example ThreeDExample
+        run: |
+          pip3 install manimpango --no-binary :all: --force
+          manimgl -l example.py Example ThreeDExample
 
       # Play slides
       - name: Test slides
