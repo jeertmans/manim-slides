@@ -94,8 +94,8 @@ jobs:
       # Install Manim Slides
       - name: Install Manim Slides
         run: |
+          poetry config experimental.new-installer false
           poetry install
-          python3 -m manim_slides --help
 
       # Render slides
       - name: Render slides
