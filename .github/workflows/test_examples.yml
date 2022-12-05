@@ -91,12 +91,6 @@ jobs:
         if: matrix.os == 'windows-latest'
         run: choco install ffmpeg
 
-      # Install manim / manimgl
-      - name: Install manim / manimlib
-        run: |
-          pip3 install ${{ matrix.manim }}
-          ${{ matrix.manim }} --help
-
       # Install Manim Slides
       - name: Install Manim Slides
         run: |
@@ -106,18 +100,18 @@ jobs:
       # Render slides
       - name: Render slides
         if: matrix.manim == 'manim'
-        run: manim -ql example.py Example ThreeDExample
+        run: poetry run manim -ql example.py Example ThreeDExample
       - name: Render slides
         if: matrix.manim == 'manimgl'
-        run: python -v -m manimlib -l example.py Example ThreeDExample
+        run: poetry run -v manimgl -l example.py Example ThreeDExample
 
       # Play slides
       - name: Test slides
-        run: python -m manim_slides Example ThreeDExample --skip-all
+        run: poetry run manim-slides Example ThreeDExample --skip-all
 
       # Test slides to html
       - name: Test convert on Ubuntu
         if: matrix.os == 'ubuntu-latest' && matrix.manim == 'manim'
         run: |
-          manim -ql example.py ConvertExample
-          manim-slides convert --to=html ConvertExample index.html
+          poetry run manim -ql example.py ConvertExample
+          poetry run manim-slides convert --to=html ConvertExample index.html
