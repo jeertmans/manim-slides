@@ -1,17 +1,15 @@
-[build-system]
-requires = ["setuptools", "setuptools-scm"]
-build-backend = "setuptools.build_meta"
-
-[project]
+[tool.poetry]
 name = "manim-slides"
 description = "Tool for live presentations using manim"
 authors = [
-    { name = "Jérome Eertmans", email = "jeertmans@icloud.com" }
+    "Jérome Eertmans <jeertmans@icloud.com>"
 ]
 version = "4.7.0"
-license = {file = "LICENSE.md"}
+license = "GPL-3.0-only"
 readme = "README.md"
-requires-python = ">=3.8"
+homepage = "https://github.com/jeertmans/manim-slides"
+documentation = "https://eertmans.be/manim-slides"
+repository = "https://github.com/jeertmans/manim-slides"
 
 keywords = ["manim", "slides", "plugin", "manimgl"]
 
@@ -28,24 +26,27 @@ classifiers = [
         "Topic :: Scientific/Engineering",
     ]
 
-dependencies = [
-        "click>=8.0",
-        "click-default-group>=1.2",
-        "numpy>=1.19.3",
-        "opencv-python>=4.6",
-        "pydantic>=1.9.1",
-        "pyside6>=6",
-        "requests>=2.26.0",
-        "tqdm>=4.62.3",
+exclude = ["docs/","static/"]
+packages = [
+    { include = "manim_slides" },
 ]
 
-[tool.setuptools]
-packages = ["manim_slides"]
 
-[project.urls]
-homepage = "https://github.com/jeertmans/manim-slides"
-documentation = "https://eertmans.be/manim-slides"
-repository = "https://github.com/jeertmans/manim-slides"
+[tool.poetry.dependencies]
+python = ">=3.8,<3.12"
+click = ">=8.0"
+click-default-group = ">=1.2"
+numpy = ">=1.19"
+opencv-python = ">=4.6"
+pydantic = ">=1.9"
+pyside6 = ">=6"
+requests = ">=2.26"
+tqdm = ">=4.62"
 
-[project.scripts]
+[build-system]
+requires = ["setuptools","poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.plugins]
+[tool.poetry.plugins."console_scripts"]
 manim-slides = "manim_slides.__main__:cli"
