@@ -50,6 +50,9 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.pyversion }}
+          cache: 'poetry'
+      - name: Install and configure Poetry
+        uses: snok/install-poetry@v1
 
       # Path related stuff
       - name: Append to Path on MacOS
@@ -97,7 +100,7 @@ jobs:
       # Install Manim Slides
       - name: Install Manim Slides
         run: |
-          pip3 install .
+          poetry install
           python3 -m manim_slides --help
 
       # Render slides
