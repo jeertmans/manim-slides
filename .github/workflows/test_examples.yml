@@ -80,7 +80,7 @@ jobs:
         if: matrix.os == 'ubuntu-latest' && matrix.manim == 'manimgl'
         run: |
           sudo apt update
-          sudo apt install libpango1.0.0 ffmpeg freeglut3-dev
+          sudo apt install libpango1.0-0 ffmpeg freeglut3-dev
       - name: Install xvfb on Ubuntu
         if: matrix.os == 'ubuntu-latest' && matrix.manim == 'manimgl'
         run: |
