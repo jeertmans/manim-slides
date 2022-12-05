@@ -96,7 +96,11 @@ jobs:
         run: |
           poetry config experimental.new-installer false
           poetry install
-          poetry run python -c "import PySide6; from manimlib import *;"
+
+      # Check potential conflicts
+      - name: Check import conflicts
+        if: matrix.os == 'ubuntu-latest' && matrix.manim != 'manim'
+        run: poetry run python -c "import PySide6; from manimlib import *;"
 
       # Render slides
       - name: Render slides
