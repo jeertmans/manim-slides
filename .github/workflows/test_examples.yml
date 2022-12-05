@@ -101,10 +101,7 @@ jobs:
         if: matrix.manim == 'manim'
         run: manim -ql example.py Example ThreeDExample
       - name: Render slides
-        if: matrix.manim == 'manimgl' && matrix.os == 'ubuntu-latest'
-        run: xvfb-run -a -s "-screen 0 1400x900x24" manimgl -l example.py Example ThreeDExample
-      - name: Render slides
-        if: matrix.manim == 'manimgl' && matrix.os != 'ubuntu-latest'
+        if: matrix.manim == 'manimgl'
         run: manimgl -l example.py Example ThreeDExample
 
       # Play slides
