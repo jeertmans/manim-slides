@@ -1,22 +1,20 @@
-[build-system]
-requires = ["setuptools", "setuptools-scm"]
-build-backend = "setuptools.build_meta"
-
-[project]
+[tool.poetry]
 name = "manim-slides"
 description = "Tool for live presentations using manim"
 authors = [
-    { name = "Jérome Eertmans", email = "jeertmans@icloud.com" }
+    "Jérome Eertmans <jeertmans@icloud.com>"
 ]
-license = {file = "LICENSE.md"}
+version = "4.7.1"
+license = "GPL-3.0-only"
 readme = "README.md"
-requires-python = ">=3.7"
+homepage = "https://github.com/jeertmans/manim-slides"
+documentation = "https://eertmans.be/manim-slides"
+repository = "https://github.com/jeertmans/manim-slides"
 
 keywords = ["manim", "slides", "plugin", "manimgl"]
 
 classifiers = [
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
@@ -28,25 +26,31 @@ classifiers = [
         "Topic :: Scientific/Engineering",
     ]
 
-dependencies = [
-        "click>=8.0",
-        "click-default-group>=1.2",
-        "numpy>=1.19.3",
-        "pydantic>=1.9.1",
-        "pyside6>=6",
-        "opencv-python>=4.6",
-        "tqdm>=4.62.3",
+exclude = ["docs/","static/"]
+packages = [
+    { include = "manim_slides" },
 ]
 
-dynamic = ["version"]
 
-[tool.setuptools]
-packages = ["manim_slides"]
+[tool.poetry.dependencies]
+python = ">=3.8,<3.12"
+click = ">=8.0"
+click-default-group = ">=1.2"
+numpy = ">=1.19"
+opencv-python = ">=4.6"
+pydantic = ">=1.9"
+pyside6 = ">=6"
+requests = ">=2.26"
+tqdm = ">=4.62"
 
-[project.urls]
-homepage = "https://github.com/jeertmans/manim-slides"
-documentation = "https://eertmans.be/manim-slides"
-repository = "https://github.com/jeertmans/manim-slides"
+[tool.poetry.dev-dependencies]
+manim = "^0.17.0"
+manimgl = "^1.6.1"
 
-[project.scripts]
+[build-system]
+requires = ["setuptools","poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.plugins]
+[tool.poetry.plugins."console_scripts"]
 manim-slides = "manim_slides.__main__:cli"
