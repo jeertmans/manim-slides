@@ -4,7 +4,7 @@ description = "Tool for live presentations using manim"
 authors = [
     "Jérome Eertmans <jeertmans@icloud.com>"
 ]
-version = "4.7.0"
+version = "4.7.1"
 license = "GPL-3.0-only"
 readme = "README.md"
 homepage = "https://github.com/jeertmans/manim-slides"
