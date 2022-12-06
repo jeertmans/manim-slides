@@ -30,10 +30,13 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+      - name: Install Poetry
+        run: pipx install poetry
       - name: Install Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.10'
+          python-version: '3.9'
+          cache: 'poetry'
       - name: Setup Pages
         uses: actions/configure-pages@v2
       - name: Install Linux Dependencies
@@ -41,11 +44,11 @@ jobs:
       - name: Install Python dependencies
         run: pip install manim sphinx sphinx_click furo
       - name: Install local Python package
-        run: pip install -e .
+        run: poetry install --with docs
       - name: Build animation and convert it into HTML slides
         run: |
-          manim example.py ConvertExample
-          manim-slides convert ConvertExample docs/source/_static/slides.html -cembedded=true -ccontrols=true
+          poetry run manim example.py ConvertExample
+          poetry run manim-slides convert ConvertExample docs/source/_static/slides.html -cembedded=true -ccontrols=true
       - name: Build docs
         run: cd docs && make html
       - name: Upload artifact
