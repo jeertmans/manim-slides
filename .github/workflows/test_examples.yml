@@ -95,7 +95,7 @@ jobs:
       - name: Install Manim Slides
         run: |
           poetry config experimental.new-installer false
-          poetry install
+          poetry install --with test
 
       # Render slides
       - name: Render slides
