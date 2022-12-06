@@ -2,7 +2,7 @@ import os
 import platform
 import sys
 import time
-from enum import IntEnum, auto, unique
+from enum import Enum, IntEnum, auto, unique
 from typing import Any, Dict, List, Optional, Tuple, Union
 
 import click
@@ -28,9 +28,17 @@ WINDOW_NAME = "Manim Slides"
 WINDOW_INFO_NAME = f"{WINDOW_NAME}: Info"
 WINDOWS = platform.system() == "Windows"
 
+
+class AspectRatio(Enum):
+    ignore = Qt.IgnoreAspectRatio
+    keep = Qt.KeepAspectRatio
+    auto = "auto"
+
+
 ASPECT_RATIO_MODES = {
-    "ignore": Qt.IgnoreAspectRatio,
-    "keep": Qt.KeepAspectRatio,
+    "ignore": AspectRatio.ignore,
+    "keep": AspectRatio.keep,
+    "auto": AspectRatio.auto,
 }
 
 RESIZE_MODES = {
@@ -514,7 +522,7 @@ class App(QWidget):  # type: ignore
         fullscreen: bool = False,
         resolution: Tuple[int, int] = (1980, 1080),
         hide_mouse: bool = False,
-        aspect_ratio: Qt.AspectRatioMode = Qt.IgnoreAspectRatio,
+        aspect_ratio: AspectRatio = AspectRatio.auto,
         resize_mode: Qt.TransformationMode = Qt.SmoothTransformation,
         background_color: str = "black",
         **kwargs: Any,
@@ -533,6 +541,9 @@ class App(QWidget):  # type: ignore
             self.setCursor(Qt.BlankCursor)
 
         self.label = QLabel(self)
+
+        if self.aspect_ratio == AspectRatio.auto:
+            self.label.setScaledContents(True)
         self.label.setAlignment(Qt.AlignCenter)
         self.label.resize(self.display_width, self.display_height)
         self.label.setStyleSheet(f"background-color: {background_color}")
@@ -584,10 +595,11 @@ class App(QWidget):  # type: ignore
         self.deleteLater()
 
     def resizeEvent(self, event: QResizeEvent) -> None:
-        self.pixmap = self.pixmap.scaled(
-            self.width(), self.height(), self.aspect_ratio, self.resize_mode
-        )
-        self.label.setPixmap(self.pixmap)
+        if not self.label.hasScaledContents():
+            self.pixmap = self.pixmap.scaled(
+                self.width(), self.height(), self.aspect_ratio.value, self.resize_mode
+            )
+            self.label.setPixmap(self.pixmap)
         self.label.resize(self.width(), self.height())
 
     def closeEvent(self, event: QCloseEvent) -> None:
@@ -601,9 +613,11 @@ class App(QWidget):  # type: ignore
         bytes_per_line = ch * w
         qt_img = QImage(cv_img.data, w, h, bytes_per_line, QImage.Format_BGR888)
 
-        if w != self.width() or h != self.height():
+        if not self.label.hasScaledContents() and (
+            w != self.width() or h != self.height()
+        ):
             qt_img = qt_img.scaled(
-                self.width(), self.height(), self.aspect_ratio, self.resize_mode
+                self.width(), self.height(), self.aspect_ratio.value, self.resize_mode
             )
 
         self.label.setPixmap(QPixmap.fromImage(qt_img))
@@ -755,8 +769,8 @@ def get_scenes_presentation_config(
 @click.option(
     "--aspect-ratio",
     type=click.Choice(ASPECT_RATIO_MODES.keys(), case_sensitive=False),
-    default="ignore",
-    help="Set the aspect ratio mode to be used when rescaling video.",
+    default="auto",
+    help="Set the aspect ratio mode to be used when rescaling video. `'auto'` option is equivalent to `'ignore'`, but can be much faster due to not calling `scaled()` method on every frame.",
     show_default=True,
 )
 @click.option(
