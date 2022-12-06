@@ -54,6 +54,9 @@ class Converter(BaseModel):  # type: ignore
 class Str(str):
     """A simple string, but quoted when needed."""
 
+    # This fixes pickling issue on Python 3.8
+    __reduce_ex__ = str.__reduce_ex__
+
     def __str__(self) -> str:
         """Ensures that the string is correctly quoted."""
         if self in ["true", "false", "null"]:
