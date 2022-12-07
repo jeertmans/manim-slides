@@ -76,27 +76,27 @@ class JsFalse(str, Enum):
     false = "false"
 
 
-class JsBool(Str, Enum):
+class JsBool(Str, Enum):  # type: ignore
     true = "true"
     false = "false"
 
 
-class JsNull(Str, Enum):
+class JsNull(Str, Enum):  # type: ignore
     null = "null"
 
 
-class ControlsLayout(Str, Enum):
+class ControlsLayout(Str, Enum):  # type: ignore
     edges = "edges"
     bottom_right = "bottom-right"
 
 
-class ControlsBackArrows(Str, Enum):
+class ControlsBackArrows(Str, Enum):  # type: ignore
     faded = "faded"
     hidden = "hidden"
     visibly = "visibly"
 
 
-class SlideNumber(Str, Enum):
+class SlideNumber(Str, Enum):  # type: ignore
     true = "true"
     false = "false"
     hdotv = "h.v"
@@ -105,24 +105,24 @@ class SlideNumber(Str, Enum):
     candt = "c/t"
 
 
-class ShowSlideNumber(Str, Enum):
+class ShowSlideNumber(Str, Enum):  # type: ignore
     all = "all"
     print = "print"
     speaker = "speaker"
 
 
-class KeyboardCondition(Str, Enum):
+class KeyboardCondition(Str, Enum):  # type: ignore
     null = "null"
     focused = "focused"
 
 
-class NavigationMode(Str, Enum):
+class NavigationMode(Str, Enum):  # type: ignore
     default = "default"
     linear = "linear"
     grid = "grid"
 
 
-class AutoPlayMedia(Str, Enum):
+class AutoPlayMedia(Str, Enum):  # type: ignore
     null = "null"
     true = "true"
     false = "false"
@@ -131,25 +131,25 @@ class AutoPlayMedia(Str, Enum):
 PreloadIframes = AutoPlayMedia
 
 
-class AutoAnimateMatcher(Str, Enum):
+class AutoAnimateMatcher(Str, Enum):  # type: ignore
     null = "null"
 
 
-class AutoAnimateEasing(Str, Enum):
+class AutoAnimateEasing(Str, Enum):  # type: ignore
     ease = "ease"
 
 
 AutoSlide = Union[PositiveInt, JsFalse]
 
 
-class AutoSlideMethod(Str, Enum):
+class AutoSlideMethod(Str, Enum):  # type: ignore
     null = "null"
 
 
 MouseWheel = Union[JsNull, float]
 
 
-class Transition(Str, Enum):
+class Transition(Str, Enum):  # type: ignore
     none = "none"
     fade = "fade"
     slide = "slide"
@@ -158,7 +158,7 @@ class Transition(Str, Enum):
     zoom = "zoom"
 
 
-class TransitionSpeed(Str, Enum):
+class TransitionSpeed(Str, Enum):  # type: ignore
     default = "default"
     fast = "fast"
     slow = "slow"
@@ -167,7 +167,7 @@ class TransitionSpeed(Str, Enum):
 BackgroundTransition = Transition
 
 
-class Display(Str, Enum):
+class Display(Str, Enum):  # type: ignore
     block = "block"
 
 
