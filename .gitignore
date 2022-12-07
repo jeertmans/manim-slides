@@ -23,3 +23,7 @@ docs/build/
 docs/source/_static/slides_assets/
 
 docs/source/_static/slides.html
+
+slides_assets/
+
+slides.html
