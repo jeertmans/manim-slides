@@ -1,7 +1,7 @@
 import os
 import webbrowser
 from enum import Enum
-from typing import Any, Callable, Dict, Generator, List, Type, Union
+from typing import Any, Callable, Dict, Generator, List, Optional, Type, Union
 
 import click
 import pkg_resources
@@ -34,14 +34,21 @@ def validate_config_option(
 class Converter(BaseModel):  # type: ignore
     presentation_configs: List[PresentationConfig] = []
     assets_dir: str = "{basename}_assets"
+    template: Optional[str] = None
 
     def convert_to(self, dest: str) -> None:
         """Converts self, i.e., a list of presentations, into a given format."""
         raise NotImplementedError
 
+    def load_template(self) -> str:
+        """Returns the template as a string.
+
+        An empty string is returned if no template is used."""
+        return ""
+
     def open(self, file: str) -> bool:
         """Opens a file, generated with converter, using appropriate application."""
-        return webbrowser.open(file)
+        raise NotImplementedError
 
     @classmethod
     def from_string(cls, s: str) -> Type["Converter"]:
@@ -278,16 +285,26 @@ class RevealJS(Converter):
                 file = presentation_config.files[slide_config.start_animation]
                 file = os.path.join(self.assets_dir, os.path.basename(file))
 
+                # TODO: document this
+                # Videos are muted because, otherwise, the first slide never plays correctly.
+                # This is due to a restriction in playing audio without the user doing anything.
+                # Later, this might be useful to only mute the first video, or to make it optional.
                 if slide_config.is_loop():
-                    yield f'<section data-background-video="{file}" data-background-video-loop></section>'
+                    yield f'<section data-background-video="{file}" data-background-video-muted data-background-video-loop></section>'
                 else:
-                    yield f'<section data-background-video="{file}"></section>'
+                    yield f'<section data-background-video="{file}" data-background-video-muted></section>'
 
     def load_template(self) -> str:
         """Returns the RevealJS HTML template as a string."""
+        if isinstance(self.template, str):
+            with open(self.template, "r") as f:
+                return f.read()
         return pkg_resources.resource_string(
             __name__, "data/revealjs_template.html"
         ).decode()
+
+    def open(self, file: str) -> bool:
+        return webbrowser.open(file)
 
     def convert_to(self, dest: str) -> None:
         """Converts this configuration into a RevealJS HTML presentation, saved to DEST."""
@@ -322,24 +339,47 @@ def show_config_options(function: Callable[..., Any]) -> Callable[..., Any]:
         if not value or ctx.resilient_parsing:
             return
 
-        to = ctx.params.get("to")
+        to = ctx.params.get("to", "html")
 
-        if to:
-            converter = Converter.from_string(to)(scenes=[])
-            for key, value in converter.dict().items():
-                click.echo(f"{key}: {repr(value)}")
+        converter = Converter.from_string(to)(presentation_configs=[])
+        for key, value in converter.dict().items():
+            click.echo(f"{key}: {repr(value)}")
 
-            ctx.exit()
-
-        else:
-            raise click.UsageError(
-                "Using --show-config option requires to first specify --to option."
-            )
+        ctx.exit()
 
     return click.option(
         "--show-config",
         is_flag=True,
         help="Show supported options for given format and exit.",
+        default=None,
+        expose_value=False,
+        show_envvar=True,
+        callback=callback,
+    )(function)
+
+
+def show_template_option(function: Callable[..., Any]) -> Callable[..., Any]:
+    """Wraps a function to add a `--show-template` option."""
+
+    def callback(ctx: Context, param: Parameter, value: bool) -> None:
+
+        if not value or ctx.resilient_parsing:
+            return
+
+        to = ctx.params.get("to", "html")
+        template = ctx.params.get("template", None)
+
+        converter = Converter.from_string(to)(
+            presentation_configs=[], template=template
+        )
+        click.echo(converter.load_template())
+
+        ctx.exit()
+
+    return click.option(
+        "--show-template",
+        is_flag=True,
+        help="Show the template (currently) used for a given conversion format and exit.",
         default=None,
         expose_value=False,
         show_envvar=True,
@@ -371,8 +411,16 @@ def show_config_options(function: Callable[..., Any]) -> Callable[..., Any]:
     "config_options",
     multiple=True,
     callback=validate_config_option,
-    help="Configuration options passed to the converter. E.g., pass `-cbackground_color=red` to set the background color to red (if supported).",
+    help="Configuration options passed to the converter. E.g., pass `-cshow_number=true` to display slide numbers.",
 )
+@click.option(
+    "--use-template",
+    "template",
+    metavar="FILE",
+    type=click.Path(exists=True, dir_okay=False),
+    help="Use the template given by FILE instead of default one. To echo the default template, use `--show-template`.",
+)
+@show_template_option
 @show_config_options
 @verbosity_option
 def convert(
@@ -383,6 +431,7 @@ def convert(
     open_result: bool,
     force: bool,
     config_options: Dict[str, str],
+    template: Optional[str],
 ) -> None:
     """
     Convert SCENE(s) into a given format and writes the result in DEST.
@@ -392,7 +441,9 @@ def convert(
 
     try:
         converter = Converter.from_string(to)(
-            presentation_configs=presentation_configs, **config_options
+            presentation_configs=presentation_configs,
+            template=template,
+            **config_options,
         )
 
         converter.convert_to(dest)

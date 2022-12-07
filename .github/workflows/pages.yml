@@ -48,7 +48,7 @@ jobs:
       - name: Build animation and convert it into HTML slides
         run: |
           poetry run manim example.py ConvertExample
-          poetry run manim-slides convert ConvertExample docs/source/_static/slides.html -cembedded=true -ccontrols=true
+          poetry run manim-slides convert ConvertExample docs/source/_static/slides.html -ccontrols=true
       - name: Build docs
         run: cd docs && make html
       - name: Upload artifact
