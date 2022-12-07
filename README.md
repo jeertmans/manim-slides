@@ -16,8 +16,9 @@ Tool for live presentations using either [Manim (community edition)](https://www
 - [Usage](#usage)
   * [Basic Example](#basic-example)
   * [Key Bindings](#key-bindings)
+  * [Interactive Tutorial](#interactive-tutorial)
   * [Other Examples](#other-examples)
-- [Features and Comparison with Original manim-presentation](#features-and-comparison-with-original-manim-presentation)
+- [Comparison with Similar Tools](#comparison-with-similar-tools)
 - [F.A.Q](#faq)
   * [How to increase quality on Windows](#how-to-increase-quality-on-windows)
 - [Contributing](#contributing)
@@ -134,6 +135,12 @@ manim-slides init
 
 > **_NOTE:_**  `manim-slides` uses key codes, which are platform dependent. Using the configuration wizard is therefore highly recommended.
 
+## Interactive Tutorial
+
+Click on the image to watch a slides presentation that explains you how to use Manim Slides.
+
+[![Manim Slides Docs](https://raw.githubusercontent.com/jeertmans/manim-slides/main/static/docs.png)](https://eertmans.be/manim-slides/)
+
 ## Other Examples
 
 Other examples are available in the [`example.py`](https://github.com/jeertmans/manim-slides/blob/main/example.py) file, if you downloaded the git repository.
@@ -143,27 +150,21 @@ Below is a small recording of me playing with the slides back and forth.
 ![](https://raw.githubusercontent.com/jeertmans/manim-slides/main/static/example.gif)
 
 
-## Features and Comparison with original manim-presentation
+## Comparison with Similar Tools
 
-Below is a non-exhaustive list of features:
+There exists are variety of tools that allows to create slides presentations containing Manim animations.
 
-| Feature | `manim-slides` | `manim-presentation` |
-|:--------|:--------------:|:--------------------:|
-| Support for Manim | :heavy_check_mark: | :heavy_check_mark: |
-| Support for ManimGL | :heavy_check_mark: | :heavy_multiplication_x: |
-| Configurable key bindings | :heavy_check_mark: | :heavy_check_mark: |
-| Configurable paths | :heavy_check_mark: | :heavy_multiplication_x: |
-| Play / Pause slides | :heavy_check_mark: | :heavy_check_mark: |
-| Next / Previous slide | :heavy_check_mark: | :heavy_check_mark: |
-| Replay slide | :heavy_check_mark: | :heavy_check_mark: |
-| Reverse slide | :heavy_check_mark: | :heavy_multiplication_x: |
-| Multiple key per actions | :heavy_check_mark: | :heavy_multiplication_x: |
-| One command line tool | :heavy_check_mark: | :heavy_multiplication_x: |
-| Robust config file parsing | :heavy_check_mark: | :heavy_multiplication_x: |
-| Support for 3D Scenes | :heavy_check_mark: | :heavy_multiplication_x: |
-| Documented code | :heavy_check_mark: | :heavy_multiplication_x: |
-| Tested on Unix, macOS, and Windows | :heavy_check_mark: | :heavy_multiplication_x: |
-| Hide mouse cursor | :heavy_check_mark: | :heavy_multiplication_x: |
+Below is a comparison of the most used ones with Manim Slides:
+
+| Project name | Manim Slides | Manim Presentation | Manim Editor | Jupyter Notebooks |
+|:------------:|:------------:|:------------------:|:------------:|:-----------------:|
+| Link | [![GitHub Repo stars](https://img.shields.io/github/stars/jeertmans/manim-slides?style=social)](https://github.com/jeertmans/manim-slides) | [![GitHub Repo stars](https://img.shields.io/github/stars/galatolofederico/manim-presentation?style=social)](https://github.com/galatolofederico/manim-presentation) | [![GitHub Repo stars](https://img.shields.io/github/stars/ManimCommunity/manim_editor?style=social)](https://github.com/ManimCommunity/manim_editor) | [![GitHub Repo stars](https://img.shields.io/github/stars/jupyter/notebook?style=social)](https://github.com/jupyter/notebook) |
+| Activity | [![GitHub Repo stars](https://img.shields.io/github/last-commit/jeertmans/manim-slides?style=social)](https://github.com/jeertmans/manim-slides) | [![GitHub Repo stars](https://img.shields.io/github/last-commit/galatolofederico/manim-presentation?style=social)](https://github.com/galatolofederico/manim-presentation) | [![GitHub Repo stars](https://img.shields.io/github/last-commit/ManimCommunity/manim_editor?style=social)](https://github.com/ManimCommunity/manim_editor) | [![GitHub Repo stars](https://img.shields.io/github/last-commit/jupyter/notebook?style=social)](https://github.com/jupyter/notebook) |
+| Usage | Command-line | Command-line | Web Browser | Notebook |
+| Note | Requires minimal modif. in scenes files | Requires minimal modif. in scenes files |  Requires the usage of sections, and configuration through graphical interface | Relies on `nbconvert` to create slides from a Notebook |
+| Support for ManimGL | Yes | No | No | No |
+| Web Browser presentations | Yes | No | Yes | No |
+| Offline presentations | Yes, with Qt | Yes, with OpenCV | No | No
 
 ## F.A.Q
 
