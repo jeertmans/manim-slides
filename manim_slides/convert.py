@@ -289,6 +289,8 @@ class RevealJS(Converter):
                 # Videos are muted because, otherwise, the first slide never plays correctly.
                 # This is due to a restriction in playing audio without the user doing anything.
                 # Later, this might be useful to only mute the first video, or to make it optional.
+                # Read more about this:
+                #   https://developer.mozilla.org/en-US/docs/Web/Media/Autoplay_guide#autoplay_and_autoplay_blocking
                 if slide_config.is_loop():
                     yield f'<section data-background-video="{file}" data-background-video-muted data-background-video-loop></section>'
                 else:
