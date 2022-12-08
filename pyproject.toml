@@ -67,6 +67,35 @@ build-backend = "poetry.core.masonry.api"
 profile = "black"
 py_version = 37
 
+[tool.mypy]
+python_version = "3.8"
+install-types = true
+non-interactive = true
+ignore-missing-imports = true
+# Disallow dynamic typing
+disallow-any-generics = true
+disallow-subclassing-any = true
+
+# Disallow untyped definitions and calls
+disallow-untyped-defs = true
+disallow-incomplete-defs = true
+check-untyped-defs = true
+
+# None and optional handling
+no-implicit-optional = true
+
+# Configuring warnings
+warn-unused-ignores = true
+warn-no-return = true
+no-warn-return-any = true
+warn-redundant-casts = true
+
+# Strict equality
+strict-equality = true
+
+# Config file
+warn-unused-configs = true
+
 [tool.poetry.plugins]
 [tool.poetry.plugins."console_scripts"]
 manim-slides = "manim_slides.__main__:cli"
