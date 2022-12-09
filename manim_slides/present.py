@@ -826,7 +826,7 @@ def present(
     if dialog.exec():
         filenames = dialog.selectedFiles()
         print(filenames)
-    
+
     # TODO:
     # - get files in selected order
     # - kill dialog
