@@ -859,4 +859,3 @@ def present(
     )
     a.show()
     sys.exit(app.exec_())
-    logger.debug("After")
