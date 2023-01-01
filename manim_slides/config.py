@@ -206,7 +206,7 @@ class PresentationConfig(BaseModel):  # type: ignore
                 dest_path = merge_basenames(files)
 
                 f = tempfile.NamedTemporaryFile(mode="w", delete=False)
-                f.writelines(f"file {os.path.abspath(path)}\n" for path in files)
+                f.writelines(f"file '{os.path.abspath(path)}'\n" for path in files)
                 f.close()
 
                 command = [
