@@ -53,7 +53,7 @@ furo = "^2022.9.29"
 black = "^22.10.0"
 mypy = "^0.991"
 isort = "^5.10.1"
-flake8 = "^6.0.0"
+ruff = "^0.0.219"
 
 [tool.poetry.group.test.dependencies]
 manim = "^0.17.0"
@@ -98,6 +98,14 @@ strict-equality = true
 
 # Config file
 warn-unused-configs = true
+
+
+[tool.ruff]
+target-version = "py38"
+ignore = [
+    "E501",
+]
+
 
 [tool.poetry.plugins]
 [tool.poetry.plugins."console_scripts"]
