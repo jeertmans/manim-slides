@@ -15,7 +15,7 @@ repos:
     hooks:
       - id: black
 -   repo: https://github.com/charliermarsh/ruff-pre-commit
-    rev: v0.0.219
+    rev: v0.0.223
     hooks:
       - id: ruff
 -   repo: https://github.com/pre-commit/mirrors-mypy
