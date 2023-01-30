@@ -47,16 +47,22 @@ jobs:
         run: pip install manim sphinx sphinx_click furo
       - name: Install local Python package
         run: poetry install --with docs
-      - name: Cache media
-        id: cache-media
-        uses: actions/cache@v3
+      - name: Restore cached media
+        id: cache-media-restore
+        uses: actions/cache/restore@v3
         with:
-          path: media/**/*.mp4
-          key: ${{ runner.os }}-media-${{ hashFiles('media/**/*.mp4') }}
+          path: media
+          key: ${{ runner.os }}-media
       - name: Build animation and convert it into HTML slides
         run: |
           poetry run manim example.py ConvertExample
           poetry run manim-slides convert ConvertExample docs/source/_static/slides.html -ccontrols=true
+      - name: Save media to cache
+        id: cache-media-save
+        uses: actions/cache/save@v3
+        with:
+          path: media
+          key: ${{ steps.cache-media-restore.outputs.cache-primary-key }}
       - name: Build docs
         run: cd docs && poetry run make html
       - name: Upload artifact
