@@ -31,7 +31,9 @@ class BasicExample(Slide):
         self.play(dot.animate.move_to(ORIGIN))
         self.pause()  # Waits user to press continue to go to the next slide
 
-        self.wait()
+        # Each slide MUST end with an animation
+        # -> self.wait is considered an animation with Manim, not ManimGL
+        self.play(dot.animate.move_to(LEFT))
 
 
 class ConvertExample(Slide):

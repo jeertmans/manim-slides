@@ -74,7 +74,6 @@ The documentation is available [online](https://eertmans.be/manim-slides/).
 
 ### Basic Example
 
-
 Wrap a series of animations between `self.start_loop()` and `self.stop_loop()` when you want to loop them (until input to continue):
 
 ```python
@@ -99,7 +98,9 @@ class BasicExample(Slide):
         self.play(dot.animate.move_to(ORIGIN))
         self.pause()  # Waits user to press continue to go to the next slide
 
-        self.wait()
+        # Each slide MUST end with an animation
+        # -> self.wait is considered an animation with Manim, not ManimGL
+        self.play(dot.animate.move_to(LEFT))
 ```
 
 You **must** end your `Slide` with a `self.play(...)` or a `self.wait(...)`.
