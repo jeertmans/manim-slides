@@ -15,4 +15,3 @@ examples
 [Command Line Interface](./cli): list of all commands available using Manim Slides' executable.
 
 [Examples](./examples): curated list of examples and their output.
-

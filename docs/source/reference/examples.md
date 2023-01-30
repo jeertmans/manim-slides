@@ -47,7 +47,7 @@ Example using 3D camera. As Manim and ManimGL handle 3D differently, definitions
 
 ## Advanced Example
 
-A more advanced example is `ConvertExample`, which is used as demo slide and tutorial. 
+A more advanced example is `ConvertExample`, which is used as demo slide and tutorial.
 
 ```{eval-rst}
 .. literalinclude:: ../../../example.py
@@ -57,5 +57,3 @@ A more advanced example is `ConvertExample`, which is used as demo slide and tut
 ```
 
 <div style="position:relative;padding-bottom:56.25%;"> <iframe style="width:100%;height:100%;position:absolute;left:0px;top:0px;" frameborder="0" width="100%" height="100%" allowfullscreen allow="autoplay" src="../_static/slides.html"></iframe></div>
-
-
