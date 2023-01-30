@@ -8,13 +8,19 @@
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 project = "Manim Slides"
-copyright = "2022, Jérome Eertmans"
+copyright = "2023, Jérome Eertmans"
 author = "Jérome Eertmans"
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
-extensions = ["sphinx.ext.autodoc", "sphinx_click"]
+extensions = [
+    "sphinx.ext.autodoc",
+    "sphinx.ext.viewcode",
+    "sphinx_click",
+    "myst_parser",
+    "sphinx_copybutton",
+]
 
 templates_path = ["_templates"]
 exclude_patterns = []

@@ -55,8 +55,10 @@ jobs:
         key: ${{ runner.os }}-media
     - name: Build animation and convert it into HTML slides
       run: |
-        poetry run manim example.py ConvertExample
+        poetry run manim example.py ConvertExample BasicExample ThreeDExample
         poetry run manim-slides convert ConvertExample docs/source/_static/slides.html -ccontrols=true
+        poetry run manim-slides convert BasicExample docs/source/_static/basic_example.html -ccontrols=true
+        poetry run manim-slides convert ThreeDExample docs/source/_static/three_d_example.html -ccontrols=true
     - name: Save media to cache
       id: cache-media-save
       uses: actions/cache/save@v3
@@ -69,8 +71,8 @@ jobs:
       if: github.event_name != 'pull_request'
       uses: actions/upload-pages-artifact@v1
       with:
-          # Upload docs/build/html dir
-        path: docs/build/html/
+        # Upload docs/build/html dir
+      path: docs/build/html/
     - name: Deploy to GitHub Pages
       id: deployment
       if: github.event_name != 'pull_request'

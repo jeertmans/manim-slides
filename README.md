@@ -25,15 +25,21 @@ Tool for live presentations using either [Manim (community edition)](https://www
 
 ## Installation
 
+<!-- start install -->
+
 While installing Manim Slides and its dependencies on your global Python is fine, I recommend using a virtual environment (e.g., [venv](https://docs.python.org/3/tutorial/venv.html)) for a local installation.
 
 ### Dependencies
+
+<!-- start deps -->
 
 Manim Slides requires either Manim or ManimGL to be installed. Having both packages installed is fine too.
 
 If none of those packages are installed, please refer to their specific installation guidelines:
 - [Manim](https://docs.manim.community/en/stable/installation.html)
 - [ManimGL](https://3b1b.github.io/manim/getting_started/installation.html)
+
+<!-- end deps -->
 
 ### Pip Install
 
@@ -54,16 +60,19 @@ pip install -e .
 
 > *Note:* the `-e` flag allows you to edit the files, and observe the changes directly when using Manim Slides
 
+<!-- end install -->
+
 ## Usage
+
+<!-- start usage -->
 
 Using Manim Slides is a two-step process:
 1. Render animations using `Slide` (resp. `ThreeDSlide`) as a base class instead of `Scene` (resp. `ThreeDScene`), and add calls to `self.pause()` everytime you want to create a new slide.
 2. Run `manim-slides` on rendered animations and display them like a *Power Point* presentation.
 
-The command-line documentation is available [online](https://eertmans.be/manim-slides/).
+The documentation is available [online](https://eertmans.be/manim-slides/).
 
 ### Basic Example
-
 
 Wrap a series of animations between `self.start_loop()` and `self.stop_loop()` when you want to loop them (until input to continue):
 
@@ -74,7 +83,7 @@ from manim import *
 # or: from manimlib import *
 from manim_slides import Slide
 
-class Example(Slide):
+class BasicExample(Slide):
     def construct(self):
         circle = Circle(radius=3, color=BLUE)
         dot = Dot()
@@ -89,7 +98,9 @@ class Example(Slide):
         self.play(dot.animate.move_to(ORIGIN))
         self.pause()  # Waits user to press continue to go to the next slide
 
-        self.wait()
+        # Each slide MUST end with an animation
+        # -> self.wait is considered an animation with Manim, not ManimGL
+        self.play(dot.animate.move_to(LEFT))
 ```
 
 You **must** end your `Slide` with a `self.play(...)` or a `self.wait(...)`.
@@ -97,9 +108,9 @@ You **must** end your `Slide` with a `self.play(...)` or a `self.wait(...)`.
 First, render the animation files:
 
 ```bash
-manim example.py
+manim example.py BasicExample
 # or
-manimgl example.py
+manimgl example.py BasicExample
 ```
 
 To start the presentation using `Scene1`, `Scene2` and so on simply run:
@@ -111,8 +122,10 @@ manim-slides [OPTIONS] Scene1 Scene2...
 Or in this example:
 
 ```bash
-manim-slides Example
+manim-slides BasicExample
 ```
+
+<!-- end usage -->
 
 ##  Key Bindings
 

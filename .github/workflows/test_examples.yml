@@ -97,19 +97,19 @@ jobs:
         poetry config experimental.new-installer false
         poetry install --with test
 
-      # Render slides
+    # Render slides
     - name: Render slides
       if: matrix.manim == 'manim'
-      run: poetry run manim -ql example.py Example ThreeDExample
+      run: poetry run manim -ql example.py BasicExample ThreeDExample
     - name: Render slides
       if: matrix.manim == 'manimgl'
-      run: poetry run -v manimgl -l example.py Example ThreeDExample
+      run: poetry run -v manimgl -l example.py BasicExample ThreeDExample
 
-      # Play slides
+    # Play slides
     - name: Test slides
-      run: poetry run manim-slides Example ThreeDExample --skip-all
+      run: poetry run manim-slides BasicExample ThreeDExample --skip-all
 
-      # Test slides to html
+    # Test slides to html
     - name: Test convert on Ubuntu
       if: matrix.os == 'ubuntu-latest' && matrix.manim == 'manim'
       run: |
