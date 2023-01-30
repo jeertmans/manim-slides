@@ -16,30 +16,22 @@ else:
 from manim_slides import Slide, ThreeDSlide
 
 
-class Example(Slide):
+class BasicExample(Slide):
     def construct(self):
         circle = Circle(radius=3, color=BLUE)
         dot = Dot()
 
         self.play(GrowFromCenter(circle))
-        self.pause()
+        self.pause()  # Waits user to press continue to go to the next slide
 
-        self.start_loop()
+        self.start_loop()  # Start loop
         self.play(MoveAlongPath(dot, circle), run_time=2, rate_func=linear)
-        self.end_loop()
+        self.end_loop()  # This will loop until user inputs a key
 
         self.play(dot.animate.move_to(ORIGIN))
-        self.pause()
+        self.pause()  # Waits user to press continue to go to the next slide
 
-        self.play(dot.animate.move_to(RIGHT * 3))
-        self.pause()
-
-        self.start_loop()
-        self.play(MoveAlongPath(dot, circle), run_time=2, rate_func=linear)
-        self.end_loop()
-
-        # Each slide MUST end with an animation (a self.wait is considered an animation)
-        self.play(dot.animate.move_to(ORIGIN))
+        self.wait()
 
 
 class ConvertExample(Slide):
@@ -261,6 +253,7 @@ class Example(Slide):
 
 if not MANIMGL:
 
+    # [manim-3d]
     class ThreeDExample(ThreeDSlide):
         def construct(self):
             axes = ThreeDAxes()
@@ -296,7 +289,9 @@ if not MANIMGL:
             # Each slide MUST end with an animation (a self.wait is considered an animation)
             self.play(dot.animate.move_to(ORIGIN))
 
+    # [manim-3d]
 else:
+    # [manimgl-3d]
     # WARNING: 3b1b's manim change how ThreeDScene work,
     # this is why things have to be managed differently.
     class ThreeDExample(Slide):
@@ -342,3 +337,5 @@ else:
 
             # Each slide MUST end with an animation (a self.wait is considered an animation)
             self.play(dot.animate.move_to(ORIGIN))
+
+    # [manimgl-3d]

@@ -30,45 +30,47 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout
-      uses: actions/checkout@v3
-    - name: Install Poetry
-      run: pipx install poetry
-    - name: Install Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.9'
-        cache: poetry
-    - name: Setup Pages
-      uses: actions/configure-pages@v2
-    - name: Install Linux Dependencies
-      run: sudo apt install libcairo2-dev libpango1.0-dev ffmpeg freeglut3-dev
-    - name: Install Python dependencies
-      run: pip install manim sphinx sphinx_click furo
-    - name: Install local Python package
-      run: poetry install --with docs
-    - name: Restore cached media
-      id: cache-media-restore
-      uses: actions/cache/restore@v3
-      with:
-        path: media
-        key: ${{ runner.os }}-media
-    - name: Build animation and convert it into HTML slides
-      run: |
-        poetry run manim example.py ConvertExample
-        poetry run manim-slides convert ConvertExample docs/source/_static/slides.html -ccontrols=true
-    - name: Save media to cache
-      id: cache-media-save
-      uses: actions/cache/save@v3
-      with:
-        path: media
-        key: ${{ steps.cache-media-restore.outputs.cache-primary-key }}
-    - name: Build docs
-      run: cd docs && poetry run make html
-    - name: Upload artifact
-      if: github.event_name != 'pull_request'
-      uses: actions/upload-pages-artifact@v1
-      with:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Install Poetry
+        run: pipx install poetry
+      - name: Install Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+          cache: 'poetry'
+      - name: Setup Pages
+        uses: actions/configure-pages@v2
+      - name: Install Linux Dependencies
+        run: sudo apt install libcairo2-dev libpango1.0-dev ffmpeg freeglut3-dev
+      - name: Install Python dependencies
+        run: pip install manim sphinx sphinx_click furo
+      - name: Install local Python package
+        run: poetry install --with docs
+      - name: Restore cached media
+        id: cache-media-restore
+        uses: actions/cache/restore@v3
+        with:
+          path: media
+          key: ${{ runner.os }}-media
+      - name: Build animation and convert it into HTML slides
+        run: |
+          poetry run manim example.py ConvertExample BasicExample ThreeDExample
+          poetry run manim-slides convert ConvertExample docs/source/_static/slides.html -ccontrols=true
+          poetry run manim-slides convert BasicExample docs/source/_static/basic_example.html -ccontrols=true
+          poetry run manim-slides convert ThreeDExample docs/source/_static/three_d_example.html -ccontrols=true
+      - name: Save media to cache
+        id: cache-media-save
+        uses: actions/cache/save@v3
+        with:
+          path: media
+          key: ${{ steps.cache-media-restore.outputs.cache-primary-key }}
+      - name: Build docs
+        run: cd docs && poetry run make html
+      - name: Upload artifact
+        if: github.event_name != 'pull_request'
+        uses: actions/upload-pages-artifact@v1
+        with:
           # Upload docs/build/html dir
         path: docs/build/html/
     - name: Deploy to GitHub Pages
