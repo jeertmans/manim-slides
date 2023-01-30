@@ -72,7 +72,7 @@ jobs:
       uses: actions/upload-pages-artifact@v1
       with:
         # Upload docs/build/html dir
-      path: docs/build/html/
+        path: docs/build/html/
     - name: Deploy to GitHub Pages
       id: deployment
       if: github.event_name != 'pull_request'
