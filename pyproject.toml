@@ -1,112 +1,102 @@
+[build-system]
+build-backend = "poetry.core.masonry.api"
+requires = ["setuptools", "poetry-core>=1.0.0"]
+
+[tool.black]
+target-version = ["py38"]
+
+[tool.isort]
+profile = "black"
+py_version = 38
+
+[tool.mypy]
+check-untyped-defs = true
+# Disallow dynamic typing
+disallow-any-generics = true
+disallow-incomplete-defs = true
+disallow-subclassing-any = true
+# Disallow untyped definitions and calls
+disallow-untyped-defs = true
+ignore-missing-imports = true
+install-types = true
+# None and optional handling
+no-implicit-optional = true
+no-warn-return-any = true
+non-interactive = true
+python_version = "3.8"
+# Strict equality
+strict-equality = true
+warn-no-return = true
+warn-redundant-casts = true
+# Config file
+warn-unused-configs = true
+# Configuring warnings
+warn-unused-ignores = true
+
 [tool.poetry]
-name = "manim-slides"
-description = "Tool for live presentations using manim"
 authors = [
-    "Jérome Eertmans <jeertmans@icloud.com>"
+  "Jérome Eertmans <jeertmans@icloud.com>"
 ]
-version = "4.8.1"
-license = "GPL-3.0-only"
-readme = "README.md"
-homepage = "https://github.com/jeertmans/manim-slides"
-documentation = "https://eertmans.be/manim-slides"
-repository = "https://github.com/jeertmans/manim-slides"
-
-keywords = ["manim", "slides", "plugin", "manimgl"]
-
 classifiers = [
-        "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.8",
-        "Programming Language :: Python :: 3.9",
-        "Programming Language :: Python :: 3.10",
-        "Programming Language :: Python :: 3.11",
-        "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
-        "Operating System :: OS Independent",
-        "Topic :: Multimedia :: Video",
-        "Topic :: Multimedia :: Graphics",
-        "Topic :: Scientific/Engineering",
-    ]
-
-exclude = ["docs/","static/"]
-packages = [
-    { include = "manim_slides" },
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+  "Operating System :: OS Independent",
+  "Topic :: Multimedia :: Video",
+  "Topic :: Multimedia :: Graphics",
+  "Topic :: Scientific/Engineering"
 ]
-
+description = "Tool for live presentations using manim"
+documentation = "https://eertmans.be/manim-slides"
+exclude = ["docs/", "static/"]
+homepage = "https://github.com/jeertmans/manim-slides"
+keywords = ["manim", "slides", "plugin", "manimgl"]
+license = "GPL-3.0-only"
+name = "manim-slides"
+packages = [
+  {include = "manim_slides"}
+]
+readme = "README.md"
+repository = "https://github.com/jeertmans/manim-slides"
+version = "4.8.1"
 
 [tool.poetry.dependencies]
-python = ">=3.8.1,<3.12"
 click = "^8.1.3"
 click-default-group = "^1.2.2"
 numpy = "^1.19"
 opencv-python = "^4.6.0.66"
 pydantic = "^1.10.2"
 pyside6 = "^6.4.1"
+python = ">=3.8.1,<3.12"
 requests = "^2.28.1"
 tqdm = "^4.64.1"
 
+[tool.poetry.group.dev.dependencies]
+black = "^22.10.0"
+isort = "^5.10.1"
+mypy = "^0.991"
+ruff = "^0.0.219"
+
 [tool.poetry.group.docs.dependencies]
+furo = "^2022.9.29"
 manim = "^0.17.0"
 sphinx = "^5.3.0"
 sphinx-click = "^4.4.0"
-furo = "^2022.9.29"
-
-[tool.poetry.group.dev.dependencies]
-black = "^22.10.0"
-mypy = "^0.991"
-isort = "^5.10.1"
-ruff = "^0.0.219"
 
 [tool.poetry.group.test.dependencies]
 manim = "^0.17.0"
 manimgl = "^1.6.1"
 
-[build-system]
-requires = ["setuptools","poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
-
-[tool.isort]
-profile = "black"
-py_version = 38
-
-[tool.black]
-target-version = ["py38"]
-
-[tool.mypy]
-python_version = "3.8"
-install-types = true
-non-interactive = true
-ignore-missing-imports = true
-# Disallow dynamic typing
-disallow-any-generics = true
-disallow-subclassing-any = true
-
-# Disallow untyped definitions and calls
-disallow-untyped-defs = true
-disallow-incomplete-defs = true
-check-untyped-defs = true
-
-# None and optional handling
-no-implicit-optional = true
-
-# Configuring warnings
-warn-unused-ignores = true
-warn-no-return = true
-no-warn-return-any = true
-warn-redundant-casts = true
-
-# Strict equality
-strict-equality = true
-
-# Config file
-warn-unused-configs = true
-
-
-[tool.ruff]
-target-version = "py38"
-ignore = [
-    "E501",
-]
-
-
 [tool.poetry.plugins]
+
 [tool.poetry.plugins."console_scripts"]
 manim-slides = "manim_slides.__main__:cli"
+
+[tool.ruff]
+ignore = [
+  "E501"
+]
+target-version = "py38"

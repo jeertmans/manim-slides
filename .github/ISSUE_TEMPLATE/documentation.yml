@@ -1,59 +1,59 @@
 name: Documentation
 description: Ask / Report an issue related to the documentation.
-title: "DOC: <description>"
-labels: ['bug', 'docs']
+title: 'DOC: <description>'
+labels: [bug, docs]
 
 body:
-  - type: markdown
-    attributes:
-      value: >
-        **Thank you for wanting to report a problem with manim-slides docs!**
+- type: markdown
+  attributes:
+    value: >
+      **Thank you for wanting to report a problem with manim-slides docs!**
 
 
-        If the problem seems straightforward, feel free to submit a PR instead!
+      If the problem seems straightforward, feel free to submit a PR instead!
 
 
-        ⚠
-        Verify first that your issue is not already reported on GitHub [Issues].
+      ⚠
+      Verify first that your issue is not already reported on GitHub [Issues].
 
 
-        [Issues]:
-        https://github.com/jeertmans/manim-slides/issues
+      [Issues]:
+      https://github.com/jeertmans/manim-slides/issues
 
-  - type: textarea
-    attributes:
-      label: Describe the Issue
-      description: A clear and concise description of the issue you encountered.
-    validations:
-      required: true
+- type: textarea
+  attributes:
+    label: Describe the Issue
+    description: A clear and concise description of the issue you encountered.
+  validations:
+    required: true
 
-  - type: input
-    attributes:
-      label: Affected Page
-      description: Add a link to page with the problem.
-    validations:
-      required: true
+- type: input
+  attributes:
+    label: Affected Page
+    description: Add a link to page with the problem.
+  validations:
+    required: true
 
-  - type: dropdown
-    attributes:
-      label: Issue Type
-      description: >
-        Please select the option in the drop-down.
+- type: dropdown
+  attributes:
+    label: Issue Type
+    description: >
+      Please select the option in the drop-down.
 
-        <details>
-          <summary>
-            <em>Issue?</em>
-          </summary>
-        </details>
-      options:
-        - Documentation Enhancement
-        - Documentation Report
-    validations:
-      required: true
+      <details>
+        <summary>
+          <em>Issue?</em>
+        </summary>
+      </details>
+    options:
+    - Documentation Enhancement
+    - Documentation Report
+  validations:
+    required: true
 
-  - type: textarea
-    attributes:
-      label: Recommended fix or suggestions
-      description: A clear and concise description of how you want to update it.
-    validations:
-      required: false
+- type: textarea
+  attributes:
+    label: Recommended fix or suggestions
+    description: A clear and concise description of how you want to update it.
+  validations:
+    required: false
