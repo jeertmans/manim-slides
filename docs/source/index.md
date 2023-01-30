@@ -2,7 +2,12 @@
 hide-toc: true
 ---
 
-<p align="center><img src="_static/logo.png" width="600px" alt="Manim Slides logo"></p>
+```{eval-rst}
+.. image:: _static/logo.png
+    :width: 600px
+    :align: center
+    :alt: Manim Slide logo
+```
 
 # Welcome to Manim Slide's documentation
 

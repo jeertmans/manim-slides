@@ -192,7 +192,7 @@ in *Settings*->*Display*.
 
 ## Contributing
 
-Contributions are more than welcome!
+Contributions are more than welcome! Please read through [our contributing section](https://eertmans.be/manim-slides/contributing/index.html).
 
 [pypi-version-badge]: https://img.shields.io/pypi/v/manim-slides?label=manim-slides
 [pypi-version-url]: https://pypi.org/project/manim-slides/
