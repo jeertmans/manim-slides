@@ -51,14 +51,7 @@ pip install manim-slides
 
 ### Install From Repository
 
-An alternative way to install Manim Slides is to clone the git repository, and install from there:
-
-```bash
-git clone https://github.com/jeertmans/manim-slides
-pip install -e .
-```
-
-> *Note:* the `-e` flag allows you to edit the files, and observe the changes directly when using Manim Slides
+An alternative way to install Manim Slides is to clone the git repository, and install from there: read the [contributing guide](https://eertmans.be/manim-slides/contributing/workflow.html) to know how.
 
 <!-- end install -->
 
@@ -97,13 +90,7 @@ class BasicExample(Slide):
 
         self.play(dot.animate.move_to(ORIGIN))
         self.pause()  # Waits user to press continue to go to the next slide
-
-        # Each slide MUST end with an animation
-        # -> self.wait is considered an animation with Manim, not ManimGL
-        self.play(dot.animate.move_to(LEFT))
 ```
-
-You **must** end your `Slide` with a `self.play(...)` or a `self.wait(...)`.
 
 First, render the animation files:
 

@@ -105,6 +105,11 @@ class Slide(Scene):  # type:ignore
 
     def add_last_slide(self) -> None:
         """Adds a 'last' slide to the end of slides."""
+
+        if self.current_animation == self.slides[-1].end_animation:
+            self.slides[-1].type = SlideType.last
+            return
+
         self.slides.append(
             SlideConfig(
                 type=SlideType.last,
