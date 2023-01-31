@@ -2,7 +2,28 @@
 
 Contents of `example.py`.
 
-Do not forget to import Manim Slides and Manim or ManimGL.
+Do not forget to import Manim Slides and Manim or ManimGL:
+
+```python
+from manim import *
+from manim_slides import Slide, ThreeDSlide
+```
+
+or
+
+```python
+from manimlib import *
+from manim_slides import Slide, ThreeDSlide
+```
+
+Then, each presentation, named `SCENE`, was generated with those two commands:
+
+```bash
+manim example.py SCENE # or manimgl example SCENE
+manim-slides convert SCENE -ccontrols=true
+```
+
+where `-ccontrols=true` indicates that we want to display the blue navigation arrows.
 
 ## Basic Example
 

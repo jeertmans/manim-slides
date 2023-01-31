@@ -1334,6 +1334,17 @@ lint = ["docutils-stubs", "flake8", "mypy"]
 test = ["pytest"]
 
 [[package]]
+name = "sphinxext-opengraph"
+version = "0.7.5"
+description = "Sphinx Extension to enable OGP support"
+category = "dev"
+optional = false
+python-versions = ">=3.7"
+
+[package.dependencies]
+sphinx = ">=4.0"
+
+[[package]]
 name = "srt"
 version = "3.5.2"
 description = "A tiny library for parsing, modifying, and composing SRT files."
@@ -1499,7 +1510,7 @@ testing = ["flake8 (<5)", "func-timeout", "jaraco.functools", "jaraco.itertools"
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.8.1,<3.12"
-content-hash = "c3931f97423e6cf1082a0144b675da951151869c357f33a44a3bce06fd0b6520"
+content-hash = "0f342939336f7eac6af6ebf0ac4bc9922777f12b0b4c7718f869dad73860c64d"
 
 [metadata.files]
 alabaster = [
@@ -2749,6 +2760,10 @@ sphinxcontrib-qthelp = [
 sphinxcontrib-serializinghtml = [
     {file = "sphinxcontrib-serializinghtml-1.1.5.tar.gz", hash = "sha256:aa5f6de5dfdf809ef505c4895e51ef5c9eac17d0f287933eb49ec495280b6952"},
     {file = "sphinxcontrib_serializinghtml-1.1.5-py2.py3-none-any.whl", hash = "sha256:352a9a00ae864471d3a7ead8d7d79f5fc0b57e8b3f95e9867eb9eb28999b92fd"},
+]
+sphinxext-opengraph = [
+    {file = "sphinxext-opengraph-0.7.5.tar.gz", hash = "sha256:caf061fb3bea8d8f2228f7a1d55cb8f6809f2b5c806bf3600e21ce1a3cf906d1"},
+    {file = "sphinxext_opengraph-0.7.5-py3-none-any.whl", hash = "sha256:d7fcf48b5d6477292492c0c7da6ddc469e3657159952e2a0a0df074f54aad99e"},
 ]
 srt = [
     {file = "srt-3.5.2.tar.gz", hash = "sha256:7aa4ad5ce4126d3f53b3e7bc4edaa86653d0378bf1c0b1ab8c59f5ab41384450"},
