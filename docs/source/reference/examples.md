@@ -20,7 +20,7 @@ Then, each presentation, named `SCENE`, was generated with those two commands:
 
 ```bash
 manim example.py SCENE # or manimgl example SCENE
-manim-slides convert SCENE -ccontrols=true
+manim-slides convert SCENE scene.html -ccontrols=true
 ```
 
 where `-ccontrols=true` indicates that we want to display the blue navigation arrows.
