@@ -43,7 +43,7 @@ classifiers = [
   "Programming Language :: Python :: 3.9",
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
-  "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+  "License :: OSI Approved :: MIT License",
   "Operating System :: OS Independent",
   "Topic :: Multimedia :: Video",
   "Topic :: Multimedia :: Graphics",
@@ -54,7 +54,7 @@ documentation = "https://eertmans.be/manim-slides"
 exclude = ["docs/", "static/"]
 homepage = "https://github.com/jeertmans/manim-slides"
 keywords = ["manim", "slides", "plugin", "manimgl"]
-license = "GPL-3.0-only"
+license = "MIT"
 name = "manim-slides"
 packages = [
   {include = "manim_slides"}
