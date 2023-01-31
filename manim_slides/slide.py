@@ -27,7 +27,7 @@ def reverse_video_file(src: str, dst: str) -> None:
 
 class Slide(Scene):  # type:ignore
     """
-    Inherits from :class:`manim.Scene` or :class:`manimlib.Scene` and provide necessary tools for slides rendering.
+    Inherits from :class:`manim.scene.scene.Scene` or :class:`manimlib.scene.scene.Scene` and provide necessary tools for slides rendering.
     """
 
     def __init__(
@@ -224,7 +224,7 @@ class Slide(Scene):  # type:ignore
 
 class ThreeDSlide(Slide, ThreeDScene):  # type: ignore
     """
-    Inherits from :class:`Slide` and :class:`manim.ThreeDScene` or :class:`manimlib.ThreeDScene` and provide necessary tools for slides rendering.
+    Inherits from :class:`Slide` and :class:`manim.scene.three_d_scene.ThreeDScene` or :class:`manimlib.scene.three_d_scene.ThreeDScene` and provide necessary tools for slides rendering.
 
     .. note:: ManimGL does not need ThreeDScene for 3D rendering in recent versions, see `example.py`.
     """
