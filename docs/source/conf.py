@@ -62,4 +62,5 @@ intersphinx_mapping = {
 
 # -- OpenGraph settings
 
+ogp_site_url = "https://eertmans.be/manim-slides/"
 ogp_use_first_image = True
