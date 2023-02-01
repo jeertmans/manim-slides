@@ -52,10 +52,14 @@ html_theme_options = {
     "source_directory": "docs/source/",
 }
 
-## -- Intersphinx mapping
+# -- Intersphinx mapping
 
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),
     "manim": ("https://docs.manim.community/en/stable/", None),
     "manimlib": ("https://3b1b.github.io/manim/", None),
 }
+
+# -- OpenGraph settings
+
+ogp_use_first_image = True

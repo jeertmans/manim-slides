@@ -1,5 +1,6 @@
 ---
 hide-toc: true
+og:description: Manim Slides makes creating slides with Manim super easy!
 ---
 
 ```{eval-rst}
