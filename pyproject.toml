@@ -76,11 +76,11 @@ tqdm = "^4.64.1"
 
 [tool.poetry.group.dev.dependencies]
 black = "^22.10.0"
+bump2version = "^1.0.1"
 isort = "^5.12.0"
 mypy = "^0.991"
 pre-commit = "^3.0.2"
 ruff = "^0.0.219"
-bump2version = "^1.0.1"
 
 [tool.poetry.group.docs.dependencies]
 furo = "^2022.9.29"
