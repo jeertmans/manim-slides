@@ -27,7 +27,7 @@ def reverse_video_file(src: str, dst: str) -> None:
 
 class Slide(Scene):  # type:ignore
     """
-    Inherits from `manim.Scene` or `manimlib.Scene` and provide necessary tools for slides rendering.
+    Inherits from :class:`manim.scene.scene.Scene` or :class:`manimlib.scene.scene.Scene` and provide necessary tools for slides rendering.
     """
 
     def __init__(
@@ -105,6 +105,11 @@ class Slide(Scene):  # type:ignore
 
     def add_last_slide(self) -> None:
         """Adds a 'last' slide to the end of slides."""
+
+        if self.current_animation == self.slides[-1].end_animation:
+            self.slides[-1].type = SlideType.last
+            return
+
         self.slides.append(
             SlideConfig(
                 type=SlideType.last,
@@ -224,9 +229,9 @@ class Slide(Scene):  # type:ignore
 
 class ThreeDSlide(Slide, ThreeDScene):  # type: ignore
     """
-    Inherits from `manim.ThreeDScene` or `manimlib.ThreeDScene` and provide necessary tools for slides rendering.
+    Inherits from :class:`Slide` and :class:`manim.scene.three_d_scene.ThreeDScene` or :class:`manimlib.scene.three_d_scene.ThreeDScene` and provide necessary tools for slides rendering.
 
-    Note that ManimGL does not need ThreeDScene for 3D rendering in recent versions, see `example.py`.
+    .. note:: ManimGL does not need ThreeDScene for 3D rendering in recent versions, see `example.py`.
     """
 
     pass

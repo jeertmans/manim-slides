@@ -1,5 +1,0 @@
-[flake8]
-min_python_version = 3.7
-extend-ignore =
-    # E501: line too long
-    E501,
