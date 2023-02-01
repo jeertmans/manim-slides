@@ -74,6 +74,9 @@ jobs:
     - name: Install manimgl dependencies on MacOS
       if: matrix.os == 'macos-latest' && matrix.manim == 'manimgl'
       run: brew install ffmpeg
+    - name: Run apt-get update on Ubuntu
+      if: matrix.os == 'ubuntu-latest'
+      run: sudo apt-get update
     - name: Install manim dependencies on Ubuntu
       if: matrix.os == 'ubuntu-latest' && matrix.manim == 'manim'
       run: |
