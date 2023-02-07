@@ -16,7 +16,6 @@ from .present import get_scenes_presentation_config
 def validate_config_option(
     ctx: Context, param: Parameter, value: Any
 ) -> Dict[str, str]:
-
     config = {}
 
     for c_option in value:
@@ -324,7 +323,6 @@ class RevealJS(Converter):
             presentation_config.concat_animations().move_to(full_assets_dir)
 
         with open(dest, "w") as f:
-
             sections = "".join(self.get_sections_iter())
 
             revealjs_template = self.load_template()
@@ -337,7 +335,6 @@ def show_config_options(function: Callable[..., Any]) -> Callable[..., Any]:
     """Wraps a function to add a `--show-config` option."""
 
     def callback(ctx: Context, param: Parameter, value: bool) -> None:
-
         if not value or ctx.resilient_parsing:
             return
 
@@ -364,7 +361,6 @@ def show_template_option(function: Callable[..., Any]) -> Callable[..., Any]:
     """Wraps a function to add a `--show-template` option."""
 
     def callback(ctx: Context, param: Parameter, value: bool) -> None:
-
         if not value or ctx.resilient_parsing:
             return
 
@@ -454,7 +450,6 @@ def convert(
             converter.open(dest)
 
     except ValidationError as e:
-
         errors = e.errors()
 
         msg = [
