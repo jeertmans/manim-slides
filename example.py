@@ -32,6 +32,24 @@ class BasicExample(Slide):
         self.pause()  # Waits user to press continue to go to the next slide
 
 
+class TestFileTooLong(Slide):
+    """This is used to check against solution for issue #123."""
+
+    def construct(self):
+        import random
+
+        circle = Circle(radius=3, color=BLUE)
+        dot = Dot()
+        self.play(GrowFromCenter(circle), run_time=0.1)
+
+        for _ in range(30):
+            direction = (random.random() - 0.5) * LEFT + (random.random() - 0.5) * UP
+            self.play(dot.animate.move_to(direction), run_time=0.1)
+            self.play(dot.animate.move_to(ORIGIN), run_time=0.1)
+
+        self.pause()
+
+
 class ConvertExample(Slide):
     """WARNING: this example does not seem to work with ManimGL."""
 
