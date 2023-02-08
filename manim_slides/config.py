@@ -1,3 +1,4 @@
+import hashlib
 import os
 import shutil
 import subprocess
@@ -15,11 +16,18 @@ def merge_basenames(files: List[str]) -> str:
     """
     Merge multiple filenames by concatenating basenames.
     """
+    logger.info(f"Generating a new filename for animations: {files}")
 
     dirname = os.path.dirname(files[0])
     _, ext = os.path.splitext(files[0])
 
-    basename = "_".join(os.path.splitext(os.path.basename(file))[0] for file in files)
+    basenames = (os.path.splitext(os.path.basename(file))[0] for file in files)
+
+    basenames_str = ",".join(f"{len(b)}:{b}" for b in basenames)
+
+    # We use hashes to prevent too-long filenames, see issue #123:
+    # https://github.com/jeertmans/manim-slides/issues/123
+    basename = hashlib.sha256(basenames_str.encode()).hexdigest()
 
     return os.path.join(dirname, basename + ext)
 
