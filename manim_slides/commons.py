@@ -44,7 +44,6 @@ def verbosity_option(function: F) -> F:
     """Wraps a function to add verbosity option."""
 
     def callback(ctx: Context, param: Parameter, value: bool) -> None:
-
         if not value or ctx.resilient_parsing:
             return
 

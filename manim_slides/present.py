@@ -114,7 +114,6 @@ class Presentation:
         if (self.loaded_animation_cap != animation) or (
             self.reverse and self.reversed_animation != animation
         ):  # cap already loaded
-
             logger.debug(f"Loading new cap for animation #{animation}")
 
             self.release_cap()
@@ -575,7 +574,6 @@ class App(QWidget):  # type: ignore
         self.thread.start()
 
     def keyPressEvent(self, event: QKeyEvent) -> None:
-
         key = event.key()
         if self.config.HIDE_MOUSE.match(key):
             if self.hide_mouse:
@@ -651,7 +649,9 @@ def _list_scenes(folder: str) -> List[str]:
             try:
                 _ = PresentationConfig.parse_file(filepath)
                 scenes.append(os.path.basename(file)[:-5])
-            except Exception as e:  # Could not parse this file as a proper presentation config
+            except (
+                Exception
+            ) as e:  # Could not parse this file as a proper presentation config
                 logger.warn(
                     f"Something went wrong with parsing presentation config `{filepath}`: {e}"
                 )

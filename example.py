@@ -39,7 +39,6 @@ class ConvertExample(Slide):
         self.wait(0.1)
 
     def construct(self):
-
         title = VGroup(
             Text("From Manim animations", t2c={"From": BLUE}),
             Text("to slides presentation", t2c={"to": BLUE}),
@@ -250,7 +249,6 @@ class Example(Slide):
 # For ThreeDExample, things are different
 
 if not MANIMGL:
-
     # [manim-3d]
     class ThreeDExample(ThreeDSlide):
         def construct(self):

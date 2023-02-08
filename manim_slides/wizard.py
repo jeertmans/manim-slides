@@ -51,7 +51,6 @@ class KeyInput(QDialog):  # type: ignore
 
 class Wizard(QWidget):  # type: ignore
     def __init__(self, config: Config):
-
         super().__init__()
 
         self.setWindowTitle(WINDOW_NAME)
