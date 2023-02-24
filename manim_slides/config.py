@@ -4,24 +4,25 @@ import shutil
 import subprocess
 import tempfile
 from enum import Enum
+from pathlib import Path
 from typing import Callable, Dict, List, Optional, Set, Union
 
-from pydantic import BaseModel, root_validator, validator
+from pydantic import BaseModel, root_validator, validator, FilePath
 from PySide6.QtCore import Qt
 
 from .manim import FFMPEG_BIN, logger
 
 
-def merge_basenames(files: List[str]) -> str:
+def merge_basenames(files: List[FilePath]) -> Path:
     """
     Merge multiple filenames by concatenating basenames.
     """
     logger.info(f"Generating a new filename for animations: {files}")
 
-    dirname = os.path.dirname(files[0])
-    _, ext = os.path.splitext(files[0])
+    dirname = files[0].parent
+    ext = files[0].suffix
 
-    basenames = (os.path.splitext(os.path.basename(file))[0] for file in files)
+    basenames = (file.stem for file in files)
 
     basenames_str = ",".join(f"{len(b)}:{b}" for b in basenames)
 
@@ -29,7 +30,7 @@ def merge_basenames(files: List[str]) -> str:
     # https://github.com/jeertmans/manim-slides/issues/123
     basename = hashlib.sha256(basenames_str.encode()).hexdigest()
 
-    return os.path.join(dirname, basename + ext)
+    return dirname / basename / ext
 
 
 class Key(BaseModel):  # type: ignore
@@ -146,24 +147,12 @@ class SlideConfig(BaseModel):  # type: ignore
 
 class PresentationConfig(BaseModel):  # type: ignore
     slides: List[SlideConfig]
-    files: List[str]
-
-    @validator("files", pre=True, each_item=True)
-    def is_file_and_exists(cls, v: str) -> str:
-        if not os.path.exists(v):
-            raise ValueError(
-                f"Animation file {v} does not exist. Are you in the right directory?"
-            )
-
-        if not os.path.isfile(v):
-            raise ValueError(f"Animation file {v} is not a file")
-
-        return v
+    files: List[FilePath]
 
     @root_validator
     def animation_indices_match_files(
-        cls, values: Dict[str, Union[List[SlideConfig], List[str]]]
-    ) -> Dict[str, Union[List[SlideConfig], List[str]]]:
+        cls, values: Dict[str, Union[List[SlideConfig], List[FilePath]]]
+    ) -> Dict[str, Union[List[SlideConfig], List[FilePath]]]:
         files = values.get("files")
         slides = values.get("slides")
 
@@ -180,9 +169,9 @@ class PresentationConfig(BaseModel):  # type: ignore
 
         return values
 
-    def move_to(self, dest: str, copy: bool = True) -> "PresentationConfig":
+    def copy_to(self, dest: Path) -> "PresentationConfig":
         """
-        Moves (or copy) the files to a given directory.
+        Copy the files to a given directory.
         """
         copy_func: Callable[[str, str], None] = shutil.copy
         move_func: Callable[[str, str], None] = shutil.move
@@ -191,8 +180,7 @@ class PresentationConfig(BaseModel):  # type: ignore
         n = len(self.files)
         for i in range(n):
             file = self.files[i]
-            basename = os.path.basename(file)
-            dest_path = os.path.join(dest, basename)
+            dest_path = dest / self.files[i].name
             logger.debug(f"Moving / copying {file} to {dest_path}")
             move(file, dest_path)
             self.files[i] = dest_path
