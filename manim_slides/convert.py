@@ -170,6 +170,13 @@ class TransitionSpeed(Str, Enum):  # type: ignore
     slow = "slow"
 
 
+class BackgroundSize(Str, Enum):  # type: ignore
+    # From: https://developer.mozilla.org/en-US/docs/Web/CSS/background-size
+    # TODO: support more background size
+    contain = "contain"
+    cover = "cover"
+
+
 BackgroundTransition = Transition
 
 
@@ -258,6 +265,7 @@ class RevealJS(Converter):
     focus_body_on_page_visibility_change: JsBool = JsBool.true
     transition: Transition = Transition.none
     transition_speed: TransitionSpeed = TransitionSpeed.default
+    background_size: BackgroundSize = BackgroundSize.contain  # Not in RevealJS
     background_transition: BackgroundTransition = BackgroundTransition.none
     pdf_max_pages_per_slide: Union[int, str] = "Number.POSITIVE_INFINITY"
     pdf_separate_fragments: JsBool = JsBool.true
@@ -291,9 +299,9 @@ class RevealJS(Converter):
                 # Read more about this:
                 #   https://developer.mozilla.org/en-US/docs/Web/Media/Autoplay_guide#autoplay_and_autoplay_blocking
                 if slide_config.is_loop():
-                    yield f'<section data-background-video="{file}" data-background-video-muted data-background-video-loop></section>'
+                    yield f'<section data-background-size={self.background_size.value} data-background-video="{file}" data-background-video-muted data-background-video-loop></section>'
                 else:
-                    yield f'<section data-background-video="{file}" data-background-video-muted></section>'
+                    yield f'<section data-background-size={self.background_size.value} data-background-video="{file}" data-background-video-muted></section>'
 
     def load_template(self) -> str:
         """Returns the RevealJS HTML template as a string."""
