@@ -1,3 +1,4 @@
+from pathlib import Path
 from typing import Any, Callable
 
 import click
@@ -18,7 +19,7 @@ def config_path_option(function: F) -> F:
         "config_path",
         metavar="FILE",
         default=CONFIG_PATH,
-        type=click.Path(dir_okay=False),
+        type=click.Path(dir_okay=False, path_type=Path),
         help="Set path to configuration file.",
         show_default=True,
     )
@@ -73,7 +74,7 @@ def folder_path_option(function: F) -> F:
         "--folder",
         metavar="DIRECTORY",
         default=FOLDER_PATH,
-        type=click.Path(exists=True, file_okay=False),
+        type=click.Path(exists=True, file_okay=False, path_type=Path),
         help="Set slides folder.",
         show_default=True,
     )

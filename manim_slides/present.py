@@ -3,6 +3,7 @@ import platform
 import sys
 import time
 from enum import Enum, IntEnum, auto, unique
+from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple, Union
 
 import click
@@ -126,7 +127,7 @@ class Presentation:
 
             self.current_file = file
 
-            self.cap = cv2.VideoCapture(file)
+            self.cap = cv2.VideoCapture(str(file))
             self.loaded_animation_cap = animation
 
     @property
@@ -626,43 +627,41 @@ class App(QWidget):  # type: ignore
     "--folder",
     metavar="DIRECTORY",
     default=FOLDER_PATH,
-    type=click.Path(exists=True, file_okay=False),
+    type=click.Path(exists=True, file_okay=False, path_type=Path),
     help="Set slides folder.",
     show_default=True,
 )
 @click.help_option("-h", "--help")
 @verbosity_option
-def list_scenes(folder: str) -> None:
+def list_scenes(folder: Path) -> None:
     """List available scenes."""
 
     for i, scene in enumerate(_list_scenes(folder), start=1):
         click.secho(f"{i}: {scene}", fg="green")
 
 
-def _list_scenes(folder: str) -> List[str]:
+def _list_scenes(folder: Path) -> List[str]:
     """Lists available scenes in given directory."""
     scenes = []
 
-    for file in os.listdir(folder):
-        if file.endswith(".json"):
-            filepath = os.path.join(folder, file)
-            try:
-                _ = PresentationConfig.parse_file(filepath)
-                scenes.append(os.path.basename(file)[:-5])
-            except (
-                Exception
-            ) as e:  # Could not parse this file as a proper presentation config
-                logger.warn(
-                    f"Something went wrong with parsing presentation config `{filepath}`: {e}"
-                )
-                pass
+    for filepath in folder.glob("*.json"):
+        try:
+            _ = PresentationConfig.parse_file(filepath)
+            scenes.append(filepath.stem)
+        except (
+            Exception
+        ) as e:  # Could not parse this file as a proper presentation config
+            logger.warn(
+                f"Something went wrong with parsing presentation config `{filepath}`: {e}"
+            )
+            pass
 
     logger.debug(f"Found {len(scenes)} valid scene configuration files in `{folder}`.")
 
     return scenes
 
 
-def prompt_for_scenes(folder: str) -> List[str]:
+def prompt_for_scenes(folder: Path) -> List[str]:
     """Prompts the user to select scenes within a given folder."""
 
     scene_choices = dict(enumerate(_list_scenes(folder), start=1))
@@ -697,7 +696,7 @@ def prompt_for_scenes(folder: str) -> List[str]:
 
 
 def get_scenes_presentation_config(
-    scenes: List[str], folder: str
+    scenes: List[str], folder: Path
 ) -> List[PresentationConfig]:
     """Returns a list of presentation configurations based on the user input."""
 
@@ -706,8 +705,8 @@ def get_scenes_presentation_config(
 
     presentation_configs = []
     for scene in scenes:
-        config_file = os.path.join(folder, f"{scene}.json")
-        if not os.path.exists(config_file):
+        config_file = folder / f"{scene}.json"
+        if not config_file.exists():
             raise click.UsageError(
                 f"File {config_file} does not exist, check the scene name and make sure to use Slide as your scene base class"
             )
@@ -726,7 +725,7 @@ def get_scenes_presentation_config(
     "--folder",
     metavar="DIRECTORY",
     default=FOLDER_PATH,
-    type=click.Path(exists=True, file_okay=False),
+    type=click.Path(exists=True, file_okay=False, path_type=Path),
     help="Set slides folder.",
     show_default=True,
 )
@@ -752,7 +751,7 @@ def get_scenes_presentation_config(
     "--record-to",
     "record_to",
     metavar="FILE",
-    type=click.Path(dir_okay=False),
+    type=click.Path(dir_okay=False, path_type=Path),
     default=None,
     help="If set, the presentation will be recorded into a AVI video file with given name.",
 )
@@ -794,13 +793,13 @@ def get_scenes_presentation_config(
 @verbosity_option
 def present(
     scenes: List[str],
-    config_path: str,
-    folder: str,
+    config_path: Path,
+    folder: Path,
     start_paused: bool,
     fullscreen: bool,
     skip_all: bool,
     resolution: Tuple[int, int],
-    record_to: Optional[str],
+    record_to: Optional[Path],
     exit_after_last_slide: bool,
     hide_mouse: bool,
     aspect_ratio: str,
@@ -825,7 +824,7 @@ def present(
         for presentation_config in get_scenes_presentation_config(scenes, folder)
     ]
 
-    if os.path.exists(config_path):
+    if config_path.exists():
         try:
             config = Config.parse_file(config_path)
         except ValidationError as e:
@@ -835,7 +834,7 @@ def present(
         config = Config()
 
     if record_to is not None:
-        _, ext = os.path.splitext(record_to)
+        ext = record_to.suffix
         if ext.lower() != ".avi":
             raise click.UsageError(
                 "Recording only support '.avi' extension. For other video formats, please convert the resulting '.avi' file afterwards."
