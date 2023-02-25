@@ -200,7 +200,7 @@ class PresentationConfig(BaseModel):  # type: ignore
                 f.writelines(f"file '{os.path.abspath(path)}'\n" for path in files)
                 f.close()
 
-                command = [
+                command: List[str] = [
                     FFMPEG_BIN,
                     "-f",
                     "concat",
