@@ -30,7 +30,7 @@ def merge_basenames(files: List[FilePath]) -> Path:
     # https://github.com/jeertmans/manim-slides/issues/123
     basename = hashlib.sha256(basenames_str.encode()).hexdigest()
 
-    return dirname / basename / ext
+    return dirname / (basename + ext)
 
 
 class Key(BaseModel):  # type: ignore
