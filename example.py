@@ -300,7 +300,6 @@ if not MANIMGL:
             self.play(MoveAlongPath(dot, circle), run_time=2, rate_func=linear)
             self.end_loop()
 
-            # Each slide MUST end with an animation (a self.wait is considered an animation)
             self.play(dot.animate.move_to(ORIGIN))
 
     # [manim-3d]
@@ -349,7 +348,6 @@ else:
             self.play(MoveAlongPath(dot, circle), run_time=2, rate_func=linear)
             self.end_loop()
 
-            # Each slide MUST end with an animation (a self.wait is considered an animation)
             self.play(dot.animate.move_to(ORIGIN))
 
     # [manimgl-3d]
