@@ -333,7 +333,7 @@ class RevealJS(Converter):
             presentation_config.concat_animations().copy_to(full_assets_dir)
 
         with open(dest, "w") as f:
-            sections = "".join(self.get_sections_iter(full_assets_dir))
+            sections = "".join(self.get_sections_iter(assets_dir))
 
             revealjs_template = self.load_template()
             content = revealjs_template.format(sections=sections, **self.dict())
