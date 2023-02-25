@@ -106,6 +106,29 @@ Example:
 
 Then, you can simply open the HTML file with any web browser application.
 
+If you want to embed the presentation inside an HTML web page, a possibility is
+to use an `iframe`:
+
+```html
+<div style="position:relative;padding-bottom:56.25%;">
+    <!-- 56.25 comes from aspect ratio of 16:9, change this accordingly -->
+    <iframe
+        style="width:100%;height:100%;position:absolute;left:0px;top:0px;"
+        frameborder="0"
+        width="100%"
+        height="100%"
+        allowfullscreen
+        allow="autoplay"
+        src="basic_example.html">
+    </iframe>
+</div>
+```
+
+The additional code comes from
+[this article](https://faq.dailymotion.com/hc/en-us/articles/360022841393-How-to-preserve-the-player-aspect-ratio-on-a-responsive-page)
+and it there to preserve the original aspect ratio (16:9).
+
+
 ### Sharing ONE HTML file
 
 A future feature, that will be available once
