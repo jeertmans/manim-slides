@@ -1,6 +1,7 @@
 import os
 import webbrowser
 from enum import Enum
+from pathlib import Path
 from typing import Any, Callable, Dict, Generator, List, Optional, Type, Union
 
 import click
@@ -35,7 +36,7 @@ class Converter(BaseModel):  # type: ignore
     assets_dir: str = "{basename}_assets"
     template: Optional[str] = None
 
-    def convert_to(self, dest: str) -> None:
+    def convert_to(self, dest: Path) -> None:
         """Converts self, i.e., a list of presentations, into a given format."""
         raise NotImplementedError
 
@@ -45,7 +46,7 @@ class Converter(BaseModel):  # type: ignore
         An empty string is returned if no template is used."""
         return ""
 
-    def open(self, file: str) -> bool:
+    def open(self, file: Path) -> bool:
         """Opens a file, generated with converter, using appropriate application."""
         raise NotImplementedError
 
@@ -277,12 +278,12 @@ class RevealJS(Converter):
         use_enum_values = True
         extra = "forbid"
 
-    def get_sections_iter(self) -> Generator[str, None, None]:
+    def get_sections_iter(self, assets_dir: Path) -> Generator[str, None, None]:
         """Generates a sequence of sections, one per slide, that will be included into the html template."""
         for presentation_config in self.presentation_configs:
             for slide_config in presentation_config.slides:
                 file = presentation_config.files[slide_config.start_animation]
-                file = os.path.join(self.assets_dir, os.path.basename(file))
+                file = assets_dir / file.name
 
                 # TODO: document this
                 # Videos are muted because, otherwise, the first slide never plays correctly.
@@ -304,26 +305,27 @@ class RevealJS(Converter):
             __name__, "data/revealjs_template.html"
         ).decode()
 
-    def open(self, file: str) -> bool:
-        return webbrowser.open(file)
+    def open(self, file: Path) -> bool:
+        return webbrowser.open(file.absolute().as_uri())
 
-    def convert_to(self, dest: str) -> None:
+    def convert_to(self, dest: Path) -> None:
         """Converts this configuration into a RevealJS HTML presentation, saved to DEST."""
-        dirname = os.path.dirname(dest)
-        basename, ext = os.path.splitext(os.path.basename(dest))
+        dirname = dest.parent
+        basename = dest.stem
+        ext = dest.suffix
 
-        self.assets_dir = self.assets_dir.format(
-            dirname=dirname, basename=basename, ext=ext
+        assets_dir = Path(
+            self.assets_dir.format(dirname=dirname, basename=basename, ext=ext)
         )
-        full_assets_dir = os.path.join(dirname, self.assets_dir)
+        full_assets_dir = dirname / assets_dir
 
         os.makedirs(full_assets_dir, exist_ok=True)
 
         for presentation_config in self.presentation_configs:
-            presentation_config.concat_animations().move_to(full_assets_dir)
+            presentation_config.concat_animations().copy_to(full_assets_dir)
 
         with open(dest, "w") as f:
-            sections = "".join(self.get_sections_iter())
+            sections = "".join(self.get_sections_iter(full_assets_dir))
 
             revealjs_template = self.load_template()
             content = revealjs_template.format(sections=sections, **self.dict())
@@ -388,7 +390,7 @@ def show_template_option(function: Callable[..., Any]) -> Callable[..., Any]:
 @click.command()
 @click.argument("scenes", nargs=-1)
 @folder_path_option
-@click.argument("dest")
+@click.argument("dest", type=click.Path(dir_okay=False, path_type=Path))
 @click.option(
     "--to",
     type=click.Choice(["html"], case_sensitive=False),
@@ -415,7 +417,7 @@ def show_template_option(function: Callable[..., Any]) -> Callable[..., Any]:
     "--use-template",
     "template",
     metavar="FILE",
-    type=click.Path(exists=True, dir_okay=False),
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
     help="Use the template given by FILE instead of default one. To echo the default template, use `--show-template`.",
 )
 @show_template_option
@@ -423,13 +425,13 @@ def show_template_option(function: Callable[..., Any]) -> Callable[..., Any]:
 @verbosity_option
 def convert(
     scenes: List[str],
-    folder: str,
-    dest: str,
+    folder: Path,
+    dest: Path,
     to: str,
     open_result: bool,
     force: bool,
     config_options: Dict[str, str],
-    template: Optional[str],
+    template: Optional[Path],
 ) -> None:
     """
     Convert SCENE(s) into a given format and writes the result in DEST.

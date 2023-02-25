@@ -5,9 +5,9 @@ import subprocess
 import tempfile
 from enum import Enum
 from pathlib import Path
-from typing import Callable, Dict, List, Optional, Set, Union
+from typing import Dict, List, Optional, Set, Union
 
-from pydantic import BaseModel, root_validator, validator, FilePath
+from pydantic import BaseModel, FilePath, root_validator, validator
 from PySide6.QtCore import Qt
 
 from .manim import FFMPEG_BIN, logger
@@ -173,21 +173,17 @@ class PresentationConfig(BaseModel):  # type: ignore
         """
         Copy the files to a given directory.
         """
-        copy_func: Callable[[str, str], None] = shutil.copy
-        move_func: Callable[[str, str], None] = shutil.move
-        move = copy_func if copy else move_func
-
         n = len(self.files)
         for i in range(n):
             file = self.files[i]
             dest_path = dest / self.files[i].name
             logger.debug(f"Moving / copying {file} to {dest_path}")
-            move(file, dest_path)
+            shutil.copy(file, dest_path)
             self.files[i] = dest_path
 
         return self
 
-    def concat_animations(self, dest: Optional[str] = None) -> "PresentationConfig":
+    def concat_animations(self, dest: Optional[Path] = None) -> "PresentationConfig":
         """
         Concatenate animations such that each slide contains one animation.
         """
@@ -240,7 +236,7 @@ class PresentationConfig(BaseModel):  # type: ignore
         self.files = dest_paths
 
         if dest:
-            return self.move_to(dest)
+            return self.copy_to(dest)
 
         return self
 
