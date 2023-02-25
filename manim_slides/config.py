@@ -210,7 +210,7 @@ class PresentationConfig(BaseModel):  # type: ignore
                     f.name,
                     "-c",
                     "copy",
-                    dest_path,
+                    str(dest_path),
                     "-y",
                 ]
                 logger.debug(" ".join(command))
