@@ -1,17 +1,29 @@
 # flake8: noqa: F403, F405
 # type: ignore
+import os
+
 from manim import *
+
+THEME = os.environ.get("MANIM_SLIDES_THEME", "light").lower().replace("_", "-")
 
 
 class ManimSlidesLogo(Scene):
     def construct(self):
         tex_template = TexTemplate()
         tex_template.add_to_preamble(r"\usepackage{graphicx}\usepackage{fontawesome5}")
-        self.camera.background_color = "#ffffff"
+        self.camera.background_color = {
+            "light": "#ffffff",
+            "dark-docs": "#131416",
+            "dark-github": "#0d1117",
+        }[THEME]
         logo_green = "#87c2a5"
         logo_blue = "#525893"
         logo_red = "#e07a5f"
-        logo_black = "#343434"
+        logo_black = {
+            "light": "#343434",
+            "dark-docs": "#d0d0d0",
+            "dark-github": "#c9d1d9",
+        }[THEME]
         ds_m = MathTex(r"\mathbb{M}", fill_color=logo_black).scale(7)
         ds_m.shift(2.25 * LEFT + 1.5 * UP)
         slides = MathTex(r"\mathbb{S}\text{lides}", fill_color=logo_black).scale(4)

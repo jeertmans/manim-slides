@@ -7,6 +7,15 @@ og:description: Manim Slides makes creating slides with Manim super easy!
 .. image:: _static/logo.png
     :width: 600px
     :align: center
+    :class: only-light
+    :alt: Manim Slide logo
+```
+
+```{eval-rst}
+.. image:: _static/logo_dark_docs.png
+    :width: 600px
+    :align: center
+    :class: only-dark
     :alt: Manim Slide logo
 ```
 
