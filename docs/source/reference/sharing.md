@@ -144,6 +144,6 @@ This is how your are able to watch all the examples on this website. If you want
 to know how to share your slide with GitHub pages, see the
 [workflow file](https://github.com/jeertmans/manim-slides/blob/main/.github/workflows/pages.yml).
 
-> **WARNING:** keep in minde that playing large video files over the internet
+> **WARNING:** keep in mind that playing large video files over the internet
 can take some time, and *glitches* may occur between slide transitions for this
 reason.
