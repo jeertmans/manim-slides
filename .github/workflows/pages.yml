@@ -61,6 +61,12 @@ jobs:
         poetry run manim-slides convert ConvertExample docs/source/_static/slides.html -ccontrols=true
         poetry run manim-slides convert BasicExample docs/source/_static/basic_example.html -ccontrols=true
         poetry run manim-slides convert ThreeDExample docs/source/_static/three_d_example.html -ccontrols=true
+    - name: Clear cache
+      run: |
+        gh extension install actions/gh-actions-cache
+        gh actions-cache delete ${{ steps.cache-media-restore.outputs.cache-primary-key }} --confirm || true
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - name: Save media to cache
       id: cache-media-save
       uses: actions/cache/save@v3
