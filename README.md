@@ -6,8 +6,8 @@
 
 [![Latest Release][pypi-version-badge]][pypi-version-url]
 [![Python version][pypi-python-version-badge]][pypi-version-url]
-![PyPI - Downloads](https://img.shields.io/pypi/dm/manim-slides)
-![Documentation](https://img.shields.io/website?down_color=lightgrey&down_message=offline&label=documentation&up_color=green&up_message=online&url=https%3A%2F%2Feertmans.be%2Fmanim-slides%2F)
+[![PyPI - Downloads][pypi-download-badge]][pypi-version-url]
+[![Documentation][documentation-badge]][documentation-url]
 # Manim Slides
 
 Tool for live presentations using either [Manim (community edition)](https://www.manim.community/) or [ManimGL](https://3b1b.github.io/manim/). Manim Slides will *automatically* detect the one you are using!
@@ -193,3 +193,6 @@ Contributions are more than welcome! Please read through [our contributing secti
 [pypi-version-badge]: https://img.shields.io/pypi/v/manim-slides?label=manim-slides
 [pypi-version-url]: https://pypi.org/project/manim-slides/
 [pypi-python-version-badge]: https://img.shields.io/pypi/pyversions/manim-slides
+[pypi-download-badge]: https://img.shields.io/pypi/dm/manim-slides
+[documentation-badge]: https://img.shields.io/website?down_color=lightgrey&down_message=offline&label=documentation&up_color=green&up_message=online&url=https%3A%2F%2Feertmans.be%2Fmanim-slides%2F
+[documentation-url]: https://eertmans.be/manim-slides/
