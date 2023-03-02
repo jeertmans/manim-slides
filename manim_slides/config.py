@@ -169,7 +169,7 @@ class PresentationConfig(BaseModel):  # type: ignore
 
         return values
 
-    def copy_to(self, dest: Path) -> "PresentationConfig":
+    def copy_to(self, dest: Path, use_cached: bool = True) -> "PresentationConfig":
         """
         Copy the files to a given directory.
         """
@@ -177,13 +177,16 @@ class PresentationConfig(BaseModel):  # type: ignore
         for i in range(n):
             file = self.files[i]
             dest_path = dest / self.files[i].name
-            logger.debug(f"Moving / copying {file} to {dest_path}")
-            shutil.copy(file, dest_path)
             self.files[i] = dest_path
+            if use_cached and dest_path.exists():
+                logger.debug(f"Skipping copy of {file}, using cached copy")
+                continue
+            logger.debug(f"Copying {file} to {dest_path}")
+            shutil.copy(file, dest_path)
 
         return self
 
-    def concat_animations(self, dest: Optional[Path] = None) -> "PresentationConfig":
+    def concat_animations(self, dest: Optional[Path] = None, use_cached: bool = True) -> "PresentationConfig":
         """
         Concatenate animations such that each slide contains one animation.
         """
@@ -193,8 +196,16 @@ class PresentationConfig(BaseModel):  # type: ignore
         for i, slide_config in enumerate(self.slides):
             files = self.files[slide_config.slides_slice]
 
+            slide_config.start_animation = i
+            slide_config.end_animation = i + 1
+
             if len(files) > 1:
                 dest_path = merge_basenames(files)
+                dest_paths.append(dest_path)
+
+                if use_cached and dest_path.exists():
+                    logger.debug(f"Concatenated animations already exist for slide {i}")
+                    continue
 
                 f = tempfile.NamedTemporaryFile(mode="w", delete=False)
                 f.writelines(f"file '{os.path.abspath(path)}'\n" for path in files)
@@ -225,13 +236,11 @@ class PresentationConfig(BaseModel):  # type: ignore
                 if error:
                     logger.debug(error.decode())
 
-                dest_paths.append(dest_path)
+                if not dest_path.exists():
+                    raise ValueError("could not properly concatenate animations, use `-v INFO` for more details")
 
             else:
                 dest_paths.append(files[0])
-
-            slide_config.start_animation = i
-            slide_config.end_animation = i + 1
 
         self.files = dest_paths
 
