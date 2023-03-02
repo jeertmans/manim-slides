@@ -42,7 +42,7 @@ poetry run manim-slides wizard
 or enter a new shell that uses this new Python environment:
 
 ```
-poetry run
+poetry shell
 manim-slides wizard
 ```
 
