@@ -186,7 +186,9 @@ class PresentationConfig(BaseModel):  # type: ignore
 
         return self
 
-    def concat_animations(self, dest: Optional[Path] = None, use_cached: bool = True) -> "PresentationConfig":
+    def concat_animations(
+        self, dest: Optional[Path] = None, use_cached: bool = True
+    ) -> "PresentationConfig":
         """
         Concatenate animations such that each slide contains one animation.
         """
@@ -237,7 +239,9 @@ class PresentationConfig(BaseModel):  # type: ignore
                     logger.debug(error.decode())
 
                 if not dest_path.exists():
-                    raise ValueError("could not properly concatenate animations, use `-v INFO` for more details")
+                    raise ValueError(
+                        "could not properly concatenate animations, use `-v INFO` for more details"
+                    )
 
             else:
                 dest_paths.append(files[0])
