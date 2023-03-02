@@ -7,6 +7,7 @@
 [![Latest Release][pypi-version-badge]][pypi-version-url]
 [![Python version][pypi-python-version-badge]][pypi-version-url]
 ![PyPI - Downloads](https://img.shields.io/pypi/dm/manim-slides)
+![Documentation](https://img.shields.io/website?down_color=lightgrey&down_message=offline&label=documentation&up_color=green&up_message=online&url=https%3A%2F%2Feertmans.be%2Fmanim-slides%2F)
 # Manim Slides
 
 Tool for live presentations using either [Manim (community edition)](https://www.manim.community/) or [ManimGL](https://3b1b.github.io/manim/). Manim Slides will *automatically* detect the one you are using!
@@ -122,7 +123,11 @@ manim-slides BasicExample
 
 The default key bindings to control the presentation are:
 
-![manim-wizard](https://user-images.githubusercontent.com/27275099/197468787-19c83a81-d757-47b9-8f68-218427d30298.png)
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/jeertmans/manim-slides/main/static/wizard_dark.png">
+  <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/jeertmans/manim-slides/main/static/wizard_light.png">
+  <img alt="Manim Slides Wizard" src="https://raw.githubusercontent.com/jeertmans/manim-slides/main/static/wizard_light.png">
+</picture>
 
 
 You can run the **configuration wizard** to change those key bindings:
