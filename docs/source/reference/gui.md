@@ -47,7 +47,7 @@ configuration wizard with:
 manim-slides wizard
 ```
 
-A similar window to the image below will pop-up and prompt to change keys.
+A similar window to the image below will pop up and prompt to change keys.
 
 ```{eval-rst}
 .. image:: ../_static/wizard_light.png
