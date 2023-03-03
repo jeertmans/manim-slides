@@ -35,3 +35,9 @@ docs/source/_static/basic_example.html
 docs/source/_static/three_d_example.html
 
 docs/source/_static/three_d_example_assets/
+
+paper/media/
+
+*.jats
+
+paper/paper.pdf
