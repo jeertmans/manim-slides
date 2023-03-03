@@ -114,7 +114,7 @@ how to actually present them efficiently.
 # Acknowledgements
 
 We acknowledge the work of [@manim-presentation] that paved the initial structure
-of Manim Slides with the `manim-presentation` Python package.
+of Manim Slides with the manim-presentation Python package.
 
 We also acknowledge Grant Sanderson for its termendous work on Manim, as well as
 well as the Manim Community contributors.
