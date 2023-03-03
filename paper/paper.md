@@ -69,7 +69,7 @@ procedure and few modification required. It can either be used locally with its
 graphical user interface (GUI), or shared via HTML thanks to the RevealJS
 Javascript package [@revealjs].
 
-This work has a very similar syntax to Manim and has very comprehensive
+This work has a very similar syntax to Manim and offers a comprehensive
 documentation hosted on [GitHub pages](https://eertmans.be/manim-slides/), see
 \autoref{fig:docs}.
 
@@ -92,24 +92,24 @@ and posted it on YouTube.
 # Stability and releases
 
 Manim Slides is continously tested on most recent Python versions, both ManimCE
-and ManimGL, and on all major platforms: Ubuntu, macOS and Windows. As of Manim
+and ManimGL, and on all major platforms: **Ubuntu**, **macOS** and **Windows**. As of Manim
 Slide's exposed API begin very minimal, and the variaty of tests that are
 performed, this tool can be considered stable over time.
 
-New releases are are very frequent, as they mostly introduce enhancements or small
+New releases are very frequent, as they mostly introduce enhancements or small
 documention fixes, and the command-line tool automatically notifies for new
-available updates. Therefore, regurlarly updating Manim Slides is highly
+available updates. Therefore, regularly updating Manim Slides is highly
 recommended.
 
 # Statement of Need
 
 Similar tools to Manim Slides also exist, such as its predecessor,
-manim-presentation [@manim-presentation], or web-based alternative, Manim Editor
-[@manim-editor], but none of them provide the documentation level nor the amount
-of features that Manim Slides strives to. This work makes the task of presenting
-Manim content in front of an audience much easier than before, allowing
-presenters to focus more on the content of their slides, rather than on how to
-actually present them efficiently.
+manim-presentation [@manim-presentation], or the web-based alternative, Manim
+Editor [@manim-editor], but none of them provide the documentation level nor the
+amount of features that Manim Slides strives to. This work makes the task of
+presenting Manim content in front of an audience much easier than before,
+allowing presenters to focus more on the content of their slides, rather than on
+how to actually present them efficiently.
 
 # Acknowledgements
 
