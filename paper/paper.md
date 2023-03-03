@@ -64,8 +64,8 @@ provide new features on a regular basis.
 
 # Easy to Use Commitment
 
-Manim Slides is commited to be an easy to use tool, when minimal installation
-procedure and few modification required. It can either be used locally with its
+Manim Slides is commited to be an easy-to-use tool, when minimal installation
+procedure and few modifications required. It can either be used locally with its
 graphical user interface (GUI), or shared via HTML thanks to the RevealJS
 Javascript package [@revealjs].
 
@@ -77,7 +77,7 @@ documentation hosted on [GitHub pages](https://eertmans.be/manim-slides/), see
 
 # Example usage
 
-We have used an manim-presentation for our presentation at the COST
+We have used manim-presentation for our presentation at the COST
 Interact, hosted in Lyon, 2022, and
 [available online](https://eertmans.be/research/cost-interact-presentation/).
 This experience highly motivated the development of Manim Slides, and our
@@ -85,7 +85,7 @@ EuCAP 2023 presentation slides are already
 [available online](https://eertmans.be/research/eucap-presentation/), thanks
 to Manim Slides' HTML feature.
 
-Also, one of our user created a short
+Also, one of our users created a short
 [video tutorial](https://www.youtube.com/watch?v=Oc9g89VzKsY&ab_channel=TheoremofBeethoven)
 and posted it on YouTube.
 
