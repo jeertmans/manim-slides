@@ -1,4 +1,4 @@
-# Graphic User Interface
+# Graphical User Interface
 
 Manim Slides' graphical user interface (GUI) is the *de facto* way to present slides.
 
