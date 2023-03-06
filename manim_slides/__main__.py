@@ -63,8 +63,6 @@ def cli(notify_outdated_version: bool) -> None:
         except Exception:
             logger.debug(f"Something went wrong: {warn_prompt}")
 
-    # print([mod for mod in sys.modules.keys() if "manim" in mod])
-
 
 cli.add_command(convert)
 cli.add_command(init)
