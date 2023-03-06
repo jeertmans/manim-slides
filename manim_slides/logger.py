@@ -4,9 +4,10 @@ https://github.com/ManimCommunity/manim/blob/d5b65b844b8ce8ff5151a2f56f9dc98cebb
 """
 
 import logging
+
 from rich.logging import RichHandler
 
-__all__ = ['logger', 'make_logger']
+__all__ = ["logger", "make_logger"]
 
 HIGHLIGHTED_KEYWORDS = [  # these keywords are highlighted specially
     "Played",
