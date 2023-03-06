@@ -21,7 +21,7 @@ from PySide6.QtWidgets import (
 from .commons import config_options, verbosity_option
 from .config import Config, Key
 from .defaults import CONFIG_PATH
-from .manim import logger
+from .logger import logger
 from .resources import *  # noqa: F401, F403
 
 WINDOW_NAME: str = "Configuration Wizard"
