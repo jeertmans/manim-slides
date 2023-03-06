@@ -4,9 +4,9 @@ import click
 import requests
 from click_default_group import DefaultGroup
 
-from . import __version__
+from .__version__ import __version__
 from .convert import convert
-from .manim import logger
+from .logger import make_logger
 from .present import list_scenes, present
 from .wizard import init, wizard
 
@@ -27,6 +27,7 @@ def cli(notify_outdated_version: bool) -> None:
 
     If no command is specified, defaults to `present`.
     """
+    logger = make_logger()
     # Code below is mostly a copy from:
     # https://github.com/ManimCommunity/manim/blob/main/manim/cli/render/commands.py
     if notify_outdated_version:
@@ -61,6 +62,8 @@ def cli(notify_outdated_version: bool) -> None:
             logger.debug(f"Error decoding JSON from {manim_info_url}")
         except Exception:
             logger.debug(f"Something went wrong: {warn_prompt}")
+
+    # print([mod for mod in sys.modules.keys() if "manim" in mod])
 
 
 cli.add_command(convert)

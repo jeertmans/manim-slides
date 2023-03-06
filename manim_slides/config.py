@@ -10,7 +10,8 @@ from typing import Dict, List, Optional, Set, Union
 from pydantic import BaseModel, FilePath, root_validator, validator
 from PySide6.QtCore import Qt
 
-from .manim import FFMPEG_BIN, logger
+from .defaults import FFMPEG_BIN
+from .logger import logger
 
 
 def merge_basenames(files: List[FilePath]) -> Path:

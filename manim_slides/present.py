@@ -18,7 +18,7 @@ from tqdm import tqdm
 from .commons import config_path_option, verbosity_option
 from .config import DEFAULT_CONFIG, Config, PresentationConfig, SlideConfig
 from .defaults import FOLDER_PATH
-from .manim import logger
+from .logger import logger
 from .resources import *  # noqa: F401, F403
 
 os.environ.pop(
