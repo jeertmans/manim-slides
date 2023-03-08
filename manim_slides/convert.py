@@ -4,12 +4,12 @@ import subprocess
 import tempfile
 import webbrowser
 from enum import Enum
+from importlib import resources
 from pathlib import Path
 from typing import Any, Callable, Dict, Generator, List, Optional, Type, Union
 
 import click
 import cv2
-import pkg_resources
 import pptx
 from click import Context, Parameter
 from lxml import etree
@@ -328,9 +328,8 @@ class RevealJS(Converter):
         if isinstance(self.template, str):
             with open(self.template, "r") as f:
                 return f.read()
-        return pkg_resources.resource_string(
-            __name__, "data/revealjs_template.html"
-        ).decode()
+        return resources.files("manim_slides").joinpath("data/revealjs_template.html"
+        ).read_text()
 
     def open(self, file: Path) -> bool:
         return webbrowser.open(file.absolute().as_uri())
