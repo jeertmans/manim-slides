@@ -76,6 +76,7 @@ python-pptx = "^0.6.21"
 requests = "^2.28.1"
 rich = "^13.3.2"
 tqdm = "^4.64.1"
+lxml = "^4.9.2"
 
 [tool.poetry.group.dev.dependencies]
 black = "^22.10.0"
