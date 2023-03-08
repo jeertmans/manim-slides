@@ -28,7 +28,7 @@ HIGHLIGHTED_KEYWORDS = [  # these keywords are highlighted specially
 
 def make_logger() -> logging.Logger:
     """
-    Make a logger similar to the one use by Manim.
+    Make a logger similar to the one used by Manim.
     """
     RichHandler.KEYWORDS = HIGHLIGHTED_KEYWORDS
     rich_handler = RichHandler(
