@@ -328,8 +328,11 @@ class RevealJS(Converter):
         if isinstance(self.template, str):
             with open(self.template, "r") as f:
                 return f.read()
-        return resources.files("manim_slides").joinpath("data/revealjs_template.html"
-        ).read_text()
+        return (
+            resources.files("manim_slides")
+            .joinpath("data/revealjs_template.html")
+            .read_text()
+        )
 
     def open(self, file: Path) -> bool:
         return webbrowser.open(file.absolute().as_uri())
