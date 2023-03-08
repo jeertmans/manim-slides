@@ -132,7 +132,9 @@ class Slide(Scene):  # type:ignore
                     self.next_slide()
                     self.play(FadeOut(text))
         """
-        assert self.loop_start_animation is None, "You cannot call `self.next_slide()` inside a loop"
+        assert (
+            self.loop_start_animation is None
+        ), "You cannot call `self.next_slide()` inside a loop"
 
         self.slides.append(
             SlideConfig(
@@ -152,7 +154,11 @@ class Slide(Scene):  # type:ignore
         .. deprecated:: 4.9.3
             Use :func:`next_slide` instead.
         """
-        warn("`self.pause()` is deprecated. Use `self.next_slide()` instead.", DeprecationWarning, stacklevel=2)
+        warn(
+            "`self.pause()` is deprecated. Use `self.next_slide()` instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         self.next_slide()
 
     def add_last_slide(self) -> None:
