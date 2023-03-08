@@ -5,7 +5,7 @@ import click
 from click import Context, Parameter
 
 from .defaults import CONFIG_PATH, FOLDER_PATH
-from .manim import logger
+from .logger import logger
 
 F = Callable[..., Any]
 Wrapper = Callable[[F], F]
