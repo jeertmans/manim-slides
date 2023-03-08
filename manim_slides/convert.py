@@ -1,6 +1,6 @@
 import os
-import subprocess
 import platform
+import subprocess
 import webbrowser
 from enum import Enum
 from pathlib import Path
@@ -10,8 +10,8 @@ import click
 import pkg_resources
 import pptx
 from click import Context, Parameter
-from tqdm import tqdm
 from pydantic import BaseModel, PositiveInt, ValidationError
+from tqdm import tqdm
 
 from .commons import folder_path_option, verbosity_option
 from .config import PresentationConfig
@@ -380,14 +380,24 @@ class PowerPoint(Converter):
 
         for i, presentation_config in enumerate(self.presentation_configs):
             presentation_config.concat_animations()
-            for slide_config in tqdm(presentation_config.slides, desc=f"Generating video slides for config {i + 1}", leave=False):
+            for slide_config in tqdm(
+                presentation_config.slides,
+                desc=f"Generating video slides for config {i + 1}",
+                leave=False,
+            ):
                 file = presentation_config.files[slide_config.start_animation]
 
                 slide = prs.slides.add_slide(layout)
-                slide.shapes.add_movie(str(file), self.left, self.top, self.width * 9525, self.height * 9525, mime_type="video/mp4")
+                slide.shapes.add_movie(
+                    str(file),
+                    self.left,
+                    self.top,
+                    self.width * 9525,
+                    self.height * 9525,
+                    mime_type="video/mp4",
+                )
 
         prs.save(dest)
-
 
 
 def show_config_options(function: Callable[..., Any]) -> Callable[..., Any]:
