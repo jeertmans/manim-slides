@@ -10,6 +10,7 @@ import click
 import pkg_resources
 import pptx
 from click import Context, Parameter
+from lxml import etree
 from pydantic import BaseModel, PositiveInt, ValidationError
 from tqdm import tqdm
 
@@ -378,6 +379,17 @@ class PowerPoint(Converter):
 
         layout = prs.slide_layouts[6]  # Should be blank
 
+        def autoplay_movie(movie):
+            el = movie._element
+            id = xpath(el, './/p:cNvPr')[0].attrib['id']
+            sld = el.getparent().getparent().getparent()
+            cond = xpath(sld, './/p:timing//p:video//p:cTn[@id="%s"]//p:cond' % (id))[0]
+            cond.set('delay', '0')
+
+        def xpath(el, query):
+            nsmap = {'p': 'http://schemas.openxmlformats.org/presentationml/2006/main'}
+            return etree.ElementBase.xpath(el, query, namespaces=nsmap)
+
         for i, presentation_config in enumerate(self.presentation_configs):
             presentation_config.concat_animations()
             for slide_config in tqdm(
@@ -388,7 +400,7 @@ class PowerPoint(Converter):
                 file = presentation_config.files[slide_config.start_animation]
 
                 slide = prs.slides.add_slide(layout)
-                slide.shapes.add_movie(
+                movie = slide.shapes.add_movie(
                     str(file),
                     self.left,
                     self.top,
@@ -396,6 +408,7 @@ class PowerPoint(Converter):
                     self.height * 9525,
                     mime_type="video/mp4",
                 )
+                autoplay_movie(movie)
 
         prs.save(dest)
 
