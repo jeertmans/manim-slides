@@ -1,4 +1,6 @@
 import os
+import subprocess
+import platform
 import webbrowser
 from enum import Enum
 from pathlib import Path
@@ -6,12 +8,24 @@ from typing import Any, Callable, Dict, Generator, List, Optional, Type, Union
 
 import click
 import pkg_resources
+import pptx
 from click import Context, Parameter
+from tqdm import tqdm
 from pydantic import BaseModel, PositiveInt, ValidationError
 
 from .commons import folder_path_option, verbosity_option
 from .config import PresentationConfig
 from .present import get_scenes_presentation_config
+
+
+def open_with_default(file: Path):
+    system = platform.system()
+    if system == "Darwin":
+        subprocess.call(("open", str(file)))
+    elif system == "Windows":
+        os.startfile(str(file))
+    else:
+        subprocess.call(("xdg-open", str(file)))
 
 
 def validate_config_option(
@@ -55,6 +69,7 @@ class Converter(BaseModel):  # type: ignore
         """Returns the appropriate converter from a string name."""
         return {
             "html": RevealJS,
+            "pptx": PowerPoint,
         }[s]
 
 
@@ -341,6 +356,40 @@ class RevealJS(Converter):
             f.write(content)
 
 
+class PowerPoint(Converter):
+    left: PositiveInt = 0
+    top: PositiveInt = 0
+    width: PositiveInt = 1280
+    height: PositiveInt = 720
+    title: str = "Manim Slides"
+
+    class Config:
+        use_enum_values = True
+        extra = "forbid"
+
+    def open(self, file: Path) -> bool:
+        return open_with_default(file)
+
+    def convert_to(self, dest: Path) -> None:
+        """Converts this configuration into a PowerPoint presentation, saved to DEST."""
+        prs = pptx.Presentation()
+        prs.slide_width = self.width * 9525
+        prs.slide_height = self.height * 9525
+
+        layout = prs.slide_layouts[6]  # Should be blank
+
+        for i, presentation_config in enumerate(self.presentation_configs):
+            presentation_config.concat_animations()
+            for slide_config in tqdm(presentation_config.slides, desc=f"Generating video slides for config {i + 1}", leave=False):
+                file = presentation_config.files[slide_config.start_animation]
+
+                slide = prs.slides.add_slide(layout)
+                slide.shapes.add_movie(str(file), self.left, self.top, self.width * 9525, self.height * 9525, mime_type="video/mp4")
+
+        prs.save(dest)
+
+
+
 def show_config_options(function: Callable[..., Any]) -> Callable[..., Any]:
     """Wraps a function to add a `--show-config` option."""
 
@@ -401,7 +450,7 @@ def show_template_option(function: Callable[..., Any]) -> Callable[..., Any]:
 @click.argument("dest", type=click.Path(dir_okay=False, path_type=Path))
 @click.option(
     "--to",
-    type=click.Choice(["html"], case_sensitive=False),
+    type=click.Choice(["html", "pptx"], case_sensitive=False),
     default="html",
     show_default=True,
     help="Set the conversion format to use.",
