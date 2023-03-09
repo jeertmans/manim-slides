@@ -8,9 +8,9 @@ from pathlib import Path
 from typing import Any, Callable, Dict, Generator, List, Optional, Type, Union
 
 import click
+import cv2
 import pkg_resources
 import pptx
-import cv2
 from click import Context, Parameter
 from lxml import etree
 from pydantic import BaseModel, FilePath, PositiveInt, ValidationError
@@ -18,8 +18,8 @@ from tqdm import tqdm
 
 from .commons import folder_path_option, verbosity_option
 from .config import PresentationConfig
-from .present import get_scenes_presentation_config
 from .logger import logger
+from .present import get_scenes_presentation_config
 
 
 def open_with_default(file: Path):
