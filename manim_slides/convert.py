@@ -1,17 +1,35 @@
 import os
+import platform
+import subprocess
+import tempfile
 import webbrowser
 from enum import Enum
 from pathlib import Path
 from typing import Any, Callable, Dict, Generator, List, Optional, Type, Union
 
 import click
+import cv2
 import pkg_resources
+import pptx
 from click import Context, Parameter
-from pydantic import BaseModel, PositiveInt, ValidationError
+from lxml import etree
+from pydantic import BaseModel, FilePath, PositiveInt, ValidationError
+from tqdm import tqdm
 
 from .commons import folder_path_option, verbosity_option
 from .config import PresentationConfig
+from .logger import logger
 from .present import get_scenes_presentation_config
+
+
+def open_with_default(file: Path):
+    system = platform.system()
+    if system == "Darwin":
+        subprocess.call(("open", str(file)))
+    elif system == "Windows":
+        os.startfile(str(file))  # type: ignore[attr-defined]
+    else:
+        subprocess.call(("xdg-open", str(file)))
 
 
 def validate_config_option(
@@ -55,6 +73,7 @@ class Converter(BaseModel):  # type: ignore
         """Returns the appropriate converter from a string name."""
         return {
             "html": RevealJS,
+            "pptx": PowerPoint,
         }[s]
 
 
@@ -341,6 +360,90 @@ class RevealJS(Converter):
             f.write(content)
 
 
+class PowerPoint(Converter):
+    left: PositiveInt = 0
+    top: PositiveInt = 0
+    width: PositiveInt = 1280
+    height: PositiveInt = 720
+    auto_play_media: bool = True
+    poster_frame_image: Optional[FilePath] = None
+
+    class Config:
+        use_enum_values = True
+        extra = "forbid"
+
+    def open(self, file: Path) -> bool:
+        return open_with_default(file)
+
+    def convert_to(self, dest: Path) -> None:
+        """Converts this configuration into a PowerPoint presentation, saved to DEST."""
+        prs = pptx.Presentation()
+        prs.slide_width = self.width * 9525
+        prs.slide_height = self.height * 9525
+
+        layout = prs.slide_layouts[6]  # Should be blank
+
+        # From GitHub issue comment:
+        # - https://github.com/scanny/python-pptx/issues/427#issuecomment-856724440
+        def auto_play_media(media: pptx.shape.picture.Movie, loop: bool = False):
+            el_id = xpath(media.element, ".//p:cNvPr")[0].attrib["id"]
+            el_cnt = xpath(
+                media.element.getparent().getparent().getparent(),
+                './/p:timing//p:video//p:spTgt[@spid="%s"]' % el_id,
+            )[0]
+            cond = xpath(el_cnt.getparent().getparent(), ".//p:cond")[0]
+            cond.set("delay", "0")
+
+            if loop:
+                ctn = xpath(el_cnt.getparent().getparent(), ".//p:cTn")[0]
+                ctn.set("repeatCount", "indefinite")
+
+        def xpath(el: etree.Element, query: str) -> etree.XPath:
+            nsmap = {"p": "http://schemas.openxmlformats.org/presentationml/2006/main"}
+            return etree.ElementBase.xpath(el, query, namespaces=nsmap)
+
+        def save_first_image_from_video_file(file: Path) -> Optional[str]:
+            cap = cv2.VideoCapture(str(file))
+            ret, frame = cap.read()
+
+            if ret:
+                f = tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".png")
+                cv2.imwrite(f.name, frame)
+                return f.name
+            else:
+                logger.warn("Failed to read first image from video file")
+                return None
+
+        for i, presentation_config in enumerate(self.presentation_configs):
+            presentation_config.concat_animations()
+            for slide_config in tqdm(
+                presentation_config.slides,
+                desc=f"Generating video slides for config {i + 1}",
+                leave=False,
+            ):
+                file = presentation_config.files[slide_config.start_animation]
+
+                if self.poster_frame_image is None:
+                    poster_frame_image = save_first_image_from_video_file(file)
+                else:
+                    poster_frame_image = str(self.poster_frame_image)
+
+                slide = prs.slides.add_slide(layout)
+                movie = slide.shapes.add_movie(
+                    str(file),
+                    self.left,
+                    self.top,
+                    self.width * 9525,
+                    self.height * 9525,
+                    poster_frame_image=poster_frame_image,
+                    mime_type="video/mp4",
+                )
+                if self.auto_play_media:
+                    auto_play_media(movie, loop=slide_config.is_loop())
+
+        prs.save(dest)
+
+
 def show_config_options(function: Callable[..., Any]) -> Callable[..., Any]:
     """Wraps a function to add a `--show-config` option."""
 
@@ -401,7 +504,7 @@ def show_template_option(function: Callable[..., Any]) -> Callable[..., Any]:
 @click.argument("dest", type=click.Path(dir_okay=False, path_type=Path))
 @click.option(
     "--to",
-    type=click.Choice(["html"], case_sensitive=False),
+    type=click.Choice(["html", "pptx"], case_sensitive=False),
     default="html",
     show_default=True,
     help="Set the conversion format to use.",
