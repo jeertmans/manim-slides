@@ -15,7 +15,7 @@ The following summarizes the different presentation features Manim Slides offers
 | Needs Python with Manim Slides installed | Yes | No | No |
 | Requires internet access | No | Yes | No |
 | Auto. play slides | Yes | Yes | Yes |
-| Loops support | Yes | Yes | Yes | 
+| Loops support | Yes | Yes | Yes |
 | Fully customizable | No | Yes (`--use-template` option) | No |
 | Other dependencies | None | A modern web browser | PowerPoint or LibreOffice Impress[^1]
 | Works cross-platforms | Yes | Yes | Partly[^1][^2] |
