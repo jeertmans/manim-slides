@@ -147,3 +147,17 @@ to know how to share your slide with GitHub pages, see the
 > **WARNING:** keep in mind that playing large video files over the internet
 can take some time, and *glitches* may occur between slide transitions for this
 reason.
+
+### With PowerPoint (*EXPERIMENTAL*)
+
+A recent conversion feature is to the PowerPoint format, thanks to the `python-pptx` package. Even though it is fully working, it is still considered in an *EXPERIMENTAL* status because we do not exactly know what versions of PowerPoint (or LibreOffice Impress) are supported.
+
+Basically, you can create a PowerPoint in a single command:
+
+```bash
+manim-slides convert --to=pptx BasicExample basic_example.pptx
+```
+
+All the videos and necessary files will be contained inside the `.pptx` file, so you can safely share it with anyone. By default, the `poster_frame_image`, i.e., what is displayed by PowerPoint when the video is not playing, is the first frame of each slide. This allows for smooth transitions.
+
+In the future, we hope to provide more features to this format, so feel free to suggest new features too!

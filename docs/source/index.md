@@ -39,6 +39,7 @@ Slide through the demo below to get a quick glimpse on what you can do with Mani
 
 quickstart
 reference/index
+features_table
 ```
 
 ```{toctree}
