@@ -11,7 +11,7 @@ import pkg_resources
 import pptx
 from click import Context, Parameter
 from lxml import etree
-from pydantic import BaseModel, PositiveInt, ValidationError
+from pydantic import BaseModel, PositiveInt, ValidationError, FilePath
 from tqdm import tqdm
 
 from .commons import folder_path_option, verbosity_option
@@ -362,7 +362,8 @@ class PowerPoint(Converter):
     top: PositiveInt = 0
     width: PositiveInt = 1280
     height: PositiveInt = 720
-    title: str = "Manim Slides"
+    auto_play_media: bool = True
+    poster_frame_image: Optional[FilePath] = None
 
     class Config:
         use_enum_values = True
@@ -379,12 +380,20 @@ class PowerPoint(Converter):
 
         layout = prs.slide_layouts[6]  # Should be blank
 
-        def autoplay_movie(movie):
-            el = movie._element
-            id = xpath(el, './/p:cNvPr')[0].attrib['id']
-            sld = el.getparent().getparent().getparent()
-            cond = xpath(sld, './/p:timing//p:video//p:cTn[@id="%s"]//p:cond' % (id))[0]
+        # From GitHub issue comment:
+        # - https://github.com/scanny/python-pptx/issues/427#issuecomment-856724440
+        def auto_play_media(media, loop=False):
+            el_id = xpath(media.element, './/p:cNvPr')[0].attrib['id']
+            el_cnt = xpath(
+                media.element.getparent().getparent().getparent(),
+                './/p:timing//p:video//p:spTgt[@spid="%s"]' % el_id,
+            )[0]
+            cond = xpath(el_cnt.getparent().getparent(), './/p:cond')[0]
             cond.set('delay', '0')
+
+            if loop:
+                ctn = xpath(el_cnt.getparent().getparent(), './/p:cTn')[0]
+                ctn.set('repeatCount', 'indefinite')
 
         def xpath(el, query):
             nsmap = {'p': 'http://schemas.openxmlformats.org/presentationml/2006/main'}
@@ -406,9 +415,11 @@ class PowerPoint(Converter):
                     self.top,
                     self.width * 9525,
                     self.height * 9525,
+                    poster_frame_image=str(self.poster_frame_image),
                     mime_type="video/mp4",
                 )
-                autoplay_movie(movie)
+                if self.auto_play_media:
+                    auto_play_media(movie, loop=slide_config.is_loop())
 
         prs.save(dest)
 
