@@ -1,6 +1,7 @@
 import os
 import platform
 import subprocess
+import tempfile
 import webbrowser
 from enum import Enum
 from pathlib import Path
@@ -9,6 +10,7 @@ from typing import Any, Callable, Dict, Generator, List, Optional, Type, Union
 import click
 import pkg_resources
 import pptx
+import cv2
 from click import Context, Parameter
 from lxml import etree
 from pydantic import BaseModel, FilePath, PositiveInt, ValidationError
@@ -17,6 +19,7 @@ from tqdm import tqdm
 from .commons import folder_path_option, verbosity_option
 from .config import PresentationConfig
 from .present import get_scenes_presentation_config
+from .logger import logger
 
 
 def open_with_default(file: Path):
@@ -382,7 +385,7 @@ class PowerPoint(Converter):
 
         # From GitHub issue comment:
         # - https://github.com/scanny/python-pptx/issues/427#issuecomment-856724440
-        def auto_play_media(media, loop=False):
+        def auto_play_media(media: pptx.shape.picture.Movie, loop: bool = False):
             el_id = xpath(media.element, ".//p:cNvPr")[0].attrib["id"]
             el_cnt = xpath(
                 media.element.getparent().getparent().getparent(),
@@ -395,9 +398,21 @@ class PowerPoint(Converter):
                 ctn = xpath(el_cnt.getparent().getparent(), ".//p:cTn")[0]
                 ctn.set("repeatCount", "indefinite")
 
-        def xpath(el, query):
+        def xpath(el: etree.Element, query: str) -> etree.XPath:
             nsmap = {"p": "http://schemas.openxmlformats.org/presentationml/2006/main"}
             return etree.ElementBase.xpath(el, query, namespaces=nsmap)
+
+        def save_first_image_from_video_file(file: Path) -> Optional[str]:
+            cap = cv2.VideoCapture(str(file))
+            ret, frame = cap.read()
+
+            if ret:
+                f = tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".png")
+                cv2.imwrite(f.name, frame)
+                return f.name
+            else:
+                logger.warn("Failed to read first image from video file")
+                return None
 
         for i, presentation_config in enumerate(self.presentation_configs):
             presentation_config.concat_animations()
@@ -408,6 +423,11 @@ class PowerPoint(Converter):
             ):
                 file = presentation_config.files[slide_config.start_animation]
 
+                if self.poster_frame_image is None:
+                    poster_frame_image = save_first_image_from_video_file(file)
+                else:
+                    poster_frame_image = str(self.poster_frame_image)
+
                 slide = prs.slides.add_slide(layout)
                 movie = slide.shapes.add_movie(
                     str(file),
@@ -415,7 +435,7 @@ class PowerPoint(Converter):
                     self.top,
                     self.width * 9525,
                     self.height * 9525,
-                    poster_frame_image=str(self.poster_frame_image),
+                    poster_frame_image=poster_frame_image,
                     mime_type="video/mp4",
                 )
                 if self.auto_play_media:
