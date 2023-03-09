@@ -21,6 +21,7 @@ from .commons import folder_path_option, verbosity_option
 from .config import PresentationConfig
 from .logger import logger
 from .present import get_scenes_presentation_config
+from . import data
 
 
 def open_with_default(file: Path):
@@ -331,11 +332,11 @@ class RevealJS(Converter):
                 return f.read()
 
         if sys.version_info < (3, 9):
-            return resources.read_text("manim_slides", "data/revealjs_template.html")
+            return resources.read_text(data, "revealjs_template.html")
 
         return (
-            resources.files("manim_slides")
-            .joinpath("data/revealjs_template.html")
+            resources.files(data)
+            .joinpath("revealjs_template.html")
             .read_text()
         )
 
