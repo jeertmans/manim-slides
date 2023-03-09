@@ -11,7 +11,8 @@ import cv2
 import numpy as np
 from pydantic import ValidationError
 from PySide6.QtCore import Qt, QThread, Signal, Slot
-from PySide6.QtGui import QCloseEvent, QIcon, QImage, QKeyEvent, QPixmap, QResizeEvent
+from PySide6.QtGui import (QCloseEvent, QIcon, QImage, QKeyEvent, QPixmap,
+                           QResizeEvent)
 from PySide6.QtWidgets import QApplication, QGridLayout, QLabel, QWidget
 from tqdm import tqdm
 

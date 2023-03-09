@@ -1,8 +1,8 @@
 import os
 import platform
 import subprocess
-import tempfile
 import sys
+import tempfile
 import webbrowser
 from enum import Enum
 from importlib import resources
