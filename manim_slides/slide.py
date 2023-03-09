@@ -263,6 +263,12 @@ class Slide(Scene):  # type:ignore
             ascii=True if platform.system() == "Windows" else None,
             disable=not self.show_progress_bar,
         ):
+            if src_file is None:
+                # This happens if rendering with -na,b
+                # where animations not in [a,b] will be skipped
+                # but animations before a will have a None src_file
+                raise ValueError("Skipping animation is currently not supported for Manim Slides")
+
             filename = os.path.basename(src_file)
             rev_filename = "{}_reversed{}".format(*os.path.splitext(filename))
 
