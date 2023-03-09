@@ -1,21 +1,23 @@
 import os
 import platform
 import subprocess
+import sys
 import tempfile
 import webbrowser
 from enum import Enum
+from importlib import resources
 from pathlib import Path
 from typing import Any, Callable, Dict, Generator, List, Optional, Type, Union
 
 import click
 import cv2
-import pkg_resources
 import pptx
 from click import Context, Parameter
 from lxml import etree
 from pydantic import BaseModel, FilePath, PositiveInt, ValidationError
 from tqdm import tqdm
 
+from . import data
 from .commons import folder_path_option, verbosity_option
 from .config import PresentationConfig
 from .logger import logger
@@ -328,9 +330,11 @@ class RevealJS(Converter):
         if isinstance(self.template, str):
             with open(self.template, "r") as f:
                 return f.read()
-        return pkg_resources.resource_string(
-            __name__, "data/revealjs_template.html"
-        ).decode()
+
+        if sys.version_info < (3, 9):
+            return resources.read_text(data, "revealjs_template.html")
+
+        return resources.files(data).joinpath("revealjs_template.html").read_text()
 
     def open(self, file: Path) -> bool:
         return webbrowser.open(file.absolute().as_uri())
