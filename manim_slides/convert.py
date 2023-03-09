@@ -2,6 +2,7 @@ import os
 import platform
 import subprocess
 import tempfile
+import sys
 import webbrowser
 from enum import Enum
 from importlib import resources
@@ -328,6 +329,10 @@ class RevealJS(Converter):
         if isinstance(self.template, str):
             with open(self.template, "r") as f:
                 return f.read()
+
+        if sys.version_info < (3, 9):
+            return resources.read_text("manim_slides", "data/revealjs_template.html")
+
         return (
             resources.files("manim_slides")
             .joinpath("data/revealjs_template.html")
