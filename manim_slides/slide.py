@@ -151,7 +151,7 @@ class Slide(Scene):  # type:ignore
         """
         Creates a new slide with previous animations.
 
-        .. deprecated:: 4.9.3
+        .. deprecated:: 4.10.0
             Use :func:`next_slide` instead.
         """
         warn(

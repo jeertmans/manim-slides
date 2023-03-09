@@ -12,6 +12,8 @@ The following summarizes the different presentation features Manim Slides offers
 | Replay slide | Yes | No | No |
 | Pause animation | Yes | No | No |
 | Play slide in reverse | Yes | No | No |
+| Slide count | Yes | Yes (optional) | Yes (optional) |
+| Animation count | Yes | No | No |
 | Needs Python with Manim Slides installed | Yes | No | No |
 | Requires internet access | No | Yes | No |
 | Auto. play slides | Yes | Yes | Yes |

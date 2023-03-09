@@ -65,7 +65,7 @@ An alternative way to install Manim Slides is to clone the git repository, and i
 <!-- start usage -->
 
 Using Manim Slides is a two-step process:
-1. Render animations using `Slide` (resp. `ThreeDSlide`) as a base class instead of `Scene` (resp. `ThreeDScene`), and add calls to `self.pause()` everytime you want to create a new slide.
+1. Render animations using `Slide` (resp. `ThreeDSlide`) as a base class instead of `Scene` (resp. `ThreeDScene`), and add calls to `self.next_slide()` everytime you want to create a new slide.
 2. Run `manim-slides` on rendered animations and display them like a *Power Point* presentation.
 
 The documentation is available [online](https://eertmans.be/manim-slides/).
@@ -87,14 +87,14 @@ class BasicExample(Slide):
         dot = Dot()
 
         self.play(GrowFromCenter(circle))
-        self.pause()  # Waits user to press continue to go to the next slide
+        self.next_slide()  # Waits user to press continue to go to the next slide
 
         self.start_loop()  # Start loop
         self.play(MoveAlongPath(dot, circle), run_time=2, rate_func=linear)
         self.end_loop()  # This will loop until user inputs a key
 
         self.play(dot.animate.move_to(ORIGIN))
-        self.pause()  # Waits user to press continue to go to the next slide
+        self.next_slide()  # Waits user to press continue to go to the next slide
 ```
 
 First, render the animation files:

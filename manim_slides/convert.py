@@ -389,7 +389,7 @@ class PowerPoint(Converter):
 
         # From GitHub issue comment:
         # - https://github.com/scanny/python-pptx/issues/427#issuecomment-856724440
-        def auto_play_media(media: pptx.shape.picture.Movie, loop: bool = False):
+        def auto_play_media(media: pptx.shapes.picture.Movie, loop: bool = False):
             el_id = xpath(media.element, ".//p:cNvPr")[0].attrib["id"]
             el_cnt = xpath(
                 media.element.getparent().getparent().getparent(),
