@@ -6,9 +6,17 @@ from typing import Any
 import click
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QIcon, QKeyEvent
-from PySide6.QtWidgets import (QApplication, QDialog, QDialogButtonBox,
-                               QGridLayout, QLabel, QMessageBox, QPushButton,
-                               QVBoxLayout, QWidget)
+from PySide6.QtWidgets import (
+    QApplication,
+    QDialog,
+    QDialogButtonBox,
+    QGridLayout,
+    QLabel,
+    QMessageBox,
+    QPushButton,
+    QVBoxLayout,
+    QWidget,
+)
 
 from .commons import config_options, verbosity_option
 from .config import Config, Key
