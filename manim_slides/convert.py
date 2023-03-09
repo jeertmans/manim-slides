@@ -11,7 +11,7 @@ import pkg_resources
 import pptx
 from click import Context, Parameter
 from lxml import etree
-from pydantic import BaseModel, PositiveInt, ValidationError, FilePath
+from pydantic import BaseModel, FilePath, PositiveInt, ValidationError
 from tqdm import tqdm
 
 from .commons import folder_path_option, verbosity_option
@@ -383,20 +383,20 @@ class PowerPoint(Converter):
         # From GitHub issue comment:
         # - https://github.com/scanny/python-pptx/issues/427#issuecomment-856724440
         def auto_play_media(media, loop=False):
-            el_id = xpath(media.element, './/p:cNvPr')[0].attrib['id']
+            el_id = xpath(media.element, ".//p:cNvPr")[0].attrib["id"]
             el_cnt = xpath(
                 media.element.getparent().getparent().getparent(),
                 './/p:timing//p:video//p:spTgt[@spid="%s"]' % el_id,
             )[0]
-            cond = xpath(el_cnt.getparent().getparent(), './/p:cond')[0]
-            cond.set('delay', '0')
+            cond = xpath(el_cnt.getparent().getparent(), ".//p:cond")[0]
+            cond.set("delay", "0")
 
             if loop:
-                ctn = xpath(el_cnt.getparent().getparent(), './/p:cTn')[0]
-                ctn.set('repeatCount', 'indefinite')
+                ctn = xpath(el_cnt.getparent().getparent(), ".//p:cTn")[0]
+                ctn.set("repeatCount", "indefinite")
 
         def xpath(el, query):
-            nsmap = {'p': 'http://schemas.openxmlformats.org/presentationml/2006/main'}
+            nsmap = {"p": "http://schemas.openxmlformats.org/presentationml/2006/main"}
             return etree.ElementBase.xpath(el, query, namespaces=nsmap)
 
         for i, presentation_config in enumerate(self.presentation_configs):
