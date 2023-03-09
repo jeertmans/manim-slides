@@ -17,11 +17,11 @@ from lxml import etree
 from pydantic import BaseModel, FilePath, PositiveInt, ValidationError
 from tqdm import tqdm
 
+from . import data
 from .commons import folder_path_option, verbosity_option
 from .config import PresentationConfig
 from .logger import logger
 from .present import get_scenes_presentation_config
-from . import data
 
 
 def open_with_default(file: Path):
@@ -334,11 +334,7 @@ class RevealJS(Converter):
         if sys.version_info < (3, 9):
             return resources.read_text(data, "revealjs_template.html")
 
-        return (
-            resources.files(data)
-            .joinpath("revealjs_template.html")
-            .read_text()
-        )
+        return resources.files(data).joinpath("revealjs_template.html").read_text()
 
     def open(self, file: Path) -> bool:
         return webbrowser.open(file.absolute().as_uri())
