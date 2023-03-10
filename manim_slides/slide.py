@@ -47,15 +47,15 @@ class Slide(Scene):  # type:ignore
 
         super().__init__(*args, **kwargs)
 
-        self.output_folder = output_folder
-        self.slides: List[SlideConfig] = []
-        self.current_slide = 1
-        self.current_animation = 0
-        self.loop_start_animation: Optional[int] = None
-        self.pause_start_animation = 0
+        self.__output_folder = output_folder
+        self.__slides: List[SlideConfig] = []
+        self.__current_slide = 1
+        self.__current_animation = 0
+        self.__loop_start_animation: Optional[int] = None
+        self.__pause_start_animation = 0
 
     @property
-    def partial_movie_files(self) -> List[str]:
+    def __partial_movie_files(self) -> List[str]:
         """Returns a list of partial movie files, a.k.a animations."""
         if MANIMGL:
             from manimlib.utils.file_ops import get_sorted_integer_files
@@ -71,25 +71,32 @@ class Slide(Scene):  # type:ignore
             return self.renderer.file_writer.partial_movie_files
 
     @property
-    def show_progress_bar(self) -> bool:
+    def __show_progress_bar(self) -> bool:
         """Returns True if progress bar should be displayed."""
         if MANIMGL:
-            return getattr(super(Scene, self), "show_progress_bar", True)
+            return getattr(self, "show_progress_bar", True)
         else:
             return config["progress_bar"] != "none"
 
     @property
-    def leave_progress_bar(self) -> bool:
+    def __leave_progress_bar(self) -> bool:
         """Returns True if progress bar should be left after completed."""
         if MANIMGL:
-            return getattr(super(Scene, self), "leave_progress_bars", False)
+            return getattr(self, "leave_progress_bars", False)
         else:
             return config["progress_bar"] == "leave"
+
+    @property
+    def __start_at_animation_number(self) -> Optional[int]:
+        if MANIMGL:
+            return getattr(self, "start_at_animation_number", None)
+        else:
+            return config["from_animation_number"]
 
     def play(self, *args: Any, **kwargs: Any) -> None:
         """Overloads `self.play` and increment animation count."""
         super().play(*args, **kwargs)
-        self.current_animation += 1
+        self.__current_animation += 1
 
     def next_slide(self):
         """
@@ -133,19 +140,19 @@ class Slide(Scene):  # type:ignore
                     self.play(FadeOut(text))
         """
         assert (
-            self.loop_start_animation is None
+            self.__loop_start_animation is None
         ), "You cannot call `self.next_slide()` inside a loop"
 
-        self.slides.append(
+        self.__slides.append(
             SlideConfig(
                 type=SlideType.slide,
-                start_animation=self.pause_start_animation,
-                end_animation=self.current_animation,
-                number=self.current_slide,
+                start_animation=self.__pause_start_animation,
+                end_animation=self.__current_animation,
+                number=self.__current_slide,
             )
         )
-        self.current_slide += 1
-        self.pause_start_animation = self.current_animation
+        self.__current_slide += 1
+        self.__pause_start_animation = self.__current_animation
 
     def pause(self) -> None:
         """
@@ -161,22 +168,22 @@ class Slide(Scene):  # type:ignore
         )
         self.next_slide()
 
-    def add_last_slide(self) -> None:
+    def __add_last_slide(self) -> None:
         """Adds a 'last' slide to the end of slides."""
 
         if (
-            len(self.slides) > 0
-            and self.current_animation == self.slides[-1].end_animation
+            len(self.__slides) > 0
+            and self.__current_animation == self.__slides[-1].end_animation
         ):
-            self.slides[-1].type = SlideType.last
+            self.__slides[-1].type = SlideType.last
             return
 
-        self.slides.append(
+        self.__slides.append(
             SlideConfig(
                 type=SlideType.last,
-                start_animation=self.pause_start_animation,
-                end_animation=self.current_animation,
-                number=self.current_slide,
+                start_animation=self.__pause_start_animation,
+                end_animation=self.__current_animation,
+                number=self.__current_slide,
             )
         )
 
@@ -207,42 +214,42 @@ class Slide(Scene):  # type:ignore
 
                     self.end_loop()
         """
-        assert self.loop_start_animation is None, "You cannot nest loops"
-        self.loop_start_animation = self.current_animation
+        assert self.__loop_start_animation is None, "You cannot nest loops"
+        self.__loop_start_animation = self.__current_animation
 
     def end_loop(self) -> None:
         """Ends an existing loop. See :func:`start_loop` for more details."""
         assert (
-            self.loop_start_animation is not None
+            self.__loop_start_animation is not None
         ), "You have to start a loop before ending it"
-        self.slides.append(
+        self.__slides.append(
             SlideConfig(
                 type=SlideType.loop,
-                start_animation=self.loop_start_animation,
-                end_animation=self.current_animation,
-                number=self.current_slide,
+                start_animation=self.__loop_start_animation,
+                end_animation=self.__current_animation,
+                number=self.__current_slide,
             )
         )
-        self.current_slide += 1
-        self.loop_start_animation = None
-        self.pause_start_animation = self.current_animation
+        self.__current_slide += 1
+        self.__loop_start_animation = None
+        self.__pause_start_animation = self.__current_animation
 
-    def save_slides(self, use_cache: bool = True) -> None:
+    def __save_slides(self, use_cache: bool = True) -> None:
         """
         Saves slides, optionally using cached files.
 
         Note that cached files only work with Manim.
         """
-        self.add_last_slide()
+        self.__add_last_slide()
 
-        if not os.path.exists(self.output_folder):
-            os.mkdir(self.output_folder)
+        if not os.path.exists(self.__output_folder):
+            os.mkdir(self.__output_folder)
 
-        files_folder = os.path.join(self.output_folder, "files")
+        files_folder = os.path.join(self.__output_folder, "files")
         if not os.path.exists(files_folder):
             os.mkdir(files_folder)
 
-        scene_name = type(self).__name__
+        scene_name = str(self)
         scene_files_folder = os.path.join(files_folder, scene_name)
 
         old_animation_files = set()
@@ -257,17 +264,17 @@ class Slide(Scene):  # type:ignore
 
         files = []
         for src_file in tqdm(
-            self.partial_movie_files,
+            self.__partial_movie_files,
             desc=f"Copying animation files to '{scene_files_folder}' and generating reversed animations",
-            leave=self.leave_progress_bar,
+            leave=self.__leave_progress_bar,
             ascii=True if platform.system() == "Windows" else None,
-            disable=not self.show_progress_bar,
+            disable=not self.__show_progress_bar,
         ):
-            if src_file is None:
-                # This happens if rendering with -na,b
+            if src_file is None and not MANIMGL:
+                # This happens if rendering with -na,b (manim only)
                 # where animations not in [a,b] will be skipped
                 # but animations before a will have a None src_file
-                raise ValueError("Skipping animation is currently not supported for Manim Slides")
+                continue
 
             filename = os.path.basename(src_file)
             rev_filename = "{}_reversed{}".format(*os.path.splitext(filename))
@@ -288,14 +295,25 @@ class Slide(Scene):  # type:ignore
 
             files.append(dst_file)
 
+        if offset := self.__start_at_animation_number:
+            self.__slides = [
+                slide for slide in self.__slides if slide.end_animation > offset
+            ]
+
+            for slide in self.__slides:
+                slide.start_animation -= offset
+                slide.end_animation -= offset
+
         logger.info(
             f"Copied {len(files)} animations to '{os.path.abspath(scene_files_folder)}' and generated reversed animations"
         )
 
-        slide_path = os.path.join(self.output_folder, "%s.json" % (scene_name,))
+        slide_path = os.path.join(self.__output_folder, "%s.json" % (scene_name,))
 
         with open(slide_path, "w") as f:
-            f.write(PresentationConfig(slides=self.slides, files=files).json(indent=2))
+            f.write(
+                PresentationConfig(slides=self.__slides, files=files).json(indent=2)
+            )
 
         logger.info(
             f"Slide '{scene_name}' configuration written in '{os.path.abspath(slide_path)}'"
@@ -304,11 +322,11 @@ class Slide(Scene):  # type:ignore
     def run(self, *args: Any, **kwargs: Any) -> None:
         """MANIMGL renderer"""
         super().run(*args, **kwargs)
-        self.save_slides(use_cache=False)
+        self.__save_slides(use_cache=False)
 
     def render(self, *args: Any, **kwargs: Any) -> None:
         """MANIM render"""
-        # We need to disable the caching limit since we rely on intermidiate files
+        # We need to disable the caching limit since we rely on intermediate files
         max_files_cached = config["max_files_cached"]
         config["max_files_cached"] = float("inf")
 
@@ -316,7 +334,7 @@ class Slide(Scene):  # type:ignore
 
         config["max_files_cached"] = max_files_cached
 
-        self.save_slides()
+        self.__save_slides()
 
 
 class ThreeDSlide(Slide, ThreeDScene):  # type: ignore
