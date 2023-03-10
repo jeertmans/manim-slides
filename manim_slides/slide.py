@@ -296,7 +296,9 @@ class Slide(Scene):  # type:ignore
             files.append(dst_file)
 
         if offset := self.__start_at_animation_number:
-            self.__slides = [slide for slide in self.__slides if slide.end_animation > offset]
+            self.__slides = [
+                slide for slide in self.__slides if slide.end_animation > offset
+            ]
 
             for slide in self.__slides:
                 slide.start_animation -= offset
@@ -309,7 +311,9 @@ class Slide(Scene):  # type:ignore
         slide_path = os.path.join(self.__output_folder, "%s.json" % (scene_name,))
 
         with open(slide_path, "w") as f:
-            f.write(PresentationConfig(slides=self.__slides, files=files).json(indent=2))
+            f.write(
+                PresentationConfig(slides=self.__slides, files=files).json(indent=2)
+            )
 
         logger.info(
             f"Slide '{scene_name}' configuration written in '{os.path.abspath(slide_path)}'"
