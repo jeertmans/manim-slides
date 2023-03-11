@@ -785,9 +785,7 @@ def get_scenes_presentation_config(
     return presentation_configs
 
 
-def start_at_callback(
-    ctx, param, values: str
-) -> Tuple[Optional[int], ...]:
+def start_at_callback(ctx, param, values: str) -> Tuple[Optional[int], ...]:
     if values == "(None, None, None)":
         return (None, None, None)
 
