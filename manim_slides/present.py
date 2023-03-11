@@ -73,7 +73,7 @@ class Presentation:
         self.slides: List[SlideConfig] = config.slides
         self.files: List[str] = config.files
 
-        self.current_slide_index: int = 0
+        self.__current_slide_index: int = 0
         self.current_animation: int = self.current_slide.start_animation
         self.current_file: str = ""
 
@@ -86,6 +86,46 @@ class Presentation:
         self.lastframe: Optional[np.ndarray] = None
 
         self.reset()
+
+    def __len__(self) -> int:
+        return len(self.slides)
+
+    @property
+    def current_slide_index(self) -> int:
+        return self.__current_slide_index
+
+    @current_slide_index.setter
+    def current_slide_index(self, value: Optional[int]):
+        if value:
+            if -len(self) <= value < len(self):
+                self.__current_slide_index = value
+                self.current_animation = self.current_slide.start_animation
+            else:
+                logger.error(
+                    f"Could not load slide number {value}, playing first slide instead."
+                )
+
+    def set_current_animation_and_update_slide_number(self, value: Optional[int]):
+        if value:
+            n_files = len(self.files)
+            if -n_files <= value < n_files:
+                if value < 0:
+                    value += n_files
+
+                for i, slide in enumerate(self.slides):
+                    if value < slide.end_animation:
+                        self.current_slide_index = i
+                        self.current_animation = value
+                        return
+
+                assert (
+                    False
+                ), f"An error occurred when setting the current animation to {value}, please create an issue on GitHub!"
+
+            else:
+                logger.error(
+                    f"Could not load animation number {value}, playing first animation instead."
+                )
 
     @property
     def current_slide(self) -> SlideConfig:
@@ -217,7 +257,7 @@ class Presentation:
             return self.current_animation + 1
 
     @property
-    def is_last_animation(self) -> int:
+    def is_last_animation(self) -> bool:
         """Returns True if current animation is the last one of current slide."""
         if self.reverse:
             return self.current_animation == self.current_slide.start_animation
@@ -284,12 +324,15 @@ class Display(QThread):  # type: ignore
 
     def __init__(
         self,
-        presentations: List[PresentationConfig],
+        presentations: List[Presentation],
         config: Config = DEFAULT_CONFIG,
         start_paused: bool = False,
         skip_all: bool = False,
         record_to: Optional[str] = None,
         exit_after_last_slide: bool = False,
+        start_at_scene_number: Optional[int] = None,
+        start_at_slide_number: Optional[int] = None,
+        start_at_animation_number: Optional[int] = None,
     ) -> None:
         super().__init__()
         self.presentations = presentations
@@ -301,11 +344,35 @@ class Display(QThread):  # type: ignore
 
         self.state = State.PLAYING
         self.lastframe: Optional[np.ndarray] = None
-        self.current_presentation_index = 0
+
+        self.__current_presentation_index = 0
+        self.current_presentation_index = start_at_scene_number  # type: ignore
+        self.current_presentation.current_slide_index = start_at_slide_number  # type: ignore
+        self.current_presentation.set_current_animation_and_update_slide_number(
+            start_at_animation_number
+        )
+
         self.run_flag = True
 
         self.key = -1
         self.exit_after_last_slide = exit_after_last_slide
+
+    def __len__(self) -> int:
+        return len(self.presentations)
+
+    @property
+    def current_presentation_index(self) -> int:
+        return self.__current_presentation_index
+
+    @current_presentation_index.setter
+    def current_presentation_index(self, value: Optional[int]):
+        if value:
+            if -len(self) <= value < len(self):
+                self.__current_presentation_index = value
+            else:
+                logger.error(
+                    f"Could not load scene number {value}, playing first scene instead."
+                )
 
     @property
     def current_presentation(self) -> Presentation:
@@ -718,6 +785,35 @@ def get_scenes_presentation_config(
     return presentation_configs
 
 
+def start_at_callback(ctx, param, values: str) -> Tuple[Optional[int], ...]:
+    if values == "(None, None, None)":
+        return (None, None, None)
+
+    def str_to_int_or_none(value: str) -> Optional[int]:
+        if value.lower().strip() == "":
+            return None
+        else:
+            try:
+                return int(value)
+            except ValueError:
+                raise click.BadParameter(
+                    f"start index can only be an integer or an empty string, not `{value}`",
+                    ctx=ctx,
+                    param=param,
+                )
+
+    values_tuple = values.split(",")
+    n_values = len(values_tuple)
+    if n_values == 3:
+        return tuple(map(str_to_int_or_none, values_tuple))
+
+    raise click.BadParameter(
+        f"exactly 3 arguments are expected but you gave {n_values}, please use commas to separate them",
+        ctx=ctx,
+        param=param,
+    )
+
+
 @click.command()
 @click.argument("scenes", nargs=-1)
 @config_path_option
@@ -789,6 +885,43 @@ def get_scenes_presentation_config(
     help='Set the background color for borders when using "keep" resize mode. Can be any valid CSS color, e.g., "green", "#FF6500" or "rgba(255, 255, 0, .5)".',
     show_default=True,
 )
+@click.option(
+    "--sa",
+    "--start-at",
+    "start_at",
+    metavar="<SCENE,SLIDE,ANIMATION>",
+    type=str,
+    callback=start_at_callback,
+    default=(None, None, None),
+    help="Start presenting at (x, y, z), equivalent to --sacn x --sasn y --saan z, and overrides values if not None.",
+)
+@click.option(
+    "--sacn",
+    "--start-at-scene-number",
+    "start_at_scene_number",
+    metavar="INDEX",
+    type=int,
+    default=None,
+    help="Start presenting at a given scene number (0 is first, -1 is last).",
+)
+@click.option(
+    "--sasn",
+    "--start-at-slide-number",
+    "start_at_slide_number",
+    metavar="INDEX",
+    type=int,
+    default=None,
+    help="Start presenting at a given slide number (0 is first, -1 is last).",
+)
+@click.option(
+    "--saan",
+    "--start-at-animation-number",
+    "start_at_animation_number",
+    metavar="INDEX",
+    type=int,
+    default=0,
+    help="Start presenting at a given animation number (0 is first, -1 is last). This conflicts with slide number since animation number is absolute to the presentation.",
+)
 @click.help_option("-h", "--help")
 @verbosity_option
 def present(
@@ -805,6 +938,10 @@ def present(
     aspect_ratio: str,
     resize_mode: str,
     background_color: str,
+    start_at: Tuple[Optional[int], Optional[int], Optional[int]],
+    start_at_scene_number: Optional[int],
+    start_at_slide_number: Optional[int],
+    start_at_animation_number: Optional[int],
 ) -> None:
     """
     Present SCENE(s), one at a time, in order.
@@ -840,6 +977,15 @@ def present(
                 "Recording only support '.avi' extension. For other video formats, please convert the resulting '.avi' file afterwards."
             )
 
+    if start_at[0]:
+        start_at_scene_number = start_at[0]
+
+    if start_at[1]:
+        start_at_slide_number = start_at[1]
+
+    if start_at[2]:
+        start_at_animation_number = start_at[2]
+
     app = QApplication(sys.argv)
     app.setApplicationName("Manim Slides")
     a = App(
@@ -855,6 +1001,9 @@ def present(
         aspect_ratio=ASPECT_RATIO_MODES[aspect_ratio],
         resize_mode=RESIZE_MODES[resize_mode],
         background_color=background_color,
+        start_at_scene_number=start_at_scene_number,
+        start_at_slide_number=start_at_slide_number,
+        start_at_animation_number=start_at_animation_number,
     )
     a.show()
     sys.exit(app.exec_())
