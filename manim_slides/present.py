@@ -348,7 +348,9 @@ class Display(QThread):  # type: ignore
         self.__current_presentation_index = 0
         self.current_presentation_index = start_at_scene_number  # type: ignore
         self.current_presentation.current_slide_index = start_at_slide_number  # type: ignore
-        self.current_presentation.set_current_animation_and_update_slide_number(start_at_animation_number)
+        self.current_presentation.set_current_animation_and_update_slide_number(
+            start_at_animation_number
+        )
 
         self.run_flag = True
 
@@ -783,14 +785,35 @@ def get_scenes_presentation_config(
     return presentation_configs
 
 
-def start_at_callback(ctx, param, values: str) -> Tuple[Optional[int], ...]:
-    def str_to_int_or_none(value: str) -> Optional[int]:
-        try:
-            return int(value)
-        except ValueError:
-            return None
+def start_at_callback(
+    ctx, param, values: str
+) -> Tuple[Optional[int], Optional[int], Optional[int]]:
+    if values == "(None, None, None)":
+        return (None, None, None)
 
-    return tuple(map(str_to_int_or_none, values.split(",")))
+    def str_to_int_or_none(value: str) -> Optional[int]:
+        if value.lower().strip() == "":
+            return None
+        else:
+            try:
+                return int(value)
+            except ValueError:
+                raise click.BadParameter(
+                    f"start index can only be an integer or an empty string, not `{value}`",
+                    ctx=ctx,
+                    param=param,
+                )
+
+    values_tuple = values.split(",")
+    n_values = len(values_tuple)
+    if n_values == 3:
+        return tuple(map(str_to_int_or_none, values_tuple))
+
+    raise click.BadParameter(
+        f"exactly 3 arguments are expected but you gave {n_values}, please use commas to separate them",
+        ctx=ctx,
+        param=param,
+    )
 
 
 @click.command()
