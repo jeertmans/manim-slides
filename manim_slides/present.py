@@ -257,7 +257,7 @@ class Presentation:
             return self.current_animation + 1
 
     @property
-    def is_last_animation(self) -> int:
+    def is_last_animation(self) -> bool:
         """Returns True if current animation is the last one of current slide."""
         if self.reverse:
             return self.current_animation == self.current_slide.start_animation
@@ -368,7 +368,7 @@ class Display(QThread):  # type: ignore
     def current_presentation_index(self, value: Optional[int]):
         if value:
             if -len(self) <= value < len(self):
-                self.__current_animation_index = value
+                self.__current_presentation_index = value
             else:
                 logger.error(
                     f"Could not load scene number {value}, playing first scene instead."
