@@ -321,9 +321,9 @@ class RevealJS(Converter):
                 # Read more about this:
                 #   https://developer.mozilla.org/en-US/docs/Web/Media/Autoplay_guide#autoplay_and_autoplay_blocking
                 if slide_config.is_loop():
-                    yield f'<section data-background-size={self.background_size.value} data-background-video="{file}" data-background-video-muted data-background-video-loop></section>'
+                    yield f'<section data-background-size={self.background_size.value} data-background-color="{presentation_config.background_color}" data-background-video="{file}" data-background-video-muted data-background-video-loop></section>'
                 else:
-                    yield f'<section data-background-size={self.background_size.value} data-background-video="{file}" data-background-video-muted></section>'
+                    yield f'<section data-background-size={self.background_size.value} data-background-color="{presentation_config.background_color}" data-background-video="{file}" data-background-video-muted></section>'
 
     def load_template(self) -> str:
         """Returns the RevealJS HTML template as a string."""

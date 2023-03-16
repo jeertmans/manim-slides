@@ -53,6 +53,7 @@ class Slide(Scene):  # type:ignore
         self.__current_animation = 0
         self.__loop_start_animation: Optional[int] = None
         self.__pause_start_animation = 0
+        self.__background_color = config['background_color'].hex
 
     @property
     def __resolution(self) -> Tuple[int, int]:
@@ -321,7 +322,7 @@ class Slide(Scene):  # type:ignore
         with open(slide_path, "w") as f:
             f.write(
                 PresentationConfig(
-                    slides=self.__slides, files=files, resolution=self.__resolution
+                    slides=self.__slides, files=files, resolution=self.__resolution, background_color=self.__background_color
                 ).json(indent=2)
             )
 

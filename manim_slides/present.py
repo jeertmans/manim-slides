@@ -106,6 +106,11 @@ class Presentation:
         return self.config.resolution
 
     @property
+    def background_color(self) -> str:
+        """Returns the background color."""
+        return self.config.background_color
+
+    @property
     def current_slide_index(self) -> int:
         return self.__current_slide_index
 
@@ -647,7 +652,7 @@ class App(QWidget):  # type: ignore
             self.label.setScaledContents(True)
         self.label.setAlignment(Qt.AlignCenter)
         self.label.resize(self.display_width, self.display_height)
-        self.label.setStyleSheet(f"background-color: {background_color}")
+        self.label.setStyleSheet(f"background-color: {self.thread.current_presentation.background_color}")
 
         self.pixmap = QPixmap(self.width(), self.height())
         self.label.setPixmap(self.pixmap)
@@ -727,6 +732,7 @@ class App(QWidget):  # type: ignore
         self.display_width, self.display_height = self.thread.current_resolution
         if not self.isFullScreen():
             self.resize(self.display_width, self.display_height)
+        self.label.setStyleSheet(f"background-color: {self.thread.current_presentation.background_color}")
 
 
 @click.command()
@@ -922,8 +928,8 @@ def start_at_callback(
     "background_color",
     metavar="COLOR",
     type=str,
-    default="black",
-    help='Set the background color for borders when using "keep" resize mode. Can be any valid CSS color, e.g., "green", "#FF6500" or "rgba(255, 255, 0, .5)".',
+    default=None,
+    help='Set the background color for borders when using "keep" resize mode. Can be any valid CSS color, e.g., "green", "#FF6500" or "rgba(255, 255, 0, .5)". If not set, it defaults to the background color configured in the Manim scene.',
     show_default=True,
 )
 @click.option(
@@ -978,7 +984,7 @@ def present(
     hide_mouse: bool,
     aspect_ratio: str,
     resize_mode: str,
-    background_color: str,
+    background_color: Optional[str],
     start_at: Tuple[Optional[int], Optional[int], Optional[int]],
     start_at_scene_number: Optional[int],
     start_at_slide_number: Optional[int],
@@ -1002,6 +1008,10 @@ def present(
     if resolution is not None:
         for presentation_config in presentation_configs:
             presentation_config.resolution = resolution
+
+    if background_color is not None:
+        for presentation_config in presentation_configs:
+            presentation_config.background_color = background_color
 
     presentations = [
         Presentation(presentation_config)
