@@ -5,9 +5,9 @@ import subprocess
 import tempfile
 from enum import Enum
 from pathlib import Path
-from typing import Dict, List, Optional, Set, Union
+from typing import Dict, List, Optional, Set, Tuple, Union
 
-from pydantic import BaseModel, FilePath, root_validator, validator
+from pydantic import BaseModel, FilePath, PositiveInt, root_validator, validator
 from PySide6.QtCore import Qt
 
 from .defaults import FFMPEG_BIN
@@ -20,7 +20,7 @@ def merge_basenames(files: List[FilePath]) -> Path:
     """
     logger.info(f"Generating a new filename for animations: {files}")
 
-    dirname = files[0].parent
+    dirname: Path = files[0].parent
     ext = files[0].suffix
 
     basenames = (file.stem for file in files)
@@ -31,7 +31,7 @@ def merge_basenames(files: List[FilePath]) -> Path:
     # https://github.com/jeertmans/manim-slides/issues/123
     basename = hashlib.sha256(basenames_str.encode()).hexdigest()
 
-    return dirname / (basename + ext)
+    return dirname.joinpath(basename + ext)
 
 
 class Key(BaseModel):  # type: ignore
@@ -149,13 +149,14 @@ class SlideConfig(BaseModel):  # type: ignore
 class PresentationConfig(BaseModel):  # type: ignore
     slides: List[SlideConfig]
     files: List[FilePath]
+    resolution: Tuple[PositiveInt, PositiveInt] = (1920, 1080)
 
     @root_validator
     def animation_indices_match_files(
         cls, values: Dict[str, Union[List[SlideConfig], List[FilePath]]]
     ) -> Dict[str, Union[List[SlideConfig], List[FilePath]]]:
-        files = values.get("files")
-        slides = values.get("slides")
+        files: List[FilePath] = values.get("files")  # type: ignore
+        slides: List[SlideConfig] = values.get("slides")  # type: ignore
 
         if files is None or slides is None:
             return values
@@ -163,7 +164,7 @@ class PresentationConfig(BaseModel):  # type: ignore
         n_files = len(files)
 
         for slide in slides:
-            if slide.end_animation > n_files:  # type: ignore
+            if slide.end_animation > n_files:
                 raise ValueError(
                     f"The following slide's contains animations not listed in files {files}: {slide}"
                 )

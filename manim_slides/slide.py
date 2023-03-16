@@ -2,7 +2,7 @@ import os
 import platform
 import shutil
 import subprocess
-from typing import Any, List, Optional
+from typing import Any, List, Optional, Tuple
 from warnings import warn
 
 from tqdm import tqdm
@@ -55,6 +55,14 @@ class Slide(Scene):  # type:ignore
         self.__pause_start_animation = 0
 
     @property
+    def __resolution(self) -> Tuple[int, int]:
+        """Returns the scene's resolution used during rendering."""
+        if MANIMGL:
+            return self.camera_config["pixel_width"], self.camera_config["pixel_height"]
+        else:
+            return config["pixel_width"], config["pixel_height"]
+
+    @property
     def __partial_movie_files(self) -> List[str]:
         """Returns a list of partial movie files, a.k.a animations."""
         if MANIMGL:
@@ -64,11 +72,11 @@ class Slide(Scene):  # type:ignore
                 "remove_non_integer_files": True,
                 "extension": self.file_writer.movie_file_extension,
             }
-            return get_sorted_integer_files(
+            return get_sorted_integer_files(  # type: ignore
                 self.file_writer.partial_movie_directory, **kwargs
             )
         else:
-            return self.renderer.file_writer.partial_movie_files
+            return self.renderer.file_writer.partial_movie_files  # type: ignore
 
     @property
     def __show_progress_bar(self) -> bool:
@@ -76,7 +84,7 @@ class Slide(Scene):  # type:ignore
         if MANIMGL:
             return getattr(self, "show_progress_bar", True)
         else:
-            return config["progress_bar"] != "none"
+            return config["progress_bar"] != "none"  # type: ignore
 
     @property
     def __leave_progress_bar(self) -> bool:
@@ -84,21 +92,21 @@ class Slide(Scene):  # type:ignore
         if MANIMGL:
             return getattr(self, "leave_progress_bars", False)
         else:
-            return config["progress_bar"] == "leave"
+            return config["progress_bar"] == "leave"  # type: ignore
 
     @property
     def __start_at_animation_number(self) -> Optional[int]:
         if MANIMGL:
             return getattr(self, "start_at_animation_number", None)
         else:
-            return config["from_animation_number"]
+            return config["from_animation_number"]  # type: ignore
 
     def play(self, *args: Any, **kwargs: Any) -> None:
         """Overloads `self.play` and increment animation count."""
         super().play(*args, **kwargs)
         self.__current_animation += 1
 
-    def next_slide(self):
+    def next_slide(self) -> None:
         """
         Creates a new slide with previous animations.
 
@@ -312,7 +320,9 @@ class Slide(Scene):  # type:ignore
 
         with open(slide_path, "w") as f:
             f.write(
-                PresentationConfig(slides=self.__slides, files=files).json(indent=2)
+                PresentationConfig(
+                    slides=self.__slides, files=files, resolution=self.__resolution
+                ).json(indent=2)
             )
 
         logger.info(
