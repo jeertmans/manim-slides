@@ -999,7 +999,7 @@ def present(
 
     presentation_configs = get_scenes_presentation_config(scenes, folder)
 
-    if resolution:
+    if resolution is not None:
         for presentation_config in presentation_configs:
             presentation_config.resolution = resolution
 
