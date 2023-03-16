@@ -24,7 +24,7 @@ from .logger import logger
 from .present import get_scenes_presentation_config
 
 
-def open_with_default(file: Path):
+def open_with_default(file: Path) -> None:
     system = platform.system()
     if system == "Darwin":
         subprocess.call(("open", str(file)))
@@ -66,7 +66,7 @@ class Converter(BaseModel):  # type: ignore
         An empty string is returned if no template is used."""
         return ""
 
-    def open(self, file: Path) -> bool:
+    def open(self, file: Path) -> Any:
         """Opens a file, generated with converter, using appropriate application."""
         raise NotImplementedError
 
@@ -376,7 +376,7 @@ class PowerPoint(Converter):
         use_enum_values = True
         extra = "forbid"
 
-    def open(self, file: Path) -> bool:
+    def open(self, file: Path) -> None:
         return open_with_default(file)
 
     def convert_to(self, dest: Path) -> None:
@@ -389,7 +389,9 @@ class PowerPoint(Converter):
 
         # From GitHub issue comment:
         # - https://github.com/scanny/python-pptx/issues/427#issuecomment-856724440
-        def auto_play_media(media: pptx.shapes.picture.Movie, loop: bool = False):
+        def auto_play_media(
+            media: pptx.shapes.picture.Movie, loop: bool = False
+        ) -> None:
             el_id = xpath(media.element, ".//p:cNvPr")[0].attrib["id"]
             el_cnt = xpath(
                 media.element.getparent().getparent().getparent(),
@@ -463,7 +465,7 @@ def show_config_options(function: Callable[..., Any]) -> Callable[..., Any]:
 
         ctx.exit()
 
-    return click.option(
+    return click.option(  # type: ignore
         "--show-config",
         is_flag=True,
         help="Show supported options for given format and exit.",
@@ -491,7 +493,7 @@ def show_template_option(function: Callable[..., Any]) -> Callable[..., Any]:
 
         ctx.exit()
 
-    return click.option(
+    return click.option(  # type: ignore
         "--show-template",
         is_flag=True,
         help="Show the template (currently) used for a given conversion format and exit.",

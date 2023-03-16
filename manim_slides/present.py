@@ -9,6 +9,7 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 import click
 import cv2
 import numpy as np
+from click import Context, Parameter
 from pydantic import ValidationError
 from PySide6.QtCore import Qt, QThread, Signal, Slot
 from PySide6.QtGui import QCloseEvent, QIcon, QImage, QKeyEvent, QPixmap, QResizeEvent
@@ -70,8 +71,7 @@ class Presentation:
     """Creates presentation from a configuration object."""
 
     def __init__(self, config: PresentationConfig) -> None:
-        self.slides: List[SlideConfig] = config.slides
-        self.files: List[str] = config.files
+        self.config = config
 
         self.__current_slide_index: int = 0
         self.current_animation: int = self.current_slide.start_animation
@@ -91,22 +91,40 @@ class Presentation:
         return len(self.slides)
 
     @property
+    def slides(self) -> List[SlideConfig]:
+        """Returns the list of slides."""
+        return self.config.slides
+
+    @property
+    def files(self) -> List[Path]:
+        """Returns the list of animation files."""
+        return self.config.files
+
+    @property
+    def resolution(self) -> Tuple[int, int]:
+        """Returns the resolution."""
+        return self.config.resolution
+
+    @property
     def current_slide_index(self) -> int:
         return self.__current_slide_index
 
     @current_slide_index.setter
-    def current_slide_index(self, value: Optional[int]):
-        if value:
+    def current_slide_index(self, value: Optional[int]) -> None:
+        if value is not None:
             if -len(self) <= value < len(self):
                 self.__current_slide_index = value
                 self.current_animation = self.current_slide.start_animation
+                logger.debug(f"Set current slide index to {value}")
             else:
                 logger.error(
                     f"Could not load slide number {value}, playing first slide instead."
                 )
 
-    def set_current_animation_and_update_slide_number(self, value: Optional[int]):
-        if value:
+    def set_current_animation_and_update_slide_number(
+        self, value: Optional[int]
+    ) -> None:
+        if value is not None:
             n_files = len(self.files)
             if -n_files <= value < n_files:
                 if value < 0:
@@ -116,6 +134,8 @@ class Presentation:
                     if value < slide.end_animation:
                         self.current_slide_index = i
                         self.current_animation = value
+
+                        logger.debug(f"Playing animation {value}, at slide index {i}")
                         return
 
                 assert (
@@ -159,7 +179,7 @@ class Presentation:
 
             self.release_cap()
 
-            file: str = self.files[animation]
+            file: str = str(self.files[animation])
 
             if self.reverse:
                 file = "{}_reversed{}".format(*os.path.splitext(file))
@@ -178,7 +198,7 @@ class Presentation:
 
     def rewind_current_slide(self) -> None:
         """Rewinds current slide to first frame."""
-        logger.debug("Rewinding curring slide")
+        logger.debug("Rewinding current slide")
         if self.reverse:
             self.current_animation = self.current_slide.end_animation - 1
         else:
@@ -216,9 +236,10 @@ class Presentation:
 
     def load_previous_slide(self) -> None:
         """Loads previous slide."""
-        logger.debug("Loading previous slide")
+        logger.debug(f"Loading previous slide, current is {self.current_slide_index}")
         self.cancel_reverse()
         self.current_slide_index = max(0, self.current_slide_index - 1)
+        logger.debug(f"Loading slide index {self.current_slide_index}")
         self.rewind_current_slide()
 
     @property
@@ -229,7 +250,8 @@ class Presentation:
             logger.warn(
                 f"Something is wrong with video file {self.current_file}, as the fps returned by frame {self.current_frame_number} is 0"
             )
-        return max(fps, 1)  # TODO: understand why we sometimes get 0 fps
+        # TODO: understand why we sometimes get 0 fps
+        return max(fps, 1)  # type: ignore
 
     def reset(self) -> None:
         """Rests current presentation."""
@@ -320,6 +342,7 @@ class Display(QThread):  # type: ignore
 
     change_video_signal = Signal(np.ndarray)
     change_info_signal = Signal(dict)
+    change_presentation_sigal = Signal()
     finished = Signal()
 
     def __init__(
@@ -365,10 +388,12 @@ class Display(QThread):  # type: ignore
         return self.__current_presentation_index
 
     @current_presentation_index.setter
-    def current_presentation_index(self, value: Optional[int]):
-        if value:
+    def current_presentation_index(self, value: Optional[int]) -> None:
+        if value is not None:
             if -len(self) <= value < len(self):
                 self.__current_presentation_index = value
+                self.current_presentation.release_cap()
+                self.change_presentation_sigal.emit()
             else:
                 logger.error(
                     f"Could not load scene number {value}, playing first scene instead."
@@ -378,6 +403,11 @@ class Display(QThread):  # type: ignore
     def current_presentation(self) -> Presentation:
         """Returns the current presentation."""
         return self.presentations[self.current_presentation_index]
+
+    @property
+    def current_resolution(self) -> Tuple[int, int]:
+        """Returns the resolution of the current presentation."""
+        return self.current_presentation.resolution
 
     def run(self) -> None:
         """Runs a series of presentations until end or exit."""
@@ -413,7 +443,7 @@ class Display(QThread):  # type: ignore
         if self.record_to is not None:
             self.record_movie()
 
-        logger.debug("Closing video thread gracully and exiting")
+        logger.debug("Closing video thread gracefully and exiting")
         self.finished.emit()
 
     def record_movie(self) -> None:
@@ -587,7 +617,6 @@ class App(QWidget):  # type: ignore
         *args: Any,
         config: Config = DEFAULT_CONFIG,
         fullscreen: bool = False,
-        resolution: Tuple[int, int] = (1980, 1080),
         hide_mouse: bool = False,
         aspect_ratio: AspectRatio = AspectRatio.auto,
         resize_mode: Qt.TransformationMode = Qt.SmoothTransformation,
@@ -599,7 +628,12 @@ class App(QWidget):  # type: ignore
         self.setWindowTitle(WINDOW_NAME)
         self.icon = QIcon(":/icon.png")
         self.setWindowIcon(self.icon)
-        self.display_width, self.display_height = resolution
+
+        # create the video capture thread
+        kwargs["config"] = config
+        self.thread = Display(*args, **kwargs)
+
+        self.display_width, self.display_height = self.thread.current_resolution
         self.aspect_ratio = aspect_ratio
         self.resize_mode = resize_mode
         self.hide_mouse = hide_mouse
@@ -619,9 +653,6 @@ class App(QWidget):  # type: ignore
         self.label.setPixmap(self.pixmap)
         self.label.setMinimumSize(1, 1)
 
-        # create the video capture thread
-        kwargs["config"] = config
-        self.thread = Display(*args, **kwargs)
         # create the info dialog
         self.info = Info()
         self.info.show()
@@ -635,6 +666,7 @@ class App(QWidget):  # type: ignore
         # connect signals
         self.thread.change_video_signal.connect(self.update_image)
         self.thread.change_info_signal.connect(self.info.update_info)
+        self.thread.change_presentation_sigal.connect(self.update_canvas)
         self.thread.finished.connect(self.closeAll)
         self.send_key_signal.connect(self.thread.set_key)
 
@@ -687,6 +719,14 @@ class App(QWidget):  # type: ignore
             )
 
         self.label.setPixmap(QPixmap.fromImage(qt_img))
+
+    @Slot()
+    def update_canvas(self) -> None:
+        """Update the canvas when a presentation has changed."""
+        logger.debug("Updating canvas")
+        self.display_width, self.display_height = self.thread.current_resolution
+        if not self.isFullScreen():
+            self.resize(self.display_width, self.display_height)
 
 
 @click.command()
@@ -757,7 +797,7 @@ def prompt_for_scenes(folder: Path) -> List[str]:
     while True:
         try:
             scenes = click.prompt("Choice(s)", value_proc=value_proc)
-            return scenes
+            return scenes  # type: ignore
         except ValueError as e:
             raise click.UsageError(str(e))
 
@@ -785,7 +825,9 @@ def get_scenes_presentation_config(
     return presentation_configs
 
 
-def start_at_callback(ctx, param, values: str) -> Tuple[Optional[int], ...]:
+def start_at_callback(
+    ctx: Context, param: Parameter, values: str
+) -> Tuple[Optional[int], ...]:
     if values == "(None, None, None)":
         return (None, None, None)
 
@@ -838,9 +880,8 @@ def start_at_callback(ctx, param, values: str) -> Tuple[Optional[int], ...]:
     "--resolution",
     metavar="<WIDTH HEIGHT>",
     type=(int, int),
-    default=(1920, 1080),
+    default=None,
     help="Window resolution WIDTH HEIGHT used if fullscreen is not set. You may manually resize the window afterward.",
-    show_default=True,
 )
 @click.option(
     "--to",
@@ -931,7 +972,7 @@ def present(
     start_paused: bool,
     fullscreen: bool,
     skip_all: bool,
-    resolution: Tuple[int, int],
+    resolution: Optional[Tuple[int, int]],
     record_to: Optional[Path],
     exit_after_last_slide: bool,
     hide_mouse: bool,
@@ -956,9 +997,15 @@ def present(
     if skip_all:
         exit_after_last_slide = True
 
+    presentation_configs = get_scenes_presentation_config(scenes, folder)
+
+    if resolution is not None:
+        for presentation_config in presentation_configs:
+            presentation_config.resolution = resolution
+
     presentations = [
         Presentation(presentation_config)
-        for presentation_config in get_scenes_presentation_config(scenes, folder)
+        for presentation_config in presentation_configs
     ]
 
     if config_path.exists():
@@ -994,7 +1041,6 @@ def present(
         start_paused=start_paused,
         fullscreen=fullscreen,
         skip_all=skip_all,
-        resolution=resolution,
         record_to=record_to,
         exit_after_last_slide=exit_after_last_slide,
         hide_mouse=hide_mouse,

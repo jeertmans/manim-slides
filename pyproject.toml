@@ -10,28 +10,10 @@ profile = "black"
 py_version = 38
 
 [tool.mypy]
-check-untyped-defs = true
-# Disallow dynamic typing
-disallow-any-generics = true
-disallow-incomplete-defs = true
-disallow-subclassing-any = true
-# Disallow untyped definitions and calls
-disallow-untyped-defs = true
-ignore-missing-imports = true
-install-types = true
-# None and optional handling
-no-implicit-optional = true
-no-warn-return-any = true
-non-interactive = true
+disallow_untyped_decorators = false
+install_types = true
 python_version = "3.8"
-# Strict equality
-strict-equality = true
-warn-no-return = true
-warn-redundant-casts = true
-# Config file
-warn-unused-configs = true
-# Configuring warnings
-warn-unused-ignores = true
+strict = true
 
 [tool.poetry]
 authors = [
