@@ -652,7 +652,9 @@ class App(QWidget):  # type: ignore
             self.label.setScaledContents(True)
         self.label.setAlignment(Qt.AlignCenter)
         self.label.resize(self.display_width, self.display_height)
-        self.label.setStyleSheet(f"background-color: {self.thread.current_presentation.background_color}")
+        self.label.setStyleSheet(
+            f"background-color: {self.thread.current_presentation.background_color}"
+        )
 
         self.pixmap = QPixmap(self.width(), self.height())
         self.label.setPixmap(self.pixmap)
@@ -732,7 +734,9 @@ class App(QWidget):  # type: ignore
         self.display_width, self.display_height = self.thread.current_resolution
         if not self.isFullScreen():
             self.resize(self.display_width, self.display_height)
-        self.label.setStyleSheet(f"background-color: {self.thread.current_presentation.background_color}")
+        self.label.setStyleSheet(
+            f"background-color: {self.thread.current_presentation.background_color}"
+        )
 
 
 @click.command()
