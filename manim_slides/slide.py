@@ -174,7 +174,7 @@ class Slide(Scene):  # type:ignore
             DeprecationWarning,
             stacklevel=2,
         )
-        self.next_slide()
+        Slide.next_slide(self)
 
     def __add_last_slide(self) -> None:
         """Adds a 'last' slide to the end of slides."""
