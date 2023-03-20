@@ -32,6 +32,25 @@ class BasicExample(Slide):
         self.next_slide()  # Waits user to press continue to go to the next slide
 
 
+class MultipleAnimationsInLastSlide(Slide):
+    """This is used to check against solution for issue #161."""
+
+    def construct(self):
+        circle = Circle(color=BLUE)
+        dot = Dot()
+
+        self.play(GrowFromCenter(circle))
+        self.play(FadeIn(dot))
+        self.next_slide()
+
+        self.play(dot.animate.move_to(RIGHT))
+        self.play(dot.animate.move_to(UP))
+        self.play(dot.animate.move_to(LEFT))
+        self.play(dot.animate.move_to(DOWN))
+        
+        self.next_slide()
+
+
 class TestFileTooLong(Slide):
     """This is used to check against solution for issue #123."""
 
