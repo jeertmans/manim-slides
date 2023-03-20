@@ -47,7 +47,7 @@ class MultipleAnimationsInLastSlide(Slide):
         self.play(dot.animate.move_to(UP))
         self.play(dot.animate.move_to(LEFT))
         self.play(dot.animate.move_to(DOWN))
-        
+
         self.next_slide()
 
 
