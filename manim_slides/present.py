@@ -204,6 +204,8 @@ class Presentation:
     def rewind_current_slide(self) -> None:
         """Rewinds current slide to first frame."""
         logger.debug("Rewinding current slide")
+        self.current_slide.terminated = False
+
         if self.reverse:
             self.current_animation = self.current_slide.end_animation - 1
         else:
