@@ -151,7 +151,7 @@ class PresentationConfig(BaseModel):  # type: ignore
     slides: List[SlideConfig]
     files: List[FilePath]
     resolution: Tuple[PositiveInt, PositiveInt] = (1920, 1080)
-    background_color: Color = 'black'
+    background_color: Color = "black"
 
     @root_validator
     def animation_indices_match_files(

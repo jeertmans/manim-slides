@@ -55,7 +55,7 @@ class Slide(Scene):  # type:ignore
         self.__pause_start_animation = 0
 
     @property
-    def __background_color(self) -> Tuple[int, int]:        
+    def __background_color(self) -> Tuple[int, int]:
         """Returns the scene's background color."""
         if MANIMGL:
             return self.camera_config["background_color"]
