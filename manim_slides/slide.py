@@ -58,9 +58,9 @@ class Slide(Scene):  # type:ignore
     def __background_color(self) -> str:
         """Returns the scene's background color."""
         if MANIMGL:
-            return self.camera_config["background_color"].hex
+            return self.camera_config["background_color"].hex  # typing: ignore
         else:
-            return config["background_color"].hex
+            return config["background_color"].hex  # typing: ignore
 
     @property
     def __resolution(self) -> Tuple[int, int]:
