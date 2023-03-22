@@ -11,6 +11,7 @@ import cv2
 import numpy as np
 from click import Context, Parameter
 from pydantic import ValidationError
+from pydantic.color import Color
 from PySide6.QtCore import Qt, QThread, Signal, Slot
 from PySide6.QtGui import QCloseEvent, QIcon, QImage, QKeyEvent, QPixmap, QResizeEvent
 from PySide6.QtWidgets import QApplication, QGridLayout, QLabel, QWidget
@@ -104,6 +105,11 @@ class Presentation:
     def resolution(self) -> Tuple[int, int]:
         """Returns the resolution."""
         return self.config.resolution
+
+    @property
+    def background_color(self) -> Color:
+        """Returns the background color."""
+        return self.config.background_color
 
     @property
     def current_slide_index(self) -> int:
@@ -411,6 +417,11 @@ class Display(QThread):  # type: ignore
         """Returns the resolution of the current presentation."""
         return self.current_presentation.resolution
 
+    @property
+    def current_background_color(self) -> Color:
+        """Returns the background color of the current presentation."""
+        return self.current_presentation.background_color
+
     def run(self) -> None:
         """Runs a series of presentations until end or exit."""
         while self.run_flag:
@@ -649,7 +660,9 @@ class App(QWidget):  # type: ignore
             self.label.setScaledContents(True)
         self.label.setAlignment(Qt.AlignCenter)
         self.label.resize(self.display_width, self.display_height)
-        self.label.setStyleSheet(f"background-color: {background_color}")
+        self.label.setStyleSheet(
+            f"background-color: {self.thread.current_background_color}"
+        )
 
         self.pixmap = QPixmap(self.width(), self.height())
         self.label.setPixmap(self.pixmap)
@@ -729,6 +742,9 @@ class App(QWidget):  # type: ignore
         self.display_width, self.display_height = self.thread.current_resolution
         if not self.isFullScreen():
             self.resize(self.display_width, self.display_height)
+        self.label.setStyleSheet(
+            f"background-color: {self.thread.current_background_color}"
+        )
 
 
 @click.command()
@@ -924,8 +940,8 @@ def start_at_callback(
     "background_color",
     metavar="COLOR",
     type=str,
-    default="black",
-    help='Set the background color for borders when using "keep" resize mode. Can be any valid CSS color, e.g., "green", "#FF6500" or "rgba(255, 255, 0, .5)".',
+    default=None,
+    help='Set the background color for borders when using "keep" resize mode. Can be any valid CSS color, e.g., "green", "#FF6500" or "rgba(255, 255, 0, .5)". If not set, it defaults to the background color configured in the Manim scene.',
     show_default=True,
 )
 @click.option(
@@ -980,7 +996,7 @@ def present(
     hide_mouse: bool,
     aspect_ratio: str,
     resize_mode: str,
-    background_color: str,
+    background_color: Optional[str],
     start_at: Tuple[Optional[int], Optional[int], Optional[int]],
     start_at_scene_number: Optional[int],
     start_at_slide_number: Optional[int],
@@ -1004,6 +1020,10 @@ def present(
     if resolution is not None:
         for presentation_config in presentation_configs:
             presentation_config.resolution = resolution
+
+    if background_color is not None:
+        for presentation_config in presentation_configs:
+            presentation_config.background_color = background_color
 
     presentations = [
         Presentation(presentation_config)
@@ -1048,7 +1068,6 @@ def present(
         hide_mouse=hide_mouse,
         aspect_ratio=ASPECT_RATIO_MODES[aspect_ratio],
         resize_mode=RESIZE_MODES[resize_mode],
-        background_color=background_color,
         start_at_scene_number=start_at_scene_number,
         start_at_slide_number=start_at_slide_number,
         start_at_animation_number=start_at_animation_number,

@@ -55,6 +55,14 @@ class Slide(Scene):  # type:ignore
         self.__pause_start_animation = 0
 
     @property
+    def __background_color(self) -> str:
+        """Returns the scene's background color."""
+        if MANIMGL:
+            return self.camera_config["background_color"].hex  # type: ignore
+        else:
+            return config["background_color"].hex  # type: ignore
+
+    @property
     def __resolution(self) -> Tuple[int, int]:
         """Returns the scene's resolution used during rendering."""
         if MANIMGL:
@@ -321,7 +329,10 @@ class Slide(Scene):  # type:ignore
         with open(slide_path, "w") as f:
             f.write(
                 PresentationConfig(
-                    slides=self.__slides, files=files, resolution=self.__resolution
+                    slides=self.__slides,
+                    files=files,
+                    resolution=self.__resolution,
+                    background_color=self.__background_color,
                 ).json(indent=2)
             )
 
