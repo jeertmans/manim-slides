@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Dict, List, Optional, Set, Tuple, Union
 
 from pydantic import BaseModel, FilePath, PositiveInt, root_validator, validator
+from pydantic.color import Color
 from PySide6.QtCore import Qt
 
 from .defaults import FFMPEG_BIN
@@ -150,7 +151,7 @@ class PresentationConfig(BaseModel):  # type: ignore
     slides: List[SlideConfig]
     files: List[FilePath]
     resolution: Tuple[PositiveInt, PositiveInt] = (1920, 1080)
-    background_color: str = "black"
+    background_color: Color = 'black'
 
     @root_validator
     def animation_indices_match_files(

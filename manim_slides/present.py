@@ -11,6 +11,7 @@ import cv2
 import numpy as np
 from click import Context, Parameter
 from pydantic import ValidationError
+from pydantic.color import Color
 from PySide6.QtCore import Qt, QThread, Signal, Slot
 from PySide6.QtGui import QCloseEvent, QIcon, QImage, QKeyEvent, QPixmap, QResizeEvent
 from PySide6.QtWidgets import QApplication, QGridLayout, QLabel, QWidget
@@ -106,7 +107,7 @@ class Presentation:
         return self.config.resolution
 
     @property
-    def background_color(self) -> str:
+    def background_color(self) -> Color:
         """Returns the background color."""
         return self.config.background_color
 
@@ -416,6 +417,11 @@ class Display(QThread):  # type: ignore
         """Returns the resolution of the current presentation."""
         return self.current_presentation.resolution
 
+    @property
+    def current_background_color(self) -> Color:
+        """Returns the background color of the current presentation."""
+        return self.current_presentation.background_color
+
     def run(self) -> None:
         """Runs a series of presentations until end or exit."""
         while self.run_flag:
@@ -655,7 +661,7 @@ class App(QWidget):  # type: ignore
         self.label.setAlignment(Qt.AlignCenter)
         self.label.resize(self.display_width, self.display_height)
         self.label.setStyleSheet(
-            f"background-color: {self.thread.current_presentation.background_color}"
+            f"background-color: {self.thread.current_background_color}"
         )
 
         self.pixmap = QPixmap(self.width(), self.height())
@@ -737,7 +743,7 @@ class App(QWidget):  # type: ignore
         if not self.isFullScreen():
             self.resize(self.display_width, self.display_height)
         self.label.setStyleSheet(
-            f"background-color: {self.thread.current_presentation.background_color}"
+            f"background-color: {self.thread.current_background_color}"
         )
 
 
@@ -1062,7 +1068,6 @@ def present(
         hide_mouse=hide_mouse,
         aspect_ratio=ASPECT_RATIO_MODES[aspect_ratio],
         resize_mode=RESIZE_MODES[resize_mode],
-        background_color=background_color,
         start_at_scene_number=start_at_scene_number,
         start_at_slide_number=start_at_slide_number,
         start_at_animation_number=start_at_animation_number,
