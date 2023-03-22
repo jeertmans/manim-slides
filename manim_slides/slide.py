@@ -55,12 +55,12 @@ class Slide(Scene):  # type:ignore
         self.__pause_start_animation = 0
 
     @property
-    def __background_color(self) -> Tuple[int, int]:
+    def __background_color(self) -> str:
         """Returns the scene's background color."""
         if MANIMGL:
-            return self.camera_config["background_color"]
+            return self.camera_config["background_color"].hex
         else:
-            return config["background_color"]
+            return config["background_color"].hex
 
     @property
     def __resolution(self) -> Tuple[int, int]:
@@ -332,7 +332,7 @@ class Slide(Scene):  # type:ignore
                     slides=self.__slides,
                     files=files,
                     resolution=self.__resolution,
-                    background_color=self.__background_color.hex,
+                    background_color=self.__background_color,
                 ).json(indent=2)
             )
 
