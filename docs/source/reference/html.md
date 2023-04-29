@@ -4,7 +4,7 @@ Manim Slides allows you to convert presentations into one HTML file, with
 [RevealJS](https://revealjs.com/). This file can then be opened with any modern
 web browser, allowing for a nice portability of your presentations.
 
-As for every command with Manim Slides, converting slides' fragments into one
+As with every command with Manim Slides, converting slides' fragments into one
 HTML file (and its assets) can be done in one command:
 
 ```bash
