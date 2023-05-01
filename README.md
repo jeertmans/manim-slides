@@ -54,7 +54,7 @@ The recommended way to install the latest release is to use pip:
 pip install manim-slides
 ```
 
-Optionally, you can also install Manim or ManimGL using extras[^*]:
+Optionally, you can also install Manim or ManimGL using extras[^1]:
 
 ```bash
 pip install manim-slides[manim]   # For Manim
@@ -62,7 +62,7 @@ pip install manim-slides[manim]   # For Manim
 pip install manim-slides[manimgl] # For ManimGL
 ```
 
-[^*]: NOTE: you still need to have Manim or ManimGL platform-specific dependencies installed on your computer.
+[^1]: NOTE: you still need to have Manim or ManimGL platform-specific dependencies installed on your computer.
 
 ### Install From Repository
 
