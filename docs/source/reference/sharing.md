@@ -67,7 +67,7 @@ and the corresponding tree:
 ## Without Manim Slides installed on the target machine
 
 An alternative to `manim-slides present` is `manim-slides convert`.
-Currently, only HTML conversion is available, but do not hesitate to propose
+Currently, HTML and PPTX conversion are available, but do not hesitate to propose
 other formats by creating a
 [Feature Request](https://github.com/jeertmans/manim-slides/issues/new/choose),
 or directly proposing a
