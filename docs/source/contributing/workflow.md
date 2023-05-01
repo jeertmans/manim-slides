@@ -11,7 +11,7 @@ This document is there to help you recreate a working environment for Manim Slid
 
 ## Forking the repository and cloning it locally
 
-We used GitHub to host Manim Slides' repository, and we encourage contributors to use git.
+We use GitHub to host Manim Slides' repository, and we encourage contributors to use git.
 
 Useful links:
 
