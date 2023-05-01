@@ -54,6 +54,16 @@ The recommended way to install the latest release is to use pip:
 pip install manim-slides
 ```
 
+Optionally, you can also install Manim or ManimGL using extras[^*]:
+
+```bash
+pip install manim-slides[manim]   # For Manim
+# or
+pip install manim-slides[manimgl] # For ManimGL
+```
+
+[^*]: NOTE: you still need to have Manim or ManimGL platform-specific dependencies installed on your computer.
+
 ### Install From Repository
 
 An alternative way to install Manim Slides is to clone the git repository, and install from there: read the [contributing guide](https://eertmans.be/manim-slides/contributing/workflow.html) to know how.
