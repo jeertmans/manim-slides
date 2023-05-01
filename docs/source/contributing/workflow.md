@@ -45,7 +45,7 @@ Additionnally, Manim Slides comes with group dependencies for development purpos
 
 ```bash
 poetry install --with dev  # For linters and formatters
-# or 
+# or
 poetry install --with docs # To build the documentation locally
 ```
 
