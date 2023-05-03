@@ -449,14 +449,19 @@ class Display(QThread):  # type: ignore
             lag = now() - last_time
             sleep_time = 1 / self.current_presentation.fps
 
-            logger.log(5, f"Took {lag:.3f} seconds to read the next frame, that must play at a rate of one every {sleep_time:.3f} seconds.")
+            logger.log(
+                5,
+                f"Took {lag:.3f} seconds to read the next frame, that must play at a rate of one every {sleep_time:.3f} seconds.",
+            )
 
             if sleep_time - lag < 0:
-                logger.warn("The FPS rate could not be matched. "
-                        "This is normal when manually transitioning between slides.\n"
-                        "If you feel that the FPS are too low, "
-                        "consider checking this issue:\n"
-                        "https://github.com/jeertmans/manim-slides/issues/179.")
+                logger.warn(
+                    "The FPS rate could not be matched. "
+                    "This is normal when manually transitioning between slides.\n"
+                    "If you feel that the FPS are too low, "
+                    "consider checking this issue:\n"
+                    "https://github.com/jeertmans/manim-slides/issues/179."
+                )
 
             sleep_time = max(sleep_time - lag, 0)
             time.sleep(sleep_time)

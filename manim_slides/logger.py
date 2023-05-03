@@ -5,8 +5,8 @@ https://github.com/ManimCommunity/manim/blob/d5b65b844b8ce8ff5151a2f56f9dc98cebb
 
 import logging
 
-from rich.logging import RichHandler
 from rich.console import Console
+from rich.logging import RichHandler
 from rich.theme import Theme
 
 __all__ = ["logger", "make_logger"]
