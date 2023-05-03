@@ -449,7 +449,10 @@ class Display(QThread):  # type: ignore
             lag = now() - last_time
             sleep_time = 1 / self.current_presentation.fps
 
-            logger.log(5, f"Took {lag:.3f} seconds to process the current frame, that must play at a rate of one every {sleep_time:.3f} seconds.")
+            logger.log(
+                5,
+                f"Took {lag:.3f} seconds to process the current frame, that must play at a rate of one every {sleep_time:.3f} seconds.",
+            )
 
             if sleep_time - lag < 0:
                 logger.warn(
