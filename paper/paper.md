@@ -66,11 +66,14 @@ provide new features on a regular basis.
 
 Manim Slides is commited to be an easy-to-use tool, with minimal installation
 procedure and few modifications required. It can either be used locally with its
-graphical user interface (GUI), or shared via HTML thanks to the RevealJS
-Javascript package [@revealjs].
+graphical user interface (GUI), or shared via one of the two formats it can
+convert to:
+
+* an HTML page thanks to the RevealJS Javascript package [@revealjs];
+* or a PowerPoint (`.pptx`) file.
 
 This work has a very similar syntax to Manim and offers a comprehensive
-documentation hosted on [GitHub pages](https://eertmans.be/manim-slides/), see
+documentation hosted on [GitHub pages](https://jeertmans.github.io/manim-slides/), see
 \autoref{fig:docs}.
 
 ![Manim Slides' documentation homepage.\label{fig:docs}](docs.png)
@@ -79,10 +82,10 @@ documentation hosted on [GitHub pages](https://eertmans.be/manim-slides/), see
 
 We have used manim-presentation for our presentation at the COST
 Interact, hosted in Lyon, 2022, and
-[available online](https://eertmans.be/research/cost-interact-presentation/).
+[available online](https://web.archive.org/web/20230507184944/https://eertmans.be/posts/cost-interact-presentation/).
 This experience highly motivated the development of Manim Slides, and our
 EuCAP 2023 presentation slides are already
-[available online](https://eertmans.be/research/eucap-presentation/), thanks
+[available online](https://web.archive.org/web/20230507211243/https://eertmans.be/posts/eucap-presentation/), thanks
 to Manim Slides' HTML feature.
 
 Also, one of our users created a short
@@ -110,6 +113,25 @@ amount of features that Manim Slides strives to. This work makes the task of
 presenting Manim content in front of an audience much easier than before,
 allowing presenters to focus more on the content of their slides, rather than on
 how to actually present them efficiently.
+
+## Target Audience
+
+Manim Slides was developed with the goal of making educational content more
+accessible than ever. We believe that researchers, professors, teaching
+assistants and anyone else who needs to teach scientific content can benefit
+from using this tool. The ability to pace your presentation yourself is
+essential, and Manim Slides gives you that ability.
+
+## A Need for Portability
+
+One of the major concerns with presenting content in a non-standard format
+(i.e., not just a plain PDF) is the issue of portability.
+Depending on the programs available, the power of the target computer,
+or the access to the internet, not all solutions are equal.
+From the same configuration file, Manim Slides offers a series of solutions to
+share your slides, which we discuss on our
+[Sharing your slides](https://jeertmans.github.io/manim-slides/reference/sharing.html)
+page.
 
 # Acknowledgements
 
