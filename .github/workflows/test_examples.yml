@@ -1,6 +1,8 @@
 on:
   pull_request:
     paths:
+    - pyproject.toml
+    - poetry.lock
     - '**.py'
     - .github/workflows/test_examples.yml
   workflow_dispatch:
