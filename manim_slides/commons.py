@@ -54,7 +54,7 @@ def verbosity_option(function: F) -> F:
         "-v",
         "--verbosity",
         type=click.Choice(
-            ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"],
+            ["PERF", "DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"],
             case_sensitive=False,
         ),
         help="Verbosity of CLI output",
