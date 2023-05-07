@@ -27,6 +27,9 @@ Tool for live presentations using either [Manim (community edition)](https://www
 - [F.A.Q](#faq)
   * [How to increase quality on Windows](#how-to-increase-quality-on-windows)
 - [Contributing](#contributing)
+  * [Reporting an Issue](#reporting-an-issue)
+  * [Seeking for Help](#seeking-for-help)
+  * [Contact](#contact)
 
 ## Installation
 
@@ -199,6 +202,55 @@ in *Settings*->*Display*.
 ## Contributing
 
 Contributions are more than welcome! Please read through [our contributing section](https://eertmans.be/manim-slides/contributing/index.html).
+
+### Reporting an Issue
+
+<!-- start reporting-an-issue -->
+
+If you think you found a bug,
+an error in the documentation,
+or wish there was some feature that is currently missing,
+we would love to hear from you!
+
+The best way to reach us is via the
+[GitHub issues](https://github.com/jeertmans/manim-slides/issues).
+If your problem is not covered by an already existing (closed or open) issue,
+then we suggest you create a
+[new issue](https://github.com/jeertmans/manim-slides/issues/new/choose).
+You can choose from a list of templates, or open a
+[blank issue](https://github.com/jeertmans/manim-slides/issues/new)
+if your issue does not fit one of the proposed topics.
+
+The more precise you are in the description of your problem, the faster we will
+be able to help you!
+
+<!-- end reporting-an-issue -->
+
+### Seeking for help
+
+<!-- start seeking-for-help -->
+
+Sometimes, you may have a question about Manim Slides,
+not necessarily an issue.
+
+There are two ways you can reach us for questions:
+
+- via the `Question/Help/Support` topic when
+[choosing an issue template](https://github.com/jeertmans/manim-slides/issues/new/choose);
+- or via
+[GitHub discussions](https://github.com/jeertmans/manim-slides/discussions).
+
+<!-- end seeking-for-help -->
+
+### Contact
+
+<!-- start contact -->
+
+Finally, if you do not have any GitHub account,
+or just wish to contact the author of Manim Slides,
+you can do so at: [jeertmans@icloud.com](mailto:jeertmans@icloud.com).
+
+<!-- end contact -->
 
 [pypi-version-badge]: https://img.shields.io/pypi/v/manim-slides?label=manim-slides
 [pypi-version-url]: https://pypi.org/project/manim-slides/
