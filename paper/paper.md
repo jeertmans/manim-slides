@@ -73,7 +73,7 @@ convert to:
 * or a PowerPoint (`.pptx`) file.
 
 This work has a very similar syntax to Manim and offers a comprehensive
-documentation hosted on [GitHub pages](https://eertmans.be/manim-slides/), see
+documentation hosted on [GitHub pages](https://jeertmans.github.io/manim-slides/), see
 \autoref{fig:docs}.
 
 ![Manim Slides' documentation homepage.\label{fig:docs}](docs.png)
@@ -82,10 +82,10 @@ documentation hosted on [GitHub pages](https://eertmans.be/manim-slides/), see
 
 We have used manim-presentation for our presentation at the COST
 Interact, hosted in Lyon, 2022, and
-[available online](https://eertmans.be/posts/cost-interact-presentation/).
+[available online](https://web.archive.org/web/20230507184944/https://eertmans.be/posts/cost-interact-presentation/).
 This experience highly motivated the development of Manim Slides, and our
 EuCAP 2023 presentation slides are already
-[available online](https://eertmans.be/posts/eucap-presentation/), thanks
+[available online](https://web.archive.org/web/20230507211243/https://eertmans.be/posts/eucap-presentation/), thanks
 to Manim Slides' HTML feature.
 
 Also, one of our users created a short
@@ -130,7 +130,7 @@ Depending on the programs available, the power of the target computer,
 or the access to the internet, not all solutions are equal.
 From the same configuration file, Manim Slides offers a series of solutions to
 share your slides, which we discuss on our
-[Sharing your slides](https://eertmans.be/manim-slides/reference/sharing.html)
+[Sharing your slides](https://jeertmans.github.io/manim-slides/reference/sharing.html)
 page.
 
 # Acknowledgements
