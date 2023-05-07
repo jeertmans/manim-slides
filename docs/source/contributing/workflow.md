@@ -30,6 +30,32 @@ With Poetry, installation becomes straightforward:
 poetry install
 ```
 
+This, however, only installs the minimal set of dependencies to run the package.
+
+If you would like to install Manim or ManimGL, as documented in the [quickstart](../quickstart),
+you can use the `--extras` option:
+
+```bash
+poetry install --extras manim   # For Manim
+# or
+poetry install --extras manimgl # For ManimGL
+```
+
+Additionnally, Manim Slides comes with group dependencies for development purposes:
+
+```bash
+poetry install --with dev  # For linters and formatters
+# or
+poetry install --with docs # To build the documentation locally
+```
+
+Another group is `test`, but it is only used for
+[GitHub actions](https://github.com/jeertmans/manim-slides/blob/main/.github/workflows/test_examples.yml).
+
+:::{note}
+You can combine any number of groups or extras when installing the package locally.
+:::
+
 ## Running commands
 
 As modules were installed in a new Python environment, you cannot use them directly in the shell.
