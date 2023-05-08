@@ -349,6 +349,8 @@ class RevealJS(Converter):
         )
         full_assets_dir = dirname / assets_dir
 
+        logger.debug(f"Assets will be saved to: {full_assets_dir}")
+
         os.makedirs(full_assets_dir, exist_ok=True)
 
         for presentation_config in self.presentation_configs:

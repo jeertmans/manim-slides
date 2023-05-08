@@ -54,12 +54,16 @@ jobs:
       with:
         path: media
         key: ${{ runner.os }}-media
-    - name: Build animation and convert it into HTML slides
+    - name: Build animations
       run: |
         poetry run manim example.py ConvertExample BasicExample ThreeDExample
-        poetry run manim-slides convert ConvertExample docs/source/_static/slides.html -ccontrols=true
-        poetry run manim-slides convert BasicExample docs/source/_static/basic_example.html -ccontrols=true
-        poetry run manim-slides convert ThreeDExample docs/source/_static/three_d_example.html -ccontrols=true
+    - name: Convert animations to HTML slides
+      run: |
+        poetry run manim-slides convert -v DEBUG ConvertExample docs/source/_static/slides.html -ccontrols=true
+        poetry run manim-slides convert -v DEBUG BasicExample docs/source/_static/basic_example.html -ccontrols=true
+        poetry run manim-slides convert -v DEBUG ThreeDExample docs/source/_static/three_d_example.html -ccontrols=true
+    - name: Show docs/source/_static/ dir content (video only)
+      run: tree -L 3 docs/source/_static/ -P '*.mp4'
     - name: Clear cache
       run: |
         gh extension install actions/gh-actions-cache
@@ -80,6 +84,8 @@ jobs:
       with:
         # Upload docs/build/html dir
         path: docs/build/html/
+    - name: Show docs/build/html/_static/ dir content (video only)
+      run: tree -L 3 docs/build/html/_static/ -P '*.mp4'
     - name: Deploy to GitHub Pages
       id: deployment
       if: github.event_name != 'pull_request'
