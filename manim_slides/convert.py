@@ -314,6 +314,8 @@ class RevealJS(Converter):
                 file = presentation_config.files[slide_config.start_animation]
                 file = assets_dir / file.name
 
+                logger.debug(f"Writing video section with file {file}")
+
                 # TODO: document this
                 # Videos are muted because, otherwise, the first slide never plays correctly.
                 # This is due to a restriction in playing audio without the user doing anything.
