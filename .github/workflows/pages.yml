@@ -83,7 +83,7 @@ jobs:
         # Upload docs/build/html dir
         path: docs/build/html/
     - name: Show _static dir content
-      run: tree -L 3 build/_static/
+      run: tree -L 3 docs/build/html/_static/
     - name: Deploy to GitHub Pages
       id: deployment
       if: github.event_name != 'pull_request'
