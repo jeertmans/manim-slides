@@ -82,8 +82,8 @@ jobs:
       with:
         # Upload docs/build/html dir
         path: docs/build/html/
-    - name: Show _static dir content
-      run: tree -L 3 docs/build/html/_static/
+    - name: Show _static dir content (video only)
+      run: tree -L 3 docs/build/html/_static/ -P '*.mp4'
     - name: Deploy to GitHub Pages
       id: deployment
       if: github.event_name != 'pull_request'
