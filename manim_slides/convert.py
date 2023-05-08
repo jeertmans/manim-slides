@@ -54,7 +54,7 @@ def validate_config_option(
 class Converter(BaseModel):  # type: ignore
     presentation_configs: List[PresentationConfig] = []
     assets_dir: str = "{basename}_assets"
-    template: Optional[str] = None
+    template: Optional[Path] = None
 
     def convert_to(self, dest: Path) -> None:
         """Converts self, i.e., a list of presentations, into a given format."""
@@ -327,9 +327,8 @@ class RevealJS(Converter):
 
     def load_template(self) -> str:
         """Returns the RevealJS HTML template as a string."""
-        if isinstance(self.template, str):
-            with open(self.template, "r") as f:
-                return f.read()
+        if isinstance(self.template, Path):
+            return self.template.read_text()
 
         if sys.version_info < (3, 9):
             return resources.read_text(data, "revealjs_template.html")
