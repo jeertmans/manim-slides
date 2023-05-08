@@ -62,6 +62,8 @@ jobs:
         poetry run manim-slides convert -v DEBUG ConvertExample docs/source/_static/slides.html -ccontrols=true
         poetry run manim-slides convert -v DEBUG BasicExample docs/source/_static/basic_example.html -ccontrols=true
         poetry run manim-slides convert -v DEBUG ThreeDExample docs/source/_static/three_d_example.html -ccontrols=true
+    - name: Show docs/source/_static/ dir content (video only)
+      run: tree -L 3 docs/source/_static/ -P '*.mp4'
     - name: Clear cache
       run: |
         gh extension install actions/gh-actions-cache
@@ -82,7 +84,7 @@ jobs:
       with:
         # Upload docs/build/html dir
         path: docs/build/html/
-    - name: Show _static dir content (video only)
+    - name: Show docs/build/html/_static/ dir content (video only)
       run: tree -L 3 docs/build/html/_static/ -P '*.mp4'
     - name: Deploy to GitHub Pages
       id: deployment
