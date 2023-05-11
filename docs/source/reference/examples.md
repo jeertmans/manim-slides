@@ -66,6 +66,56 @@ Example using 3D camera. As Manim and ManimGL handle 3D differently, definitions
    :end-before: [manimgl-3d]
 ```
 
+## Subclass Custom Scenes
+
+For compatibility reasons, Manim Slides only provides subclasses for
+`Scene` and `ThreeDScene`.
+However, subclassing other scene classes is totally possible,
+and very simple to do actually!
+
+[For example](https://github.com/jeertmans/manim-slides/discussions/185),
+you can subclass the `MovingCameraScene` class from `manim`
+with the following code:
+
+```{code-block} python
+:linenos:
+
+from manim import *
+from manim_slides import Slide
+
+
+class MovingCameraSlide(Slide, MovingCameraScene):
+    pass
+```
+
+And later use this class anywhere in your code:
+
+
+```{code-block} python
+:linenos:
+
+class SubclassExample(MovingCameraSlide):
+    def construct(self):
+        eq1 = MathTex("x", "=", "1")
+        eq2 = MathTex("x", "=", "2")
+
+        self.play(Write(eq1))
+
+        self.next_slide()
+
+        self.play(
+            TransformMatchingTex(eq1, eq2),
+            self.camera.frame.animate.scale(0.5)
+        )
+
+        self.wait()
+```
+
+:::{note}
+If you do not plan to reuse `MovingCameraSlide` more than once, then you can
+directly write the `construct` method in the body of `MovingCameraSlide`.
+:::
+
 ## Advanced Example
 
 A more advanced example is `ConvertExample`, which is used as demo slide and tutorial.
