@@ -1,10 +1,11 @@
+from pathlib import Path
 from typing import Any, Callable
 
 import click
 from click import Context, Parameter
 
 from .defaults import CONFIG_PATH, FOLDER_PATH
-from .manim import logger
+from .logger import logger
 
 F = Callable[..., Any]
 Wrapper = Callable[[F], F]
@@ -18,7 +19,7 @@ def config_path_option(function: F) -> F:
         "config_path",
         metavar="FILE",
         default=CONFIG_PATH,
-        type=click.Path(dir_okay=False),
+        type=click.Path(dir_okay=False, path_type=Path),
         help="Set path to configuration file.",
         show_default=True,
     )
@@ -44,7 +45,6 @@ def verbosity_option(function: F) -> F:
     """Wraps a function to add verbosity option."""
 
     def callback(ctx: Context, param: Parameter, value: bool) -> None:
-
         if not value or ctx.resilient_parsing:
             return
 
@@ -54,7 +54,7 @@ def verbosity_option(function: F) -> F:
         "-v",
         "--verbosity",
         type=click.Choice(
-            ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"],
+            ["PERF", "DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"],
             case_sensitive=False,
         ),
         help="Verbosity of CLI output",
@@ -74,7 +74,7 @@ def folder_path_option(function: F) -> F:
         "--folder",
         metavar="DIRECTORY",
         default=FOLDER_PATH,
-        type=click.Path(exists=True, file_okay=False),
+        type=click.Path(exists=True, file_okay=False, path_type=Path),
         help="Set slides folder.",
         show_default=True,
     )

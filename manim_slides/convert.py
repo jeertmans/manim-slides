@@ -1,22 +1,42 @@
 import os
+import platform
+import subprocess
+import sys
+import tempfile
 import webbrowser
 from enum import Enum
+from importlib import resources
+from pathlib import Path
 from typing import Any, Callable, Dict, Generator, List, Optional, Type, Union
 
 import click
-import pkg_resources
+import cv2
+import pptx
 from click import Context, Parameter
-from pydantic import BaseModel, PositiveInt, ValidationError
+from lxml import etree
+from pydantic import BaseModel, FilePath, PositiveInt, ValidationError
+from tqdm import tqdm
 
+from . import data
 from .commons import folder_path_option, verbosity_option
 from .config import PresentationConfig
+from .logger import logger
 from .present import get_scenes_presentation_config
+
+
+def open_with_default(file: Path) -> None:
+    system = platform.system()
+    if system == "Darwin":
+        subprocess.call(("open", str(file)))
+    elif system == "Windows":
+        os.startfile(str(file))  # type: ignore[attr-defined]
+    else:
+        subprocess.call(("xdg-open", str(file)))
 
 
 def validate_config_option(
     ctx: Context, param: Parameter, value: Any
 ) -> Dict[str, str]:
-
     config = {}
 
     for c_option in value:
@@ -34,9 +54,9 @@ def validate_config_option(
 class Converter(BaseModel):  # type: ignore
     presentation_configs: List[PresentationConfig] = []
     assets_dir: str = "{basename}_assets"
-    template: Optional[str] = None
+    template: Optional[Path] = None
 
-    def convert_to(self, dest: str) -> None:
+    def convert_to(self, dest: Path) -> None:
         """Converts self, i.e., a list of presentations, into a given format."""
         raise NotImplementedError
 
@@ -46,7 +66,7 @@ class Converter(BaseModel):  # type: ignore
         An empty string is returned if no template is used."""
         return ""
 
-    def open(self, file: str) -> bool:
+    def open(self, file: Path) -> Any:
         """Opens a file, generated with converter, using appropriate application."""
         raise NotImplementedError
 
@@ -55,6 +75,7 @@ class Converter(BaseModel):  # type: ignore
         """Returns the appropriate converter from a string name."""
         return {
             "html": RevealJS,
+            "pptx": PowerPoint,
         }[s]
 
 
@@ -171,6 +192,13 @@ class TransitionSpeed(Str, Enum):  # type: ignore
     slow = "slow"
 
 
+class BackgroundSize(Str, Enum):  # type: ignore
+    # From: https://developer.mozilla.org/en-US/docs/Web/CSS/background-size
+    # TODO: support more background size
+    contain = "contain"
+    cover = "cover"
+
+
 BackgroundTransition = Transition
 
 
@@ -259,6 +287,7 @@ class RevealJS(Converter):
     focus_body_on_page_visibility_change: JsBool = JsBool.true
     transition: Transition = Transition.none
     transition_speed: TransitionSpeed = TransitionSpeed.default
+    background_size: BackgroundSize = BackgroundSize.contain  # Not in RevealJS
     background_transition: BackgroundTransition = BackgroundTransition.none
     pdf_max_pages_per_slide: Union[int, str] = "Number.POSITIVE_INFINITY"
     pdf_separate_fragments: JsBool = JsBool.true
@@ -278,12 +307,14 @@ class RevealJS(Converter):
         use_enum_values = True
         extra = "forbid"
 
-    def get_sections_iter(self) -> Generator[str, None, None]:
+    def get_sections_iter(self, assets_dir: Path) -> Generator[str, None, None]:
         """Generates a sequence of sections, one per slide, that will be included into the html template."""
         for presentation_config in self.presentation_configs:
             for slide_config in presentation_config.slides:
                 file = presentation_config.files[slide_config.start_animation]
-                file = os.path.join(self.assets_dir, os.path.basename(file))
+                file = assets_dir / file.name
+
+                logger.debug(f"Writing video section with file {file}")
 
                 # TODO: document this
                 # Videos are muted because, otherwise, the first slide never plays correctly.
@@ -292,40 +323,43 @@ class RevealJS(Converter):
                 # Read more about this:
                 #   https://developer.mozilla.org/en-US/docs/Web/Media/Autoplay_guide#autoplay_and_autoplay_blocking
                 if slide_config.is_loop():
-                    yield f'<section data-background-video="{file}" data-background-video-muted data-background-video-loop></section>'
+                    yield f'<section data-background-size={self.background_size.value} data-background-color="{presentation_config.background_color}" data-background-video="{file}" data-background-video-muted data-background-video-loop></section>'
                 else:
-                    yield f'<section data-background-video="{file}" data-background-video-muted></section>'
+                    yield f'<section data-background-size={self.background_size.value} data-background-color="{presentation_config.background_color}" data-background-video="{file}" data-background-video-muted></section>'
 
     def load_template(self) -> str:
         """Returns the RevealJS HTML template as a string."""
-        if isinstance(self.template, str):
-            with open(self.template, "r") as f:
-                return f.read()
-        return pkg_resources.resource_string(
-            __name__, "data/revealjs_template.html"
-        ).decode()
+        if isinstance(self.template, Path):
+            return self.template.read_text()
 
-    def open(self, file: str) -> bool:
-        return webbrowser.open(file)
+        if sys.version_info < (3, 9):
+            return resources.read_text(data, "revealjs_template.html")
 
-    def convert_to(self, dest: str) -> None:
+        return resources.files(data).joinpath("revealjs_template.html").read_text()
+
+    def open(self, file: Path) -> bool:
+        return webbrowser.open(file.absolute().as_uri())
+
+    def convert_to(self, dest: Path) -> None:
         """Converts this configuration into a RevealJS HTML presentation, saved to DEST."""
-        dirname = os.path.dirname(dest)
-        basename, ext = os.path.splitext(os.path.basename(dest))
+        dirname = dest.parent
+        basename = dest.stem
+        ext = dest.suffix
 
-        self.assets_dir = self.assets_dir.format(
-            dirname=dirname, basename=basename, ext=ext
+        assets_dir = Path(
+            self.assets_dir.format(dirname=dirname, basename=basename, ext=ext)
         )
-        full_assets_dir = os.path.join(dirname, self.assets_dir)
+        full_assets_dir = dirname / assets_dir
+
+        logger.debug(f"Assets will be saved to: {full_assets_dir}")
 
         os.makedirs(full_assets_dir, exist_ok=True)
 
         for presentation_config in self.presentation_configs:
-            presentation_config.concat_animations().move_to(full_assets_dir)
+            presentation_config.concat_animations().copy_to(full_assets_dir)
 
         with open(dest, "w") as f:
-
-            sections = "".join(self.get_sections_iter())
+            sections = "".join(self.get_sections_iter(assets_dir))
 
             revealjs_template = self.load_template()
             content = revealjs_template.format(sections=sections, **self.dict())
@@ -333,11 +367,96 @@ class RevealJS(Converter):
             f.write(content)
 
 
+class PowerPoint(Converter):
+    left: PositiveInt = 0
+    top: PositiveInt = 0
+    width: PositiveInt = 1280
+    height: PositiveInt = 720
+    auto_play_media: bool = True
+    poster_frame_image: Optional[FilePath] = None
+
+    class Config:
+        use_enum_values = True
+        extra = "forbid"
+
+    def open(self, file: Path) -> None:
+        return open_with_default(file)
+
+    def convert_to(self, dest: Path) -> None:
+        """Converts this configuration into a PowerPoint presentation, saved to DEST."""
+        prs = pptx.Presentation()
+        prs.slide_width = self.width * 9525
+        prs.slide_height = self.height * 9525
+
+        layout = prs.slide_layouts[6]  # Should be blank
+
+        # From GitHub issue comment:
+        # - https://github.com/scanny/python-pptx/issues/427#issuecomment-856724440
+        def auto_play_media(
+            media: pptx.shapes.picture.Movie, loop: bool = False
+        ) -> None:
+            el_id = xpath(media.element, ".//p:cNvPr")[0].attrib["id"]
+            el_cnt = xpath(
+                media.element.getparent().getparent().getparent(),
+                './/p:timing//p:video//p:spTgt[@spid="%s"]' % el_id,
+            )[0]
+            cond = xpath(el_cnt.getparent().getparent(), ".//p:cond")[0]
+            cond.set("delay", "0")
+
+            if loop:
+                ctn = xpath(el_cnt.getparent().getparent(), ".//p:cTn")[0]
+                ctn.set("repeatCount", "indefinite")
+
+        def xpath(el: etree.Element, query: str) -> etree.XPath:
+            nsmap = {"p": "http://schemas.openxmlformats.org/presentationml/2006/main"}
+            return etree.ElementBase.xpath(el, query, namespaces=nsmap)
+
+        def save_first_image_from_video_file(file: Path) -> Optional[str]:
+            cap = cv2.VideoCapture(str(file))
+            ret, frame = cap.read()
+
+            if ret:
+                f = tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".png")
+                cv2.imwrite(f.name, frame)
+                return f.name
+            else:
+                logger.warn("Failed to read first image from video file")
+                return None
+
+        for i, presentation_config in enumerate(self.presentation_configs):
+            presentation_config.concat_animations()
+            for slide_config in tqdm(
+                presentation_config.slides,
+                desc=f"Generating video slides for config {i + 1}",
+                leave=False,
+            ):
+                file = presentation_config.files[slide_config.start_animation]
+
+                if self.poster_frame_image is None:
+                    poster_frame_image = save_first_image_from_video_file(file)
+                else:
+                    poster_frame_image = str(self.poster_frame_image)
+
+                slide = prs.slides.add_slide(layout)
+                movie = slide.shapes.add_movie(
+                    str(file),
+                    self.left,
+                    self.top,
+                    self.width * 9525,
+                    self.height * 9525,
+                    poster_frame_image=poster_frame_image,
+                    mime_type="video/mp4",
+                )
+                if self.auto_play_media:
+                    auto_play_media(movie, loop=slide_config.is_loop())
+
+        prs.save(dest)
+
+
 def show_config_options(function: Callable[..., Any]) -> Callable[..., Any]:
     """Wraps a function to add a `--show-config` option."""
 
     def callback(ctx: Context, param: Parameter, value: bool) -> None:
-
         if not value or ctx.resilient_parsing:
             return
 
@@ -349,7 +468,7 @@ def show_config_options(function: Callable[..., Any]) -> Callable[..., Any]:
 
         ctx.exit()
 
-    return click.option(
+    return click.option(  # type: ignore
         "--show-config",
         is_flag=True,
         help="Show supported options for given format and exit.",
@@ -364,7 +483,6 @@ def show_template_option(function: Callable[..., Any]) -> Callable[..., Any]:
     """Wraps a function to add a `--show-template` option."""
 
     def callback(ctx: Context, param: Parameter, value: bool) -> None:
-
         if not value or ctx.resilient_parsing:
             return
 
@@ -378,7 +496,7 @@ def show_template_option(function: Callable[..., Any]) -> Callable[..., Any]:
 
         ctx.exit()
 
-    return click.option(
+    return click.option(  # type: ignore
         "--show-template",
         is_flag=True,
         help="Show the template (currently) used for a given conversion format and exit.",
@@ -392,10 +510,10 @@ def show_template_option(function: Callable[..., Any]) -> Callable[..., Any]:
 @click.command()
 @click.argument("scenes", nargs=-1)
 @folder_path_option
-@click.argument("dest")
+@click.argument("dest", type=click.Path(dir_okay=False, path_type=Path))
 @click.option(
     "--to",
-    type=click.Choice(["html"], case_sensitive=False),
+    type=click.Choice(["html", "pptx"], case_sensitive=False),
     default="html",
     show_default=True,
     help="Set the conversion format to use.",
@@ -419,7 +537,7 @@ def show_template_option(function: Callable[..., Any]) -> Callable[..., Any]:
     "--use-template",
     "template",
     metavar="FILE",
-    type=click.Path(exists=True, dir_okay=False),
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
     help="Use the template given by FILE instead of default one. To echo the default template, use `--show-template`.",
 )
 @show_template_option
@@ -427,13 +545,13 @@ def show_template_option(function: Callable[..., Any]) -> Callable[..., Any]:
 @verbosity_option
 def convert(
     scenes: List[str],
-    folder: str,
-    dest: str,
+    folder: Path,
+    dest: Path,
     to: str,
     open_result: bool,
     force: bool,
     config_options: Dict[str, str],
-    template: Optional[str],
+    template: Optional[Path],
 ) -> None:
     """
     Convert SCENE(s) into a given format and writes the result in DEST.
@@ -454,7 +572,6 @@ def convert(
             converter.open(dest)
 
     except ValidationError as e:
-
         errors = e.errors()
 
         msg = [

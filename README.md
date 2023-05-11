@@ -1,13 +1,18 @@
-![Manim Slides Logo](https://raw.githubusercontent.com/jeertmans/manim-slides/main/static/logo.png)
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/jeertmans/manim-slides/main/static/logo_dark_transparent.png">
+  <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/jeertmans/manim-slides/main/static/logo_light_transparent.png">
+  <img alt="Manim Slides Logo" src="https://raw.githubusercontent.com/jeertmans/manim-slides/main/static/logo.png">
+</picture>
 
 [![Latest Release][pypi-version-badge]][pypi-version-url]
 [![Python version][pypi-python-version-badge]][pypi-version-url]
-![PyPI - Downloads](https://img.shields.io/pypi/dm/manim-slides)
+[![PyPI - Downloads][pypi-download-badge]][pypi-version-url]
+[![Documentation][documentation-badge]][documentation-url]
 # Manim Slides
 
 Tool for live presentations using either [Manim (community edition)](https://www.manim.community/) or [ManimGL](https://3b1b.github.io/manim/). Manim Slides will *automatically* detect the one you are using!
 
-> **_NOTE:_**  This project extends the work of [`manim-presentation`](https://github.com/galatolofederico/manim-presentation), with a lot more features!
+> **NOTE:** this project extends the work of [`manim-presentation`](https://github.com/galatolofederico/manim-presentation), with a lot more features!
 
 - [Installation](#installation)
   * [Dependencies](#dependencies)
@@ -22,6 +27,9 @@ Tool for live presentations using either [Manim (community edition)](https://www
 - [F.A.Q](#faq)
   * [How to increase quality on Windows](#how-to-increase-quality-on-windows)
 - [Contributing](#contributing)
+  * [Reporting an Issue](#reporting-an-issue)
+  * [Seeking for Help](#seeking-for-help)
+  * [Contact](#contact)
 
 ## Installation
 
@@ -49,6 +57,16 @@ The recommended way to install the latest release is to use pip:
 pip install manim-slides
 ```
 
+Optionally, you can also install Manim or ManimGL using extras[^1]:
+
+```bash
+pip install manim-slides[manim]   # For Manim
+# or
+pip install manim-slides[manimgl] # For ManimGL
+```
+
+[^1]: NOTE: you still need to have Manim or ManimGL platform-specific dependencies installed on your computer.
+
 ### Install From Repository
 
 An alternative way to install Manim Slides is to clone the git repository, and install from there: read the [contributing guide](https://eertmans.be/manim-slides/contributing/workflow.html) to know how.
@@ -60,7 +78,7 @@ An alternative way to install Manim Slides is to clone the git repository, and i
 <!-- start usage -->
 
 Using Manim Slides is a two-step process:
-1. Render animations using `Slide` (resp. `ThreeDSlide`) as a base class instead of `Scene` (resp. `ThreeDScene`), and add calls to `self.pause()` everytime you want to create a new slide.
+1. Render animations using `Slide` (resp. `ThreeDSlide`) as a base class instead of `Scene` (resp. `ThreeDScene`), and add calls to `self.next_slide()` everytime you want to create a new slide.
 2. Run `manim-slides` on rendered animations and display them like a *Power Point* presentation.
 
 The documentation is available [online](https://eertmans.be/manim-slides/).
@@ -82,14 +100,14 @@ class BasicExample(Slide):
         dot = Dot()
 
         self.play(GrowFromCenter(circle))
-        self.pause()  # Waits user to press continue to go to the next slide
+        self.next_slide()  # Waits user to press continue to go to the next slide
 
         self.start_loop()  # Start loop
         self.play(MoveAlongPath(dot, circle), run_time=2, rate_func=linear)
         self.end_loop()  # This will loop until user inputs a key
 
         self.play(dot.animate.move_to(ORIGIN))
-        self.pause()  # Waits user to press continue to go to the next slide
+        self.next_slide()  # Waits user to press continue to go to the next slide
 ```
 
 First, render the animation files:
@@ -118,7 +136,11 @@ manim-slides BasicExample
 
 The default key bindings to control the presentation are:
 
-![manim-wizard](https://user-images.githubusercontent.com/27275099/197468787-19c83a81-d757-47b9-8f68-218427d30298.png)
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/jeertmans/manim-slides/main/static/wizard_dark.png">
+  <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/jeertmans/manim-slides/main/static/wizard_light.png">
+  <img alt="Manim Slides Wizard" src="https://raw.githubusercontent.com/jeertmans/manim-slides/main/static/wizard_light.png">
+</picture>
 
 
 You can run the **configuration wizard** to change those key bindings:
@@ -181,6 +203,58 @@ in *Settings*->*Display*.
 
 Contributions are more than welcome! Please read through [our contributing section](https://eertmans.be/manim-slides/contributing/index.html).
 
+### Reporting an Issue
+
+<!-- start reporting-an-issue -->
+
+If you think you found a bug,
+an error in the documentation,
+or wish there was some feature that is currently missing,
+we would love to hear from you!
+
+The best way to reach us is via the
+[GitHub issues](https://github.com/jeertmans/manim-slides/issues).
+If your problem is not covered by an already existing (closed or open) issue,
+then we suggest you create a
+[new issue](https://github.com/jeertmans/manim-slides/issues/new/choose).
+You can choose from a list of templates, or open a
+[blank issue](https://github.com/jeertmans/manim-slides/issues/new)
+if your issue does not fit one of the proposed topics.
+
+The more precise you are in the description of your problem, the faster we will
+be able to help you!
+
+<!-- end reporting-an-issue -->
+
+### Seeking for help
+
+<!-- start seeking-for-help -->
+
+Sometimes, you may have a question about Manim Slides,
+not necessarily an issue.
+
+There are two ways you can reach us for questions:
+
+- via the `Question/Help/Support` topic when
+[choosing an issue template](https://github.com/jeertmans/manim-slides/issues/new/choose);
+- or via
+[GitHub discussions](https://github.com/jeertmans/manim-slides/discussions).
+
+<!-- end seeking-for-help -->
+
+### Contact
+
+<!-- start contact -->
+
+Finally, if you do not have any GitHub account,
+or just wish to contact the author of Manim Slides,
+you can do so at: [jeertmans@icloud.com](mailto:jeertmans@icloud.com).
+
+<!-- end contact -->
+
 [pypi-version-badge]: https://img.shields.io/pypi/v/manim-slides?label=manim-slides
 [pypi-version-url]: https://pypi.org/project/manim-slides/
 [pypi-python-version-badge]: https://img.shields.io/pypi/pyversions/manim-slides
+[pypi-download-badge]: https://img.shields.io/pypi/dm/manim-slides
+[documentation-badge]: https://img.shields.io/website?down_color=lightgrey&down_message=offline&label=documentation&up_color=green&up_message=online&url=https%3A%2F%2Feertmans.be%2Fmanim-slides%2F
+[documentation-url]: https://eertmans.be/manim-slides/

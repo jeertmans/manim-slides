@@ -1,11 +1,21 @@
 ---
 hide-toc: true
+og:description: Manim Slides makes creating slides with Manim super easy!
 ---
 
 ```{eval-rst}
-.. image:: _static/logo.png
+.. image:: _static/logo_light_transparent.png
     :width: 600px
     :align: center
+    :class: only-light
+    :alt: Manim Slide logo
+```
+
+```{eval-rst}
+.. image:: _static/logo_dark_transparent.png
+    :width: 600px
+    :align: center
+    :class: only-dark
     :alt: Manim Slide logo
 ```
 
@@ -29,6 +39,7 @@ Slide through the demo below to get a quick glimpse on what you can do with Mani
 
 quickstart
 reference/index
+features_table
 ```
 
 ```{toctree}

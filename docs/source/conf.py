@@ -24,6 +24,11 @@ extensions = [
     "sphinx_copybutton",
 ]
 
+myst_enable_extensions = [
+    "colon_fence",
+    "html_admonition",
+]
+
 templates_path = ["_templates"]
 exclude_patterns = []
 
@@ -35,6 +40,8 @@ html_theme = "furo"
 html_static_path = ["_static"]
 
 html_theme_options = {
+    "light_logo": "logo_light_transparent.png",
+    "dark_logo": "logo_dark_transparent.png",
     "footer_icons": [
         {
             "name": "GitHub",
@@ -52,10 +59,15 @@ html_theme_options = {
     "source_directory": "docs/source/",
 }
 
-## -- Intersphinx mapping
+# -- Intersphinx mapping
 
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),
     "manim": ("https://docs.manim.community/en/stable/", None),
     "manimlib": ("https://3b1b.github.io/manim/", None),
 }
+
+# -- OpenGraph settings
+
+ogp_site_url = "https://eertmans.be/manim-slides/"
+ogp_use_first_image = True

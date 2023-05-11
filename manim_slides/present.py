@@ -3,12 +3,15 @@ import platform
 import sys
 import time
 from enum import Enum, IntEnum, auto, unique
+from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple, Union
 
 import click
 import cv2
 import numpy as np
+from click import Context, Parameter
 from pydantic import ValidationError
+from pydantic.color import Color
 from PySide6.QtCore import Qt, QThread, Signal, Slot
 from PySide6.QtGui import QCloseEvent, QIcon, QImage, QKeyEvent, QPixmap, QResizeEvent
 from PySide6.QtWidgets import QApplication, QFileDialog, QGridLayout, QLabel, QWidget
@@ -17,7 +20,7 @@ from tqdm import tqdm
 from .commons import config_path_option, verbosity_option
 from .config import DEFAULT_CONFIG, Config, PresentationConfig, SlideConfig
 from .defaults import FOLDER_PATH
-from .manim import logger
+from .logger import logger
 from .resources import *  # noqa: F401, F403
 
 os.environ.pop(
@@ -69,10 +72,9 @@ class Presentation:
     """Creates presentation from a configuration object."""
 
     def __init__(self, config: PresentationConfig) -> None:
-        self.slides: List[SlideConfig] = config.slides
-        self.files: List[str] = config.files
+        self.config = config
 
-        self.current_slide_index: int = 0
+        self.__current_slide_index: int = 0
         self.current_animation: int = self.current_slide.start_animation
         self.current_file: str = ""
 
@@ -85,6 +87,71 @@ class Presentation:
         self.lastframe: Optional[np.ndarray] = None
 
         self.reset()
+
+    def __len__(self) -> int:
+        return len(self.slides)
+
+    @property
+    def slides(self) -> List[SlideConfig]:
+        """Returns the list of slides."""
+        return self.config.slides
+
+    @property
+    def files(self) -> List[Path]:
+        """Returns the list of animation files."""
+        return self.config.files
+
+    @property
+    def resolution(self) -> Tuple[int, int]:
+        """Returns the resolution."""
+        return self.config.resolution
+
+    @property
+    def background_color(self) -> Color:
+        """Returns the background color."""
+        return self.config.background_color
+
+    @property
+    def current_slide_index(self) -> int:
+        return self.__current_slide_index
+
+    @current_slide_index.setter
+    def current_slide_index(self, value: Optional[int]) -> None:
+        if value is not None:
+            if -len(self) <= value < len(self):
+                self.__current_slide_index = value
+                self.current_animation = self.current_slide.start_animation
+                logger.debug(f"Set current slide index to {value}")
+            else:
+                logger.error(
+                    f"Could not load slide number {value}, playing first slide instead."
+                )
+
+    def set_current_animation_and_update_slide_number(
+        self, value: Optional[int]
+    ) -> None:
+        if value is not None:
+            n_files = len(self.files)
+            if -n_files <= value < n_files:
+                if value < 0:
+                    value += n_files
+
+                for i, slide in enumerate(self.slides):
+                    if value < slide.end_animation:
+                        self.current_slide_index = i
+                        self.current_animation = value
+
+                        logger.debug(f"Playing animation {value}, at slide index {i}")
+                        return
+
+                assert (
+                    False
+                ), f"An error occurred when setting the current animation to {value}, please create an issue on GitHub!"
+
+            else:
+                logger.error(
+                    f"Could not load animation number {value}, playing first animation instead."
+                )
 
     @property
     def current_slide(self) -> SlideConfig:
@@ -114,12 +181,11 @@ class Presentation:
         if (self.loaded_animation_cap != animation) or (
             self.reverse and self.reversed_animation != animation
         ):  # cap already loaded
-
             logger.debug(f"Loading new cap for animation #{animation}")
 
             self.release_cap()
 
-            file: str = self.files[animation]
+            file: str = str(self.files[animation])
 
             if self.reverse:
                 file = "{}_reversed{}".format(*os.path.splitext(file))
@@ -127,7 +193,7 @@ class Presentation:
 
             self.current_file = file
 
-            self.cap = cv2.VideoCapture(file)
+            self.cap = cv2.VideoCapture(str(file))
             self.loaded_animation_cap = animation
 
     @property
@@ -138,7 +204,9 @@ class Presentation:
 
     def rewind_current_slide(self) -> None:
         """Rewinds current slide to first frame."""
-        logger.debug("Rewinding curring slide")
+        logger.debug("Rewinding current slide")
+        self.current_slide.terminated = False
+
         if self.reverse:
             self.current_animation = self.current_slide.end_animation - 1
         else:
@@ -176,9 +244,10 @@ class Presentation:
 
     def load_previous_slide(self) -> None:
         """Loads previous slide."""
-        logger.debug("Loading previous slide")
+        logger.debug(f"Loading previous slide, current is {self.current_slide_index}")
         self.cancel_reverse()
         self.current_slide_index = max(0, self.current_slide_index - 1)
+        logger.debug(f"Loading slide index {self.current_slide_index}")
         self.rewind_current_slide()
 
     @property
@@ -189,7 +258,8 @@ class Presentation:
             logger.warn(
                 f"Something is wrong with video file {self.current_file}, as the fps returned by frame {self.current_frame_number} is 0"
             )
-        return max(fps, 1)  # TODO: understand why we sometimes get 0 fps
+        # TODO: understand why we sometimes get 0 fps
+        return max(fps, 1)  # type: ignore
 
     def reset(self) -> None:
         """Rests current presentation."""
@@ -217,7 +287,7 @@ class Presentation:
             return self.current_animation + 1
 
     @property
-    def is_last_animation(self) -> int:
+    def is_last_animation(self) -> bool:
         """Returns True if current animation is the last one of current slide."""
         if self.reverse:
             return self.current_animation == self.current_slide.start_animation
@@ -280,16 +350,20 @@ class Display(QThread):  # type: ignore
 
     change_video_signal = Signal(np.ndarray)
     change_info_signal = Signal(dict)
+    change_presentation_sigal = Signal()
     finished = Signal()
 
     def __init__(
         self,
-        presentations: List[PresentationConfig],
+        presentations: List[Presentation],
         config: Config = DEFAULT_CONFIG,
         start_paused: bool = False,
         skip_all: bool = False,
         record_to: Optional[str] = None,
         exit_after_last_slide: bool = False,
+        start_at_scene_number: Optional[int] = None,
+        start_at_slide_number: Optional[int] = None,
+        start_at_animation_number: Optional[int] = None,
     ) -> None:
         super().__init__()
         self.presentations = presentations
@@ -301,16 +375,52 @@ class Display(QThread):  # type: ignore
 
         self.state = State.PLAYING
         self.lastframe: Optional[np.ndarray] = None
-        self.current_presentation_index = 0
+
+        self.__current_presentation_index = 0
+        self.current_presentation_index = start_at_scene_number  # type: ignore
+        self.current_presentation.current_slide_index = start_at_slide_number  # type: ignore
+        self.current_presentation.set_current_animation_and_update_slide_number(
+            start_at_animation_number
+        )
+
         self.run_flag = True
 
         self.key = -1
         self.exit_after_last_slide = exit_after_last_slide
 
+    def __len__(self) -> int:
+        return len(self.presentations)
+
+    @property
+    def current_presentation_index(self) -> int:
+        return self.__current_presentation_index
+
+    @current_presentation_index.setter
+    def current_presentation_index(self, value: Optional[int]) -> None:
+        if value is not None:
+            if -len(self) <= value < len(self):
+                self.__current_presentation_index = value
+                self.current_presentation.release_cap()
+                self.change_presentation_sigal.emit()
+            else:
+                logger.error(
+                    f"Could not load scene number {value}, playing first scene instead."
+                )
+
     @property
     def current_presentation(self) -> Presentation:
         """Returns the current presentation."""
         return self.presentations[self.current_presentation_index]
+
+    @property
+    def current_resolution(self) -> Tuple[int, int]:
+        """Returns the resolution of the current presentation."""
+        return self.current_presentation.resolution
+
+    @property
+    def current_background_color(self) -> Color:
+        """Returns the background color of the current presentation."""
+        return self.current_presentation.background_color
 
     def run(self) -> None:
         """Runs a series of presentations until end or exit."""
@@ -338,6 +448,21 @@ class Display(QThread):  # type: ignore
 
             lag = now() - last_time
             sleep_time = 1 / self.current_presentation.fps
+
+            logger.log(
+                5,
+                f"Took {lag:.3f} seconds to process the current frame, that must play at a rate of one every {sleep_time:.3f} seconds.",
+            )
+
+            if sleep_time - lag < 0:
+                logger.warn(
+                    "The FPS rate could not be matched. "
+                    "This is normal when manually transitioning between slides.\n"
+                    "If you feel that the FPS are too low, "
+                    "consider checking this issue:\n"
+                    "https://github.com/jeertmans/manim-slides/issues/179."
+                )
+
             sleep_time = max(sleep_time - lag, 0)
             time.sleep(sleep_time)
             last_time = now()
@@ -346,7 +471,7 @@ class Display(QThread):  # type: ignore
         if self.record_to is not None:
             self.record_movie()
 
-        logger.debug("Closing video thread gracully and exiting")
+        logger.debug("Closing video thread gracefully and exiting")
         self.finished.emit()
 
     def record_movie(self) -> None:
@@ -520,7 +645,6 @@ class App(QWidget):  # type: ignore
         *args: Any,
         config: Config = DEFAULT_CONFIG,
         fullscreen: bool = False,
-        resolution: Tuple[int, int] = (1980, 1080),
         hide_mouse: bool = False,
         aspect_ratio: AspectRatio = AspectRatio.auto,
         resize_mode: Qt.TransformationMode = Qt.SmoothTransformation,
@@ -532,7 +656,12 @@ class App(QWidget):  # type: ignore
         self.setWindowTitle(WINDOW_NAME)
         self.icon = QIcon(":/icon.png")
         self.setWindowIcon(self.icon)
-        self.display_width, self.display_height = resolution
+
+        # create the video capture thread
+        kwargs["config"] = config
+        self.thread = Display(*args, **kwargs)
+
+        self.display_width, self.display_height = self.thread.current_resolution
         self.aspect_ratio = aspect_ratio
         self.resize_mode = resize_mode
         self.hide_mouse = hide_mouse
@@ -546,15 +675,14 @@ class App(QWidget):  # type: ignore
             self.label.setScaledContents(True)
         self.label.setAlignment(Qt.AlignCenter)
         self.label.resize(self.display_width, self.display_height)
-        self.label.setStyleSheet(f"background-color: {background_color}")
+        self.label.setStyleSheet(
+            f"background-color: {self.thread.current_background_color}"
+        )
 
         self.pixmap = QPixmap(self.width(), self.height())
         self.label.setPixmap(self.pixmap)
         self.label.setMinimumSize(1, 1)
 
-        # create the video capture thread
-        kwargs["config"] = config
-        self.thread = Display(*args, **kwargs)
         # create the info dialog
         self.info = Info()
         self.info.show()
@@ -568,6 +696,7 @@ class App(QWidget):  # type: ignore
         # connect signals
         self.thread.change_video_signal.connect(self.update_image)
         self.thread.change_info_signal.connect(self.info.update_info)
+        self.thread.change_presentation_sigal.connect(self.update_canvas)
         self.thread.finished.connect(self.closeAll)
         self.send_key_signal.connect(self.thread.set_key)
 
@@ -575,7 +704,6 @@ class App(QWidget):  # type: ignore
         self.thread.start()
 
     def keyPressEvent(self, event: QKeyEvent) -> None:
-
         key = event.key()
         if self.config.HIDE_MOUSE.match(key):
             if self.hide_mouse:
@@ -622,47 +750,58 @@ class App(QWidget):  # type: ignore
 
         self.label.setPixmap(QPixmap.fromImage(qt_img))
 
+    @Slot()
+    def update_canvas(self) -> None:
+        """Update the canvas when a presentation has changed."""
+        logger.debug("Updating canvas")
+        self.display_width, self.display_height = self.thread.current_resolution
+        if not self.isFullScreen():
+            self.resize(self.display_width, self.display_height)
+        self.label.setStyleSheet(
+            f"background-color: {self.thread.current_background_color}"
+        )
+
 
 @click.command()
 @click.option(
     "--folder",
     metavar="DIRECTORY",
     default=FOLDER_PATH,
-    type=click.Path(exists=True, file_okay=False),
+    type=click.Path(exists=True, file_okay=False, path_type=Path),
     help="Set slides folder.",
     show_default=True,
 )
 @click.help_option("-h", "--help")
 @verbosity_option
-def list_scenes(folder: str) -> None:
+def list_scenes(folder: Path) -> None:
     """List available scenes."""
 
     for i, scene in enumerate(_list_scenes(folder), start=1):
         click.secho(f"{i}: {scene}", fg="green")
 
 
-def _list_scenes(folder: str) -> List[str]:
+def _list_scenes(folder: Path) -> List[str]:
     """Lists available scenes in given directory."""
     scenes = []
 
-    for file in os.listdir(folder):
-        if file.endswith(".json"):
-            filepath = os.path.join(folder, file)
-            try:
-                _ = PresentationConfig.parse_file(filepath)
-                scenes.append(os.path.basename(file)[:-5])
-            except Exception as e:  # Could not parse this file as a proper presentation config
-                logger.warn(
-                    f"Something went wrong with parsing presentation config `{filepath}`: {e}"
-                )
-                pass
+    for filepath in folder.glob("*.json"):
+        try:
+            _ = PresentationConfig.parse_file(filepath)
+            scenes.append(filepath.stem)
+        except (
+            Exception
+        ) as e:  # Could not parse this file as a proper presentation config
+            logger.warn(
+                f"Something went wrong with parsing presentation config `{filepath}`: {e}"
+            )
+            pass
 
     logger.debug(f"Found {len(scenes)} valid scene configuration files in `{folder}`.")
 
     return scenes
 
 
-def prompt_for_scenes(folder: str) -> List[str]:
+def prompt_for_scenes(folder: Path) -> List[str]:
     """Prompts the user to select scenes within a given folder."""
 
     scene_choices = dict(enumerate(_list_scenes(folder), start=1))
@@ -691,13 +830,13 @@ def prompt_for_scenes(folder: str) -> List[str]:
     while True:
         try:
             scenes = click.prompt("Choice(s)", value_proc=value_proc)
-            return scenes
+            return scenes  # type: ignore
         except ValueError as e:
             raise click.UsageError(str(e))
 
 
 def get_scenes_presentation_config(
-    scenes: List[str], folder: str
+    scenes: List[str], folder: Path
 ) -> List[PresentationConfig]:
     """Returns a list of presentation configurations based on the user input."""
 
@@ -706,8 +845,8 @@ def get_scenes_presentation_config(
 
     presentation_configs = []
     for scene in scenes:
-        config_file = os.path.join(folder, f"{scene}.json")
-        if not os.path.exists(config_file):
+        config_file = folder / f"{scene}.json"
+        if not config_file.exists():
             raise click.UsageError(
                 f"File {config_file} does not exist, check the scene name and make sure to use Slide as your scene base class"
             )
@@ -719,6 +858,37 @@ def get_scenes_presentation_config(
     return presentation_configs
 
 
+def start_at_callback(
+    ctx: Context, param: Parameter, values: str
+) -> Tuple[Optional[int], ...]:
+    if values == "(None, None, None)":
+        return (None, None, None)
+
+    def str_to_int_or_none(value: str) -> Optional[int]:
+        if value.lower().strip() == "":
+            return None
+        else:
+            try:
+                return int(value)
+            except ValueError:
+                raise click.BadParameter(
+                    f"start index can only be an integer or an empty string, not `{value}`",
+                    ctx=ctx,
+                    param=param,
+                )
+
+    values_tuple = values.split(",")
+    n_values = len(values_tuple)
+    if n_values == 3:
+        return tuple(map(str_to_int_or_none, values_tuple))
+
+    raise click.BadParameter(
+        f"exactly 3 arguments are expected but you gave {n_values}, please use commas to separate them",
+        ctx=ctx,
+        param=param,
+    )
+
+
 @click.command()
 @click.argument("scenes", nargs=-1)
 @config_path_option
@@ -726,7 +896,7 @@ def get_scenes_presentation_config(
     "--folder",
     metavar="DIRECTORY",
     default=FOLDER_PATH,
-    type=click.Path(exists=True, file_okay=False),
+    type=click.Path(exists=True, file_okay=False, path_type=Path),
     help="Set slides folder.",
     show_default=True,
 )
@@ -743,16 +913,15 @@ def get_scenes_presentation_config(
     "--resolution",
     metavar="<WIDTH HEIGHT>",
     type=(int, int),
-    default=(1920, 1080),
+    default=None,
     help="Window resolution WIDTH HEIGHT used if fullscreen is not set. You may manually resize the window afterward.",
-    show_default=True,
 )
 @click.option(
     "--to",
     "--record-to",
     "record_to",
     metavar="FILE",
-    type=click.Path(dir_okay=False),
+    type=click.Path(dir_okay=False, path_type=Path),
     default=None,
     help="If set, the presentation will be recorded into a AVI video file with given name.",
 )
@@ -786,26 +955,67 @@ def get_scenes_presentation_config(
     "background_color",
     metavar="COLOR",
     type=str,
-    default="black",
-    help='Set the background color for borders when using "keep" resize mode. Can be any valid CSS color, e.g., "green", "#FF6500" or "rgba(255, 255, 0, .5)".',
+    default=None,
+    help='Set the background color for borders when using "keep" resize mode. Can be any valid CSS color, e.g., "green", "#FF6500" or "rgba(255, 255, 0, .5)". If not set, it defaults to the background color configured in the Manim scene.',
     show_default=True,
+)
+@click.option(
+    "--sa",
+    "--start-at",
+    "start_at",
+    metavar="<SCENE,SLIDE,ANIMATION>",
+    type=str,
+    callback=start_at_callback,
+    default=(None, None, None),
+    help="Start presenting at (x, y, z), equivalent to --sacn x --sasn y --saan z, and overrides values if not None.",
+)
+@click.option(
+    "--sacn",
+    "--start-at-scene-number",
+    "start_at_scene_number",
+    metavar="INDEX",
+    type=int,
+    default=None,
+    help="Start presenting at a given scene number (0 is first, -1 is last).",
+)
+@click.option(
+    "--sasn",
+    "--start-at-slide-number",
+    "start_at_slide_number",
+    metavar="INDEX",
+    type=int,
+    default=None,
+    help="Start presenting at a given slide number (0 is first, -1 is last).",
+)
+@click.option(
+    "--saan",
+    "--start-at-animation-number",
+    "start_at_animation_number",
+    metavar="INDEX",
+    type=int,
+    default=0,
+    help="Start presenting at a given animation number (0 is first, -1 is last). This conflicts with slide number since animation number is absolute to the presentation.",
 )
 @click.help_option("-h", "--help")
 @verbosity_option
 def present(
     scenes: List[str],
-    config_path: str,
-    folder: str,
+    config_path: Path,
+    folder: Path,
     start_paused: bool,
     fullscreen: bool,
     skip_all: bool,
-    resolution: Tuple[int, int],
-    record_to: Optional[str],
+    resolution: Optional[Tuple[int, int]],
+    record_to: Optional[Path],
     exit_after_last_slide: bool,
     hide_mouse: bool,
     aspect_ratio: str,
     resize_mode: str,
-    background_color: str,
+    background_color: Optional[str],
+    start_at: Tuple[Optional[int], Optional[int], Optional[int]],
+    start_at_scene_number: Optional[int],
+    start_at_slide_number: Optional[int],
+    start_at_animation_number: Optional[int],
 ) -> None:
     """
     Present SCENE(s), one at a time, in order.
@@ -836,12 +1046,22 @@ def present(
     if skip_all:
         exit_after_last_slide = True
 
+    presentation_configs = get_scenes_presentation_config(scenes, folder)
+
+    if resolution is not None:
+        for presentation_config in presentation_configs:
+            presentation_config.resolution = resolution
+
+    if background_color is not None:
+        for presentation_config in presentation_configs:
+            presentation_config.background_color = background_color
+
     presentations = [
         Presentation(presentation_config)
-        for presentation_config in get_scenes_presentation_config(scenes, folder)
+        for presentation_config in presentation_configs
     ]
 
-    if os.path.exists(config_path):
+    if config_path.exists():
         try:
             config = Config.parse_file(config_path)
         except ValidationError as e:
@@ -851,25 +1071,37 @@ def present(
         config = Config()
 
     if record_to is not None:
-        _, ext = os.path.splitext(record_to)
+        ext = record_to.suffix
         if ext.lower() != ".avi":
             raise click.UsageError(
                 "Recording only support '.avi' extension. For other video formats, please convert the resulting '.avi' file afterwards."
             )
 
+    if start_at[0]:
+        start_at_scene_number = start_at[0]
+
+    if start_at[1]:
+        start_at_slide_number = start_at[1]
+
+    if start_at[2]:
+        start_at_animation_number = start_at[2]
+
+    app = QApplication(sys.argv)
+    app.setApplicationName("Manim Slides")
     a = App(
         presentations,
         config=config,
         start_paused=start_paused,
         fullscreen=fullscreen,
         skip_all=skip_all,
-        resolution=resolution,
         record_to=record_to,
         exit_after_last_slide=exit_after_last_slide,
         hide_mouse=hide_mouse,
         aspect_ratio=ASPECT_RATIO_MODES[aspect_ratio],
         resize_mode=RESIZE_MODES[resize_mode],
-        background_color=background_color,
+        start_at_scene_number=start_at_scene_number,
+        start_at_slide_number=start_at_slide_number,
+        start_at_animation_number=start_at_animation_number,
     )
     a.show()
     sys.exit(app.exec_())

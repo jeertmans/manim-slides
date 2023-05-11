@@ -1,27 +1,38 @@
+import hashlib
 import os
 import shutil
 import subprocess
 import tempfile
 from enum import Enum
-from typing import Callable, Dict, List, Optional, Set, Union
+from pathlib import Path
+from typing import Dict, List, Optional, Set, Tuple, Union
 
-from pydantic import BaseModel, root_validator, validator
+from pydantic import BaseModel, FilePath, PositiveInt, root_validator, validator
+from pydantic.color import Color
 from PySide6.QtCore import Qt
 
-from .manim import FFMPEG_BIN, logger
+from .defaults import FFMPEG_BIN
+from .logger import logger
 
 
-def merge_basenames(files: List[str]) -> str:
+def merge_basenames(files: List[FilePath]) -> Path:
     """
     Merge multiple filenames by concatenating basenames.
     """
+    logger.info(f"Generating a new filename for animations: {files}")
 
-    dirname = os.path.dirname(files[0])
-    _, ext = os.path.splitext(files[0])
+    dirname: Path = files[0].parent
+    ext = files[0].suffix
 
-    basename = "_".join(os.path.splitext(os.path.basename(file))[0] for file in files)
+    basenames = (file.stem for file in files)
 
-    return os.path.join(dirname, basename + ext)
+    basenames_str = ",".join(f"{len(b)}:{b}" for b in basenames)
+
+    # We use hashes to prevent too-long filenames, see issue #123:
+    # https://github.com/jeertmans/manim-slides/issues/123
+    basename = hashlib.sha256(basenames_str.encode()).hexdigest()
+
+    return dirname.joinpath(basename + ext)
 
 
 class Key(BaseModel):  # type: ignore
@@ -111,7 +122,6 @@ class SlideConfig(BaseModel):  # type: ignore
         cls, values: Dict[str, Union[SlideType, int, bool]]
     ) -> Dict[str, Union[SlideType, int, bool]]:
         if values["start_animation"] >= values["end_animation"]:  # type: ignore
-
             if values["start_animation"] == values["end_animation"] == 0:
                 raise ValueError(
                     "You have to play at least one animation (e.g., `self.wait()`) before pausing. If you want to start paused, use the approriate command-line option when presenting. IMPORTANT: when using ManimGL, `self.wait()` is not considered to be an animation, so prefer to directly use `self.play(...)`."
@@ -139,26 +149,16 @@ class SlideConfig(BaseModel):  # type: ignore
 
 class PresentationConfig(BaseModel):  # type: ignore
     slides: List[SlideConfig]
-    files: List[str]
-
-    @validator("files", pre=True, each_item=True)
-    def is_file_and_exists(cls, v: str) -> str:
-        if not os.path.exists(v):
-            raise ValueError(
-                f"Animation file {v} does not exist. Are you in the right directory?"
-            )
-
-        if not os.path.isfile(v):
-            raise ValueError(f"Animation file {v} is not a file")
-
-        return v
+    files: List[FilePath]
+    resolution: Tuple[PositiveInt, PositiveInt] = (1920, 1080)
+    background_color: Color = "black"
 
     @root_validator
     def animation_indices_match_files(
-        cls, values: Dict[str, Union[List[SlideConfig], List[str]]]
-    ) -> Dict[str, Union[List[SlideConfig], List[str]]]:
-        files = values.get("files")
-        slides = values.get("slides")
+        cls, values: Dict[str, Union[List[SlideConfig], List[FilePath]]]
+    ) -> Dict[str, Union[List[SlideConfig], List[FilePath]]]:
+        files: List[FilePath] = values.get("files")  # type: ignore
+        slides: List[SlideConfig] = values.get("slides")  # type: ignore
 
         if files is None or slides is None:
             return values
@@ -166,33 +166,33 @@ class PresentationConfig(BaseModel):  # type: ignore
         n_files = len(files)
 
         for slide in slides:
-            if slide.end_animation > n_files:  # type: ignore
+            if slide.end_animation > n_files:
                 raise ValueError(
                     f"The following slide's contains animations not listed in files {files}: {slide}"
                 )
 
         return values
 
-    def move_to(self, dest: str, copy: bool = True) -> "PresentationConfig":
+    def copy_to(self, dest: Path, use_cached: bool = True) -> "PresentationConfig":
         """
-        Moves (or copy) the files to a given directory.
+        Copy the files to a given directory.
         """
-        copy_func: Callable[[str, str], None] = shutil.copy
-        move_func: Callable[[str, str], None] = shutil.move
-        move = copy_func if copy else move_func
-
         n = len(self.files)
         for i in range(n):
             file = self.files[i]
-            basename = os.path.basename(file)
-            dest_path = os.path.join(dest, basename)
-            logger.debug(f"Moving / copying {file} to {dest_path}")
-            move(file, dest_path)
+            dest_path = dest / self.files[i].name
             self.files[i] = dest_path
+            if use_cached and dest_path.exists():
+                logger.debug(f"Skipping copy of {file}, using cached copy")
+                continue
+            logger.debug(f"Copying {file} to {dest_path}")
+            shutil.copy(file, dest_path)
 
         return self
 
-    def concat_animations(self, dest: Optional[str] = None) -> "PresentationConfig":
+    def concat_animations(
+        self, dest: Optional[Path] = None, use_cached: bool = True
+    ) -> "PresentationConfig":
         """
         Concatenate animations such that each slide contains one animation.
         """
@@ -202,14 +202,22 @@ class PresentationConfig(BaseModel):  # type: ignore
         for i, slide_config in enumerate(self.slides):
             files = self.files[slide_config.slides_slice]
 
+            slide_config.start_animation = i
+            slide_config.end_animation = i + 1
+
             if len(files) > 1:
                 dest_path = merge_basenames(files)
+                dest_paths.append(dest_path)
+
+                if use_cached and dest_path.exists():
+                    logger.debug(f"Concatenated animations already exist for slide {i}")
+                    continue
 
                 f = tempfile.NamedTemporaryFile(mode="w", delete=False)
                 f.writelines(f"file '{os.path.abspath(path)}'\n" for path in files)
                 f.close()
 
-                command = [
+                command: List[str] = [
                     FFMPEG_BIN,
                     "-f",
                     "concat",
@@ -219,7 +227,7 @@ class PresentationConfig(BaseModel):  # type: ignore
                     f.name,
                     "-c",
                     "copy",
-                    dest_path,
+                    str(dest_path),
                     "-y",
                 ]
                 logger.debug(" ".join(command))
@@ -234,18 +242,18 @@ class PresentationConfig(BaseModel):  # type: ignore
                 if error:
                     logger.debug(error.decode())
 
-                dest_paths.append(dest_path)
+                if not dest_path.exists():
+                    raise ValueError(
+                        "could not properly concatenate animations, use `-v INFO` for more details"
+                    )
 
             else:
                 dest_paths.append(files[0])
 
-            slide_config.start_animation = i
-            slide_config.end_animation = i + 1
-
         self.files = dest_paths
 
         if dest:
-            return self.move_to(dest)
+            return self.copy_to(dest)
 
         return self
 
