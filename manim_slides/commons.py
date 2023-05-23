@@ -57,7 +57,7 @@ def verbosity_option(function: F) -> F:
             ["PERF", "DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"],
             case_sensitive=False,
         ),
-        help="Verbosity of CLI output",
+        help="Verbosity of CLI output. PERF will log performances (timing) information.",
         default=None,
         expose_value=False,
         envvar="MANIM_SLIDES_VERBOSITY",
