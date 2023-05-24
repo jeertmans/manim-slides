@@ -906,7 +906,7 @@ def start_at_callback(
     "-s",
     "--skip-all",
     is_flag=True,
-    help="Skip all slides, useful the test if slides are working. Automatically sets `--skip-after-last-slide` to True.",
+    help="Skip all slides, useful the test if slides are working. Automatically sets `--exit-after-last-slide` to True.",
 )
 @click.option(
     "-r",
