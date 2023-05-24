@@ -59,7 +59,9 @@ evolved very little since its inception and does not work with ManimGL.
 In 2022, Manim Slides has been created from manim-presentation, with the aim
 to make it a more complete tool, better documented, and usable on all platforms
 and with ManimCE or ManimGL. After almost a year of existence, Manim Slides has
-evolved a lot, has built a small community of contributors, and continues to
+evolved a lot (see
+[comparison section](#comparison-with-manim-presentation)),
+has built a small community of contributors, and continues to
 provide new features on a regular basis.
 
 # Easy to Use Commitment
@@ -132,6 +134,31 @@ From the same configuration file, Manim Slides offers a series of solutions to
 share your slides, which we discuss on our
 [Sharing your slides](https://jeertmans.github.io/manim-slides/reference/sharing.html)
 page.
+
+## Comparison with manim-presentation
+
+Starting from [@manim-presentation]'s original work, Manim Slides now provides
+numerous additional features.
+A non-exhaustive list of those new features is as follows:
+
+* ManimGL compatibility;
+* playing slides in reverse;
+* exporting slides to HTML and PowerPoint;
+* 3D scene support;
+* multiple key inputs can map to the same action
+  (e.g., useful when using a pointer);
+* optionally hiding mouse cursor when presenting;
+* recording your presentation;
+* multiple video scaling methods (for speed-vs-quality tradeoff);
+* and automatic detection of some scene parameters
+  (e.g., resolution or background color).
+
+The complete and up-to-date set of features Manim Slide supports is
+available in the
+[online documentation](https://jeertmans.github.io/manim-slides/).
+For new feature requests, we highly encourage users to
+[create an issue](https://github.com/jeertmans/manim-slides/issues/new/choose)
+with the appropriate template.
 
 # Acknowledgements
 
