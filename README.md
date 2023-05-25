@@ -8,6 +8,8 @@
 [![Python version][pypi-python-version-badge]][pypi-version-url]
 [![PyPI - Downloads][pypi-download-badge]][pypi-version-url]
 [![Documentation][documentation-badge]][documentation-url]
+[![DOI][doi-badge]][doi-url]
+
 # Manim Slides
 
 Tool for live presentations using either [Manim (community edition)](https://www.manim.community/) or [ManimGL](https://3b1b.github.io/manim/). Manim Slides will *automatically* detect the one you are using!
@@ -258,3 +260,5 @@ you can do so at: [jeertmans@icloud.com](mailto:jeertmans@icloud.com).
 [pypi-download-badge]: https://img.shields.io/pypi/dm/manim-slides
 [documentation-badge]: https://img.shields.io/website?down_color=lightgrey&down_message=offline&label=documentation&up_color=green&up_message=online&url=https%3A%2F%2Feertmans.be%2Fmanim-slides%2F
 [documentation-url]: https://eertmans.be/manim-slides/
+[doi-badge]: https://zenodo.org/badge/DOI/10.5281/zenodo.7971361.svg
+[doi-url]: https://doi.org/10.5281/zenodo.7971361
