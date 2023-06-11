@@ -14,7 +14,8 @@ import cv2
 import pptx
 from click import Context, Parameter
 from lxml import etree
-from pydantic import BaseModel, FilePath, PositiveInt, ValidationError
+from PIL import Image
+from pydantic import BaseModel, FilePath, PositiveFloat, PositiveInt, ValidationError
 from tqdm import tqdm
 
 from . import data
@@ -75,6 +76,7 @@ class Converter(BaseModel):  # type: ignore
         """Returns the appropriate converter from a string name."""
         return {
             "html": RevealJS,
+            "pdf": PDF,
             "pptx": PowerPoint,
         }[s]
 
@@ -367,6 +369,62 @@ class RevealJS(Converter):
             f.write(content)
 
 
+class FrameIndex(str, Enum):
+    first = "first"
+    last = "last"
+
+
+class PDF(Converter):
+    frame_index: FrameIndex = FrameIndex.last
+    resolution: PositiveFloat = 100.0
+
+    class Config:
+        use_enum_values = True
+        extra = "forbid"
+
+    def open(self, file: Path) -> None:
+        return open_with_default(file)
+
+    def convert_to(self, dest: Path) -> None:
+        """Converts this configuration into a PDF presentation, saved to DEST."""
+
+        def read_image_from_video_file(file: Path, frame_index: FrameIndex) -> Image:
+            cap = cv2.VideoCapture(str(file))
+
+            if frame_index == FrameIndex.last:
+                index = cap.get(cv2.CAP_PROP_FRAME_COUNT)
+                cap.set(cv2.CAP_PROP_POS_FRAMES, index - 1)
+
+            ret, frame = cap.read()
+
+            if ret:
+                frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                return Image.fromarray(frame)
+            else:
+                raise ValueError("Failed to read {image_index} image from video file")
+
+        images = []
+
+        for i, presentation_config in enumerate(self.presentation_configs):
+            presentation_config.concat_animations()
+            for slide_config in tqdm(
+                presentation_config.slides,
+                desc=f"Generating video slides for config {i + 1}",
+                leave=False,
+            ):
+                file = presentation_config.files[slide_config.start_animation]
+
+                images.append(read_image_from_video_file(file, self.frame_index))
+
+        images[0].save(
+            dest,
+            "PDF",
+            resolution=self.resolution,
+            save_all=True,
+            append_images=images[1:],
+        )
+
+
 class PowerPoint(Converter):
     left: PositiveInt = 0
     top: PositiveInt = 0
@@ -513,7 +571,7 @@ def show_template_option(function: Callable[..., Any]) -> Callable[..., Any]:
 @click.argument("dest", type=click.Path(dir_okay=False, path_type=Path))
 @click.option(
     "--to",
-    type=click.Choice(["html", "pptx"], case_sensitive=False),
+    type=click.Choice(["html", "pdf", "pptx"], case_sensitive=False),
     default="html",
     show_default=True,
     help="Set the conversion format to use.",

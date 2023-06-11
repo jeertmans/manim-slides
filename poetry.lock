@@ -1577,7 +1577,7 @@ manimgl = ["manimgl"]
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.8.1,<3.12"
-content-hash = "f893e0ad37ea5289b62253b5e14923f885333620262215ede6e0e1871c6be2cd"
+content-hash = "ade3df2f68458fab458a31339562fef317cb2feac522ad46fa5e487484681cbb"
 
 [metadata.files]
 alabaster = [
