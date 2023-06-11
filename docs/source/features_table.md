@@ -6,21 +6,21 @@ The following summarizes the different presentation features Manim Slides offers
 :widths: auto
 :align: center
 
-| Feature / Constraint | [`present`](reference/cli.md) | [`convert --to=html`](reference/cli.md) | [`convert --to=pptx`](reference/cli.md) |
-| :--- | :---: | :---: | :---: |
-| Basic navigation through slides | Yes | Yes | Yes |
-| Replay slide | Yes | No | No |
-| Pause animation | Yes | No | No |
-| Play slide in reverse | Yes | No | No |
-| Slide count | Yes | Yes (optional) | Yes (optional) |
-| Animation count | Yes | No | No |
-| Needs Python with Manim Slides installed | Yes | No | No |
-| Requires internet access | No | Yes | No |
-| Auto. play slides | Yes | Yes | Yes |
-| Loops support | Yes | Yes | Yes |
-| Fully customizable | No | Yes (`--use-template` option) | No |
-| Other dependencies | None | A modern web browser | PowerPoint or LibreOffice Impress[^1]
-| Works cross-platforms | Yes | Yes | Partly[^1][^2] |
+| Feature / Constraint | [`present`](reference/cli.md) | [`convert --to=html`](reference/cli.md) | [`convert --to=pptx`](reference/cli.md) | [`convert --to=pdf`](reference/cli.md)
+| :--- | :---: | :---: | :---: | :---: |
+| Basic navigation through slides | Yes | Yes | Yes | Yes (static image) |
+| Replay slide | Yes | No | No | N/A |
+| Pause animation | Yes | No | No | N/A |
+| Play slide in reverse | Yes | No | No | N/A |
+| Slide count | Yes | Yes (optional) | Yes (optional) | N/A |
+| Animation count | Yes | No | No | N/A |
+| Needs Python with Manim Slides installed | Yes | No | No | No
+| Requires internet access | No | Yes | No | No |
+| Auto. play slides | Yes | Yes | Yes | N/A |
+| Loops support | Yes | Yes | Yes | N/A |
+| Fully customizable | No | Yes (`--use-template` option) | No | No |
+| Other dependencies | None | A modern web browser | PowerPoint or LibreOffice Impress[^1] | None |
+| Works cross-platforms | Yes | Yes | Partly[^1][^2] | Yes |
 :::
 
 [^1]: If you encounter a problem where slides do not automatically play or loops do not work, please [file an issue on GitHub](https://github.com/jeertmans/manim-slides/issues/new/choose).
