@@ -41,7 +41,7 @@ jobs:
         python-version: '3.9'
         cache: poetry
     - name: Setup Pages
-      uses: actions/configure-pages@v2
+      uses: actions/configure-pages@v3
     - name: Install Linux Dependencies
       run: |
         sudo apt-get update
