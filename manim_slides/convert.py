@@ -15,7 +15,14 @@ import pptx
 from click import Context, Parameter
 from lxml import etree
 from PIL import Image
-from pydantic import ConfigDict, BaseModel, FilePath, PositiveFloat, PositiveInt, ValidationError
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    FilePath,
+    PositiveFloat,
+    PositiveInt,
+    ValidationError,
+)
 from tqdm import tqdm
 
 from . import data

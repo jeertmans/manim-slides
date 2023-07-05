@@ -7,12 +7,19 @@ from enum import Enum
 from pathlib import Path
 from typing import Dict, List, Optional, Set, Tuple, Union
 
-from pydantic import field_validator, BaseModel, FilePath, PositiveInt, root_validator, validator
+from pydantic import (
+    BaseModel,
+    FilePath,
+    PositiveInt,
+    field_validator,
+    root_validator,
+    validator,
+)
+from pydantic_extra_types.color import Color
 from PySide6.QtCore import Qt
 
 from .defaults import FFMPEG_BIN
 from .logger import logger
-from pydantic_extra_types.color import Color
 
 
 def merge_basenames(files: List[FilePath]) -> Path:

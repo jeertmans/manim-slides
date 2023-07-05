@@ -11,6 +11,7 @@ import cv2
 import numpy as np
 from click import Context, Parameter
 from pydantic import ValidationError
+from pydantic_extra_types.color import Color
 from PySide6.QtCore import Qt, QThread, Signal, Slot
 from PySide6.QtGui import QCloseEvent, QIcon, QImage, QKeyEvent, QPixmap, QResizeEvent
 from PySide6.QtWidgets import QApplication, QGridLayout, QLabel, QWidget
@@ -21,7 +22,6 @@ from .config import DEFAULT_CONFIG, Config, PresentationConfig, SlideConfig
 from .defaults import FOLDER_PATH
 from .logger import logger
 from .resources import *  # noqa: F401, F403
-from pydantic_extra_types.color import Color
 
 os.environ.pop(
     "QT_QPA_PLATFORM_PLUGIN_PATH", None
