@@ -5,7 +5,7 @@ import subprocess
 import tempfile
 from enum import Enum
 from pathlib import Path
-from typing import Dict, List, Optional, Set, Tuple, Union
+from typing import Any, Dict, List, Optional, Set, Tuple, Union
 
 from pydantic import BaseModel, FilePath, PositiveInt, field_validator, model_validator
 from pydantic_extra_types.color import Color
@@ -41,6 +41,13 @@ class Key(BaseModel):  # type: ignore
     ids: Set[PositiveInt]
     name: Optional[str] = None
 
+    @field_validator("ids")
+    @classmethod
+    def ids_is_non_empty_set(cls, ids: Set[Any]) -> Set[Any]:
+        if len(ids) <= 0:
+            raise ValueError("Key's ids must be a non-empty set")
+        return ids
+
     def set_ids(self, *ids: int) -> None:
         self.ids = set(ids)
 
@@ -64,7 +71,7 @@ class Config(BaseModel):  # type: ignore
     PLAY_PAUSE: Key = Key(ids=[Qt.Key_Space], name="PLAY / PAUSE")
     HIDE_MOUSE: Key = Key(ids=[Qt.Key_H], name="HIDE / SHOW MOUSE")
 
-    @model_validator
+    @model_validator(mode="before")
     def ids_are_unique_across_keys(cls, values: Dict[str, Key]) -> Dict[str, Key]:
         ids: Set[int] = set()
 
@@ -113,7 +120,7 @@ class SlideConfig(BaseModel):  # type: ignore
             raise ValueError("Slide number cannot be negative or zero")
         return v
 
-    @model_validator
+    @model_validator(mode="before")
     def start_animation_is_before_end(
         cls, values: Dict[str, Union[SlideType, int, bool]]
     ) -> Dict[str, Union[SlideType, int, bool]]:
