@@ -19,10 +19,12 @@ from pydantic import (
     BaseModel,
     ConfigDict,
     FilePath,
+    GetCoreSchemaHandler,
     PositiveFloat,
     PositiveInt,
     ValidationError,
 )
+from pydantic_core import CoreSchema, core_schema
 from tqdm import tqdm
 
 from . import data
@@ -93,6 +95,12 @@ class Str(str):
 
     # This fixes pickling issue on Python 3.8
     __reduce_ex__ = str.__reduce_ex__
+
+    @classmethod
+    def __get_pydantic_core_schema__(
+        cls, source_type: Any, handler: GetCoreSchemaHandler
+    ) -> CoreSchema:
+        return core_schema.str_schema()
 
     def __str__(self) -> str:
         """Ensures that the string is correctly quoted."""
