@@ -7,14 +7,7 @@ from enum import Enum
 from pathlib import Path
 from typing import Dict, List, Optional, Set, Tuple, Union
 
-from pydantic import (
-    BaseModel,
-    FilePath,
-    PositiveInt,
-    field_validator,
-    root_validator,
-    validator,
-)
+from pydantic import BaseModel, FilePath, PositiveInt, field_validator, model_validator
 from pydantic_extra_types.color import Color
 from PySide6.QtCore import Qt
 
@@ -71,7 +64,7 @@ class Config(BaseModel):  # type: ignore
     PLAY_PAUSE: Key = Key(ids=[Qt.Key_Space], name="PLAY / PAUSE")
     HIDE_MOUSE: Key = Key(ids=[Qt.Key_H], name="HIDE / SHOW MOUSE")
 
-    @root_validator
+    @model_validator
     def ids_are_unique_across_keys(cls, values: Dict[str, Key]) -> Dict[str, Key]:
         ids: Set[int] = set()
 
@@ -120,7 +113,7 @@ class SlideConfig(BaseModel):  # type: ignore
             raise ValueError("Slide number cannot be negative or zero")
         return v
 
-    @root_validator
+    @model_validator
     def start_animation_is_before_end(
         cls, values: Dict[str, Union[SlideType, int, bool]]
     ) -> Dict[str, Union[SlideType, int, bool]]:
@@ -156,7 +149,7 @@ class PresentationConfig(BaseModel):  # type: ignore
     resolution: Tuple[PositiveInt, PositiveInt] = (1920, 1080)
     background_color: Color = "black"
 
-    @root_validator
+    @model_validator
     def animation_indices_match_files(
         cls, values: Dict[str, Union[List[SlideConfig], List[FilePath]]]
     ) -> Dict[str, Union[List[SlideConfig], List[FilePath]]]:
