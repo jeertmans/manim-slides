@@ -263,5 +263,5 @@ you can do so at: [jeertmans@icloud.com](mailto:jeertmans@icloud.com).
 [documentation-url]: https://eertmans.be/manim-slides/
 [doi-badge]: https://zenodo.org/badge/DOI/10.5281/zenodo.7971361.svg
 [doi-url]: https://doi.org/10.5281/zenodo.7971361
-[codecov-badge]: https://codecov.io/gh/jeertmans/manim-slides/branch/main/graph/badge.svg?token=ZDZ8YBQTPH
+[codecov-badge]: https://codecov.io/gh/jeertmans/manim-slides/branch/main/graph/badge.svg?token=8P4DY9JCE4
 [codecov-url]: https://codecov.io/gh/jeertmans/manim-slides
