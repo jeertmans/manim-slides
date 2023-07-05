@@ -24,6 +24,10 @@ jobs:
         python-version: ${{ matrix.pyversion }}
         cache: poetry
 
+    - name: Install manim dependencies on Ubuntu
+      run: |
+        sudo apt-get install libcairo2-dev libpango1.0-dev ffmpeg freeglut3-dev
+
     - name: Install Manim Slides
       run: |
         poetry install --with test
@@ -84,10 +88,6 @@ jobs:
       run: |
         echo "${HOME}/.local/bin" >> $GITHUB_PATH
         echo "/Users/runner/Library/Python/${{ matrix.pyversion }}/bin" >> $GITHUB_PATH
-
-    - name: Install manim dependencies on Ubuntu
-      run: |
-        sudo apt-get install libcairo2-dev libpango1.0-dev ffmpeg freeglut3-dev
 
     - name: Append to Path on Ubuntu
       if: matrix.os == 'ubuntu-latest'
