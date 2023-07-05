@@ -4,12 +4,6 @@ on:
 
 name: Tests
 
-env:
-  QT_QPA_PLATFORM: offscreen
-  MANIM_SLIDES_VERBOSITY: debug
-  PYTHONFAULTHANDLER: 1
-  DISPLAY: :99
-
 jobs:
   pytest:
     strategy:
@@ -66,11 +60,18 @@ jobs:
           pyversion: '3.10'
           manim: manim
     runs-on: ${{ matrix.os }}
+    env:
+      QT_QPA_PLATFORM: offscreen
+      MANIM_SLIDES_VERBOSITY: debug
+      PYTHONFAULTHANDLER: 1
+      DISPLAY: :99
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3
+
     - name: Install Poetry
       run: pipx install poetry
+
     - name: Install Python
       uses: actions/setup-python@v4
       with:
@@ -83,9 +84,15 @@ jobs:
       run: |
         echo "${HOME}/.local/bin" >> $GITHUB_PATH
         echo "/Users/runner/Library/Python/${{ matrix.pyversion }}/bin" >> $GITHUB_PATH
+
+    - name: Install manim dependencies on Ubuntu
+      run: |
+        sudo apt-get install libcairo2-dev libpango1.0-dev ffmpeg freeglut3-dev
+
     - name: Append to Path on Ubuntu
       if: matrix.os == 'ubuntu-latest'
       run: echo "${HOME}/.local/bin" >> $GITHUB_PATH
+
     - name: Append to Path on Windows
       if: matrix.os == 'windows-latest'
       run: echo "${HOME}/.local/bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
@@ -94,25 +101,31 @@ jobs:
     - name: Install manim dependencies on MacOs
       if: matrix.os == 'macos-latest' && matrix.manim == 'manim'
       run: brew install ffmpeg py3cairo
+
     - name: Install manimgl dependencies on MacOS
       if: matrix.os == 'macos-latest' && matrix.manim == 'manimgl'
       run: brew install ffmpeg
+
     - name: Run apt-get update on Ubuntu
       if: matrix.os == 'ubuntu-latest'
       run: sudo apt-get update
+
     - name: Install manim dependencies on Ubuntu
       if: matrix.os == 'ubuntu-latest' && matrix.manim == 'manim'
       run: |
         sudo apt-get install libcairo2-dev libpango1.0-dev ffmpeg freeglut3-dev
+
     - name: Install manimgl dependencies on Ubuntu
       if: matrix.os == 'ubuntu-latest' && matrix.manim == 'manimgl'
       run: |
         sudo apt-get install libpango1.0-dev ffmpeg freeglut3-dev
+
     - name: Install xvfb on Ubuntu
       if: matrix.os == 'ubuntu-latest' && matrix.manim == 'manimgl'
       run: |
         sudo apt-get install xvfb
         nohup Xvfb $DISPLAY &
+
     - name: Install Windows dependencies
       if: matrix.os == 'windows-latest'
       run: choco install ffmpeg
@@ -126,6 +139,7 @@ jobs:
     - name: Render slides
       if: matrix.manim == 'manim'
       run: poetry run manim -ql example.py BasicExample ThreeDExample
+
     - name: Render slides
       if: matrix.manim == 'manimgl'
       run: poetry run -v manimgl -l example.py BasicExample ThreeDExample
