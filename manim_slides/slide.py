@@ -333,7 +333,7 @@ class Slide(Scene):  # type:ignore
                     files=files,
                     resolution=self.__resolution,
                     background_color=self.__background_color,
-                ).json(indent=2)
+                ).model_dump_json(indent=2)
             )
 
         logger.info(
