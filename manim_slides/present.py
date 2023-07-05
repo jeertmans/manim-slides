@@ -11,7 +11,7 @@ import cv2
 import numpy as np
 from click import Context, Parameter
 from pydantic import ValidationError
-from pydantic.color import Color
+from pydantic_extra_types.color import Color
 from PySide6.QtCore import Qt, QThread, Signal, Slot
 from PySide6.QtGui import QCloseEvent, QIcon, QImage, QKeyEvent, QPixmap, QResizeEvent
 from PySide6.QtWidgets import QApplication, QGridLayout, QLabel, QWidget

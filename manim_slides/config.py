@@ -5,10 +5,10 @@ import subprocess
 import tempfile
 from enum import Enum
 from pathlib import Path
-from typing import Dict, List, Optional, Set, Tuple, Union
+from typing import Any, Dict, List, Optional, Set, Tuple, Union
 
-from pydantic import BaseModel, FilePath, PositiveInt, root_validator, validator
-from pydantic.color import Color
+from pydantic import BaseModel, FilePath, PositiveInt, field_validator, model_validator
+from pydantic_extra_types.color import Color
 from PySide6.QtCore import Qt
 
 from .defaults import FFMPEG_BIN
@@ -38,17 +38,18 @@ def merge_basenames(files: List[FilePath]) -> Path:
 class Key(BaseModel):  # type: ignore
     """Represents a list of key codes, with optionally a name."""
 
-    ids: Set[int]
+    ids: Set[PositiveInt]
     name: Optional[str] = None
+
+    @field_validator("ids")
+    @classmethod
+    def ids_is_non_empty_set(cls, ids: Set[Any]) -> Set[Any]:
+        if len(ids) <= 0:
+            raise ValueError("Key's ids must be a non-empty set")
+        return ids
 
     def set_ids(self, *ids: int) -> None:
         self.ids = set(ids)
-
-    @validator("ids", each_item=True)
-    def id_is_posint(cls, v: int) -> int:
-        if v < 0:
-            raise ValueError("Key ids cannot be negative integers")
-        return v
 
     def match(self, key_id: int) -> bool:
         m = key_id in self.ids
@@ -70,7 +71,7 @@ class Config(BaseModel):  # type: ignore
     PLAY_PAUSE: Key = Key(ids=[Qt.Key_Space], name="PLAY / PAUSE")
     HIDE_MOUSE: Key = Key(ids=[Qt.Key_H], name="HIDE / SHOW MOUSE")
 
-    @root_validator
+    @model_validator(mode="before")
     def ids_are_unique_across_keys(cls, values: Dict[str, Key]) -> Dict[str, Key]:
         ids: Set[int] = set()
 
@@ -105,19 +106,21 @@ class SlideConfig(BaseModel):  # type: ignore
     number: int
     terminated: bool = False
 
-    @validator("start_animation", "end_animation")
+    @field_validator("start_animation", "end_animation")
+    @classmethod
     def index_is_posint(cls, v: int) -> int:
         if v < 0:
             raise ValueError("Animation index (start or end) cannot be negative")
         return v
 
-    @validator("number")
+    @field_validator("number")
+    @classmethod
     def number_is_strictly_posint(cls, v: int) -> int:
         if v <= 0:
             raise ValueError("Slide number cannot be negative or zero")
         return v
 
-    @root_validator
+    @model_validator(mode="before")
     def start_animation_is_before_end(
         cls, values: Dict[str, Union[SlideType, int, bool]]
     ) -> Dict[str, Union[SlideType, int, bool]]:
@@ -153,15 +156,12 @@ class PresentationConfig(BaseModel):  # type: ignore
     resolution: Tuple[PositiveInt, PositiveInt] = (1920, 1080)
     background_color: Color = "black"
 
-    @root_validator
+    @model_validator(mode="after")
     def animation_indices_match_files(
-        cls, values: Dict[str, Union[List[SlideConfig], List[FilePath]]]
-    ) -> Dict[str, Union[List[SlideConfig], List[FilePath]]]:
-        files: List[FilePath] = values.get("files")  # type: ignore
-        slides: List[SlideConfig] = values.get("slides")  # type: ignore
-
-        if files is None or slides is None:
-            return values
+        cls, config: "PresentationConfig"
+    ) -> "PresentationConfig":
+        files = config.files
+        slides = config.slides
 
         n_files = len(files)
 
@@ -171,7 +171,7 @@ class PresentationConfig(BaseModel):  # type: ignore
                     f"The following slide's contains animations not listed in files {files}: {slide}"
                 )
 
-        return values
+        return config
 
     def copy_to(self, dest: Path, use_cached: bool = True) -> "PresentationConfig":
         """

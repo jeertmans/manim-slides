@@ -15,7 +15,16 @@ import pptx
 from click import Context, Parameter
 from lxml import etree
 from PIL import Image
-from pydantic import BaseModel, FilePath, PositiveFloat, PositiveInt, ValidationError
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    FilePath,
+    GetCoreSchemaHandler,
+    PositiveFloat,
+    PositiveInt,
+    ValidationError,
+)
+from pydantic_core import CoreSchema, core_schema
 from tqdm import tqdm
 
 from . import data
@@ -86,6 +95,12 @@ class Str(str):
 
     # This fixes pickling issue on Python 3.8
     __reduce_ex__ = str.__reduce_ex__
+
+    @classmethod
+    def __get_pydantic_core_schema__(
+        cls, source_type: Any, handler: GetCoreSchemaHandler
+    ) -> CoreSchema:
+        return core_schema.str_schema()
 
     def __str__(self) -> str:
         """Ensures that the string is correctly quoted."""
@@ -304,10 +319,7 @@ class RevealJS(Converter):
     reveal_version: str = "4.4.0"
     reveal_theme: RevealTheme = RevealTheme.black
     title: str = "Manim Slides"
-
-    class Config:
-        use_enum_values = True
-        extra = "forbid"
+    model_config = ConfigDict(use_enum_values=True, extra="forbid")
 
     def get_sections_iter(self, assets_dir: Path) -> Generator[str, None, None]:
         """Generates a sequence of sections, one per slide, that will be included into the html template."""
@@ -377,10 +389,7 @@ class FrameIndex(str, Enum):
 class PDF(Converter):
     frame_index: FrameIndex = FrameIndex.last
     resolution: PositiveFloat = 100.0
-
-    class Config:
-        use_enum_values = True
-        extra = "forbid"
+    model_config = ConfigDict(use_enum_values=True, extra="forbid")
 
     def open(self, file: Path) -> None:
         return open_with_default(file)
@@ -432,10 +441,7 @@ class PowerPoint(Converter):
     height: PositiveInt = 720
     auto_play_media: bool = True
     poster_frame_image: Optional[FilePath] = None
-
-    class Config:
-        use_enum_values = True
-        extra = "forbid"
+    model_config = ConfigDict(use_enum_values=True, extra="forbid")
 
     def open(self, file: Path) -> None:
         return open_with_default(file)
