@@ -156,7 +156,7 @@ class PresentationConfig(BaseModel):  # type: ignore
     resolution: Tuple[PositiveInt, PositiveInt] = (1920, 1080)
     background_color: Color = "black"
 
-    @model_validator
+    @model_validator(mode="before")
     def animation_indices_match_files(
         cls, values: Dict[str, Union[List[SlideConfig], List[FilePath]]]
     ) -> Dict[str, Union[List[SlideConfig], List[FilePath]]]:
