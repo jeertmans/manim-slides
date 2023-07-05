@@ -87,6 +87,7 @@ sphinxext-opengraph = "^0.7.5"
 [tool.poetry.group.test.dependencies]
 manim = "^0.17.0"
 manimgl = "^1.6.1"
+pytest = "^7.4.0"
 
 [tool.poetry.plugins]
 

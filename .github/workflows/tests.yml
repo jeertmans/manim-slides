@@ -1,13 +1,8 @@
 on:
   pull_request:
-    paths:
-    - pyproject.toml
-    - poetry.lock
-    - '**.py'
-    - .github/workflows/test_examples.yml
   workflow_dispatch:
 
-name: Test Examples
+name: Tests
 
 env:
   QT_QPA_PLATFORM: offscreen
@@ -16,6 +11,32 @@ env:
   DISPLAY: :99
 
 jobs:
+  pytest:
+    strategy:
+      fail-fast: false
+      matrix:
+        pyversion: ['3.8', '3.9', '3.10', '3.11']
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Install Poetry
+      run: pipx install poetry
+
+    - name: Install Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.pyversion }}
+        cache: poetry
+
+    - name: Install Manim Slides
+      run: |
+        poetry install --with test
+
+    - name: Run pytest
+      run: poetry run pytest
+
   build-examples:
     strategy:
       fail-fast: false
