@@ -120,7 +120,7 @@ jobs:
       # Install Manim Slides
     - name: Install Manim Slides
       run: |
-        poetry install --with test
+        poetry install --extras ${{ matrix.manim }}
 
     # Render slides
     - name: Render slides
