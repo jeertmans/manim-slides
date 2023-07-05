@@ -91,5 +91,9 @@ class TestKey:
 
 
 class TestPresentationConfig:
+    def test_validate(self, presentation_config: PresentationConfig) -> None:
+        obj = presentation_config.model_dump()
+        _ = PresentationConfig.model_validate(obj)
+
     def test_bump_to_json(self, presentation_config: PresentationConfig) -> None:
         _ = presentation_config.model_dump_json(indent=2)

@@ -156,15 +156,12 @@ class PresentationConfig(BaseModel):  # type: ignore
     resolution: Tuple[PositiveInt, PositiveInt] = (1920, 1080)
     background_color: Color = "black"
 
-    @model_validator(mode="before")
+    @model_validator(mode="after")
     def animation_indices_match_files(
-        cls, values: Dict[str, Union[List[SlideConfig], List[FilePath]]]
-    ) -> Dict[str, Union[List[SlideConfig], List[FilePath]]]:
-        files: List[FilePath] = values.get("files")  # type: ignore
-        slides: List[SlideConfig] = values.get("slides")  # type: ignore
-
-        if files is None or slides is None:
-            return values
+        cls, config: "PresentationConfig"
+    ) -> "PresentationConfig":
+        files = config.files
+        slides = config.slides
 
         n_files = len(files)
 
@@ -174,7 +171,7 @@ class PresentationConfig(BaseModel):  # type: ignore
                     f"The following slide's contains animations not listed in files {files}: {slide}"
                 )
 
-        return values
+        return config
 
     def copy_to(self, dest: Path, use_cached: bool = True) -> "PresentationConfig":
         """
