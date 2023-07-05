@@ -7,7 +7,13 @@ from typing import Any, Generator, List
 import pytest
 from pydantic import ValidationError
 
-from manim_slides.config import Key, merge_basenames, PresentationConfig, SlideConfig, SlideType
+from manim_slides.config import (
+    Key,
+    PresentationConfig,
+    SlideConfig,
+    SlideType,
+    merge_basenames,
+)
 
 
 def random_path(
@@ -39,30 +45,31 @@ def presentation_config(paths: List[Path]) -> Generator[PresentationConfig, None
     files = [random_path(dirname=dirname, touch=True) for _ in range(10)]
 
     slides = [
-            SlideConfig(
-                type=SlideType.slide,
-                start_animation=0,
-                end_animation=5,
-                number=1,
-            ),
-            SlideConfig(
-                type=SlideType.loop,
-                start_animation=5,
-                end_animation=6,
-                number=2,
-            ),
-            SlideConfig(
-                type=SlideType.last,
-                start_animation=6,
-                end_animation=10,
-                number=3,
-            ),
+        SlideConfig(
+            type=SlideType.slide,
+            start_animation=0,
+            end_animation=5,
+            number=1,
+        ),
+        SlideConfig(
+            type=SlideType.loop,
+            start_animation=5,
+            end_animation=6,
+            number=2,
+        ),
+        SlideConfig(
+            type=SlideType.last,
+            start_animation=6,
+            end_animation=10,
+            number=3,
+        ),
     ]
 
     yield PresentationConfig(
-            slides=slides,
-            files=files,
+        slides=slides,
+        files=files,
     )
+
 
 def test_merge_basenames(paths: List[Path]) -> None:
     path = merge_basenames(paths)
@@ -84,6 +91,5 @@ class TestKey:
 
 
 class TestPresentationConfig:
-
     def test_bump_to_json(self, presentation_config: PresentationConfig) -> None:
         _ = presentation_config.model_dump_json(indent=2)
