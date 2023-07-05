@@ -40,3 +40,5 @@ paper/media/
 *.jats
 
 paper/paper.pdf
+
+coverage.xml
