@@ -7,12 +7,12 @@ from enum import Enum
 from pathlib import Path
 from typing import Dict, List, Optional, Set, Tuple, Union
 
-from pydantic import BaseModel, FilePath, PositiveInt, root_validator, validator
-from pydantic.color import Color
+from pydantic import field_validator, BaseModel, FilePath, PositiveInt, root_validator, validator
 from PySide6.QtCore import Qt
 
 from .defaults import FFMPEG_BIN
 from .logger import logger
+from pydantic_extra_types.color import Color
 
 
 def merge_basenames(files: List[FilePath]) -> Path:
@@ -38,17 +38,11 @@ def merge_basenames(files: List[FilePath]) -> Path:
 class Key(BaseModel):  # type: ignore
     """Represents a list of key codes, with optionally a name."""
 
-    ids: Set[int]
+    ids: Set[PositiveInt]
     name: Optional[str] = None
 
     def set_ids(self, *ids: int) -> None:
         self.ids = set(ids)
-
-    @validator("ids", each_item=True)
-    def id_is_posint(cls, v: int) -> int:
-        if v < 0:
-            raise ValueError("Key ids cannot be negative integers")
-        return v
 
     def match(self, key_id: int) -> bool:
         m = key_id in self.ids
@@ -105,13 +99,15 @@ class SlideConfig(BaseModel):  # type: ignore
     number: int
     terminated: bool = False
 
-    @validator("start_animation", "end_animation")
+    @field_validator("start_animation", "end_animation")
+    @classmethod
     def index_is_posint(cls, v: int) -> int:
         if v < 0:
             raise ValueError("Animation index (start or end) cannot be negative")
         return v
 
-    @validator("number")
+    @field_validator("number")
+    @classmethod
     def number_is_strictly_posint(cls, v: int) -> int:
         if v <= 0:
             raise ValueError("Slide number cannot be negative or zero")
