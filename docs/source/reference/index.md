@@ -11,6 +11,7 @@ examples
 gui
 html
 sharing
+Sphinx Extension <sphinx_extension>
 ```
 
 [Application Programming Interface](./api): list of classes and methods that may
