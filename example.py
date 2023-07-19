@@ -346,7 +346,10 @@ else:
             )
 
             self.play(GrowFromCenter(circle))
-            updater = lambda m, dt: m.increment_theta((75 * DEGREES / 4) * dt)
+
+            def updater(m, dt):
+                return m.increment_theta((75 * DEGREES / 4) * dt)
+
             frame.add_updater(updater)
 
             self.next_slide()
