@@ -80,7 +80,7 @@ jobs:
       run: cd docs && poetry run make html
     - name: Upload artifact
       if: github.event_name != 'pull_request'
-      uses: actions/upload-pages-artifact@v1
+      uses: actions/upload-pages-artifact@v2
       with:
         # Upload docs/build/html dir
         path: docs/build/html/
