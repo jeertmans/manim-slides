@@ -6,7 +6,7 @@ Therefore, we only document here the methods we think the end-user will ever use
 
 ```{eval-rst}
 .. autoclass:: manim_slides.Slide
-    :members: start_loop, end_loop, pause, next_slide
+    :members: start_loop, end_loop, pause, next_slide, wipe
 
 .. autoclass:: manim_slides.ThreeDSlide
     :members:

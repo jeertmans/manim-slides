@@ -167,16 +167,15 @@ class Slide(Scene):  # type:ignore
         #. the second with "Hello World!" fading in;
         #. and the last with the text fading out;
 
-        .. code-block:: python
+        .. manim-slides:: NextSlideExample
 
             from manim import *
             from manim_slides import Slide
 
-            class Example(Slide):
+            class NextSlideExample(Slide):
                 def construct(self):
                     text = Text("Hello World!")
 
-                    self.next_slide()
                     self.play(FadeIn(text))
 
                     self.next_slide()
@@ -237,25 +236,35 @@ class Slide(Scene):  # type:ignore
         A loop will automatically replay the slide, i.e., everything between
         :func:`start_loop` and :func:`end_loop`, upon reaching end.
 
+        .. warning::
+
+            When rendered with RevealJS, loops cannot be in the first nor
+            the last slide.
+
         Examples
         --------
 
         The following contains one slide that will loop endlessly.
 
-        .. code-block:: python
+        .. manim-slides:: LoopExample
 
             from manim import *
             from manim_slides import Slide
 
-            class Example(Slide):
+            class LoopExample(Slide):
                 def construct(self):
                     dot = Dot(color=BLUE)
+
+                    self.play(FadeIn(dot))
+                    self.next_slide()
 
                     self.start_loop()
 
                     self.play(Indicate(dot))
 
                     self.end_loop()
+
+                    self.play(FadeOut(dot))
         """
         assert self.__loop_start_animation is None, "You cannot nest loops"
         self.__loop_start_animation = self.__current_animation
@@ -402,7 +411,10 @@ class Slide(Scene):  # type:ignore
         Examples
         --------
 
-        .. code-block:: python
+        .. manim-slides:: WipeExample
+
+            from manim import *
+            from manim_slides import Slide
 
             class WipeExample(Slide):
                 def construct(self):

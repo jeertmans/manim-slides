@@ -15,14 +15,22 @@ author = "Jérome Eertmans"
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
 extensions = [
+    # Built-in
     "sphinx.ext.autodoc",
     "sphinx.ext.intersphinx",
     "sphinx.ext.viewcode",
+    # Additional
+    "myst_parser",
     "sphinxext.opengraph",
     "sphinx_click",
-    "myst_parser",
     "sphinx_copybutton",
+    # Custom
+    "manim_slides.docs.manim_slides_directive",
 ]
+
+typehints_defaults = "comma"
+typehints_use_signature = True
+typehints_use_signature_return = True
 
 myst_enable_extensions = [
     "colon_fence",
