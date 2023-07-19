@@ -5,6 +5,9 @@ from importlib.util import find_spec
 from typing import Iterator
 
 __all__ = [
+    # Constants
+    "FFMPEG_BIN",
+    "LEFT",
     "MANIM",
     "MANIM_PACKAGE_NAME",
     "MANIM_AVAILABLE",
@@ -13,11 +16,14 @@ __all__ = [
     "MANIMGL_PACKAGE_NAME",
     "MANIMGL_AVAILABLE",
     "MANIMGL_IMPORTED",
-    "logger",
+    # Classes
+    "AnimationGroup",
+    "Mobject",
     "Scene",
     "ThreeDScene",
+    # Objects
+    "logger",
     "config",
-    "FFMPEG_BIN",
 ]
 
 
@@ -67,13 +73,21 @@ else:
 
 
 if MANIMGL:
-    from manimlib import Scene, ThreeDScene, config
+    from manimlib import LEFT, AnimationGroup, Mobject, Scene, ThreeDScene, config
     from manimlib.constants import FFMPEG_BIN
     from manimlib.logger import log as logger
 
 else:
     with suppress_stdout():  # Avoids printing "Manim Community v..."
-        from manim import Scene, ThreeDScene, config, logger
+        from manim import (
+            LEFT,
+            AnimationGroup,
+            Mobject,
+            Scene,
+            ThreeDScene,
+            config,
+            logger,
+        )
 
         try:  # For manim<v0.16.0.post0
             from manim.constants import FFMPEG_BIN

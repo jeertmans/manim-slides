@@ -2,14 +2,25 @@ import os
 import platform
 import shutil
 import subprocess
-from typing import Any, List, Optional, Tuple
+from typing import Any, List, Optional, Sequence, Tuple
 from warnings import warn
 
+import numpy as np
 from tqdm import tqdm
 
 from .config import PresentationConfig, SlideConfig, SlideType
 from .defaults import FOLDER_PATH
-from .manim import FFMPEG_BIN, MANIMGL, Scene, ThreeDScene, config, logger
+from .manim import (
+    FFMPEG_BIN,
+    LEFT,
+    MANIMGL,
+    AnimationGroup,
+    Mobject,
+    Scene,
+    ThreeDScene,
+    config,
+    logger,
+)
 
 
 def reverse_video_file(src: str, dst: str) -> None:
@@ -53,6 +64,22 @@ class Slide(Scene):  # type:ignore
         self.__current_animation = 0
         self.__loop_start_animation: Optional[int] = None
         self.__pause_start_animation = 0
+
+    @property
+    def __frame_height(self) -> float:
+        """Returns the scene's frame height."""
+        if MANIMGL:
+            return self.frame_height  # type: ignore
+        else:
+            return config["frame_height"]  # type: ignore
+
+    @property
+    def __frame_width(self) -> float:
+        """Returns the scene's frame width."""
+        if MANIMGL:
+            return self.frame_width  # type: ignore
+        else:
+            return config["frame_width"]  # type: ignore
 
     @property
     def __background_color(self) -> str:
@@ -356,6 +383,50 @@ class Slide(Scene):  # type:ignore
         config["max_files_cached"] = max_files_cached
 
         self.__save_slides()
+
+    def wipe(
+        self,
+        current: Sequence[Mobject] = [],
+        future: Sequence[Mobject] = [],
+        direction: np.ndarray = LEFT,
+        **kwargs: Any,
+    ) -> AnimationGroup:
+        """
+        Returns a wipe animation that will shift all the current objects outside
+        of the current scene's scope, and all the future objects inside.
+
+        :param current: A sequence of mobjects to remove from the scene.
+        :param future: A sequence of mobjects to add to the scene.
+        :direction: The wipe direction.
+
+        Examples
+        --------
+
+        .. code-block:: python
+
+            class WipeExample(Slide):
+                def construct(self):
+                    circle = Circle(radius=3, color=BLUE)
+                    square = Square()
+                    text = Text("This is a wipe example").next_to(square, DOWN)
+
+                    self.play(Create(circle))
+                    self.next_slide()
+
+                    self.play(self.wipe(circle, Group(square, text)))
+        """
+        shift_amount = np.asarray(direction) * np.array(
+            [self.__frame_width, self.__frame_height, 0.0]
+        )
+
+        for mobject in future:
+            mobject.shift(-shift_amount)
+
+        animations = [
+            mobject.animate.shift(shift_amount) for mobject in [*current, *future]
+        ]
+
+        return AnimationGroup(*animations, **kwargs)
 
 
 class ThreeDSlide(Slide, ThreeDScene):  # type: ignore
