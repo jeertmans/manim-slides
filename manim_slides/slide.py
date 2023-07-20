@@ -2,7 +2,7 @@ import os
 import platform
 import shutil
 import subprocess
-from typing import Any, List, Optional, Sequence, Tuple
+from typing import Any, List, Mapping, Optional, Sequence, Tuple
 from warnings import warn
 
 import numpy as np
@@ -15,6 +15,8 @@ from .manim import (
     LEFT,
     MANIMGL,
     AnimationGroup,
+    FadeIn,
+    FadeOut,
     Mobject,
     Scene,
     ThreeDScene,
@@ -39,7 +41,7 @@ def reverse_video_file(src: str, dst: str) -> None:
 
 class Slide(Scene):  # type:ignore
     """
-    Inherits from :class:`manim.scene.scene.Scene` or :class:`manimlib.scene.scene.Scene` and provide necessary tools for slides rendering.
+    Inherits from :class:`Scene<manim.scene.scene.Scene>` and provide necessary tools for slides rendering.
     """
 
     def __init__(
@@ -253,14 +255,14 @@ class Slide(Scene):  # type:ignore
 
             class LoopExample(Slide):
                 def construct(self):
-                    dot = Dot(color=BLUE)
+                    dot = Dot(color=BLUE, radius=1)
 
                     self.play(FadeIn(dot))
                     self.next_slide()
 
                     self.start_loop()
 
-                    self.play(Indicate(dot))
+                    self.play(Indicate(dot, scale_factor=2))
 
                     self.end_loop()
 
@@ -398,6 +400,8 @@ class Slide(Scene):  # type:ignore
         current: Sequence[Mobject] = [],
         future: Sequence[Mobject] = [],
         direction: np.ndarray = LEFT,
+        fade_in_kwargs: Mapping[str, Any] = {},
+        fade_out_kwargs: Mapping[str, Any] = {},
         **kwargs: Any,
     ) -> AnimationGroup:
         """
@@ -406,7 +410,13 @@ class Slide(Scene):  # type:ignore
 
         :param current: A sequence of mobjects to remove from the scene.
         :param future: A sequence of mobjects to add to the scene.
-        :direction: The wipe direction.
+        :param direction: The wipe direction.
+        :param fade_in_kwargs: Keyword arguments passed to
+            :class:`FadeIn<manim.animation.fading.FadeIn>`.
+        :param fade_out_kwargs: Keyword arguments passed to
+            :class:`FadeOut<manim.animation.fading.FadeOut>`.
+        :param kwargs: Keyword arguments passed to
+            :class:`AnimationGroup<manim.animation.composition.AnimationGroup>`.
 
         Examples
         --------
@@ -421,29 +431,37 @@ class Slide(Scene):  # type:ignore
                     circle = Circle(radius=3, color=BLUE)
                     square = Square()
                     text = Text("This is a wipe example").next_to(square, DOWN)
+                    beautiful = Text("Beautiful, no?")
 
                     self.play(Create(circle))
                     self.next_slide()
 
                     self.play(self.wipe(circle, Group(square, text)))
+                    self.next_slide()
+
+                    self.play(self.wipe(Group(square, text), beautiful, direction=UP))
+                    self.next_slide()
+
+                    self.play(self.wipe(beautiful, circle, direction=DOWN + RIGHT))
         """
         shift_amount = np.asarray(direction) * np.array(
             [self.__frame_width, self.__frame_height, 0.0]
         )
 
-        for mobject in future:
-            mobject.shift(-shift_amount)
+        animations = []
 
-        animations = [
-            mobject.animate.shift(shift_amount) for mobject in [*current, *future]
-        ]
+        for mobject in future:
+            animations.append(FadeIn(mobject, shift=shift_amount, **fade_in_kwargs))
+
+        for mobject in current:
+            animations.append(FadeOut(mobject, shift=shift_amount, **fade_out_kwargs))
 
         return AnimationGroup(*animations, **kwargs)
 
 
 class ThreeDSlide(Slide, ThreeDScene):  # type: ignore
     """
-    Inherits from :class:`Slide` and :class:`manim.scene.three_d_scene.ThreeDScene` or :class:`manimlib.scene.three_d_scene.ThreeDScene` and provide necessary tools for slides rendering.
+    Inherits from :class:`Slide` and :class:`ThreeDScene<manim.scene.three_d_scene.ThreeDScene>` and provide necessary tools for slides rendering.
 
     .. note:: ManimGL does not need ThreeDScene for 3D rendering in recent versions, see `example.py`.
     """
