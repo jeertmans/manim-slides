@@ -2,7 +2,7 @@ import os
 import platform
 import shutil
 import subprocess
-from typing import Any, List, Optional, Sequence, Tuple, Mapping
+from typing import Any, List, Mapping, Optional, Sequence, Tuple
 from warnings import warn
 
 import numpy as np

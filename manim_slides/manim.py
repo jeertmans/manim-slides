@@ -75,7 +75,16 @@ else:
 
 
 if MANIMGL:
-    from manimlib import LEFT, AnimationGroup, Mobject, Scene, ThreeDScene, config, FadeIn, FadeOut
+    from manimlib import (
+        LEFT,
+        AnimationGroup,
+        FadeIn,
+        FadeOut,
+        Mobject,
+        Scene,
+        ThreeDScene,
+        config,
+    )
     from manimlib.constants import FFMPEG_BIN
     from manimlib.logger import log as logger
 
@@ -84,13 +93,13 @@ else:
         from manim import (
             LEFT,
             AnimationGroup,
+            FadeIn,
+            FadeOut,
             Mobject,
             Scene,
             ThreeDScene,
             config,
             logger,
-            FadeIn,
-            FadeOut
         )
 
         try:  # For manim<v0.16.0.post0
