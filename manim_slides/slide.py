@@ -66,6 +66,7 @@ class Slide(Scene):  # type:ignore
         self.__current_animation = 0
         self.__loop_start_animation: Optional[int] = None
         self.__pause_start_animation = 0
+        self.__wait_time_between_slides = 0.0
 
     @property
     def __frame_height(self) -> float:
@@ -138,6 +139,61 @@ class Slide(Scene):  # type:ignore
         else:
             return config["from_animation_number"]  # type: ignore
 
+    @property
+    def wait_time_between_slides(self) -> float:
+        """
+        Returns the wait duration (in seconds) added between two slides.
+
+        By default, this value is set to 0.
+
+        Setting this value to something bigger than 0 will result in a
+        :code:`self.wait` animation called at the end of every slide.
+
+        ..note::
+            This is useful because animations are usually only terminated
+            when a new animation is played. You can observe the small difference
+            in the examples below: the circle is not fully complete in the first
+            slide of the first example, but well in the second example.
+
+        Examples
+        --------
+
+        .. manim-slides:: WithoutWaitExample
+
+            from manim import *
+            from manim_slides import Slide
+
+            class WithoutWaitExample(Slide):
+                def construct(self):
+                    circle = Circle(radius=2)
+
+                    self.play(Create(circle))
+                    self.next_slide()
+
+                    self.play(FadeOut(circle))
+
+        .. manim-slides:: WithWaitExample
+
+            from manim import *
+            from manim_slides import Slide
+
+            class WithWaitExample(Slide):
+                def construct(self):
+                    self.wait_time_between_slides = 0.1  # A small value > 1 / FPS
+                    circle = Circle(radius=2)
+
+                    self.play(Create(circle))
+                    self.next_slide()
+
+                    self.play(FadeOut(circle))
+
+        """
+        return self.__wait_time_between_slides
+
+    @wait_time_between_slides.setter
+    def wait_time_between_slides(self, wait_time: float) -> None:
+        self.__wait_time_between_slides = max(wait_time, 0.0)
+
     def play(self, *args: Any, **kwargs: Any) -> None:
         """Overloads `self.play` and increment animation count."""
         super().play(*args, **kwargs)
@@ -186,6 +242,9 @@ class Slide(Scene):  # type:ignore
         assert (
             self.__loop_start_animation is None
         ), "You cannot call `self.next_slide()` inside a loop"
+
+        if self.wait_time_between_slides > 0.0:
+            self.wait(self.wait_time_between_slides)
 
         self.__slides.append(
             SlideConfig(
