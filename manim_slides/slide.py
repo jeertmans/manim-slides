@@ -684,7 +684,7 @@ class ThreeDSlide(Slide, ThreeDScene):  # type: ignore
                 self.wait(.5)
                 self.end_loop()
 
-                self.play(FadeOut(bye))
+                self.play(*[FadeOut(mobject) for mobject in self.mobjects])
     """
 
     pass
