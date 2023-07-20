@@ -2,5 +2,5 @@
 
 ```{eval-rst}
 .. automodule:: manim_slides.docs.manim_slides_directive
-   :members:
+   :members: ManimSlidesDirective
 ```
