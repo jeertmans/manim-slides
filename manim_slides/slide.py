@@ -673,7 +673,15 @@ class ThreeDSlide(Slide, ThreeDScene):  # type: ignore
                         direction=UP
                     )
                 )
-                self.wait(2.0)
+                self.wait(.5)
+                self.play(
+                    self.wipe(
+                        self.mobjects_without_canvas,
+                        [title, sphere],
+                        direction=DOWN
+                    )
+                )
+                self.wait(.5)
                 self.end_loop()
 
                 self.play(FadeOut(bye))
