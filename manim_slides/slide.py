@@ -2,7 +2,16 @@ import os
 import platform
 import shutil
 import subprocess
-from typing import Any, List, Mapping, MutableMapping, Optional, Sequence, Tuple, ValuesView
+from typing import (
+    Any,
+    List,
+    Mapping,
+    MutableMapping,
+    Optional,
+    Sequence,
+    Tuple,
+    ValuesView,
+)
 from warnings import warn
 
 import numpy as np
@@ -241,7 +250,9 @@ class Slide(Scene):  # type:ignore
         Returns the list of objects contained in the scene,
         minus those present in the canvas.
         """
-        return [mobject for mobject in self.mobjects if mobject not in self.canvas_mobjects]
+        return [
+            mobject for mobject in self.mobjects if mobject not in self.canvas_mobjects
+        ]
 
     @property
     def wait_time_between_slides(self) -> float:
