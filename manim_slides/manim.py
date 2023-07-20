@@ -51,8 +51,8 @@ MANIMGL_IMPORTED = MANIMGL_PACKAGE_NAME in sys.modules
 if MANIM_IMPORTED and MANIMGL_IMPORTED:
     from manim import logger
 
-    logger.warn(
-        "Both manim and manimgl are installed, therefore `manim-slide` needs to know which one to use. Please only import one of the two modules so that `manim-slide` knows which one to use. Here, manim is used by default"
+    logger.warning(
+        "Both manim and manimgl are imported, therefore `manim-slide` needs to know which one to use. Please only import one of the two modules so that `manim-slide` knows which one to use. Here, manim is used by default"
     )
     MANIM = True
     MANIMGL = False
