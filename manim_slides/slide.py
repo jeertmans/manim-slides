@@ -2,7 +2,7 @@ import os
 import platform
 import shutil
 import subprocess
-from typing import Any, List, Mapping, Optional, Sequence, Tuple
+from typing import Any, List, Mapping, MutableMapping, Optional, Sequence, Tuple, ValuesView
 from warnings import warn
 
 import numpy as np
@@ -66,6 +66,7 @@ class Slide(Scene):  # type:ignore
         self.__current_animation = 0
         self.__loop_start_animation: Optional[int] = None
         self.__pause_start_animation = 0
+        self.__canvas: MutableMapping[str, Mobject] = {}
         self.__wait_time_between_slides = 0.0
 
     @property
@@ -138,6 +139,109 @@ class Slide(Scene):  # type:ignore
             return getattr(self, "start_at_animation_number", None)
         else:
             return config["from_animation_number"]  # type: ignore
+
+    @property
+    def canvas(self) -> MutableMapping[str, Mobject]:
+        """
+        Returns the canvas associated to the current slide.
+
+        The canvas is a mapping between names and Mobjects,
+        for objects that are assumed to stay in multiple slides.
+
+        For example, a section title or a slide number.
+
+        Examples
+        --------
+
+        .. manim-slides:: CanvasExample
+
+            from manim import *
+            from manim_slides import Slide
+
+            class CanvasExample(Slide):
+                def update_canvas(self):
+                    self.counter += 1
+                    old_slide_number = self.canvas["slide_number"]
+                    new_slide_number = Text(f"{self.counter}").move_to(old_slide_number)
+                    self.play(Transform(old_slide_number, new_slide_number))
+
+                def construct(self):
+                    title = Text("My Title").to_corner(UL)
+
+                    self.counter = 1
+                    slide_number = Text("1").to_corner(DL)
+
+                    self.add_to_canvas(title=title, slide_number=slide_number)
+
+                    self.play(FadeIn(title), FadeIn(slide_number))
+                    self.next_slide()
+
+                    circle = Circle(radius=2)
+                    dot = Dot()
+
+                    self.update_canvas()
+                    self.play(Create(circle))
+                    self.play(MoveAlongPath(dot, circle))
+
+                    self.next_slide()
+                    self.update_canvas()
+
+                    square = Square()
+
+                    self.play(self.wipe(self.mobjects_without_canvas, square))
+                    self.next_slide()
+
+                    self.update_canvas()
+                    self.play(
+                        Transform(
+                            self.canvas["title"],
+                            Text("New Title").to_corner(UL)
+                        )
+                    )
+                    self.next_slide()
+
+                    self.remove_from_canvas("title", "slide_number")
+                    self.play(self.wipe(self.mobjects_without_canvas, []))
+
+        """
+        return self.__canvas
+
+    def add_to_canvas(self, **objects: Mobject) -> Mobject:
+        """
+        Adds objects to the canvas, using key values as names.
+
+        :param objects: A mapping between names and Mobjects.
+
+        .. note::
+
+            This method does not actually do anything in terms of
+            animations. You must still call :code:`self.add` or
+            play some animation that introduces each Mobject for
+            it to appear. The same applies when removing objects.
+        """
+        self.__canvas.update(objects)
+
+    def remove_from_canvas(self, *names: str) -> None:
+        """
+        Removes objects from the canvas.
+        """
+        for name in names:
+            self.__canvas.pop(name)
+
+    @property
+    def canvas_mobjects(self) -> ValuesView[Mobject]:
+        """
+        Returns Mobjects contained in the canvas.
+        """
+        return self.canvas.values()
+
+    @property
+    def mobjects_without_canvas(self) -> Sequence[Mobject]:
+        """
+        Returns the list of objects contained in the scene,
+        minus those present in the canvas.
+        """
+        return [mobject for mobject in self.mobjects if mobject not in self.canvas_mobjects]
 
     @property
     def wait_time_between_slides(self) -> float:
@@ -523,6 +627,45 @@ class ThreeDSlide(Slide, ThreeDScene):  # type: ignore
     Inherits from :class:`Slide` and :class:`ThreeDScene<manim.scene.three_d_scene.ThreeDScene>` and provide necessary tools for slides rendering.
 
     .. note:: ManimGL does not need ThreeDScene for 3D rendering in recent versions, see `example.py`.
+
+    Examples
+    --------
+
+    .. manim-slides:: ThreeDExample
+
+        from manim import *
+        from manim_slides import ThreeDSlide
+
+        class ThreeDExample(ThreeDSlide):
+            def construct(self):
+                title = Text("A 2D Text")
+
+                self.play(FadeIn(title))
+                self.next_slide()
+
+                sphere = Sphere([0, 0, -3])
+
+                self.move_camera(phi=PI/3, theta=-PI/4, distance=7)
+                self.play(
+                    GrowFromCenter(sphere),
+                    Transform(title, Text("A 3D Text"))
+                )
+                self.next_slide()
+
+                bye = Text("Bye!")
+
+                self.start_loop()
+                self.play(
+                    self.wipe(
+                        self.mobjects_without_canvas,
+                        [bye],
+                        direction=UP
+                    )
+                )
+                self.wait(2.0)
+                self.end_loop()
+
+                self.play(FadeOut(bye))
     """
 
     pass

@@ -6,7 +6,18 @@ Therefore, we only document here the methods we think the end-user will ever use
 
 ```{eval-rst}
 .. autoclass:: manim_slides.Slide
-    :members: wait_time_between_slides, start_loop, end_loop, pause, next_slide, wipe
+    :members:
+        add_to_canvas,
+        canvas,
+        canvas_mobjects,
+        end_loop,
+        mobjects_without_canvas,
+        next_slide,
+        pause,
+        remove_from_canvas,
+        start_loop,
+        wait_time_between_slides,
+        wipe,
 
 .. autoclass:: manim_slides.ThreeDSlide
     :members:
