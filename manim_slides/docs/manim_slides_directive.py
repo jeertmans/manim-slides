@@ -16,12 +16,28 @@ A directive for including Manim slides in a Sphinx document
 When rendering the HTML documentation, the ``.. manim-slides::``
 directive implemented here allows to include rendered videos.
 
+Usage
+-----
+
+First, you must include the directive in the Sphinx configuration file:
+
+.. code-block:: python
+    :caption: Sphinx configuration file (usually :code:`docs/source/conf.py`).
+    :emphasize-lines: 3
+
+    extensions = [
+        # ...
+        "manim_slides.docs.manim_slides_directive",
+    ]
+
 Its basic usage that allows processing **inline content**
 looks as follows::
 
     .. manim-slides:: MySlide
+        from manim import *
+        from manim_slides import Slide
 
-        class MySlide(Scene):
+        class MySlide(Slide):
             def construct(self):
                 ...
 
@@ -34,14 +50,14 @@ render scenes that are defined within doctests, for example::
     .. manim-slides:: DirectiveDoctestExample
         :ref_classes: Dot
 
-        >>> from manim import Create, Dot, RED, Scene
+        >>> from manim import Create, Dot, RED
+        >>> from manim_slides import Slide
         >>> dot = Dot(color=RED)
         >>> dot.color
         <Color #fc6255>
-        >>> class DirectiveDoctestExample(Scene):
+        >>> class DirectiveDoctestExample(Slide):
         ...     def construct(self):
         ...         self.play(Create(dot))
-
 
 Options
 -------
@@ -86,7 +102,7 @@ from timeit import timeit
 
 import jinja2
 from docutils import nodes
-from docutils.parsers.rst import Directive, directives  # type: ignore
+from docutils.parsers.rst import Directive, directives
 from docutils.statemachine import StringList
 from manim import QUALITIES
 
