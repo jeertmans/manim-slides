@@ -6,7 +6,7 @@ def test_folder_path() -> None:
 
 
 def test_config_path() -> None:
-    assert CONFIG_PATH == ".manim-slides.json"
+    assert CONFIG_PATH == ".manim-slides.toml"
 
 
 def test_ffmpeg_bin() -> None:

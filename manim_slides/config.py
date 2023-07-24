@@ -8,6 +8,7 @@ from enum import Enum
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Set, Tuple, Union
 
+import rtoml
 from pydantic import (
     BaseModel,
     Field,
@@ -46,7 +47,7 @@ def merge_basenames(files: List[FilePath]) -> Path:
 class Key(BaseModel):  # type: ignore
     """Represents a list of key codes, with optionally a name."""
 
-    ids: Set[PositiveInt]
+    ids: List[PositiveInt] = Field(unique=True)
     name: Optional[str] = None
 
     @field_validator("ids")
@@ -57,7 +58,7 @@ class Key(BaseModel):  # type: ignore
         return ids
 
     def set_ids(self, *ids: int) -> None:
-        self.ids = set(ids)
+        self.ids = list(set(ids))
 
     def match(self, key_id: int) -> bool:
         m = key_id in self.ids
@@ -68,9 +69,7 @@ class Key(BaseModel):  # type: ignore
         return m
 
 
-class Config(BaseModel):  # type: ignore
-    """General Manim Slides config"""
-
+class Keys(BaseModel):  # type: ignore
     QUIT: Key = Key(ids=[Qt.Key_Q], name="QUIT")
     CONTINUE: Key = Key(ids=[Qt.Key_Right], name="CONTINUE / NEXT")
     BACK: Key = Key(ids=[Qt.Key_Left], name="BACK")
@@ -78,17 +77,6 @@ class Config(BaseModel):  # type: ignore
     REWIND: Key = Key(ids=[Qt.Key_R], name="REWIND")
     PLAY_PAUSE: Key = Key(ids=[Qt.Key_Space], name="PLAY / PAUSE")
     HIDE_MOUSE: Key = Key(ids=[Qt.Key_H], name="HIDE / SHOW MOUSE")
-
-    @classmethod
-    def from_file(cls, path: Path) -> "Config":
-        """Reads a configuration from a file."""
-        with open(path, "r") as f:
-            return cls.model_validate_json(f.read())  # type: ignore
-
-    def to_file(self, path: Path) -> None:
-        """Dumps the configuration to a file."""
-        with open(path, "w") as f:
-            f.write(self.model_dump_json(indent=2))
 
     @model_validator(mode="before")
     def ids_are_unique_across_keys(cls, values: Dict[str, Key]) -> Dict[str, Key]:
@@ -103,12 +91,32 @@ class Config(BaseModel):  # type: ignore
 
         return values
 
-    def merge_with(self, other: "Config") -> "Config":
+    def merge_with(self, other: "Keys") -> "Keys":
         for key_name, key in self:
             other_key = getattr(other, key_name)
-            key.ids.update(other_key.ids)
+            print(set(key.ids))
+            key.ids = list(set(key.ids).union(other_key.ids))
             key.name = other_key.name or key.name
 
+        return self
+
+
+class Config(BaseModel):  # type: ignore
+    """General Manim Slides config"""
+
+    keys: Keys = Keys()
+
+    @classmethod
+    def from_file(cls, path: Path) -> "Config":
+        """Reads a configuration from a file."""
+        return cls.model_validate(rtoml.load(path))  # type: ignore
+
+    def to_file(self, path: Path) -> None:
+        """Dumps the configuration to a file."""
+        rtoml.dump(self.model_dump(), path, pretty=True)
+
+    def merge_with(self, other: "Config") -> "Config":
+        self.keys = self.keys.merge_with(other.keys)
         return self
 
 

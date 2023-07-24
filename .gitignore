@@ -1,30 +1,28 @@
+# Python files
 __pycache__/
 /env
 /build
 /dist
 *.egg-info/
 
+# Manim files
+images/
 /media
-/presentation
+docs/source/media/
 
-/.vscode
+# ManimGL files
+videos/
+
+# Manim Slides files
+.manim-slides.toml
 
 slides/
 !tests/slides/
 
-.manim-slides.json
-
-videos/
-
-images/
-
-docs/build/
-
-docs/source/_static/slides_assets/
-
-docs/source/_static/slides.html
-
 slides_assets/
+
+# Docs
+docs/build/
 
 slides.html
 
@@ -36,12 +34,10 @@ docs/source/_static/three_d_example.html
 
 docs/source/_static/three_d_example_assets/
 
+
+# JOSE Paper
+paper/paper.pdf
 paper/media/
 
-*.jats
-
-paper/paper.pdf
-
+# Others
 coverage.xml
-
-docs/source/media/

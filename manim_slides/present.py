@@ -539,23 +539,24 @@ class Display(QThread):  # type: ignore
         """Handles key strokes."""
 
         key = self.key
+        keys = self.config.keys
 
-        if self.config.QUIT.match(key):
+        if keys.QUIT.match(key):
             self.run_flag = False
-        elif self.state == State.PLAYING and self.config.PLAY_PAUSE.match(key):
+        elif self.state == State.PLAYING and keys.PLAY_PAUSE.match(key):
             self.state = State.PAUSED
-        elif self.state == State.PAUSED and self.config.PLAY_PAUSE.match(key):
+        elif self.state == State.PAUSED and keys.PLAY_PAUSE.match(key):
             self.state = State.PLAYING
         elif self.state == State.WAIT and (
-            self.config.CONTINUE.match(key) or self.config.PLAY_PAUSE.match(key)
+            keys.CONTINUE.match(key) or keys.PLAY_PAUSE.match(key)
         ):
             self.current_presentation.load_next_slide()
             self.state = State.PLAYING
         elif (
-            self.state == State.PLAYING and self.config.CONTINUE.match(key)
+            self.state == State.PLAYING and keys.CONTINUE.match(key)
         ) or self.skip_all:
             self.current_presentation.load_next_slide()
-        elif self.config.BACK.match(key):
+        elif keys.BACK.match(key):
             if self.current_presentation.current_slide_index == 0:
                 if self.current_presentation_index == 0:
                     self.current_presentation.load_previous_slide()
@@ -566,10 +567,10 @@ class Display(QThread):  # type: ignore
             else:
                 self.current_presentation.load_previous_slide()
                 self.state = State.PLAYING
-        elif self.config.REVERSE.match(key):
+        elif keys.REVERSE.match(key):
             self.current_presentation.reverse_current_slide()
             self.state = State.PLAYING
-        elif self.config.REWIND.match(key):
+        elif keys.REWIND.match(key):
             self.current_presentation.cancel_reverse()
             self.current_presentation.rewind_current_slide()
             self.state = State.PLAYING
@@ -705,7 +706,7 @@ class App(QWidget):  # type: ignore
 
     def keyPressEvent(self, event: QKeyEvent) -> None:
         key = event.key()
-        if self.config.HIDE_MOUSE.match(key):
+        if self.config.keys.HIDE_MOUSE.match(key):
             if self.hide_mouse:
                 self.setCursor(Qt.ArrowCursor)
                 self.hide_mouse = False
