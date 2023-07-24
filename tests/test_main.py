@@ -20,7 +20,6 @@ def test_defaults_to_present(folder_path: Path) -> None:
     runner = CliRunner()
 
     with runner.isolated_filesystem():
-        print(folder_path)
         results = runner.invoke(
             cli, ["BasicExample", "--folder", str(folder_path), "-s"]
         )
