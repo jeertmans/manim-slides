@@ -83,7 +83,7 @@ class Config(BaseModel):  # type: ignore
     def from_file(cls, path: Path) -> "Config":
         """Reads a configuration from a file."""
         with open(path, "r") as f:
-            return cls.model_validate_json(f)  # type: ignore
+            return cls.model_validate_json(f.read())  # type: ignore
 
     def to_file(self, path: Path) -> None:
         """Dumps the configuration to a file."""
@@ -123,7 +123,7 @@ class SlideConfig(BaseModel):  # type: ignore
     start_animation: int
     end_animation: int
     number: int
-    terminated: bool = False
+    terminated: bool = Field(False, exclude=True)
 
     @field_validator("start_animation", "end_animation")
     @classmethod
