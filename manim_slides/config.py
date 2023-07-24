@@ -1,4 +1,5 @@
 import hashlib
+import json
 import os
 import shutil
 import subprocess
@@ -7,7 +8,14 @@ from enum import Enum
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Set, Tuple, Union
 
-from pydantic import BaseModel, FilePath, PositiveInt, field_validator, model_validator
+from pydantic import (
+    BaseModel,
+    Field,
+    FilePath,
+    PositiveInt,
+    field_validator,
+    model_validator,
+)
 from pydantic_extra_types.color import Color
 from PySide6.QtCore import Qt
 
@@ -70,6 +78,17 @@ class Config(BaseModel):  # type: ignore
     REWIND: Key = Key(ids=[Qt.Key_R], name="REWIND")
     PLAY_PAUSE: Key = Key(ids=[Qt.Key_Space], name="PLAY / PAUSE")
     HIDE_MOUSE: Key = Key(ids=[Qt.Key_H], name="HIDE / SHOW MOUSE")
+
+    @classmethod
+    def from_file(cls, path: Path) -> "Config":
+        """Reads a configuration from a file."""
+        with open(path, "r") as f:
+            return cls.model_validate_json(f)  # type: ignore
+
+    def to_file(self, path: Path) -> None:
+        """Dumps the configuration to a file."""
+        with open(path, "w") as f:
+            f.write(self.model_dump_json(indent=2))
 
     @model_validator(mode="before")
     def ids_are_unique_across_keys(cls, values: Dict[str, Key]) -> Dict[str, Key]:
@@ -151,10 +170,30 @@ class SlideConfig(BaseModel):  # type: ignore
 
 
 class PresentationConfig(BaseModel):  # type: ignore
-    slides: List[SlideConfig]
+    slides: List[SlideConfig] = Field(min_length=1)
     files: List[FilePath]
     resolution: Tuple[PositiveInt, PositiveInt] = (1920, 1080)
     background_color: Color = "black"
+
+    @classmethod
+    def from_file(cls, path: Path) -> "PresentationConfig":
+        """Reads a presentation configuration from a file."""
+        with open(path, "r") as f:
+            obj = json.load(f)
+
+            if files := obj.get("files", None):
+                # First parent is ../slides
+                # so we take the parent of this parent
+                parent = Path(path).parents[1]
+                for i in range(len(files)):
+                    files[i] = parent / files[i]
+
+            return cls.model_validate(obj)  # type: ignore
+
+    def to_file(self, path: Path) -> None:
+        """Dumps the presentation configuration to a file."""
+        with open(path, "w") as f:
+            f.write(self.model_dump_json(indent=2))
 
     @model_validator(mode="after")
     def animation_indices_match_files(

@@ -97,3 +97,7 @@ class TestPresentationConfig:
 
     def test_bump_to_json(self, presentation_config: PresentationConfig) -> None:
         _ = presentation_config.model_dump_json(indent=2)
+
+    def test_empty_presentation_config(self) -> None:
+        with pytest.raises(ValidationError):
+            _ = PresentationConfig(slides=[], files=[])

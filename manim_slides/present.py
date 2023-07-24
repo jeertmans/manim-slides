@@ -786,7 +786,7 @@ def _list_scenes(folder: Path) -> List[str]:
 
     for filepath in folder.glob("*.json"):
         try:
-            _ = PresentationConfig.parse_file(filepath)
+            _ = PresentationConfig.from_file(filepath)
             scenes.append(filepath.stem)
         except (
             Exception
@@ -851,7 +851,7 @@ def get_scenes_presentation_config(
                 f"File {config_file} does not exist, check the scene name and make sure to use Slide as your scene base class"
             )
         try:
-            presentation_configs.append(PresentationConfig.parse_file(config_file))
+            presentation_configs.append(PresentationConfig.from_file(config_file))
         except ValidationError as e:
             raise click.UsageError(str(e))
 
@@ -1047,7 +1047,7 @@ def present(
 
     if config_path.exists():
         try:
-            config = Config.parse_file(config_path)
+            config = Config.from_file(config_path)
         except ValidationError as e:
             raise click.UsageError(str(e))
     else:
@@ -1070,7 +1070,11 @@ def present(
     if start_at[2]:
         start_at_animation_number = start_at[2]
 
-    app = QApplication(sys.argv)
+    if not QApplication.instance():
+        app = QApplication(sys.argv)
+    else:
+        app = QApplication.instance()
+
     app.setApplicationName("Manim Slides")
     a = App(
         presentations,

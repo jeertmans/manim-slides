@@ -1,6 +1,6 @@
-import os
 import sys
 from functools import partial
+from pathlib import Path
 from typing import Any
 
 import click
@@ -102,7 +102,7 @@ class Wizard(QWidget):  # type: ignore
 
     def saveConfig(self) -> None:
         try:
-            Config.parse_obj(self.config.dict())
+            Config.model_validate(self.config.dict())
         except ValueError:
             msg = QMessageBox()
             msg.setIcon(QMessageBox.Critical)
@@ -130,7 +130,7 @@ class Wizard(QWidget):  # type: ignore
 @config_options
 @click.help_option("-h", "--help")
 @verbosity_option
-def wizard(config_path: str, force: bool, merge: bool) -> None:
+def wizard(config_path: Path, force: bool, merge: bool) -> None:
     """Launch configuration wizard."""
     return _init(config_path, force, merge, skip_interactive=False)
 
@@ -140,18 +140,18 @@ def wizard(config_path: str, force: bool, merge: bool) -> None:
 @click.help_option("-h", "--help")
 @verbosity_option
 def init(
-    config_path: str, force: bool, merge: bool, skip_interactive: bool = False
+    config_path: Path, force: bool, merge: bool, skip_interactive: bool = False
 ) -> None:
     """Initialize a new default configuration file."""
     return _init(config_path, force, merge, skip_interactive=True)
 
 
 def _init(
-    config_path: str, force: bool, merge: bool, skip_interactive: bool = False
+    config_path: Path, force: bool, merge: bool, skip_interactive: bool = False
 ) -> None:
     """Actual initialization code for configuration file, with optional interactive mode."""
 
-    if os.path.exists(config_path):
+    if config_path.exists():
         click.secho(f"The `{CONFIG_PATH}` configuration file exists")
 
         if not force and not merge:
@@ -175,8 +175,8 @@ def _init(
         logger.debug("Merging new config into `{config_path}`")
 
     if not skip_interactive:
-        if os.path.exists(config_path):
-            config = Config.parse_file(config_path)
+        if config_path.exists():
+            config = Config.from_file(config_path)
 
         app = QApplication(sys.argv)
         app.setApplicationName("Manim Slides Wizard")
@@ -187,9 +187,8 @@ def _init(
         config = window.config
 
     if merge:
-        config = Config.parse_file(config_path).merge_with(config)
+        config = Config.from_file(config_path).merge_with(config)
 
-    with open(config_path, "w") as config_file:
-        config_file.write(config.json(indent=2))
+    config.to_file(config_path)
 
     click.secho(f"Configuration file successfully saved to `{config_path}`")
