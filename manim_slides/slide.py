@@ -35,9 +35,9 @@ from .manim import (
 )
 
 
-def reverse_video_file(src: str, dst: str) -> None:
+def reverse_video_file(src: Path, dst: Path) -> None:
     """Reverses a video file, writting the result to `dst`."""
-    command = [FFMPEG_BIN, "-i", src, "-vf", "reverse", dst]
+    command = [str(FFMPEG_BIN), "-i", str(src), "-vf", "reverse", str(dst)]
     logger.debug(" ".join(command))
     process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     output, error = process.communicate()
@@ -111,7 +111,7 @@ class Slide(Scene):  # type:ignore
             return config["pixel_width"], config["pixel_height"]
 
     @property
-    def __partial_movie_files(self) -> List[str]:
+    def __partial_movie_files(self) -> List[Path]:
         """Returns a list of partial movie files, a.k.a animations."""
         if MANIMGL:
             from manimlib.utils.file_ops import get_sorted_integer_files
@@ -120,11 +120,13 @@ class Slide(Scene):  # type:ignore
                 "remove_non_integer_files": True,
                 "extension": self.file_writer.movie_file_extension,
             }
-            return get_sorted_integer_files(  # type: ignore
+            files = get_sorted_integer_files(
                 self.file_writer.partial_movie_directory, **kwargs
             )
         else:
-            return self.renderer.file_writer.partial_movie_files  # type: ignore
+            files = self.renderer.file_writer.partial_movie_files
+
+        return [Path(file) for file in files]
 
     @property
     def __show_progress_bar(self) -> bool:
