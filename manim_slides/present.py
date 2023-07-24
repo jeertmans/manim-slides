@@ -76,7 +76,7 @@ class Presentation:
 
         self.__current_slide_index: int = 0
         self.current_animation: int = self.current_slide.start_animation
-        self.current_file: str = ""
+        self.current_file: Path = Path("")
 
         self.loaded_animation_cap: int = -1
         self.cap = None  # cap = cv2.VideoCapture
@@ -185,10 +185,10 @@ class Presentation:
 
             self.release_cap()
 
-            file: str = str(self.files[animation])
+            file: Path = self.files[animation]
 
             if self.reverse:
-                file = "{}_reversed{}".format(*os.path.splitext(file))
+                file = file.parent / f"{file.stem}_reversed{file.suffix}"
                 self.reversed_animation = animation
 
             self.current_file = file
@@ -371,7 +371,7 @@ class Display(QThread):  # type: ignore
         self.config = config
         self.skip_all = skip_all
         self.record_to = record_to
-        self.recordings: List[Tuple[str, int, int]] = []
+        self.recordings: List[Tuple[Path, int, int]] = []
 
         self.state = State.PLAYING
         self.lastframe: Optional[np.ndarray] = None
@@ -480,7 +480,7 @@ class Display(QThread):  # type: ignore
         )
         file, frame_number, fps = self.recordings[0]
 
-        cap = cv2.VideoCapture(file)
+        cap = cv2.VideoCapture(str(file))
         cap.set(cv2.CAP_PROP_POS_FRAMES, frame_number - 1)
         _, frame = cap.read()
 
@@ -496,7 +496,7 @@ class Display(QThread):  # type: ignore
             if file != _file:
                 cap.release()
                 file = _file
-                cap = cv2.VideoCapture(_file)
+                cap = cv2.VideoCapture(str(_file))
 
             cap.set(cv2.CAP_PROP_POS_FRAMES, frame_number - 1)
             _, frame = cap.read()

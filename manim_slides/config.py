@@ -1,6 +1,5 @@
 import hashlib
 import json
-import os
 import shutil
 import subprocess
 import tempfile
@@ -261,11 +260,11 @@ class PresentationConfig(BaseModel):  # type: ignore
                     continue
 
                 f = tempfile.NamedTemporaryFile(mode="w", delete=False)
-                f.writelines(f"file '{os.path.abspath(path)}'\n" for path in files)
+                f.writelines(f"file '{path.absolute()}'\n" for path in files)
                 f.close()
 
                 command: List[str] = [
-                    FFMPEG_BIN,
+                    str(FFMPEG_BIN),
                     "-f",
                     "concat",
                     "-safe",

@@ -1,7 +1,7 @@
-import os
 import platform
 import shutil
 import subprocess
+from pathlib import Path
 from typing import (
     Any,
     List,
@@ -9,6 +9,7 @@ from typing import (
     MutableMapping,
     Optional,
     Sequence,
+    Set,
     Tuple,
     ValuesView,
 )
@@ -54,11 +55,10 @@ class Slide(Scene):  # type:ignore
     """
 
     def __init__(
-        self, *args: Any, output_folder: str = FOLDER_PATH, **kwargs: Any
+        self, *args: Any, output_folder: Path = FOLDER_PATH, **kwargs: Any
     ) -> None:
         if MANIMGL:
-            if not os.path.isdir("videos"):
-                os.mkdir("videos")
+            Path("videos").mkdir(exist_ok=True)
             kwargs["file_writer_config"] = {
                 "break_into_partial_movies": True,
                 "output_directory": "",
@@ -69,7 +69,7 @@ class Slide(Scene):  # type:ignore
 
         super().__init__(*args, **kwargs)
 
-        self.__output_folder = output_folder
+        self.__output_folder: Path = output_folder
         self.__slides: List[SlideConfig] = []
         self.__current_slide = 1
         self.__current_animation = 0
@@ -470,25 +470,23 @@ class Slide(Scene):  # type:ignore
         """
         self.__add_last_slide()
 
-        if not os.path.exists(self.__output_folder):
-            os.mkdir(self.__output_folder)
+        self.__output_folder.mkdir(parents=True, exist_ok=True)
 
-        files_folder = os.path.join(self.__output_folder, "files")
-        if not os.path.exists(files_folder):
-            os.mkdir(files_folder)
+        files_folder = self.__output_folder / "files"
+        files_folder.mkdir(exist_ok=True)
 
         scene_name = str(self)
-        scene_files_folder = os.path.join(files_folder, scene_name)
+        scene_files_folder = files_folder / scene_name
 
-        old_animation_files = set()
+        old_animation_files: Set[Path] = set()
 
-        if not os.path.exists(scene_files_folder):
-            os.mkdir(scene_files_folder)
+        if not scene_files_folder.exists():
+            scene_files_folder.mkdir()
         elif not use_cache:
             shutil.rmtree(scene_files_folder)
-            os.mkdir(scene_files_folder)
+            scene_files_folder.mkdir()
         else:
-            old_animation_files.update(os.listdir(scene_files_folder))
+            old_animation_files.update(scene_files_folder.iterdir())
 
         files = []
         for src_file in tqdm(
@@ -504,10 +502,11 @@ class Slide(Scene):  # type:ignore
                 # but animations before a will have a None src_file
                 continue
 
-            filename = os.path.basename(src_file)
-            rev_filename = "{}_reversed{}".format(*os.path.splitext(filename))
-
-            dst_file = os.path.join(scene_files_folder, filename)
+            filename = src_file.name
+            rev_filename = (
+                src_file.parent / f"{src_file.stem}_reversed{src_file.suffix}"
+            )
+            dst_file = scene_files_folder / filename
             # We only copy animation if it was not present
             if filename in old_animation_files:
                 old_animation_files.remove(filename)
@@ -518,7 +517,7 @@ class Slide(Scene):  # type:ignore
             if rev_filename in old_animation_files:
                 old_animation_files.remove(rev_filename)
             else:
-                rev_file = os.path.join(scene_files_folder, rev_filename)
+                rev_file = scene_files_folder / rev_filename
                 reverse_video_file(src_file, rev_file)
 
             files.append(dst_file)
@@ -533,23 +532,20 @@ class Slide(Scene):  # type:ignore
                 slide.end_animation -= offset
 
         logger.info(
-            f"Copied {len(files)} animations to '{os.path.abspath(scene_files_folder)}' and generated reversed animations"
+            f"Copied {len(files)} animations to '{scene_files_folder.absolute()}' and generated reversed animations"
         )
 
-        slide_path = os.path.join(self.__output_folder, "%s.json" % (scene_name,))
+        slide_path = self.__output_folder / f"{scene_name}.json"
 
-        with open(slide_path, "w") as f:
-            f.write(
-                PresentationConfig(
-                    slides=self.__slides,
-                    files=files,
-                    resolution=self.__resolution,
-                    background_color=self.__background_color,
-                ).model_dump_json(indent=2)
-            )
+        PresentationConfig(
+            slides=self.__slides,
+            files=files,
+            resolution=self.__resolution,
+            background_color=self.__background_color,
+        ).to_file(slide_path)
 
         logger.info(
-            f"Slide '{scene_name}' configuration written in '{os.path.abspath(slide_path)}'"
+            f"Slide '{scene_name}' configuration written in '{slide_path.absolute()}'"
         )
 
     def run(self, *args: Any, **kwargs: Any) -> None:
