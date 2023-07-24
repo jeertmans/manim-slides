@@ -76,11 +76,11 @@ class Config(BaseModel):  # type: ignore
         ids: Set[int] = set()
 
         for key in values.values():
-            if len(ids.intersection(key.ids)) != 0:
+            if len(ids.intersection(key["ids"])) != 0:
                 raise ValueError(
                     "Two or more keys share a common key code: please make sure each key has distinct key codes"
                 )
-            ids.update(key.ids)
+            ids.update(key["ids"])
 
         return values
 
