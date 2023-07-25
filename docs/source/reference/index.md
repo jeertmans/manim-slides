@@ -27,3 +27,5 @@ Slides' executable.
 [HTML Presentation](./html): an alternative way of presenting your animations.
 
 [Sharing](./sharing): how to share your presentation with others.
+
+[Sphinx Extension](./sphinx_extension): a Sphinx extension for diplaying Manim Slides animations within your documentation.
