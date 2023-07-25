@@ -24,6 +24,6 @@ Slides' executable.
 
 [Graphical User Interface](./gui): details about the main Manim Slide' feature.
 
-[HTML Presenetation](./html): an alternative way of presenting your animations.
+[HTML Presentation](./html): an alternative way of presenting your animations.
 
 [Sharing](./sharing): how to share your presentation with others.
