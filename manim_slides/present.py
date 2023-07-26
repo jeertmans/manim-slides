@@ -14,7 +14,7 @@ from pydantic import ValidationError
 from pydantic_extra_types.color import Color
 from PySide6.QtCore import Qt, QThread, Signal, Slot
 from PySide6.QtGui import QCloseEvent, QIcon, QImage, QKeyEvent, QPixmap, QResizeEvent
-from PySide6.QtWidgets import QApplication, QGridLayout, QLabel, QWidget
+from PySide6.QtWidgets import QApplication, QFileDialog, QGridLayout, QLabel, QWidget
 from tqdm import tqdm
 
 from .commons import config_path_option, verbosity_option
@@ -1027,6 +1027,22 @@ def present(
 
     Use `manim-slide list-scenes` to list all available scenes in a given folder.
     """
+
+    app = QApplication(sys.argv)
+    app.setApplicationName("Manim Slides")
+    dialog = QFileDialog()
+    dialog.setDirectory(FOLDER_PATH if os.path.exists(FOLDER_PATH) else "")
+    dialog.setFileMode(QFileDialog.ExistingFiles)
+    dialog.setNameFilters(["JSON (*.json)", "* (*.*)"])
+    if dialog.exec():
+        filenames = dialog.selectedFiles()
+        print(filenames)
+
+    # TODO:
+    # - get files in selected order
+    # - kill dialog
+    # - add cli option (+ envvar) to prompt gui instead of cli
+    # - use scenes selected from gui
 
     if skip_all:
         exit_after_last_slide = True
