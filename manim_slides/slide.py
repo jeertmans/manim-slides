@@ -631,6 +631,71 @@ class Slide(Scene):  # type:ignore
 
         return AnimationGroup(*animations, **kwargs)
 
+    def zoom(
+        self,
+        current: Sequence[Mobject] = [],
+        future: Sequence[Mobject] = [],
+        scale: float = 4.0,
+        out: bool = False,
+        fade_in_kwargs: Mapping[str, Any] = {},
+        fade_out_kwargs: Mapping[str, Any] = {},
+        **kwargs: Any,
+    ) -> AnimationGroup:
+        """
+        Returns a zoom animation that will fade out all the current objects,
+        and fade in all the future objects. Objects are faded in a direction
+        that goes towards the camera.
+
+        :param current: A sequence of mobjects to remove from the scene.
+        :param future: A sequence of mobjects to add to the scene.
+        :param scale: How much the objects are scaled.
+        :param out: If set, the objects fade in the opposite direction.
+        :param fade_in_kwargs: Keyword arguments passed to
+            :class:`FadeIn<manim.animation.fading.FadeIn>`.
+        :param fade_out_kwargs: Keyword arguments passed to
+            :class:`FadeOut<manim.animation.fading.FadeOut>`.
+        :param kwargs: Keyword arguments passed to
+            :class:`AnimationGroup<manim.animation.composition.AnimationGroup>`.
+
+        Examples
+        --------
+
+        .. manim-slides:: ZoomExample
+
+            from manim import *
+            from manim_slides import Slide
+
+            class ZoomExample(Slide):
+                def construct(self):
+                    circle = Circle(radius=3, color=BLUE)
+                    square = Square()
+                    text = Text("This is a zoom example").next_to(square, DOWN)
+                    beautiful = Text("Beautiful, no?")
+
+                    self.play(Create(circle))
+                    self.next_slide()
+
+                    self.play(self.zoom(circle, Group(square, text)))
+                    self.next_slide()
+
+                    self.play(self.zoom(Group(square, text), beautiful, out=True))
+        """
+        scale_in = 1.0 / scale
+        scale_out = scale
+
+        if out:
+            scale_in, scale_out = scale_out, scale_in
+
+        animations = []
+
+        for mobject in future:
+            animations.append(FadeIn(mobject, scale=scale_in, **fade_in_kwargs))
+
+        for mobject in current:
+            animations.append(FadeOut(mobject, scale=scale_out, **fade_out_kwargs))
+
+        return AnimationGroup(*animations, **kwargs)
+
 
 class ThreeDSlide(Slide, ThreeDScene):  # type: ignore
     """
