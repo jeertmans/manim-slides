@@ -258,7 +258,7 @@ class Slide(Scene):  # type:ignore
 
     @property
     def wait_time_between_slides(self) -> float:
-        """
+        r"""
         Returns the wait duration (in seconds) added between two slides.
 
         By default, this value is set to 0.
@@ -283,7 +283,10 @@ class Slide(Scene):  # type:ignore
             class WithoutWaitExample(Slide):
                 def construct(self):
                     circle = Circle(radius=2)
+                    arrow = Arrow().next_to(circle, RIGHT).scale(-1)
+                    text = Text("Small\ngap").next_to(arrow, RIGHT)
 
+                    self.play(Create(arrow), FadeIn(text))
                     self.play(Create(circle))
                     self.next_slide()
 
@@ -298,7 +301,10 @@ class Slide(Scene):  # type:ignore
                 def construct(self):
                     self.wait_time_between_slides = 0.1  # A small value > 1 / FPS
                     circle = Circle(radius=2)
+                    arrow = Arrow().next_to(circle, RIGHT).scale(-1)
+                    text = Text("No more\ngap").next_to(arrow, RIGHT)
 
+                    self.play(Create(arrow), FadeIn(text))
                     self.play(Create(circle))
                     self.next_slide()
 
