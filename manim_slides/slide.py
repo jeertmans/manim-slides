@@ -37,7 +37,7 @@ from .manim import (
 
 def reverse_video_file(src: Path, dst: Path) -> None:
     """Reverses a video file, writting the result to `dst`."""
-    command = [str(FFMPEG_BIN), "-i", str(src), "-vf", "reverse", str(dst)]
+    command = [str(FFMPEG_BIN), "-y", "-i", str(src), "-vf", "reverse", str(dst)]
     logger.debug(" ".join(command))
     process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     output, error = process.communicate()
@@ -520,7 +520,8 @@ class Slide(Scene):  # type:ignore
                 old_animation_files.remove(rev_filename)
             else:
                 rev_file = scene_files_folder / rev_filename
-                reverse_video_file(src_file, rev_file)
+                if not rev_file.exists():
+                    reverse_video_file(src_file, rev_file)
 
             files.append(dst_file)
 
