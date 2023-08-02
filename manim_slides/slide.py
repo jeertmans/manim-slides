@@ -266,7 +266,7 @@ class Slide(Scene):  # type:ignore
         Setting this value to something bigger than 0 will result in a
         :code:`self.wait` animation called at the end of every slide.
 
-        ..note::
+        .. note::
             This is useful because animations are usually only terminated
             when a new animation is played. You can observe the small difference
             in the examples below: the circle is not fully complete in the first
