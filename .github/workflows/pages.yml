@@ -47,7 +47,7 @@ jobs:
         sudo apt-get update
         sudo apt-get install libcairo2-dev libpango1.0-dev ffmpeg freeglut3-dev
     - name: Install local Python package
-      run: poetry install --extras=manim --with docs
+      run: poetry install --with docs
     - name: Restore cached media
       id: cache-media-restore
       uses: actions/cache/restore@v3

@@ -606,7 +606,7 @@ class Slide(Scene):  # type:ignore
                     text = Text("This is a wipe example").next_to(square, DOWN)
                     beautiful = Text("Beautiful, no?")
 
-                    self.play(Create(circle))
+                    self.play(FadeIn(circle))
                     self.next_slide()
 
                     self.play(self.wipe(circle, Group(square, text)))
@@ -648,7 +648,7 @@ class Slide(Scene):  # type:ignore
 
         :param current: A sequence of mobjects to remove from the scene.
         :param future: A sequence of mobjects to add to the scene.
-        :param scale: How much the objects are scaled.
+        :param scale: How much the objects are scaled (up or down).
         :param out: If set, the objects fade in the opposite direction.
         :param fade_in_kwargs: Keyword arguments passed to
             :class:`FadeIn<manim.animation.fading.FadeIn>`.
@@ -669,16 +669,14 @@ class Slide(Scene):  # type:ignore
                 def construct(self):
                     circle = Circle(radius=3, color=BLUE)
                     square = Square()
-                    text = Text("This is a zoom example").next_to(square, DOWN)
-                    beautiful = Text("Beautiful, no?")
 
-                    self.play(Create(circle))
+                    self.play(FadeIn(circle))
                     self.next_slide()
 
-                    self.play(self.zoom(circle, Group(square, text)))
+                    self.play(self.zoom(circle, square))
                     self.next_slide()
 
-                    self.play(self.zoom(Group(square, text), beautiful, out=True))
+                    self.play(self.zoom(square, circle, out=True, scale=10.))
         """
         scale_in = 1.0 / scale
         scale_out = scale

@@ -18,6 +18,7 @@ Therefore, we only document here the methods we think the end-user will ever use
         start_loop,
         wait_time_between_slides,
         wipe,
+        zoom,
 
 .. autoclass:: manim_slides.ThreeDSlide
     :members:
