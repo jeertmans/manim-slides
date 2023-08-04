@@ -1018,6 +1018,7 @@ def start_at_callback(
 )
 @click.option(
     "--screen",
+    "screen_number",
     metavar="NUMBER",
     type=int,
     default=None,
@@ -1043,7 +1044,7 @@ def present(
     start_at_scene_number: Optional[int],
     start_at_slide_number: Optional[int],
     start_at_animation_number: Optional[int],
-    screen: int = 0,
+    screen_number: Optional[int] = None,
 ) -> None:
     """
     Present SCENE(s), one at a time, in order.
@@ -1116,15 +1117,17 @@ def present(
 
     app.setApplicationName("Manim Slides")
 
-    if screen is not None:
+    if screen_number is not None:
         try:
-            screen = app.screens()[screen]
+            screen = app.screens()[screen_number]
         except IndexError:
             logger.error(
-                f"Invalid screen number {screen}, "
+                f"Invalid screen number {screen_number}, "
                 f"allowed values are from 0 to {len(app.screens())-1} (incl.)"
             )
             screen = None
+    else:
+        screen = None
 
     a = App(
         presentations,
