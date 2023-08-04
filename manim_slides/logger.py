@@ -25,6 +25,7 @@ HIGHLIGHTED_KEYWORDS = [  # these keywords are highlighted specially
     "File",
     "Rendering",
     "Rendered",
+    "Pressed key",
 ]
 
 
