@@ -13,7 +13,7 @@ from click import Context, Parameter
 from pydantic import ValidationError
 from pydantic_extra_types.color import Color
 from PySide6.QtCore import Qt, QThread, Signal, Slot
-from PySide6.QtGui import QCloseEvent, QIcon, QImage, QKeyEvent, QPixmap, QResizeEvent
+from PySide6.QtGui import QCloseEvent, QIcon, QImage, QKeyEvent, QPixmap, QResizeEvent, QScreen
 from PySide6.QtWidgets import QApplication, QGridLayout, QLabel, QWidget
 from tqdm import tqdm
 
@@ -350,7 +350,7 @@ class Display(QThread):  # type: ignore
 
     change_video_signal = Signal(np.ndarray)
     change_info_signal = Signal(dict)
-    change_presentation_sigal = Signal()
+    change_presentation_signal = Signal()
     finished = Signal()
 
     def __init__(
@@ -401,7 +401,7 @@ class Display(QThread):  # type: ignore
             if -len(self) <= value < len(self):
                 self.__current_presentation_index = value
                 self.current_presentation.release_cap()
-                self.change_presentation_sigal.emit()
+                self.change_presentation_signal.emit()
             else:
                 logger.error(
                     f"Could not load scene number {value}, playing first scene instead."
@@ -421,6 +421,10 @@ class Display(QThread):  # type: ignore
     def current_background_color(self) -> Color:
         """Returns the background color of the current presentation."""
         return self.current_presentation.background_color
+
+    def start(self) -> None:
+        super().start()
+        self.change_presentation_signal.emit()
 
     def run(self) -> None:
         """Runs a series of presentations until end or exit."""
@@ -650,9 +654,14 @@ class App(QWidget):  # type: ignore
         aspect_ratio: AspectRatio = AspectRatio.auto,
         resize_mode: Qt.TransformationMode = Qt.SmoothTransformation,
         background_color: str = "black",
+        screen: Optional[QScreen] = None,
         **kwargs: Any,
     ):
         super().__init__()
+
+        if screen:
+            self.setScreen(screen)
+            self.move(screen.geometry().topLeft())
 
         self.setWindowTitle(WINDOW_NAME)
         self.icon = QIcon(":/icon.png")
@@ -675,10 +684,6 @@ class App(QWidget):  # type: ignore
         if self.aspect_ratio == AspectRatio.auto:
             self.label.setScaledContents(True)
         self.label.setAlignment(Qt.AlignCenter)
-        self.label.resize(self.display_width, self.display_height)
-        self.label.setStyleSheet(
-            f"background-color: {self.thread.current_background_color}"
-        )
 
         self.pixmap = QPixmap(self.width(), self.height())
         self.label.setPixmap(self.pixmap)
@@ -693,13 +698,16 @@ class App(QWidget):  # type: ignore
 
         if fullscreen:
             self.showFullScreen()
+        else:
+            self.resize(self.display_width, self.display_height)
 
         # connect signals
         self.thread.change_video_signal.connect(self.update_image)
         self.thread.change_info_signal.connect(self.info.update_info)
-        self.thread.change_presentation_sigal.connect(self.update_canvas)
+        self.thread.change_presentation_signal.connect(self.update_canvas)
         self.thread.finished.connect(self.closeAll)
         self.send_key_signal.connect(self.thread.set_key)
+
 
         # start the thread
         self.thread.start()
@@ -755,8 +763,10 @@ class App(QWidget):  # type: ignore
     def update_canvas(self) -> None:
         """Update the canvas when a presentation has changed."""
         logger.debug("Updating canvas")
-        self.display_width, self.display_height = self.thread.current_resolution
-        if not self.isFullScreen():
+        w, h = self.thread.current_resolution
+
+        if not self.isFullScreen() and (self.display_width != w or self.display_height != h):
+            self.display_width, self.display_height = w, h
             self.resize(self.display_width, self.display_height)
         self.label.setStyleSheet(
             f"background-color: {self.thread.current_background_color}"
@@ -997,6 +1007,13 @@ def start_at_callback(
     default=0,
     help="Start presenting at a given animation number (0 is first, -1 is last). This conflicts with slide number since animation number is absolute to the presentation.",
 )
+@click.option(
+    "--screen",
+    metavar="NUMBER",
+    type=int,
+    default=None,
+    help="Presents content on the given screen (a.k.a. display).",
+)
 @click.help_option("-h", "--help")
 @verbosity_option
 def present(
@@ -1017,6 +1034,7 @@ def present(
     start_at_scene_number: Optional[int],
     start_at_slide_number: Optional[int],
     start_at_animation_number: Optional[int],
+    screen: int = 0,
 ) -> None:
     """
     Present SCENE(s), one at a time, in order.
@@ -1068,7 +1086,9 @@ def present(
         ext = record_to.suffix
         if ext.lower() != ".avi":
             raise click.UsageError(
-                "Recording only support '.avi' extension. For other video formats, please convert the resulting '.avi' file afterwards."
+                "Recording only support '.avi' extension. "
+                "For other video formats, "
+                "please convert the resulting '.avi' file afterwards."
             )
 
     if start_at[0]:
@@ -1086,6 +1106,15 @@ def present(
         app = QApplication.instance()
 
     app.setApplicationName("Manim Slides")
+
+    if screen is not None:
+        try:
+            screen = app.screens()[screen]
+        except IndexError:
+            logger.error(f"Invalid screen number {screen}, "
+                         f"allowed values are from 0 to {len(app.screens())-1} (incl.)")
+            screen = None
+
     a = App(
         presentations,
         config=config,
@@ -1100,6 +1129,8 @@ def present(
         start_at_scene_number=start_at_scene_number,
         start_at_slide_number=start_at_slide_number,
         start_at_animation_number=start_at_animation_number,
+        screen=screen,
     )
+
     a.show()
     sys.exit(app.exec_())
