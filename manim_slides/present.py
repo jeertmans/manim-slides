@@ -1,5 +1,6 @@
 import os
 import platform
+import signal
 import sys
 import time
 from enum import Enum, IntEnum, auto, unique
@@ -1102,4 +1103,16 @@ def present(
         start_at_animation_number=start_at_animation_number,
     )
     a.show()
+
+    # inform about CTRL+C
+    def sigkill_handler(signum, frame):
+        logger.warn(
+            "Thie application cannot be closed with usual CTRL+C, "
+            "please use the appropriate key defined in your config "
+            "(default: q)."
+        )
+
+        raise KeyboardInterrupt
+
+    signal.signal(signal.SIGINT, sigkill_handler)
     sys.exit(app.exec_())
