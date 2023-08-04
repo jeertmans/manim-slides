@@ -1105,7 +1105,7 @@ def present(
     a.show()
 
     # inform about CTRL+C
-    def sigkill_handler(signum, frame):
+    def sigkill_handler(signum, frame):  # type: ignore
         logger.warn(
             "Thie application cannot be closed with usual CTRL+C, "
             "please use the appropriate key defined in your config "
