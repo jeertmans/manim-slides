@@ -53,6 +53,22 @@ class TestSlide:
             assert bye in self.mobjects
 
     @assert_construct
+    class TestZoom(Slide):
+        def construct(self) -> None:
+            text = Text("Some text")
+            bye = Text("Bye")
+
+            self.add(text)
+
+            assert text in self.mobjects
+            assert bye not in self.mobjects
+
+            self.play(self.zoom([text], [bye]))
+
+            assert text not in self.mobjects
+            assert bye in self.mobjects
+
+    @assert_construct
     class TestCanvas(Slide):
         def construct(self) -> None:
             text = Text("Some text")
