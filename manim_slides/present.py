@@ -1046,6 +1046,15 @@ def present(
         for presentation_config in presentation_configs
     ]
 
+    # TODO: remove me in v5
+    if config_path.suffix == ".json" or Path(".manim-slides.json").exists():
+        logger.warn(
+            "Manim Slides now uses a TOML file for configuration. "
+            "Please create a new configuration file with `manim-slides init` "
+            "and move all the keys from your old config, if needed. "
+            "Then, delete your old JSON config file."
+        )
+
     if config_path.exists():
         try:
             config = Config.from_file(config_path)
