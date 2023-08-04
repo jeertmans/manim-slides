@@ -9,7 +9,6 @@ from typing import (
     MutableMapping,
     Optional,
     Sequence,
-    Set,
     Tuple,
     ValuesView,
 )
@@ -478,23 +477,12 @@ class Slide(Scene):  # type:ignore
         """
         self.__add_last_slide()
 
-        self.__output_folder.mkdir(parents=True, exist_ok=True)
-
         files_folder = self.__output_folder / "files"
-        files_folder.mkdir(exist_ok=True)
 
         scene_name = str(self)
         scene_files_folder = files_folder / scene_name
 
-        old_animation_files: Set[Path] = set()
-
-        if not scene_files_folder.exists():
-            scene_files_folder.mkdir()
-        elif not use_cache:
-            shutil.rmtree(scene_files_folder)
-            scene_files_folder.mkdir()
-        else:
-            old_animation_files.update(scene_files_folder.iterdir())
+        scene_files_folder.mkdir(parents=True, exist_ok=True)
 
         files = []
         for src_file in tqdm(
@@ -510,24 +498,16 @@ class Slide(Scene):  # type:ignore
                 # but animations before a will have a None src_file
                 continue
 
-            filename = src_file.name
-            rev_filename = (
-                src_file.parent / f"{src_file.stem}_reversed{src_file.suffix}"
-            )
-            dst_file = scene_files_folder / filename
+            dst_file = scene_files_folder / src_file.name
+            rev_file = scene_files_folder / f"{src_file.stem}_reversed{src_file.suffix}"
+
             # We only copy animation if it was not present
-            if filename in old_animation_files:
-                old_animation_files.remove(filename)
-            else:
+            if not use_cache or not dst_file.exists():
                 shutil.copyfile(src_file, dst_file)
 
             # We only reverse video if it was not present
-            if rev_filename in old_animation_files:
-                old_animation_files.remove(rev_filename)
-            else:
-                rev_file = scene_files_folder / rev_filename
-                if not rev_file.exists():
-                    reverse_video_file(src_file, rev_file)
+            if not use_cache or not rev_file.exists():
+                reverse_video_file(src_file, rev_file)
 
             files.append(dst_file)
 
