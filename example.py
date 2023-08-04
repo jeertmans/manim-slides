@@ -72,10 +72,9 @@ class TestFileTooLong(Slide):
 class ConvertExample(Slide):
     """WARNING: this example does not seem to work with ManimGL."""
 
-    def tinywait(self):
-        self.wait(0.1)
-
     def construct(self):
+        self.wait_time_between_slides = 0.1
+
         title = VGroup(
             Text("From Manim animations", t2c={"From": BLUE}),
             Text("to slides presentation", t2c={"to": BLUE}),
@@ -210,41 +209,32 @@ class Example(Slide):
             language="console",
         ).shift(DOWN)
 
-        self.clear()
-
-        self.play(FadeIn(code))
-        self.tinywait()
+        self.play(self.wipe(title, code))
         self.next_slide()
 
         self.play(FadeIn(step, shift=RIGHT))
         self.play(Transform(code, code_step_1))
-        self.tinywait()
         self.next_slide()
 
         self.play(Transform(step, step_2))
         self.play(Transform(code, code_step_2))
-        self.tinywait()
         self.next_slide()
 
         self.play(Transform(step, step_3))
         self.play(Transform(code, code_step_3))
-        self.tinywait()
         self.next_slide()
 
         self.play(Transform(step, step_4))
         self.play(Transform(code, code_step_4))
-        self.tinywait()
         self.next_slide()
 
         self.play(Transform(step, step_5))
         self.play(Transform(code, code_step_5))
-        self.tinywait()
         self.next_slide()
 
         self.play(Transform(step, step_6))
         self.play(Transform(code, code_step_6))
         self.play(code.animate.shift(UP), FadeIn(code_step_7), FadeIn(or_text))
-        self.tinywait()
         self.next_slide()
 
         watch_text = Text("Watch result on next slides!").shift(2 * DOWN).scale(0.5)
@@ -264,10 +254,8 @@ class Example(Slide):
         self.play(Transform(dot, square))
         self.remove(dot)
         self.add(square)
-        self.tinywait()
         self.next_slide()
         self.play(Rotate(square, angle=PI / 4))
-        self.tinywait()
         self.next_slide()
 
         learn_more_text = (
@@ -280,7 +268,6 @@ class Example(Slide):
         )
 
         self.play(Transform(square, learn_more_text))
-        self.tinywait()
 
 
 # For ThreeDExample, things are different
