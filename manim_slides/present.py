@@ -3,7 +3,7 @@ import platform
 import signal
 import sys
 import time
-from enum import Enum, IntEnum, auto, unique
+from enum import Enum, IntFlag, auto, unique
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple, Union
 
@@ -60,16 +60,20 @@ RESIZE_MODES = {
 
 
 @unique
-class State(IntEnum):
+class State(IntFlag):
     """Represents all possible states of a slide presentation."""
 
+    """A video is actively being played."""
     PLAYING = auto()
+    """A video was manually paused."""
     PAUSED = auto()
+    """Waiting for user to press next (or else)."""
     WAIT = auto()
+    """Presentation was terminated."""
     END = auto()
 
     def __str__(self) -> str:
-        return self.name.capitalize()
+        return self.name.capitalize()  # type: ignore
 
 
 def now() -> float:
@@ -279,10 +283,10 @@ class Presentation:
 
     def load_last_slide(self) -> None:
         """Loads last slide."""
-        self.current_slide_index = len(self.slides) - 2
+        self.current_slide_index = len(self.slides) - 1
         assert (
             self.current_slide_index >= 0
-        ), "Slides should be at list of a least two elements"
+        ), "Slides should be at list of a least one element"
         self.current_animation = self.current_slide.start_animation
         self.load_animation_cap(self.current_animation)
         self.slides[-1].terminated = False
@@ -315,41 +319,37 @@ class Presentation:
         It does this by reading the video information and checking if the state is still correct.
         It returns the frame to show (lastframe) and the new state.
         """
-        if state == State.PAUSED:
+        if state ^ State.PLAYING:  # If not playing, we return the same
             if self.lastframe is None:
                 _, self.lastframe = self.current_cap.read()
             return self.lastframe, state
+
         still_playing, frame = self.current_cap.read()
+
         if still_playing:
             self.lastframe = frame
-        elif state == state.WAIT or state == state.PAUSED:  # type: ignore
-            return self.lastframe, state
-        elif self.current_slide.is_last() and self.current_slide.terminated:
-            return self.lastframe, State.END
-        else:  # not still playing
-            if self.is_last_animation:
-                if self.current_slide.is_slide():
+            return self.lastframe, State.PLAYING
+
+        # Video was terminated
+        if self.is_last_animation:
+            if self.current_slide.is_loop():
+                if self.reverse:
                     state = State.WAIT
-                elif self.current_slide.is_loop():
-                    if self.reverse:
-                        state = State.WAIT
-                    else:
-                        self.current_animation = self.current_slide.start_animation
-                        state = State.PLAYING
-                        self.rewind_current_slide()
-                elif self.current_slide.is_last():
-                    self.current_slide.terminated = True
-            elif (
-                self.current_slide.is_last()
-                and self.current_slide.end_animation == self.current_animation
-            ):
-                state = State.WAIT
+
+                else:
+                    self.current_animation = self.current_slide.start_animation
+                    state = State.PLAYING
+                    self.rewind_current_slide()
+            elif self.current_slide.is_last():
+                state = State.END
             else:
-                # Play next video!
-                self.current_animation = self.next_animation
-                self.load_animation_cap(self.current_animation)
-                # Reset video to position zero if it has been played before
-                self.current_cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
+                state = State.WAIT
+        else:
+            # Play next video!
+            self.current_animation = self.next_animation
+            self.load_animation_cap(self.current_animation)
+            # Reset video to position zero if it has been played before
+            self.current_cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
 
         return self.lastframe, state
 
@@ -431,6 +431,11 @@ class Display(QThread):  # type: ignore
         """Returns the background color of the current presentation."""
         return self.current_presentation.background_color
 
+    @property
+    def is_last_presentation(self) -> bool:
+        """Returns True if current presentation is the last one."""
+        return self.current_presentation_index == len(self) - 1
+
     def start(self) -> None:
         super().start()
         self.change_presentation_signal.emit()
@@ -442,18 +447,15 @@ class Display(QThread):  # type: ignore
             self.lastframe, self.state = self.current_presentation.update_state(
                 self.state
             )
-            if self.state == State.PLAYING or self.state == State.PAUSED:
+            if self.state & (State.PLAYING | State.PAUSED):
                 if self.start_paused:
                     self.state = State.PAUSED
                     self.start_paused = False
-            if self.state == State.END:
+            if self.state & State.END:
                 if self.current_presentation_index == len(self.presentations) - 1:
                     if self.exit_after_last_slide:
                         self.run_flag = False
                         continue
-                else:
-                    self.current_presentation_index += 1
-                    self.state = State.PLAYING
 
             self.handle_key()
             self.show_video()
@@ -560,10 +562,14 @@ class Display(QThread):  # type: ignore
             self.state = State.PAUSED
         elif self.state == State.PAUSED and keys.PLAY_PAUSE.match(key):
             self.state = State.PLAYING
-        elif self.state == State.WAIT and (
-            keys.CONTINUE.match(key) or keys.PLAY_PAUSE.match(key)
+        elif self.state & (State.END | State.WAIT) and (
+            keys.CONTINUE.match(key) or keys.PLAY_PAUSE.match(key) or self.skip_all
         ):
-            self.current_presentation.load_next_slide()
+            if (self.state & State.END) and not self.is_last_presentation:
+                self.current_presentation_index += 1
+                self.current_presentation.rewind_current_slide()
+            else:
+                self.current_presentation.load_next_slide()
             self.state = State.PLAYING
         elif (
             self.state == State.PLAYING and keys.CONTINUE.match(key)
@@ -574,6 +580,7 @@ class Display(QThread):  # type: ignore
                 if self.current_presentation_index == 0:
                     self.current_presentation.load_previous_slide()
                 else:
+                    self.current_presentation.cancel_reverse()
                     self.current_presentation_index -= 1
                     self.current_presentation.load_last_slide()
                 self.state = State.PLAYING
