@@ -13,7 +13,15 @@ from click import Context, Parameter
 from pydantic import ValidationError
 from pydantic_extra_types.color import Color
 from PySide6.QtCore import Qt, QThread, Signal, Slot
-from PySide6.QtGui import QCloseEvent, QIcon, QImage, QKeyEvent, QPixmap, QResizeEvent, QScreen
+from PySide6.QtGui import (
+    QCloseEvent,
+    QIcon,
+    QImage,
+    QKeyEvent,
+    QPixmap,
+    QResizeEvent,
+    QScreen,
+)
 from PySide6.QtWidgets import QApplication, QGridLayout, QLabel, QWidget
 from tqdm import tqdm
 
@@ -708,7 +716,6 @@ class App(QWidget):  # type: ignore
         self.thread.finished.connect(self.closeAll)
         self.send_key_signal.connect(self.thread.set_key)
 
-
         # start the thread
         self.thread.start()
 
@@ -765,7 +772,9 @@ class App(QWidget):  # type: ignore
         logger.debug("Updating canvas")
         w, h = self.thread.current_resolution
 
-        if not self.isFullScreen() and (self.display_width != w or self.display_height != h):
+        if not self.isFullScreen() and (
+            self.display_width != w or self.display_height != h
+        ):
             self.display_width, self.display_height = w, h
             self.resize(self.display_width, self.display_height)
         self.label.setStyleSheet(
@@ -1111,8 +1120,10 @@ def present(
         try:
             screen = app.screens()[screen]
         except IndexError:
-            logger.error(f"Invalid screen number {screen}, "
-                         f"allowed values are from 0 to {len(app.screens())-1} (incl.)")
+            logger.error(
+                f"Invalid screen number {screen}, "
+                f"allowed values are from 0 to {len(app.screens())-1} (incl.)"
+            )
             screen = None
 
     a = App(
