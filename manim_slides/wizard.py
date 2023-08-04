@@ -68,7 +68,7 @@ class Wizard(QWidget):  # type: ignore
 
         self.layout = QGridLayout()
 
-        for i, (key, value) in enumerate(self.config.dict().items()):
+        for i, (key, value) in enumerate(self.config.keys.dict().items()):
             # Create label for key name information
             label = QLabel()
             key_info = value["name"] or key
@@ -83,7 +83,7 @@ class Wizard(QWidget):  # type: ignore
             )
             self.buttons.append(button)
             button.clicked.connect(
-                partial(self.openDialog, i, getattr(self.config, key))
+                partial(self.openDialog, i, getattr(self.config.keys, key))
             )
             self.layout.addWidget(button, i, 1)
 
