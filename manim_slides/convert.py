@@ -4,6 +4,7 @@ import subprocess
 import sys
 import tempfile
 import webbrowser
+from base64 import b64encode
 from enum import Enum
 from importlib import resources
 from pathlib import Path
@@ -33,6 +34,29 @@ from .config import PresentationConfig
 from .logger import logger
 from .present import get_scenes_presentation_config
 
+DATA_URI_FIX = r"""
+// Fix found by @t-fritsch on GitHub
+// see: https://github.com/hakimel/reveal.js/discussions/3362#discussioncomment-6651475.
+function fixBase64VideoBackground(event) {
+    // event.previousSlide, event.currentSlide, event.indexh, event.indexv
+    if (event.currentSlide.getAttribute('data-background-video')) {
+        const background = Reveal.getSlideBackground(event.indexh, event.indexv),
+            video = background.querySelector('video'),
+            sources = video.querySelectorAll('source');
+
+        sources.forEach((source, i) => {
+            const src = source.getAttribute('src');
+            if(src.match(/^data:video.*;base64$/)){
+                const nextSrc = sources[i+1]?.getAttribute('src');
+                video.setAttribute('src', `${src},${nextSrc}`);
+            }
+        });
+    }
+}
+Reveal.on( 'ready', fixBase64VideoBackground );
+Reveal.on( 'slidechanged', fixBase64VideoBackground );
+"""
+
 
 def open_with_default(file: Path) -> None:
     system = platform.system()
@@ -59,6 +83,25 @@ def validate_config_option(
             )
 
     return config
+
+
+def get_file_mime_type(file: Path) -> str:
+    ext = file.suffix.lower()
+
+    if ext == ".mp4":
+        return "video/mp4"
+    else:
+        return "video/webm"
+
+
+def data_uri(file: Path) -> str:
+    """
+    Reads a video and returns the corresponding data-uri.
+    """
+    b64 = b64encode(file.read_bytes()).decode("ascii")
+    mime_type = get_file_mime_type(file)
+
+    return f"data:{mime_type};base64,{b64}"
 
 
 class Converter(BaseModel):  # type: ignore
@@ -238,6 +281,8 @@ class RevealTheme(str, Enum):
 
 
 class RevealJS(Converter):
+    # Export option: use data-uri
+    data_uri: bool = False
     # Presentation size options from RevealJS
     width: Union[Str, int] = Str("100%")
     height: Union[Str, int] = Str("100%")
@@ -326,9 +371,13 @@ class RevealJS(Converter):
         for presentation_config in self.presentation_configs:
             for slide_config in presentation_config.slides:
                 file = presentation_config.files[slide_config.start_animation]
-                file = assets_dir / file.name
 
                 logger.debug(f"Writing video section with file {file}")
+
+                if self.data_uri:
+                    file = data_uri(file)
+                else:
+                    file = assets_dir / file.name
 
                 # TODO: document this
                 # Videos are muted because, otherwise, the first slide never plays correctly.
@@ -356,27 +405,38 @@ class RevealJS(Converter):
 
     def convert_to(self, dest: Path) -> None:
         """Converts this configuration into a RevealJS HTML presentation, saved to DEST."""
-        dirname = dest.parent
-        basename = dest.stem
-        ext = dest.suffix
+        if self.data_uri:
+            assets_dir = Path("")  # Actually we won't care.
+        else:
+            dirname = dest.parent
+            basename = dest.stem
+            ext = dest.suffix
 
-        assets_dir = Path(
-            self.assets_dir.format(dirname=dirname, basename=basename, ext=ext)
-        )
-        full_assets_dir = dirname / assets_dir
+            assets_dir = Path(
+                self.assets_dir.format(dirname=dirname, basename=basename, ext=ext)
+            )
+            full_assets_dir = dirname / assets_dir
 
-        logger.debug(f"Assets will be saved to: {full_assets_dir}")
+            logger.debug(f"Assets will be saved to: {full_assets_dir}")
 
-        os.makedirs(full_assets_dir, exist_ok=True)
+            os.makedirs(full_assets_dir, exist_ok=True)
 
-        for presentation_config in self.presentation_configs:
-            presentation_config.concat_animations().copy_to(full_assets_dir)
+            for presentation_config in self.presentation_configs:
+                presentation_config.concat_animations().copy_to(full_assets_dir)
 
         with open(dest, "w") as f:
             sections = "".join(self.get_sections_iter(assets_dir))
 
             revealjs_template = self.load_template()
-            content = revealjs_template.format(sections=sections, **self.dict())
+
+            if self.data_uri:
+                data_uri_fix = DATA_URI_FIX
+            else:
+                data_uri_fix = ""
+
+            content = revealjs_template.format(
+                sections=sections, data_uri_fix=data_uri_fix, **self.dict()
+            )
 
             f.write(content)
 
@@ -496,6 +556,8 @@ class PowerPoint(Converter):
             ):
                 file = presentation_config.files[slide_config.start_animation]
 
+                mime_type = get_file_mime_type(file)
+
                 if self.poster_frame_image is None:
                     poster_frame_image = save_first_image_from_video_file(file)
                 else:
@@ -509,7 +571,7 @@ class PowerPoint(Converter):
                     self.width * 9525,
                     self.height * 9525,
                     poster_frame_image=poster_frame_image,
-                    mime_type="video/mp4",
+                    mime_type=mime_type,
                 )
                 if self.auto_play_media:
                     auto_play_media(movie, loop=slide_config.is_loop())

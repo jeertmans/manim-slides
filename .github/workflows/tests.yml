@@ -43,7 +43,7 @@ jobs:
         poetry install --with test
 
     - name: Run pytest
-      run: poetry run pytest
+      run: poetry run pytest -x
 
   build-examples:
     strategy:
