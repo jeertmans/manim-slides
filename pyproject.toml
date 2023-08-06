@@ -100,7 +100,7 @@ manim-slides = "manim_slides.__main__:cli"
 
 [tool.pytest.ini_options]
 env = [
-  "QT_QPA_PLATFORM=offscreen",
+  "QT_QPA_PLATFORM=offscreen"
 ]
 filterwarnings = [
   "error",
