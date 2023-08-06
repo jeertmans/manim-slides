@@ -34,7 +34,6 @@ from .config import PresentationConfig
 from .logger import logger
 from .present import get_scenes_presentation_config
 
-
 DATA_URI_FIX = r"""
 // Fix found by @t-fritsch on GitHub
 // see: https://github.com/hakimel/reveal.js/discussions/3362#discussioncomment-6651475.
@@ -57,6 +56,7 @@ function fixBase64VideoBackground(event) {
 Reveal.on( 'ready', fixBase64VideoBackground );
 Reveal.on( 'slidechanged', fixBase64VideoBackground );
 """
+
 
 def open_with_default(file: Path) -> None:
     system = platform.system()
@@ -418,13 +418,15 @@ class RevealJS(Converter):
             sections = "".join(self.get_sections_iter(assets_dir))
 
             revealjs_template = self.load_template()
-            
+
             if self.data_uri:
                 data_uri_fix = DATA_URI_FIX
             else:
                 data_uri_fix = ""
 
-            content = revealjs_template.format(sections=sections,  data_uri_fix=data_uri_fix, **self.dict())
+            content = revealjs_template.format(
+                sections=sections, data_uri_fix=data_uri_fix, **self.dict()
+            )
 
             f.write(content)
 
