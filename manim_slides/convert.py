@@ -89,7 +89,7 @@ def data_uri(file: Path) -> str:
     """
     Reads a video and returns the corresponding data-uri.
     """
-    b64 = b64encode(file.read_bytes()).decode()
+    b64 = b64encode(file.read_bytes()).decode("ascii")
 
     return f"data:video/webm;base64,{b64}"
 
