@@ -137,7 +137,7 @@ page.
 
 ## Comparison with manim-presentation
 
-Starting from [@manim-presentation]'s original work, Manim Slides now provides
+Starting from @manim-presentation's original work, Manim Slides now provides
 numerous additional features.
 A non-exhaustive list of those new features is as follows:
 
@@ -162,7 +162,7 @@ with the appropriate template.
 
 # Acknowledgements
 
-We acknowledge the work of [@manim-presentation] that paved the initial structure
+We acknowledge the work of @manim-presentation that paved the initial structure
 of Manim Slides with the manim-presentation Python package.
 
 We also acknowledge Grant Sanderson for his tremendous work on Manim, as
