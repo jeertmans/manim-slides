@@ -85,13 +85,23 @@ def validate_config_option(
     return config
 
 
+def get_file_mime_type(file: Path) -> str:
+    ext = file.suffix.lower()
+
+    if ext == ".mp4":
+        return "video/mp4"
+    else:
+        return "video/webm"
+
+
 def data_uri(file: Path) -> str:
     """
     Reads a video and returns the corresponding data-uri.
     """
     b64 = b64encode(file.read_bytes()).decode("ascii")
+    mime_type = get_file_mime_type(file)
 
-    return f"data:video/webm;base64,{b64}"
+    return f"data:{mime_type};base64,{b64}"
 
 
 class Converter(BaseModel):  # type: ignore
@@ -546,6 +556,8 @@ class PowerPoint(Converter):
             ):
                 file = presentation_config.files[slide_config.start_animation]
 
+                mime_type = get_file_mime_type(file)
+
                 if self.poster_frame_image is None:
                     poster_frame_image = save_first_image_from_video_file(file)
                 else:
@@ -559,7 +571,7 @@ class PowerPoint(Converter):
                     self.width * 9525,
                     self.height * 9525,
                     poster_frame_image=poster_frame_image,
-                    mime_type="video/mp4",
+                    mime_type=mime_type,
                 )
                 if self.auto_play_media:
                     auto_play_media(movie, loop=slide_config.is_loop())
