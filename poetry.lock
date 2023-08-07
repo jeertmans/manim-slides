@@ -4613,4 +4613,4 @@ sphinx-directive = ["docutils", "jinja2", "manim"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8.1,<3.12"
-content-hash = "2129681d5f4ec001507290ef7e2673b776f3ae65d506a0c669c8d4492afd4e3a"
+content-hash = "e2f1d5bb6271e1379678d01ead5b719544a8b3faabe868201ab8d3e25b9a5215"
