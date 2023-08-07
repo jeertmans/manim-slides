@@ -24,13 +24,13 @@ import mimetypes
 import shutil
 from datetime import datetime
 from pathlib import Path
-from typing import Any
+from typing import Any, Dict, Optional
 
 from IPython import get_ipython
 from IPython.core.interactiveshell import InteractiveShell
 from IPython.core.magic import Magics, line_cell_magic, magics_class, needs_local_scope
 from IPython.display import HTML, display
-from manim import Group, config, logger, tempconfig
+from manim import config, logger, tempconfig
 from manim.__main__ import main
 from manim.constants import RendererType
 from manim.renderer.shader import shader_program_cache
@@ -40,18 +40,18 @@ from ..present import get_scenes_presentation_config
 
 
 @magics_class
-class ManimSlidesMagic(Magics):
+class ManimSlidesMagic(Magics):  # type: ignore
     def __init__(self, shell: InteractiveShell) -> None:
         super().__init__(shell)
-        self.rendered_files = {}
+        self.rendered_files: Dict[Path, Path] = {}
 
     @needs_local_scope
     @line_cell_magic
     def manim_slides(
         self,
         line: str,
-        cell: str = None,
-        local_ns: dict[str, Any] = None,
+        cell: Optional[str] = None,
+        local_ns: Dict[str, Any] = {},
     ) -> None:
         r"""Render Manim Slides contained in IPython cells.
         Works as a line or cell magic.
@@ -196,7 +196,7 @@ class ManimSlidesMagic(Magics):
             tmpfile.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy(local_path, tmpfile)
 
-            file_type = mimetypes.guess_type(config["output_file"])[0]
+            file_type = mimetypes.guess_type(config["output_file"])[0] or "video/mp4"
             embed = config["media_embed"]
             if embed is None:
                 # videos need to be embedded when running in google colab.
@@ -256,4 +256,4 @@ class ManimSlidesMagic(Magics):
 
 
 def _generate_file_name() -> str:
-    return config["scene_names"][0] + "@" + datetime.now().strftime("%Y-%m-%d@%H-%M-%S")
+    return config["scene_names"][0] + "@" + datetime.now().strftime("%Y-%m-%d@%H-%M-%S")  # type: ignore

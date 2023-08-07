@@ -1,6 +1,5 @@
-import logging
 from pathlib import Path
-from typing import Any, Callable, Optional
+from typing import Any, Callable
 
 import click
 from click import Context, Parameter
