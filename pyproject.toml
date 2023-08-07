@@ -74,6 +74,9 @@ manim = ["manim"]
 manimgl = ["manimgl"]
 sphinx-directive = ["docutils", "jinja2", "manim"]
 
+[tool.poetry.group.dev]
+optional = true
+
 [tool.poetry.group.dev.dependencies]
 black = "^22.10.0"
 bump2version = "^1.0.1"
@@ -81,6 +84,9 @@ isort = "^5.12.0"
 mypy = "^0.991"
 pre-commit = "^3.0.2"
 ruff = "^0.0.219"
+
+[tool.poetry.group.docs]
+optional = true
 
 [tool.poetry.group.docs.dependencies]
 furo = "^2023.5.20"
@@ -93,6 +99,9 @@ sphinx = "^7.0.1"
 sphinx-click = "^4.4.0"
 sphinx-copybutton = "^0.5.1"
 sphinxext-opengraph = "^0.7.5"
+
+[tool.poetry.group.test]
+optional = true
 
 [tool.poetry.group.test.dependencies]
 manim = "^0.17.3"
