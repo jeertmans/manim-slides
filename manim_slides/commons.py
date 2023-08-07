@@ -1,5 +1,6 @@
+import logging
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any, Callable, Optional
 
 import click
 from click import Context, Parameter
@@ -44,7 +45,7 @@ def config_options(function: F) -> F:
 def verbosity_option(function: F) -> F:
     """Wraps a function to add verbosity option."""
 
-    def callback(ctx: Context, param: Parameter, value: bool) -> None:
+    def callback(ctx: Context, param: Parameter, value: str) -> None:
         if not value or ctx.resilient_parsing:
             return
 

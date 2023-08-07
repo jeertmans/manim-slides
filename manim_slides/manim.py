@@ -77,20 +77,20 @@ if MANIMGL:
     from manimlib.logger import log as logger
 
 else:
-    with suppress_stdout():  # Avoids printing "Manim Community v..."
-        from manim import (
-            LEFT,
-            AnimationGroup,
-            FadeIn,
-            FadeOut,
-            Mobject,
-            Scene,
-            ThreeDScene,
-            config,
-            logger,
-        )
+    from manim import (
+        LEFT,
+        AnimationGroup,
+        FadeIn,
+        FadeOut,
+        Mobject,
+        Scene,
+        ThreeDScene,
+        config,
+        logger,
+    )
 
-        try:  # For manim<v0.16.0.post0
-            from manim.constants import FFMPEG_BIN
-        except ImportError:
-            FFMPEG_BIN = config.ffmpeg_executable
+    try:  # For manim<v0.16.0.post0
+        from manim.constants import FFMPEG_BIN
+    except ImportError:
+        FFMPEG_BIN = config.ffmpeg_executable
+    

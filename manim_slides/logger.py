@@ -40,6 +40,7 @@ def make_logger() -> logging.Logger:
     )
     logging.addLevelName(5, "PERF")
     logger = logging.getLogger("manim-slides")
+    logger.setLevel(logging.getLogger("manim").level)
     logger.addHandler(rich_handler)
 
     return logger

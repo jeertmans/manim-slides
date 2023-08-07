@@ -16,6 +16,17 @@ A directive for including Manim slides in a Sphinx document
 When rendering the HTML documentation, the ``.. manim-slides::``
 directive implemented here allows to include rendered videos.
 
+This directive requires three additional dependencies:
+``manim``, ``docutils`` and ``jinja2``. The last two are usually bundled
+with Sphinx.
+You can install them manually, or with the extra keyword:
+
+    pip install manim-slides[sphinx-directive]
+
+Note that you will still need to install Manim's platform-specific dependencies,
+see
+`their installation page <https://docs.manim.community/en/stable/installation.html>`_.
+
 Usage
 -----
 

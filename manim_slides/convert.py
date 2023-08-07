@@ -1,5 +1,6 @@
 import os
 import platform
+import mimetypes
 import subprocess
 import sys
 import tempfile
@@ -85,21 +86,12 @@ def validate_config_option(
     return config
 
 
-def get_file_mime_type(file: Path) -> str:
-    ext = file.suffix.lower()
-
-    if ext == ".mp4":
-        return "video/mp4"
-    else:
-        return "video/webm"
-
-
 def data_uri(file: Path) -> str:
     """
     Reads a video and returns the corresponding data-uri.
     """
     b64 = b64encode(file.read_bytes()).decode("ascii")
-    mime_type = get_file_mime_type(file)
+    mime_type = mimetypes.guess_type(file)[0] or "video/mp4"
 
     return f"data:{mime_type};base64,{b64}"
 
@@ -419,7 +411,7 @@ class RevealJS(Converter):
 
             logger.debug(f"Assets will be saved to: {full_assets_dir}")
 
-            os.makedirs(full_assets_dir, exist_ok=True)
+            full_assets_dir.mkdir(parents=True, exist_ok=True)
 
             for presentation_config in self.presentation_configs:
                 presentation_config.concat_animations().copy_to(full_assets_dir)
@@ -556,7 +548,7 @@ class PowerPoint(Converter):
             ):
                 file = presentation_config.files[slide_config.start_animation]
 
-                mime_type = get_file_mime_type(file)
+                mime_type = mimetypes.guess_type(file)[0]
 
                 if self.poster_frame_image is None:
                     poster_frame_image = save_first_image_from_video_file(file)
