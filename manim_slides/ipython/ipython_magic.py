@@ -2,6 +2,12 @@
 Utilities for using Manim Slides with IPython (in particular: Jupyter notebooks).
 =================================================================================
 
+.. toctree::
+    :hidden:
+
+    magic_example
+
+
 .. note::
 
     The current implementation is highly inspired from Manim's own

@@ -399,6 +399,9 @@ class RevealJS(Converter):
         """Converts this configuration into a RevealJS HTML presentation, saved to DEST."""
         if self.data_uri:
             assets_dir = Path("")  # Actually we won't care.
+
+            for presentation_config in self.presentation_configs:
+                presentation_config.concat_animations()
         else:
             dirname = dest.parent
             basename = dest.stem

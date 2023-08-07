@@ -29,6 +29,9 @@ Slides' executable.
 
 [IPython Magic](./ipython_magic): a magic to render and display Manim Slides inside notebooks.
 
++ [Example](./magic_example): example notebook using the magics.
+
 [Sharing](./sharing): how to share your presentation with others.
+
 
 [Sphinx Extension](./sphinx_extension): a Sphinx extension for diplaying Manim Slides animations within your documentation.
