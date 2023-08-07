@@ -1,8 +1,7 @@
-import os
 import sys
-from contextlib import contextmanager
 from importlib.util import find_spec
-from typing import Iterator
+
+from .utils import suppress_stdout
 
 __all__ = [
     # Constants
@@ -27,17 +26,6 @@ __all__ = [
     "logger",
     "config",
 ]
-
-
-@contextmanager
-def suppress_stdout() -> Iterator[None]:
-    with open(os.devnull, "w") as devnull:
-        old_stdout = sys.stdout
-        sys.stdout = devnull
-        try:
-            yield
-        finally:
-            sys.stdout = old_stdout
 
 
 MANIM_PACKAGE_NAME = "manim"

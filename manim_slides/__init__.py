@@ -43,6 +43,6 @@ new_module.__dict__.update(
         "__path__": __path__,
         "__doc__": __doc__,
         "__version__": __version__,
-        "__all__": ("__version__", "Slides", "ThreeDSlide"),
+        "__all__": ("__version__", "Slide", "ThreeDSlide"),
     }
 )
