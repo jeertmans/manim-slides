@@ -1,8 +1,6 @@
 import sys
 from importlib.util import find_spec
 
-from .utils import suppress_stdout
-
 __all__ = [
     # Constants
     "FFMPEG_BIN",
