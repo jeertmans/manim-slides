@@ -29,6 +29,9 @@ jobs:
         python-version: ${{ matrix.pyversion }}
         cache: poetry
 
+    - name: Run apt-get update on Ubuntu
+      run: sudo apt-get update
+
     - name: Install manim dependencies on Ubuntu
       run: |
         sudo apt-get install libcairo2-dev libpango1.0-dev ffmpeg freeglut3-dev
