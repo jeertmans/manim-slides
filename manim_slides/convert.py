@@ -1,6 +1,6 @@
+import mimetypes
 import os
 import platform
-import mimetypes
 import subprocess
 import sys
 import tempfile

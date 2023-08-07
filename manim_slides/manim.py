@@ -93,4 +93,3 @@ else:
         from manim.constants import FFMPEG_BIN
     except ImportError:
         FFMPEG_BIN = config.ffmpeg_executable
-    

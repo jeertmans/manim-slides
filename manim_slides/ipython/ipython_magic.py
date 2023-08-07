@@ -28,21 +28,15 @@ from typing import Any
 
 from IPython import get_ipython
 from IPython.core.interactiveshell import InteractiveShell
-from IPython.core.magic import (
-    Magics,
-    line_cell_magic,
-    magics_class,
-    needs_local_scope,
-)
+from IPython.core.magic import Magics, line_cell_magic, magics_class, needs_local_scope
 from IPython.display import HTML, display
+from manim import Group, config, logger, tempconfig
+from manim.__main__ import main
+from manim.constants import RendererType
+from manim.renderer.shader import shader_program_cache
 
 from ..convert import RevealJS
 from ..present import get_scenes_presentation_config
-
-from manim import Group, config, logger, tempconfig
-from manim.__main__ import main
-from manim.renderer.shader import shader_program_cache
-from manim.constants import RendererType
 
 
 @magics_class
@@ -125,12 +119,12 @@ class ManimSlidesMagic(Magics):
         could look as follows::
 
             %%manim_slides -v WARNING --progress_bar None MySlide --manim-slides controls=true data_uri=true
-            
+
             class MySlide(Slide):
                 def construct(self):
                     square = Square()
                     circle = Circle()
-                    
+
                     self.play(Create(square))
                     self.next_slide()
                     self.play(Transform(square, circle))
@@ -192,9 +186,7 @@ class ManimSlidesMagic(Magics):
 
             local_path = Path(config["output_file"]).relative_to(Path.cwd())
             tmpfile = (
-                Path(config["media_dir"])
-                / "jupyter"
-                / f"{_generate_file_name()}.html"
+                Path(config["media_dir"]) / "jupyter" / f"{_generate_file_name()}.html"
             )
 
             if local_path in self.rendered_files:
@@ -213,7 +205,9 @@ class ManimSlidesMagic(Magics):
                 embed = "google.colab" in str(get_ipython())
 
             if not file_type.startswith("video"):
-                raise ValueError(f"Manim Slides only supports video files, not {file_type}")
+                raise ValueError(
+                    f"Manim Slides only supports video files, not {file_type}"
+                )
 
             clsname = config["scene_names"][0]
 
@@ -225,8 +219,10 @@ class ManimSlidesMagic(Magics):
             # TODO: FIXME
             # Seems like files are blocked so date-uri is the only working option...
             if kwargs.get("data_uri", "false").lower().strip() == "false":
-                logger.warn("data_uri option is currently automatically enabled, "
-                        "because using local video files does not seem to work properly.")
+                logger.warn(
+                    "data_uri option is currently automatically enabled, "
+                    "because using local video files does not seem to work properly."
+                )
                 kwargs["data_uri"] = "true"
 
             presentation_configs = get_scenes_presentation_config(
@@ -237,9 +233,17 @@ class ManimSlidesMagic(Magics):
             )
 
             if embed:
-                result = HTML("""<div style="position:relative;padding-bottom:56.25%;"><iframe style="width:100%;height:100%;position:absolute;left:0px;top:0px;" frameborder="0" width="100%" height="100%" allowfullscreen allow="autoplay" srcdoc="{srcdoc}"></iframe></div>""".format(srcdoc=tmpfile.read_text().replace('"', "'")))
+                result = HTML(
+                    """<div style="position:relative;padding-bottom:56.25%;"><iframe style="width:100%;height:100%;position:absolute;left:0px;top:0px;" frameborder="0" width="100%" height="100%" allowfullscreen allow="autoplay" srcdoc="{srcdoc}"></iframe></div>""".format(
+                        srcdoc=tmpfile.read_text().replace('"', "'")
+                    )
+                )
             else:
-                result = HTML("""<div style="position:relative;padding-bottom:56.25%;"><iframe style="width:100%;height:100%;position:absolute;left:0px;top:0px;" frameborder="0" width="100%" height="100%" allowfullscreen allow="autoplay" src="{src}"></iframe></div>""".format(src=tmpfile.as_posix()))
+                result = HTML(
+                    """<div style="position:relative;padding-bottom:56.25%;"><iframe style="width:100%;height:100%;position:absolute;left:0px;top:0px;" frameborder="0" width="100%" height="100%" allowfullscreen allow="autoplay" src="{src}"></iframe></div>""".format(
+                        src=tmpfile.as_posix()
+                    )
+                )
 
             display(result)
 
