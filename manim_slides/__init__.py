@@ -13,6 +13,20 @@ class module(ModuleType):
                 "manim_slides.slide", None, None, ["Slide", "ThreeDSlide"]
             )
             return getattr(module, name)
+        elif name == "ManimSlidesMagic":
+            module = __import__(
+                "manim_slides.ipython.ipython_magic", None, None, ["ManimSlidesMagic"]
+            )
+            magic = getattr(module, name)
+
+            from IPython import get_ipython
+
+            ipy = get_ipython()
+
+            if ipy is not None:
+                ipy.register_magics(magic)
+
+            return magic
 
         return ModuleType.__getattribute__(self, name)
 
@@ -43,6 +57,6 @@ new_module.__dict__.update(
         "__path__": __path__,
         "__doc__": __doc__,
         "__version__": __version__,
-        "__all__": ("__version__", "Slide", "ThreeDSlide"),
+        "__all__": ("__version__", "ManimSlidesMagic", "Slide", "ThreeDSlide"),
     }
 )

@@ -20,6 +20,7 @@ extensions = [
     "sphinx.ext.intersphinx",
     "sphinx.ext.viewcode",
     # Additional
+    "nbsphinx",
     "myst_parser",
     "sphinxext.opengraph",
     "sphinx_click",

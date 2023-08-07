@@ -46,8 +46,12 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install libcairo2-dev libpango1.0-dev ffmpeg freeglut3-dev
+    - name: Setup Pandoc
+      uses: nikeee/setup-pandoc@v1
     - name: Install local Python package
       run: poetry install --with docs
+    - name: Install IPython kernel
+      run: poetry run ipython kernel install --name "manim-slides" --user
     - name: Restore cached media
       id: cache-media-restore
       uses: actions/cache/restore@v3
