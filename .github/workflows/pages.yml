@@ -50,6 +50,10 @@ jobs:
       uses: nikeee/setup-pandoc@v1
     - name: Install local Python package
       run: poetry install --with docs
+    - name: Spawn venv
+      run: poetry shell
+    - name: Install IPython kernel
+      run: poetry run ipython kernel install --name "manim-slides" --user
     - name: Restore cached media
       id: cache-media-restore
       uses: actions/cache/restore@v3
