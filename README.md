@@ -9,6 +9,7 @@
 [![PyPI - Downloads][pypi-download-badge]][pypi-version-url]
 [![Documentation][documentation-badge]][documentation-url]
 [![DOI][doi-badge]][doi-url]
+[![JOSE Paper][jose-badge]][jose-url]
 [![codecov][codecov-badge]][codecov-url]
 
 # Manim Slides
@@ -261,7 +262,10 @@ you can do so at: [jeertmans@icloud.com](mailto:jeertmans@icloud.com).
 [pypi-download-badge]: https://img.shields.io/pypi/dm/manim-slides
 [documentation-badge]: https://img.shields.io/website?down_color=lightgrey&down_message=offline&label=documentation&up_color=green&up_message=online&url=https%3A%2F%2Feertmans.be%2Fmanim-slides%2F
 [documentation-url]: https://eertmans.be/manim-slides/
-[doi-badge]: https://zenodo.org/badge/DOI/10.5281/zenodo.7971361.svg
-[doi-url]: https://doi.org/10.5281/zenodo.7971361
+[doi-badge]: https://zenodo.org/badge/DOI/10.5281/zenodo.8215167.svg
+[doi-url]: https://doi.org/10.5281/zenodo.8215167
+[jose-badge]: https://jose.theoj.org/papers/10.21105/jose.00206/status.svg
+[jose-url]: https://doi.org/10.21105/jose.00206
+
 [codecov-badge]: https://codecov.io/gh/jeertmans/manim-slides/branch/main/graph/badge.svg?token=8P4DY9JCE4
 [codecov-url]: https://codecov.io/gh/jeertmans/manim-slides

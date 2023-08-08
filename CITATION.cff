@@ -1,0 +1,32 @@
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
+cff-version: 1.2.0
+title: Manim Slides
+message: A Python package for presenting Manim content anywhere
+type: software
+authors:
+  - name: Jérome Eertmans
+    orcid: 'https://orcid.org/0000-0002-5579-5360'
+    website: 'https://eertmans.be'
+identifiers:
+  - type: doi
+    value: 10.21105/jose.00206
+    description: The paper presenting the software.
+repository-code: 'https://github.com/jeertmans/manim-slides'
+url: 'https://eertmans.be/manim-slides'
+abstract: >-
+  Manim Slides is a Python package that makes presenting
+  Manim animations straightforward. With minimal changes
+  required to pre-existing code, one can slide through
+
+  animations in a PowerPoint-like manner, or share its
+  slides online using ReavealJS’ power.
+keywords:
+  - Education
+  - Math Animations
+  - Presentation Tool
+  - PowerPoint
+  - Python
+license: MIT
+version: v4.15.0
