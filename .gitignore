@@ -26,6 +26,8 @@ docs/build/
 
 slides.html
 
+docs/source/reference/.ipynb_checkpoints/
+
 docs/source/_static/basic_example_assets/
 
 docs/source/_static/basic_example.html
@@ -34,6 +36,7 @@ docs/source/_static/three_d_example.html
 
 docs/source/_static/three_d_example_assets/
 
+docs/source/reference/media/
 
 # JOSE Paper
 paper/paper.pdf
