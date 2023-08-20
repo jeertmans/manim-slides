@@ -1,5 +1,9 @@
+from pathlib import Path
+
 import pytest
+from click.testing import CliRunner
 from manim import Text
+from manim.__main__ import main as cli
 from pydantic import ValidationError
 
 from manim_slides.slide import Slide
@@ -12,6 +16,42 @@ def assert_construct(cls: type) -> type:
             cls().construct()
 
     return Wrapper
+
+
+def test_render_basic_examples(examples_file: Path, slides_folder: Path) -> None:
+    runner = CliRunner()
+
+    with runner.isolated_filesystem():
+        results = runner.invoke(
+            cli, [str(examples_file), "BasicExample", "-ql", "-v", "DEBUG"]
+        )
+
+        assert results.exit_code == 0
+
+        local_slides_folder = Path("slides")
+
+        assert local_slides_folder.exists()
+
+        local_config_file = local_slides_folder / "BasicExample.json"
+
+        assert local_config_file.exists()
+
+        config_file = slides_folder / "BasicExample.json"
+        expected = local_config_file.read_text().strip()
+        got = config_file.read_text().strip()
+
+        assert (
+            expected == got
+        ), f"Mismatch between {local_config_file} and {config_file}"
+
+        expected_files = list((slides_folder / "files" / "BasicExample").iterdir())
+        got_files = list((local_slides_folder / "files" / "BasicExample").iterdir())
+
+        # TODO: when Python >= 3.10, replace with zip(..., ..., strict=True)
+        assert len(got_files) == len(expected_files)
+
+        for expected_file, got_file in zip(expected_files, got_files):
+            assert expected_file.name == got_file.name
 
 
 class TestSlide:

@@ -1,0 +1,24 @@
+{
+  "slides": [
+    {
+      "type": "slide",
+      "file": "slides/files/BasicExample/275756d906c706ca0125660866bb925b8927e2b2589d31a7a578079b70076ef4.mp4",
+      "rev_file": "slides/files/BasicExample/275756d906c706ca0125660866bb925b8927e2b2589d31a7a578079b70076ef4_reversed.mp4"
+    },
+    {
+      "type": "loop",
+      "file": "slides/files/BasicExample/d6e36309a31b5bf49de42f56c974c00cc67941418fd33c5756ab49b55cbdc7fe.mp4",
+      "rev_file": "slides/files/BasicExample/d6e36309a31b5bf49de42f56c974c00cc67941418fd33c5756ab49b55cbdc7fe_reversed.mp4"
+    },
+    {
+      "type": "last",
+      "file": "slides/files/BasicExample/89e0d990459569a86b08eaadafcd56086d825bd4eff635cf4bea6c018b213341.mp4",
+      "rev_file": "slides/files/BasicExample/89e0d990459569a86b08eaadafcd56086d825bd4eff635cf4bea6c018b213341_reversed.mp4"
+    }
+  ],
+  "resolution": [
+    854,
+    480
+  ],
+  "background_color": "black"
+}

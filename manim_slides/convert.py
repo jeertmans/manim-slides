@@ -362,7 +362,7 @@ class RevealJS(Converter):
         """Generates a sequence of sections, one per slide, that will be included into the html template."""
         for presentation_config in self.presentation_configs:
             for slide_config in presentation_config.slides:
-                file = presentation_config.files[slide_config.start_animation]
+                file = slide_config.file
 
                 logger.debug(f"Writing video section with file {file}")
 
@@ -399,9 +399,6 @@ class RevealJS(Converter):
         """Converts this configuration into a RevealJS HTML presentation, saved to DEST."""
         if self.data_uri:
             assets_dir = Path("")  # Actually we won't care.
-
-            for presentation_config in self.presentation_configs:
-                presentation_config.concat_animations()
         else:
             dirname = dest.parent
             basename = dest.stem
@@ -417,7 +414,7 @@ class RevealJS(Converter):
             full_assets_dir.mkdir(parents=True, exist_ok=True)
 
             for presentation_config in self.presentation_configs:
-                presentation_config.concat_animations().copy_to(full_assets_dir)
+                presentation_config.copy_to(full_assets_dir)
 
         with open(dest, "w") as f:
             sections = "".join(self.get_sections_iter(assets_dir))
@@ -470,15 +467,14 @@ class PDF(Converter):
         images = []
 
         for i, presentation_config in enumerate(self.presentation_configs):
-            presentation_config.concat_animations()
             for slide_config in tqdm(
                 presentation_config.slides,
                 desc=f"Generating video slides for config {i + 1}",
                 leave=False,
             ):
-                file = presentation_config.files[slide_config.start_animation]
-
-                images.append(read_image_from_video_file(file, self.frame_index))
+                images.append(
+                    read_image_from_video_file(slide_config.file, self.frame_index)
+                )
 
         images[0].save(
             dest,
@@ -531,7 +527,7 @@ class PowerPoint(Converter):
             return etree.ElementBase.xpath(el, query, namespaces=nsmap)
 
         def save_first_image_from_video_file(file: Path) -> Optional[str]:
-            cap = cv2.VideoCapture(str(file))
+            cap = cv2.VideoCapture(file.as_posix())
             ret, frame = cap.read()
 
             if ret:
@@ -543,13 +539,12 @@ class PowerPoint(Converter):
                 return None
 
         for i, presentation_config in enumerate(self.presentation_configs):
-            presentation_config.concat_animations()
             for slide_config in tqdm(
                 presentation_config.slides,
                 desc=f"Generating video slides for config {i + 1}",
                 leave=False,
             ):
-                file = presentation_config.files[slide_config.start_animation]
+                file = slide_config.file
 
                 mime_type = mimetypes.guess_type(file)[0]
 

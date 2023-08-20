@@ -1,6 +1,4 @@
 import platform
-import shutil
-import subprocess
 from pathlib import Path
 from typing import (
     Any,
@@ -17,10 +15,9 @@ from warnings import warn
 import numpy as np
 from tqdm import tqdm
 
-from .config import PresentationConfig, SlideConfig, SlideType
+from .config import PresentationConfig, PreSlideConfig, SlideConfig, SlideType
 from .defaults import FOLDER_PATH
 from .manim import (
-    FFMPEG_BIN,
     LEFT,
     MANIMGL,
     AnimationGroup,
@@ -32,20 +29,7 @@ from .manim import (
     config,
     logger,
 )
-
-
-def reverse_video_file(src: Path, dst: Path) -> None:
-    """Reverses a video file, writting the result to `dst`."""
-    command = [str(FFMPEG_BIN), "-y", "-i", str(src), "-vf", "reverse", str(dst)]
-    logger.debug(" ".join(command))
-    process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    output, error = process.communicate()
-
-    if output:
-        logger.debug(output.decode())
-
-    if error:
-        logger.debug(error.decode())
+from .utils import concatenate_video_files, merge_basenames, reverse_video_file
 
 
 class Slide(Scene):  # type:ignore
@@ -69,7 +53,7 @@ class Slide(Scene):  # type:ignore
         super().__init__(*args, **kwargs)
 
         self.__output_folder: Path = output_folder
-        self.__slides: List[SlideConfig] = []
+        self.__slides: List[PreSlideConfig] = []
         self.__current_slide = 1
         self.__current_animation = 0
         self.__loop_start_animation: Optional[int] = None
@@ -369,7 +353,7 @@ class Slide(Scene):  # type:ignore
             self.wait(self.wait_time_between_slides)
 
         self.__slides.append(
-            SlideConfig(
+            PreSlideConfig(
                 type=SlideType.slide,
                 start_animation=self.__pause_start_animation,
                 end_animation=self.__current_animation,
@@ -404,7 +388,7 @@ class Slide(Scene):  # type:ignore
             return
 
         self.__slides.append(
-            SlideConfig(
+            PreSlideConfig(
                 type=SlideType.last,
                 start_animation=self.__pause_start_animation,
                 end_animation=self.__current_animation,
@@ -458,7 +442,7 @@ class Slide(Scene):  # type:ignore
             self.__loop_start_animation is not None
         ), "You have to start a loop before ending it"
         self.__slides.append(
-            SlideConfig(
+            PreSlideConfig(
                 type=SlideType.loop,
                 start_animation=self.__loop_start_animation,
                 end_animation=self.__current_animation,
@@ -484,51 +468,57 @@ class Slide(Scene):  # type:ignore
 
         scene_files_folder.mkdir(parents=True, exist_ok=True)
 
-        files = []
-        for src_file in tqdm(
-            self.__partial_movie_files,
-            desc=f"Copying animation files to '{scene_files_folder}' and generating reversed animations",
-            leave=self.__leave_progress_bar,
-            ascii=True if platform.system() == "Windows" else None,
-            disable=not self.__show_progress_bar,
-        ):
-            if src_file is None and not MANIMGL:
-                # This happens if rendering with -na,b (manim only)
-                # where animations not in [a,b] will be skipped
-                # but animations before a will have a None src_file
-                continue
+        # When rendering with -na,b (manim only)
+        # the animations not in [a,b] will be skipped,
+        # but animation before a will have a None source file.
+        files: List[Path] = list(filter(None, self.__partial_movie_files))
 
-            dst_file = scene_files_folder / src_file.name
-            rev_file = scene_files_folder / f"{src_file.stem}_reversed{src_file.suffix}"
-
-            # We only copy animation if it was not present
-            if not use_cache or not dst_file.exists():
-                shutil.copyfile(src_file, dst_file)
-
-            # We only reverse video if it was not present
-            if not use_cache or not rev_file.exists():
-                reverse_video_file(src_file, rev_file)
-
-            files.append(dst_file)
-
+        # We must filter slides that end before the animation offset
         if offset := self.__start_at_animation_number:
             self.__slides = [
                 slide for slide in self.__slides if slide.end_animation > offset
             ]
-
             for slide in self.__slides:
-                slide.start_animation -= offset
+                slide.start_animation = max(0, slide.start_animation - offset)
                 slide.end_animation -= offset
 
+        slides: List[SlideConfig] = []
+
+        for pre_slide_config in tqdm(
+            self.__slides,
+            desc=f"Concatenating animation files to '{scene_files_folder}' and generating reversed animations",
+            leave=self.__leave_progress_bar,
+            ascii=True if platform.system() == "Windows" else None,
+            disable=not self.__show_progress_bar,
+        ):
+            slide_files = files[pre_slide_config.slides_slice]
+
+            file = merge_basenames(slide_files)
+            dst_file = scene_files_folder / file.name
+            rev_file = scene_files_folder / f"{file.stem}_reversed{file.suffix}"
+
+            # We only concat animations if it was not present
+            if not use_cache or not dst_file.exists():
+                concatenate_video_files(slide_files, dst_file)
+
+            # We only reverse video if it was not present
+            if not use_cache or not rev_file.exists():
+                reverse_video_file(dst_file, rev_file)
+
+            slides.append(
+                SlideConfig.from_pre_slide_config_and_files(
+                    pre_slide_config, dst_file, rev_file
+                )
+            )
+
         logger.info(
-            f"Copied {len(files)} animations to '{scene_files_folder.absolute()}' and generated reversed animations"
+            f"Generated {len(slides)} slides to '{scene_files_folder.absolute()}'"
         )
 
         slide_path = self.__output_folder / f"{scene_name}.json"
 
         PresentationConfig(
-            slides=self.__slides,
-            files=files,
+            slides=slides,
             resolution=self.__resolution,
             background_color=self.__background_color,
         ).to_file(slide_path)
