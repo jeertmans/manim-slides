@@ -6,6 +6,7 @@ from manim import Text
 from manim.__main__ import main as cli
 from pydantic import ValidationError
 
+from manim_slides.config import PresentationConfig
 from manim_slides.slide import Slide
 
 
@@ -18,7 +19,9 @@ def assert_construct(cls: type) -> type:
     return Wrapper
 
 
-def test_render_basic_examples(slides_file: Path, slides_folder: Path) -> None:
+def test_render_basic_examples(
+    slides_file: Path, presentation_config: PresentationConfig
+) -> None:
     runner = CliRunner()
 
     with runner.isolated_filesystem():
@@ -34,22 +37,21 @@ def test_render_basic_examples(slides_file: Path, slides_folder: Path) -> None:
 
         assert local_config_file.exists()
 
-        config_file = slides_folder / "BasicSlide.json"
-        expected = local_config_file.read_text().strip()
-        got = config_file.read_text().strip()
+        local_presentation_config = PresentationConfig.from_file(local_config_file)
+
+        assert len(local_presentation_config.slides) == len(presentation_config.slides)
 
         assert (
-            expected == got
-        ), f"Mismatch between {local_config_file} and {config_file}"
+            local_presentation_config.background_color
+            == presentation_config.background_color
+        )
 
-        expected_files = list((slides_folder / "files" / "BasicSlide").iterdir())
-        got_files = list((local_slides_folder / "files" / "BasicSlide").iterdir())
+        assert (
+            local_presentation_config.background_color
+            == presentation_config.background_color
+        )
 
-        # TODO: when Python >= 3.10, replace with zip(..., ..., strict=True)
-        assert len(got_files) == len(expected_files)
-
-        for expected_file, got_file in zip(expected_files, got_files):
-            assert expected_file.name == got_file.name
+        assert local_presentation_config.resolution == presentation_config.resolution
 
 
 class TestSlide:

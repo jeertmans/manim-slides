@@ -2,7 +2,7 @@
 # type: ignore
 import sys
 
-if "manimlin" in sys.modules:
+if "manimlib" in sys.modules:
     from manimlib import *
 
     MANIMGL = True
