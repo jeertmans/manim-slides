@@ -24,9 +24,3 @@ In an effort to better document changes, this CHANGELOG document is now created.
 
 - Removed `--start-at-animation-number` option from `manim-slides present`.
   [#242](https://github.com/jeertmans/manim-slides/pull/242)
-
-### Chore
-
-- Moved LanguageTool docker image to service in GitHub action. [#87](https://github.com/jeertmans/languagetool-rust/pull/87)
-- Added automatic benchmarks comparison to CI. [#89](https://github.com/jeertmans/languagetool-rust/pull/89)
-- Improving test coverage. [#88](https://github.com/jeertmans/languagetool-rust/pull/88)
