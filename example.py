@@ -2,16 +2,14 @@
 # type: ignore
 import sys
 
-if "manim" in sys.modules:
-    from manim import *
-
-    MANIMGL = False
-elif "manimlib" in sys.modules:
+if "manimlib" in sys.modules:
     from manimlib import *
 
     MANIMGL = True
 else:
-    raise ImportError("This script must be run with either `manim` or `manimgl`")
+    from manim import *
+
+    MANIMGL = False
 
 from manim_slides import Slide, ThreeDSlide
 

@@ -17,7 +17,7 @@ videos/
 .manim-slides.toml
 
 slides/
-!tests/slides/
+!tests/data/slides/
 
 slides_assets/
 

@@ -16,29 +16,29 @@ def test_help() -> None:
     assert results.exit_code == 0
 
 
-def test_defaults_to_present(folder_path: Path) -> None:
+def test_defaults_to_present(slides_folder: Path) -> None:
     runner = CliRunner()
 
     with runner.isolated_filesystem():
         results = runner.invoke(
-            cli, ["BasicExample", "--folder", str(folder_path), "-s"]
+            cli, ["BasicSlide", "--folder", str(slides_folder), "-s"]
         )
 
         assert results.exit_code == 0
 
 
-def test_present(folder_path: Path) -> None:
+def test_present(slides_folder: Path) -> None:
     runner = CliRunner()
 
     with runner.isolated_filesystem():
         results = runner.invoke(
-            cli, ["present", "BasicExample", "--folder", str(folder_path), "-s"]
+            cli, ["present", "BasicSlide", "--folder", str(slides_folder), "-s"]
         )
 
         assert results.exit_code == 0
 
 
-def test_convert(folder_path: Path) -> None:
+def test_convert(slides_folder: Path) -> None:
     runner = CliRunner()
 
     with runner.isolated_filesystem():
@@ -46,10 +46,10 @@ def test_convert(folder_path: Path) -> None:
             cli,
             [
                 "convert",
-                "BasicExample",
+                "BasicSlide",
                 "basic_example.html",
                 "--folder",
-                str(folder_path),
+                str(slides_folder),
             ],
         )
 
@@ -71,7 +71,7 @@ def test_init() -> None:
         assert results.exit_code == 0
 
 
-def test_list_scenes(folder_path: Path) -> None:
+def test_list_scenes(slides_folder: Path) -> None:
     runner = CliRunner()
 
     with runner.isolated_filesystem():
@@ -80,12 +80,12 @@ def test_list_scenes(folder_path: Path) -> None:
             [
                 "list-scenes",
                 "--folder",
-                str(folder_path),
+                str(slides_folder),
             ],
         )
 
         assert results.exit_code == 0
-        assert "BasicExample" in results.output
+        assert "BasicSlide" in results.output
 
 
 def test_wizard() -> None:

@@ -88,14 +88,13 @@ class Presentation:
         self.config = config
 
         self.__current_slide_index: int = 0
-        self.current_animation: int = self.current_slide.start_animation
-        self.current_file: Path = Path("")
+        self.current_file: Path = self.current_slide.file
 
-        self.loaded_animation_cap: int = -1
+        self.loaded_slide_cap: int = -1
         self.cap = None  # cap = cv2.VideoCapture
 
         self.reverse: bool = False
-        self.reversed_animation: int = -1
+        self.reversed_slide: int = -1
 
         self.lastframe: Optional[np.ndarray] = None
 
@@ -108,11 +107,6 @@ class Presentation:
     def slides(self) -> List[SlideConfig]:
         """Returns the list of slides."""
         return self.config.slides
-
-    @property
-    def files(self) -> List[Path]:
-        """Returns the list of animation files."""
-        return self.config.files
 
     @property
     def resolution(self) -> Tuple[int, int]:
@@ -133,37 +127,10 @@ class Presentation:
         if value is not None:
             if -len(self) <= value < len(self):
                 self.__current_slide_index = value
-                self.current_animation = self.current_slide.start_animation
                 logger.debug(f"Set current slide index to {value}")
             else:
                 logger.error(
                     f"Could not load slide number {value}, playing first slide instead."
-                )
-
-    def set_current_animation_and_update_slide_number(
-        self, value: Optional[int]
-    ) -> None:
-        if value is not None:
-            n_files = len(self.files)
-            if -n_files <= value < n_files:
-                if value < 0:
-                    value += n_files
-
-                for i, slide in enumerate(self.slides):
-                    if value < slide.end_animation:
-                        self.current_slide_index = i
-                        self.current_animation = value
-
-                        logger.debug(f"Playing animation {value}, at slide index {i}")
-                        return
-
-                assert (
-                    False
-                ), f"An error occurred when setting the current animation to {value}, please create an issue on GitHub!"
-
-            else:
-                logger.error(
-                    f"Could not load animation number {value}, playing first animation instead."
                 )
 
     @property
@@ -186,54 +153,47 @@ class Presentation:
         if self.cap is not None:
             self.cap.release()
 
-        self.loaded_animation_cap = -1
+        self.loaded_slide_cap = -1
 
-    def load_animation_cap(self, animation: int) -> None:
-        """Loads video file of given animation."""
+    def load_slide_cap(self, slide: int) -> None:
+        """Loads video file of given slide."""
         # We must load a new VideoCapture file if:
-        if (self.loaded_animation_cap != animation) or (
-            self.reverse and self.reversed_animation != animation
+        if (self.loaded_slide_cap != slide) or (
+            self.reverse and self.reversed_slide != slide
         ):  # cap already loaded
-            logger.debug(f"Loading new cap for animation #{animation}")
+            logger.debug(f"Loading new cap for slide #{slide}")
 
             self.release_cap()
 
-            file: Path = self.files[animation]
-
             if self.reverse:
-                file = file.parent / f"{file.stem}_reversed{file.suffix}"
-                self.reversed_animation = animation
+                file = self.current_slide.rev_file
+                self.reversed_slide = slide
+            else:
+                file = self.current_slide.file
 
             self.current_file = file
 
-            self.cap = cv2.VideoCapture(str(file))
-            self.loaded_animation_cap = animation
+            self.cap = cv2.VideoCapture(file.as_posix())
+            self.loaded_slide_cap = slide
 
     @property
     def current_cap(self) -> cv2.VideoCapture:
         """Returns current VideoCapture object."""
-        self.load_animation_cap(self.current_animation)
+        self.load_slide_cap(self.current_slide_index)
         return self.cap
 
     def rewind_current_slide(self) -> None:
         """Rewinds current slide to first frame."""
         logger.debug("Rewinding current slide")
         self.current_slide.terminated = False
-
-        if self.reverse:
-            self.current_animation = self.current_slide.end_animation - 1
-        else:
-            self.current_animation = self.current_slide.start_animation
-
-        cap = self.current_cap
-        cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
+        self.current_cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
 
     def cancel_reverse(self) -> None:
         """Cancels any effet produced by a reversed slide."""
         if self.reverse:
             logger.debug("Cancelling effects from previous 'reverse' action'")
             self.reverse = False
-            self.reversed_animation = -1
+            self.reversed_slide = -1
             self.release_cap()
 
     def reverse_current_slide(self) -> None:
@@ -276,36 +236,20 @@ class Presentation:
 
     def reset(self) -> None:
         """Rests current presentation."""
-        self.current_animation = 0
-        self.load_animation_cap(0)
+        self.load_slide_cap(0)
         self.current_slide_index = 0
         self.slides[-1].terminated = False
 
     def load_last_slide(self) -> None:
         """Loads last slide."""
         self.current_slide_index = len(self.slides) - 1
-        assert (
-            self.current_slide_index >= 0
-        ), "Slides should be at list of a least one element"
-        self.current_animation = self.current_slide.start_animation
-        self.load_animation_cap(self.current_animation)
+        self.load_slide_cap(self.current_slide_index)
         self.slides[-1].terminated = False
 
     @property
-    def next_animation(self) -> int:
-        """Returns the next animation."""
-        if self.reverse:
-            return self.current_animation - 1
-        else:
-            return self.current_animation + 1
-
-    @property
-    def is_last_animation(self) -> bool:
-        """Returns True if current animation is the last one of current slide."""
-        if self.reverse:
-            return self.current_animation == self.current_slide.start_animation
-        else:
-            return self.next_animation == self.current_slide.end_animation
+    def is_last_slide(self) -> bool:
+        """Returns True if current slide is the last one."""
+        return self.current_slide_index == len(self.slides) - 1
 
     @property
     def current_frame_number(self) -> int:
@@ -331,25 +275,17 @@ class Presentation:
             return self.lastframe, State.PLAYING
 
         # Video was terminated
-        if self.is_last_animation:
-            if self.current_slide.is_loop():
-                if self.reverse:
-                    state = State.WAIT
-
-                else:
-                    self.current_animation = self.current_slide.start_animation
-                    state = State.PLAYING
-                    self.rewind_current_slide()
-            elif self.current_slide.is_last():
-                state = State.END
-            else:
+        if self.current_slide.is_loop():
+            if self.reverse:
                 state = State.WAIT
+
+            else:
+                state = State.PLAYING
+                self.rewind_current_slide()
+        elif self.current_slide.is_last():
+            state = State.END
         else:
-            # Play next video!
-            self.current_animation = self.next_animation
-            self.load_animation_cap(self.current_animation)
-            # Reset video to position zero if it has been played before
-            self.current_cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
+            state = State.WAIT
 
         return self.lastframe, state
 
@@ -372,7 +308,6 @@ class Display(QThread):  # type: ignore
         exit_after_last_slide: bool = False,
         start_at_scene_number: Optional[int] = None,
         start_at_slide_number: Optional[int] = None,
-        start_at_animation_number: Optional[int] = None,
     ) -> None:
         super().__init__()
         self.presentations = presentations
@@ -388,9 +323,6 @@ class Display(QThread):  # type: ignore
         self.__current_presentation_index = 0
         self.current_presentation_index = start_at_scene_number  # type: ignore
         self.current_presentation.current_slide_index = start_at_slide_number  # type: ignore
-        self.current_presentation.set_current_animation_and_update_slide_number(
-            start_at_animation_number
-        )
 
         self.run_flag = True
 
@@ -535,9 +467,8 @@ class Display(QThread):  # type: ignore
         """Shows updated information about presentations."""
         self.change_info_signal.emit(
             {
-                "animation": self.current_presentation.current_animation,
                 "state": self.state,
-                "slide_index": self.current_presentation.current_slide.number,
+                "slide_index": self.current_presentation.current_slide_index + 1,
                 "n_slides": len(self.current_presentation.slides),
                 "type": self.current_presentation.current_slide.type,
                 "scene_index": self.current_presentation_index + 1,
@@ -612,13 +543,11 @@ class Info(QWidget):  # type: ignore
 
         self.setLayout(self.layout)
 
-        self.animationLabel = QLabel()
         self.stateLabel = QLabel()
         self.slideLabel = QLabel()
         self.typeLabel = QLabel()
         self.sceneLabel = QLabel()
 
-        self.layout.addWidget(self.animationLabel, 0, 0, 1, 2)
         self.layout.addWidget(self.stateLabel, 1, 0)
         self.layout.addWidget(self.slideLabel, 1, 1)
         self.layout.addWidget(self.typeLabel, 2, 0)
@@ -628,7 +557,6 @@ class Info(QWidget):  # type: ignore
 
     @Slot(dict)
     def update_info(self, info: Dict[str, Union[str, int]]) -> None:
-        self.animationLabel.setText("Animation: {}".format(info.get("animation", "na")))
         self.stateLabel.setText("State: {}".format(info.get("state", "unknown")))
         self.slideLabel.setText(
             "Slide: {}/{}".format(
@@ -889,8 +817,8 @@ def get_scenes_presentation_config(
 def start_at_callback(
     ctx: Context, param: Parameter, values: str
 ) -> Tuple[Optional[int], ...]:
-    if values == "(None, None, None)":
-        return (None, None, None)
+    if values == "(None, None)":
+        return (None, None)
 
     def str_to_int_or_none(value: str) -> Optional[int]:
         if value.lower().strip() == "":
@@ -907,11 +835,11 @@ def start_at_callback(
 
     values_tuple = values.split(",")
     n_values = len(values_tuple)
-    if n_values == 3:
+    if n_values == 2:
         return tuple(map(str_to_int_or_none, values_tuple))
 
     raise click.BadParameter(
-        f"exactly 3 arguments are expected but you gave {n_values}, please use commas to separate them",
+        f"exactly 2 arguments are expected but you gave {n_values}, please use commas to separate them",
         ctx=ctx,
         param=param,
     )
@@ -991,11 +919,11 @@ def start_at_callback(
     "--sa",
     "--start-at",
     "start_at",
-    metavar="<SCENE,SLIDE,ANIMATION>",
+    metavar="<SCENE,SLIDE>",
     type=str,
     callback=start_at_callback,
-    default=(None, None, None),
-    help="Start presenting at (x, y, z), equivalent to --sacn x --sasn y --saan z, and overrides values if not None.",
+    default=(None, None),
+    help="Start presenting at (x, y), equivalent to --sacn x --sasn y, and overrides values if not None.",
 )
 @click.option(
     "--sacn",
@@ -1014,15 +942,6 @@ def start_at_callback(
     type=int,
     default=None,
     help="Start presenting at a given slide number (0 is first, -1 is last).",
-)
-@click.option(
-    "--saan",
-    "--start-at-animation-number",
-    "start_at_animation_number",
-    metavar="INDEX",
-    type=int,
-    default=0,
-    help="Start presenting at a given animation number (0 is first, -1 is last). This conflicts with slide number since animation number is absolute to the presentation.",
 )
 @click.option(
     "--screen",
@@ -1051,7 +970,6 @@ def present(
     start_at: Tuple[Optional[int], Optional[int], Optional[int]],
     start_at_scene_number: Optional[int],
     start_at_slide_number: Optional[int],
-    start_at_animation_number: Optional[int],
     screen_number: Optional[int] = None,
 ) -> None:
     """
@@ -1115,9 +1033,6 @@ def present(
     if start_at[1]:
         start_at_slide_number = start_at[1]
 
-    if start_at[2]:
-        start_at_animation_number = start_at[2]
-
     if not QApplication.instance():
         app = QApplication(sys.argv)
     else:
@@ -1150,7 +1065,6 @@ def present(
         resize_mode=RESIZE_MODES[resize_mode],
         start_at_scene_number=start_at_scene_number,
         start_at_slide_number=start_at_slide_number,
-        start_at_animation_number=start_at_animation_number,
         screen=screen,
     )
 

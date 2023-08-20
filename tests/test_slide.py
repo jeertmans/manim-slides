@@ -1,7 +1,12 @@
+from pathlib import Path
+
 import pytest
+from click.testing import CliRunner
 from manim import Text
+from manim.__main__ import main as cli
 from pydantic import ValidationError
 
+from manim_slides.config import PresentationConfig
 from manim_slides.slide import Slide
 
 
@@ -12,6 +17,41 @@ def assert_construct(cls: type) -> type:
             cls().construct()
 
     return Wrapper
+
+
+def test_render_basic_examples(
+    slides_file: Path, presentation_config: PresentationConfig
+) -> None:
+    runner = CliRunner()
+
+    with runner.isolated_filesystem():
+        results = runner.invoke(cli, [str(slides_file), "BasicSlide", "-ql"])
+
+        assert results.exit_code == 0
+
+        local_slides_folder = Path("slides")
+
+        assert local_slides_folder.exists()
+
+        local_config_file = local_slides_folder / "BasicSlide.json"
+
+        assert local_config_file.exists()
+
+        local_presentation_config = PresentationConfig.from_file(local_config_file)
+
+        assert len(local_presentation_config.slides) == len(presentation_config.slides)
+
+        assert (
+            local_presentation_config.background_color
+            == presentation_config.background_color
+        )
+
+        assert (
+            local_presentation_config.background_color
+            == presentation_config.background_color
+        )
+
+        assert local_presentation_config.resolution == presentation_config.resolution
 
 
 class TestSlide:
