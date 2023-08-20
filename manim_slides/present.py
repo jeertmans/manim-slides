@@ -13,7 +13,7 @@ import numpy as np
 from click import Context, Parameter
 from pydantic import ValidationError
 from pydantic_extra_types.color import Color
-from PySide6.QtCore import Qt, QThread, Signal, Slot
+from PySide6.QtCore import Qt, QThread, Signal, Slot, QUrl
 from PySide6.QtGui import (
     QCloseEvent,
     QIcon,
@@ -23,7 +23,9 @@ from PySide6.QtGui import (
     QResizeEvent,
     QScreen,
 )
-from PySide6.QtWidgets import QApplication, QGridLayout, QLabel, QWidget
+from PySide6.QtWidgets import QApplication, QGridLayout, QLabel, QWidget, QMainWindow, QVBoxLayout, QPushButton, QFileDialog
+from PySide6.QtMultimedia import QMediaPlayer
+from PySide6.QtMultimediaWidgets import QVideoWidget
 from tqdm import tqdm
 
 from .commons import config_path_option, verbosity_option
@@ -717,6 +719,83 @@ class App(QWidget):  # type: ignore
             f"background-color: {self.thread.current_background_color}"
         )
 
+class VideoPlayer(QMainWindow):
+    def __init__(self, presentation_configs: List[PresentationConfig]):
+        super().__init__()
+
+        self.setWindowTitle(WINDOW_NAME)
+        self.icon = QIcon(":/icon.png")
+        self.setWindowIcon(self.icon)
+
+        self.setGeometry(100, 100, 800, 600)
+
+        self.video_widget = QVideoWidget()
+        self.setCentralWidget(self.video_widget)
+
+        self.media_player = QMediaPlayer(self)
+        self.media_player.setVideoOutput(self.video_widget)
+        self.media_player.mediaStatusChanged.connect(self.media_status_changed)
+
+        self.presentation_configs = presentation_configs
+
+        self.animation_index = 0
+        self.slide_index = 0
+        self.presentation_index = 0
+
+        url = QUrl.fromLocalFile(self.current_animation_file)
+        self.media_player.setSource(url)
+        self.media_player.play()
+
+    @property
+    def current_presentation_config(self) -> PresentationConfig:
+        return self.presentation_configs[self.presentation_index]
+
+    @property
+    def current_slide_config(self) -> SlideConfig:
+        return self.current_presentation_config.slides[self.slide_index]
+
+    @property
+    def current_slide_animation_files(self) -> List[Path]:
+        config = self.current_slide_config
+        start = config.start_animation
+        end = config.end_animation
+        return self.current_presentation_config.files[start:end]
+
+    @property
+    def current_slide_animation_count(self) -> int:
+        return len(self.current_slide_animation_files)
+
+    def current_animation_is_last(self) -> bool:
+        return self.animation_index == self.current_slide_animation_count - 1
+
+    @property
+    def current_animation_file(self) -> Path:
+        return self.current_slide_animation_files[self.animation_index]
+
+    def increment_animation_index(self) -> None:
+        self.animation_index += 1
+
+    def next_animation_file(self) -> Optional[Path]:
+        if not self.current_animation_is_last():
+            self.increment_animation_index()
+            return self.current_animation_file
+        elif self.current_slide_config.is_loop():
+            return None
+        else:
+            return None
+
+    def load_next_media(self):
+        if file := self.next_animation_file():
+            url = QUrl.fromLocalFile(file)
+            self.media_player.setSource(url)
+            self.media_player.play()
+
+    @Slot(QMediaPlayer.MediaStatus)
+    def media_status_changed(self, status):
+        print("Status", status)
+        if status == QMediaPlayer.MediaStatus.EndOfMedia:
+            self.load_next_media()
+
 
 @click.command()
 @click.option(
@@ -1052,21 +1131,25 @@ def present(
     else:
         screen = None
 
-    a = App(
-        presentations,
-        config=config,
-        start_paused=start_paused,
-        fullscreen=fullscreen,
-        skip_all=skip_all,
-        record_to=record_to,
-        exit_after_last_slide=exit_after_last_slide,
-        hide_mouse=hide_mouse,
-        aspect_ratio=ASPECT_RATIO_MODES[aspect_ratio],
-        resize_mode=RESIZE_MODES[resize_mode],
-        start_at_scene_number=start_at_scene_number,
-        start_at_slide_number=start_at_slide_number,
-        screen=screen,
-    )
+    
+    #a = App(
+    #    presentations,
+    #    config=config,
+    #    start_paused=start_paused,
+    #    fullscreen=fullscreen,
+    #    skip_all=skip_all,
+    #    record_to=record_to,
+    #    exit_after_last_slide=exit_after_last_slide,
+    #    hide_mouse=hide_mouse,
+    #    aspect_ratio=ASPECT_RATIO_MODES[aspect_ratio],
+    #    resize_mode=RESIZE_MODES[resize_mode],
+    #    start_at_scene_number=start_at_scene_number,
+    #    start_at_slide_number=start_at_slide_number,
+    #    start_at_animation_number=start_at_animation_number,
+    #    screen=screen,
+    #)
+
+    a = VideoPlayer(presentation_configs)
 
     a.show()
 
