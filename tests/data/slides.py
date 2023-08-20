@@ -1,10 +1,11 @@
+# flake8: noqa: F403, F405
 # type: ignore
 from manim import *
 
 from manim_slides import Slide
 
 
-class BasicExample(Slide):
+class BasicSlide(Slide):
     def construct(self):
         circle = Circle(radius=3, color=BLUE)
         dot = Dot()

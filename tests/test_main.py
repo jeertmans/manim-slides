@@ -21,7 +21,7 @@ def test_defaults_to_present(slides_folder: Path) -> None:
 
     with runner.isolated_filesystem():
         results = runner.invoke(
-            cli, ["BasicExample", "--folder", str(slides_folder), "-s"]
+            cli, ["BasicSlide", "--folder", str(slides_folder), "-s"]
         )
 
         assert results.exit_code == 0
@@ -32,7 +32,7 @@ def test_present(slides_folder: Path) -> None:
 
     with runner.isolated_filesystem():
         results = runner.invoke(
-            cli, ["present", "BasicExample", "--folder", str(slides_folder), "-s"]
+            cli, ["present", "BasicSlide", "--folder", str(slides_folder), "-s"]
         )
 
         assert results.exit_code == 0
@@ -46,7 +46,7 @@ def test_convert(slides_folder: Path) -> None:
             cli,
             [
                 "convert",
-                "BasicExample",
+                "BasicSlide",
                 "basic_example.html",
                 "--folder",
                 str(slides_folder),
@@ -85,7 +85,7 @@ def test_list_scenes(slides_folder: Path) -> None:
         )
 
         assert results.exit_code == 0
-        assert "BasicExample" in results.output
+        assert "BasicSlide" in results.output
 
 
 def test_wizard() -> None:

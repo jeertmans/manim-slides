@@ -18,13 +18,11 @@ def assert_construct(cls: type) -> type:
     return Wrapper
 
 
-def test_render_basic_examples(examples_file: Path, slides_folder: Path) -> None:
+def test_render_basic_examples(slides_file: Path, slides_folder: Path) -> None:
     runner = CliRunner()
 
     with runner.isolated_filesystem():
-        results = runner.invoke(
-            cli, [str(examples_file), "BasicExample", "-ql"]
-        )
+        results = runner.invoke(cli, [str(slides_file), "BasicSlide", "-ql"])
 
         assert results.exit_code == 0
 
@@ -32,11 +30,11 @@ def test_render_basic_examples(examples_file: Path, slides_folder: Path) -> None
 
         assert local_slides_folder.exists()
 
-        local_config_file = local_slides_folder / "BasicExample.json"
+        local_config_file = local_slides_folder / "BasicSlide.json"
 
         assert local_config_file.exists()
 
-        config_file = slides_folder / "BasicExample.json"
+        config_file = slides_folder / "BasicSlide.json"
         expected = local_config_file.read_text().strip()
         got = config_file.read_text().strip()
 
@@ -44,8 +42,8 @@ def test_render_basic_examples(examples_file: Path, slides_folder: Path) -> None
             expected == got
         ), f"Mismatch between {local_config_file} and {config_file}"
 
-        expected_files = list((slides_folder / "files" / "BasicExample").iterdir())
-        got_files = list((local_slides_folder / "files" / "BasicExample").iterdir())
+        expected_files = list((slides_folder / "files" / "BasicSlide").iterdir())
+        got_files = list((local_slides_folder / "files" / "BasicSlide").iterdir())
 
         # TODO: when Python >= 3.10, replace with zip(..., ..., strict=True)
         assert len(got_files) == len(expected_files)

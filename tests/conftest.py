@@ -13,17 +13,23 @@ _ = make_logger()  # This is run so that "PERF" level is created
 
 @pytest.fixture
 def data_folder() -> Iterator[Path]:
-    yield (Path(__file__).parent / "data").resolve()
+    path = (Path(__file__).parent / "data").resolve()
+    assert path.exists()
+    yield path
 
 
 @pytest.fixture
 def slides_folder(data_folder: Path) -> Iterator[Path]:
-    yield (data_folder / "slides").resolve()
+    path = (data_folder / "slides").resolve()
+    assert path.exists()
+    yield path
 
 
 @pytest.fixture
-def examples_file(data_folder: Path) -> Iterator[Path]:
-    yield (data_folder / "example.py").resolve()
+def slides_file(data_folder: Path) -> Iterator[Path]:
+    path = (data_folder / "slides.py").resolve()
+    assert path.exists()
+    yield path
 
 
 def random_path(
@@ -53,4 +59,4 @@ def paths() -> Generator[List[Path], None, None]:
 def presentation_config(
     slides_folder: Path,
 ) -> Generator[PresentationConfig, None, None]:
-    yield PresentationConfig.from_file(slides_folder / "BasicExample.json")
+    yield PresentationConfig.from_file(slides_folder / "BasicSlide.json")
