@@ -23,7 +23,7 @@ def test_render_basic_examples(examples_file: Path, slides_folder: Path) -> None
 
     with runner.isolated_filesystem():
         results = runner.invoke(
-            cli, [str(examples_file), "BasicExample", "-ql", "-v", "DEBUG"]
+            cli, [str(examples_file), "BasicExample", "-ql"]
         )
 
         assert results.exit_code == 0

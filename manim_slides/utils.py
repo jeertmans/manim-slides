@@ -49,7 +49,6 @@ def merge_basenames(files: List[Path]) -> Path:
     """
     Merge multiple filenames by concatenating basenames.
     """
-    logger.debug(f"Generating a new filename for files: {files}")
 
     dirname: Path = files[0].parent
     ext = files[0].suffix
@@ -61,6 +60,8 @@ def merge_basenames(files: List[Path]) -> Path:
     # We use hashes to prevent too-long filenames, see issue #123:
     # https://github.com/jeertmans/manim-slides/issues/123
     basename = hashlib.sha256(basenames_str.encode()).hexdigest()
+
+    logger.info(f"Generated a new basename for basenames: {basenames} -> '{basename}'")
 
     return dirname.joinpath(basename + ext)
 
