@@ -1,18 +1,38 @@
 from pathlib import Path
-from typing import List, Optional
+from typing import Any, List, Optional
 
 from PySide6.QtCore import Qt, QUrl, Signal, Slot
-from PySide6.QtGui import QIcon, QKeyEvent, QScreen
+from PySide6.QtGui import QCloseEvent, QIcon, QKeyEvent, QScreen
 from PySide6.QtMultimedia import QMediaPlayer
 from PySide6.QtMultimediaWidgets import QVideoWidget
-from PySide6.QtWidgets import QMainWindow
+from PySide6.QtWidgets import QDialog, QGridLayout, QLabel, QMainWindow
 
 from ..config import Config, PresentationConfig, SlideConfig
 from ..logger import logger
 from ..resources import *  # noqa: F401, F403
 
 WINDOW_NAME = "Manim Slides"
-WINDOW_INFO_NAME = f"{WINDOW_NAME}: Info"
+
+
+class Info(QDialog):  # type: ignore[misc]
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+
+        layout = QGridLayout()
+        self.scene_label = QLabel()
+        self.slide_label = QLabel()
+
+        layout.addWidget(QLabel("Scene:"), 1, 1)
+        layout.addWidget(QLabel("Slide:"), 2, 1)
+        layout.addWidget(self.scene_label, 1, 2)
+        layout.addWidget(self.slide_label, 2, 2)
+        self.setLayout(layout)
+        self.setFixedWidth(150)
+        self.setFixedHeight(80)
+
+        if parent := self.parent():
+            self.closeEvent = parent.closeEvent
+            self.keyPressEvent = parent.keyPressEvent
 
 
 class Player(QMainWindow):  # type: ignore[misc]
@@ -83,6 +103,8 @@ class Player(QMainWindow):  # type: ignore[misc]
 
         self.presentation_changed.connect(self.presentation_changed_callback)
         self.slide_changed.connect(self.slide_changed_callback)
+
+        self.info = Info(parent=self)
 
         # Connecting key callbacks
 
@@ -253,15 +275,24 @@ class Player(QMainWindow):  # type: ignore[misc]
 
     @Slot()
     def presentation_changed_callback(self) -> None:
-        pass
+        index = self.current_presentation_index
+        count = self.presentations_count
+        self.info.scene_label.setText(f"{index+1:4d}/{count:4<d}")
 
     @Slot()
     def slide_changed_callback(self) -> None:
-        pass
+        index = self.current_slide_index
+        count = self.current_slides_count
+        self.info.slide_label.setText(f"{index+1:4d}/{count:4<d}")
+
+    def show(self) -> None:
+        super().show()
+        self.info.show()
 
     @Slot()
     def quit(self) -> None:
         logger.info("Closing gracefully...")
+        self.info.deleteLater()
         self.deleteLater()
 
     @Slot()
@@ -282,6 +313,7 @@ class Player(QMainWindow):  # type: ignore[misc]
     @Slot()
     def replay(self) -> None:
         self.media_player.setPosition(0)
+        self.media_player.play()
 
     @Slot()
     def play_pause(self) -> None:
@@ -305,7 +337,9 @@ class Player(QMainWindow):  # type: ignore[misc]
         else:
             self.setCursor(Qt.BlankCursor)
 
-    @Slot()
+    def closeEvent(self, event: QCloseEvent) -> None:
+        self.quit()
+
     def keyPressEvent(self, event: QKeyEvent) -> None:
         key = event.key()
         self.dispatch(key)

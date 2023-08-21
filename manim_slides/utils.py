@@ -61,7 +61,7 @@ def merge_basenames(files: List[Path]) -> Path:
     # https://github.com/jeertmans/manim-slides/issues/123
     basename = hashlib.sha256(basenames_str.encode()).hexdigest()
 
-    logger.info(f"Generated a new basename for basenames: {basenames} -> '{basename}'")
+    logger.debug(f"Generated a new basename for basenames: {basenames} -> '{basename}'")
 
     return dirname.joinpath(basename + ext)
 

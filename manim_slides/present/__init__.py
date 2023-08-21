@@ -45,7 +45,6 @@ def _list_scenes(folder: Path) -> List[str]:
             logger.warn(
                 f"Something went wrong with parsing presentation config `{filepath}`: {e}"
             )
-            pass
 
     logger.debug(f"Found {len(scenes)} valid scene configuration files in `{folder}`.")
 
