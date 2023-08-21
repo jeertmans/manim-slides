@@ -9,9 +9,8 @@ from pydantic import ValidationError
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QApplication
 
-from ..commons import config_path_option, verbosity_option
+from ..commons import config_path_option, folder_path_option, verbosity_option
 from ..config import Config, PresentationConfig
-from ..defaults import FOLDER_PATH
 from ..logger import logger
 from .player import Player
 
@@ -22,14 +21,7 @@ ASPECT_RATIO_MODES = {
 
 
 @click.command()
-@click.option(
-    "--folder",
-    metavar="DIRECTORY",
-    default=FOLDER_PATH,
-    type=click.Path(exists=True, file_okay=False, path_type=Path),
-    help="Set slides folder.",
-    show_default=True,
-)
+@folder_path_option
 @click.help_option("-h", "--help")
 @verbosity_option
 def list_scenes(folder: Path) -> None:
@@ -151,27 +143,22 @@ def start_at_callback(
 @click.command()
 @click.argument("scenes", nargs=-1)
 @config_path_option
-@click.option(
-    "--folder",
-    metavar="DIRECTORY",
-    default=FOLDER_PATH,
-    type=click.Path(exists=True, file_okay=False, path_type=Path),
-    help="Set slides folder.",
-    show_default=True,
-)
+@folder_path_option
 @click.option("--start-paused", is_flag=True, help="Start paused.")
 @click.option(
-    "--fullscreen",
+    "-F",
     "--full-screen",
+    "--fullscreen",
     "full_screen",
     is_flag=True,
-    help="Full screen mode.",
+    help="Toggle full screen mode.",
 )
 @click.option(
     "-s",
     "--skip-all",
     is_flag=True,
-    help="Skip all slides, useful the test if slides are working. Automatically sets `--exit-after-last-slide` to True.",
+    help="Skip all slides, useful the test if slides are working. "
+    "Automatically sets `--exit-after-last-slide` to True.",
 )
 @click.option(
     "--exit-after-last-slide",
@@ -179,6 +166,7 @@ def start_at_callback(
     help="At the end of last slide, the application will be exited.",
 )
 @click.option(
+    "-H",
     "--hide-mouse",
     is_flag=True,
     help="Hide mouse cursor.",
@@ -198,7 +186,8 @@ def start_at_callback(
     type=str,
     callback=start_at_callback,
     default=(None, None),
-    help="Start presenting at (x, y), equivalent to --sacn x --sasn y, and overrides values if not None.",
+    help="Start presenting at (x, y), equivalent to --sacn x --sasn y, "
+    "and overrides values if not None.",
 )
 @click.option(
     "--sacn",
@@ -219,6 +208,7 @@ def start_at_callback(
     help="Start presenting at a given slide number (0 is first, -1 is last).",
 )
 @click.option(
+    "-S",
     "--screen",
     "screen_number",
     metavar="NUMBER",
@@ -246,11 +236,13 @@ def present(
     """
     Present SCENE(s), one at a time, in order.
 
-    Each SCENE parameter must be the name of a Manim scene, with existing SCENE.json config file.
+    Each SCENE parameter must be the name of a Manim scene,
+    with existing SCENE.json config file.
 
     You can present the same SCENE multiple times by repeating the parameter.
 
-    Use `manim-slide list-scenes` to list all available scenes in a given folder.
+    Use `manim-slide list-scenes` to list all available
+    scenes in a given folder.
     """
 
     if skip_all:

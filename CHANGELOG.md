@@ -13,14 +13,42 @@ pull requests.
 
 In an effort to better document changes, this CHANGELOG document is now created.
 
-### Chore
+### Added
+
+- Added the following option aliases to `manim-slides present`:
+  `-F` and `--full-screen` for `fullscreen`,
+  `-H` for `--hide-mouse`,
+  and `-S` for `--screen-number`.
+  [#243](https://github.com/jeertmans/manim-slides/pull/243)
+- Added a full screen key binding (defaults to <kbd>F</kbd>) in the
+  presenter.
+  [#243](https://github.com/jeertmans/manim-slides/pull/243)
+
+### Changed
 
 - Automatically concatenate all animations from a slide into one.
   This is a **breaking change** because the config file format is
   different from the previous one. For migration help, see associated PR.
   [#242](https://github.com/jeertmans/manim-slides/pull/242)
+- Changed the player interface to only use PySide6, and not a combination of
+  PySide6 and OpenCV. A few features have been removed (see removed section),
+  but the new player should be much easier to maintain and more performant,
+  than its predecessor.
+  [#243](https://github.com/jeertmans/manim-slides/pull/243)
+- Changed the slide config format to exclude unecessary information.
+  `StypeType` is removed in favor to one boolean `loop` field. This is
+  a **breaking change** and one should re-render the slides to apply changes.
+  [#243](https://github.com/jeertmans/manim-slides/pull/243)
+- Renamed key bindings in the config. This is a **breaking change** and one
+  should either manually rename them (see list below) or re-init a config.
+  List of changes: `CONTINUE` to `NEXT`, `BACK` to `PREVIOUS`, and
+  `REWIND` to `REPLAY`.
+  [#243](https://github.com/jeertmans/manim-slides/pull/243)
 
 ### Removed
 
 - Removed `--start-at-animation-number` option from `manim-slides present`.
   [#242](https://github.com/jeertmans/manim-slides/pull/242)
+- Removed the following options from `manim-slides present`:
+  `--resolution`, `--record-to`, `--resize-mode`, and `--background-color`.
+  [#243](https://github.com/jeertmans/manim-slides/pull/243)

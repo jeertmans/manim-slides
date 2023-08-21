@@ -300,7 +300,7 @@ class Player(QMainWindow):  # type: ignore[misc]
 
     @Slot()
     def hide_mouse(self) -> None:
-        if self.cursor() == Qt.BlankCursor:
+        if self.cursor().shape() == Qt.BlankCursor:
             self.setCursor(Qt.ArrowCursor)
         else:
             self.setCursor(Qt.BlankCursor)
