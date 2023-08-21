@@ -6,13 +6,19 @@ from typing import List, Optional, Tuple
 import click
 from click import Context, Parameter
 from pydantic import ValidationError
+from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QApplication
 
 from ..commons import config_path_option, verbosity_option
 from ..config import Config, PresentationConfig
 from ..defaults import FOLDER_PATH
 from ..logger import logger
-from .player import VideoPlayer
+from .player import Player
+
+ASPECT_RATIO_MODES = {
+    "keep": Qt.KeepAspectRatio,
+    "ignore": Qt.IgnoreAspectRatio,
+}
 
 
 @click.command()
@@ -154,29 +160,18 @@ def start_at_callback(
     show_default=True,
 )
 @click.option("--start-paused", is_flag=True, help="Start paused.")
-@click.option("--fullscreen", is_flag=True, help="Fullscreen mode.")
+@click.option(
+    "--fullscreen",
+    "--full-screen",
+    "full_screen",
+    is_flag=True,
+    help="Full screen mode.",
+)
 @click.option(
     "-s",
     "--skip-all",
     is_flag=True,
     help="Skip all slides, useful the test if slides are working. Automatically sets `--exit-after-last-slide` to True.",
-)
-@click.option(
-    "-r",
-    "--resolution",
-    metavar="<WIDTH HEIGHT>",
-    type=(int, int),
-    default=None,
-    help="Window resolution WIDTH HEIGHT used if fullscreen is not set. You may manually resize the window afterward.",
-)
-@click.option(
-    "--to",
-    "--record-to",
-    "record_to",
-    metavar="FILE",
-    type=click.Path(dir_okay=False, path_type=Path),
-    default=None,
-    help="If set, the presentation will be recorded into a AVI video file with given name.",
 )
 @click.option(
     "--exit-after-last-slide",
@@ -189,13 +184,10 @@ def start_at_callback(
     help="Hide mouse cursor.",
 )
 @click.option(
-    "--background-color",
-    "--bgcolor",
-    "background_color",
-    metavar="COLOR",
-    type=str,
-    default=None,
-    help='Set the background color for borders when using "keep" resize mode. Can be any valid CSS color, e.g., "green", "#FF6500" or "rgba(255, 255, 0, .5)". If not set, it defaults to the background color configured in the Manim scene.',
+    "--aspect-ratio",
+    type=click.Choice(["keep", "ignore"], case_sensitive=False),
+    default="keep",
+    help="Set the aspect ratio mode to be used when rescaling the video.",
     show_default=True,
 )
 @click.option(
@@ -214,7 +206,7 @@ def start_at_callback(
     "start_at_scene_number",
     metavar="INDEX",
     type=int,
-    default=None,
+    default=0,
     help="Start presenting at a given scene number (0 is first, -1 is last).",
 )
 @click.option(
@@ -223,7 +215,7 @@ def start_at_callback(
     "start_at_slide_number",
     metavar="INDEX",
     type=int,
-    default=None,
+    default=0,
     help="Start presenting at a given slide number (0 is first, -1 is last).",
 )
 @click.option(
@@ -241,16 +233,14 @@ def present(
     config_path: Path,
     folder: Path,
     start_paused: bool,
-    fullscreen: bool,
+    full_screen: bool,
     skip_all: bool,
-    resolution: Optional[Tuple[int, int]],
-    record_to: Optional[Path],
     exit_after_last_slide: bool,
     hide_mouse: bool,
-    background_color: Optional[str],
+    aspect_ratio: str,
     start_at: Tuple[Optional[int], Optional[int], Optional[int]],
-    start_at_scene_number: Optional[int],
-    start_at_slide_number: Optional[int],
+    start_at_scene_number: int,
+    start_at_slide_number: int,
     screen_number: Optional[int] = None,
 ) -> None:
     """
@@ -268,14 +258,6 @@ def present(
 
     presentation_configs = get_scenes_presentation_config(scenes, folder)
 
-    if resolution is not None:
-        for presentation_config in presentation_configs:
-            presentation_config.resolution = resolution
-
-    if background_color is not None:
-        for presentation_config in presentation_configs:
-            presentation_config.background_color = background_color
-
     if config_path.exists():
         try:
             config = Config.from_file(config_path)
@@ -285,69 +267,46 @@ def present(
         logger.debug("No configuration file found, using default configuration.")
         config = Config()
 
-    if record_to is not None:
-        ext = record_to.suffix
-        if ext.lower() != ".avi":
-            raise click.UsageError(
-                "Recording only support '.avi' extension. "
-                "For other video formats, "
-                "please convert the resulting '.avi' file afterwards."
-            )
-
     if start_at[0]:
-        start_at[0]
+        start_at_scene_number = start_at[0]
 
     if start_at[1]:
-        start_at[1]
+        start_at_scene_number = start_at[1]
 
-    if not QApplication.instance():
-        app = QApplication(sys.argv)
+    if maybe_app := QApplication.instance():
+        app = maybe_app
     else:
-        app = QApplication.instance()
+        app = QApplication(sys.argv)
 
     app.setApplicationName("Manim Slides")
 
     if screen_number is not None:
         try:
-            app.screens()[screen_number]
+            screen = app.screens()[screen_number]
         except IndexError:
             logger.error(
                 f"Invalid screen number {screen_number}, "
                 f"allowed values are from 0 to {len(app.screens())-1} (incl.)"
             )
+            screen = None
     else:
-        pass
+        screen = None
 
-    # a = App(
-    #    presentations,
-    #    config=config,
-    #    start_paused=start_paused,
-    #    fullscreen=fullscreen,
-    #    skip_all=skip_all,
-    #    record_to=record_to,
-    #    exit_after_last_slide=exit_after_last_slide,
-    #    hide_mouse=hide_mouse,
-    #    aspect_ratio=ASPECT_RATIO_MODES[aspect_ratio],
-    #    resize_mode=RESIZE_MODES[resize_mode],
-    #    start_at_scene_number=start_at_scene_number,
-    #    start_at_slide_number=start_at_slide_number,
-    #    start_at_animation_number=start_at_animation_number,
-    #    screen=screen,
-    # )
+    player = Player(
+        config,
+        presentation_configs,
+        start_paused=start_paused,
+        full_screen=full_screen,
+        skip_all=skip_all,
+        exit_after_last_slide=exit_after_last_slide,
+        hide_mouse=hide_mouse,
+        aspect_ratio_mode=ASPECT_RATIO_MODES[aspect_ratio],
+        presentation_index=start_at_scene_number,
+        slide_index=start_at_slide_number,
+        screen=screen,
+    )
 
-    a = VideoPlayer(config, presentation_configs, exit_after_last_slide=exit_after_last_slide)
+    player.show()
 
-    a.show()
-
-    # inform about CTRL+C
-    def sigkill_handler(signum, frame):  # type: ignore
-        logger.warn(
-            "Thie application cannot be closed with usual CTRL+C, "
-            "please use the appropriate key defined in your config "
-            "(default: q)."
-        )
-
-        raise KeyboardInterrupt
-
-    signal.signal(signal.SIGINT, sigkill_handler)
+    signal.signal(signal.SIGINT, signal.SIG_DFL)
     sys.exit(app.exec_())

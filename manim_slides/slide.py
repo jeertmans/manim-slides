@@ -15,7 +15,7 @@ from warnings import warn
 import numpy as np
 from tqdm import tqdm
 
-from .config import PresentationConfig, PreSlideConfig, SlideConfig, SlideType
+from .config import PresentationConfig, PreSlideConfig, SlideConfig
 from .defaults import FOLDER_PATH
 from .manim import (
     LEFT,
@@ -354,10 +354,8 @@ class Slide(Scene):  # type:ignore
 
         self.__slides.append(
             PreSlideConfig(
-                type=SlideType.slide,
                 start_animation=self.__pause_start_animation,
                 end_animation=self.__current_animation,
-                number=self.__current_slide,
             )
         )
         self.__current_slide += 1
@@ -384,15 +382,13 @@ class Slide(Scene):  # type:ignore
             len(self.__slides) > 0
             and self.__current_animation == self.__slides[-1].end_animation
         ):
-            self.__slides[-1].type = SlideType.last
             return
 
         self.__slides.append(
             PreSlideConfig(
-                type=SlideType.last,
                 start_animation=self.__pause_start_animation,
                 end_animation=self.__current_animation,
-                number=self.__current_slide,
+                loop=self.__loop_start_animation is not None,
             )
         )
 
@@ -443,10 +439,9 @@ class Slide(Scene):  # type:ignore
         ), "You have to start a loop before ending it"
         self.__slides.append(
             PreSlideConfig(
-                type=SlideType.loop,
                 start_animation=self.__loop_start_animation,
                 end_animation=self.__current_animation,
-                number=self.__current_slide,
+                loop=True,
             )
         )
         self.__current_slide += 1
