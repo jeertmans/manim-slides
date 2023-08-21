@@ -52,3 +52,5 @@ In an effort to better document changes, this CHANGELOG document is now created.
 - Removed the following options from `manim-slides present`:
   `--resolution`, `--record-to`, `--resize-mode`, and `--background-color`.
   [#243](https://github.com/jeertmans/manim-slides/pull/243)
+- Removed `PERF` verbosity level because not used anymore.
+  [#245](https://github.com/jeertmans/manim-slides/pull/245)

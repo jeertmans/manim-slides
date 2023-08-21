@@ -8,7 +8,7 @@ import pytest
 from manim_slides.config import PresentationConfig
 from manim_slides.logger import make_logger
 
-_ = make_logger()  # This is run so that "PERF" level is created
+_ = make_logger()  # This is run so that logger is created
 
 
 @pytest.fixture
