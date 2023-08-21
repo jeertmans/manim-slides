@@ -5,6 +5,8 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+<!-- start changelog -->
+
 ## [v5 (Unreleased)](https://github.com/jeertmans/languagetool-rust/compare/v4.16.0...HEAD)
 
 Prior to v5, there was no real CHANGELOG other than the GitHub releases,
@@ -54,3 +56,5 @@ In an effort to better document changes, this CHANGELOG document is now created.
   [#243](https://github.com/jeertmans/manim-slides/pull/243)
 - Removed `PERF` verbosity level because not used anymore.
   [#245](https://github.com/jeertmans/manim-slides/pull/245)
+
+<!-- end changelog -->
