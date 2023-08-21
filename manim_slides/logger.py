@@ -7,7 +7,6 @@ import logging
 
 from rich.console import Console
 from rich.logging import RichHandler
-from rich.theme import Theme
 
 __all__ = ["logger", "make_logger"]
 
@@ -36,9 +35,8 @@ def make_logger() -> logging.Logger:
     RichHandler.KEYWORDS = HIGHLIGHTED_KEYWORDS
     rich_handler = RichHandler(
         show_time=True,
-        console=Console(theme=Theme({"logging.level.perf": "magenta"})),
+        console=Console(),
     )
-    logging.addLevelName(5, "PERF")
     logger = logging.getLogger("manim-slides")
     logger.setLevel(logging.getLogger("manim").level)
     logger.addHandler(rich_handler)

@@ -54,10 +54,10 @@ def verbosity_option(function: F) -> F:
         "-v",
         "--verbosity",
         type=click.Choice(
-            ["PERF", "DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"],
+            ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"],
             case_sensitive=False,
         ),
-        help="Verbosity of CLI output. PERF will log performances (timing) information.",
+        help="Verbosity of CLI output.",
         default=None,
         expose_value=False,
         envvar="MANIM_SLIDES_VERBOSITY",
