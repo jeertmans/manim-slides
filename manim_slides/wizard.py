@@ -72,7 +72,7 @@ class Wizard(QWidget):  # type: ignore
             # Create label for key name information
             label = QLabel()
             key_info = value["name"] or key
-            label.setText(key_info)
+            label.setText(key_info.title())
             self.layout.addWidget(label, i, 0)
 
             # Create button that will pop-up a dialog and ask to input a new key

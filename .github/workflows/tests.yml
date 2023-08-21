@@ -46,7 +46,7 @@ jobs:
         poetry install --with test
 
     - name: Run pytest
-      run: poetry run pytest -x
+      run: poetry run pytest -x -n auto
 
   build-examples:
     strategy:

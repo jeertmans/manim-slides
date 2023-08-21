@@ -1,8 +1,7 @@
 import json
 import shutil
-from enum import Enum
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Set, Tuple, Union
+from typing import Any, Callable, Dict, List, Optional, Set, Tuple
 
 import rtoml
 from pydantic import (
@@ -10,6 +9,7 @@ from pydantic import (
     Field,
     FilePath,
     PositiveInt,
+    PrivateAttr,
     field_validator,
     model_validator,
 )
@@ -18,12 +18,30 @@ from PySide6.QtCore import Qt
 
 from .logger import logger
 
+Receiver = Callable[..., Any]
 
-class Key(BaseModel):  # type: ignore
+
+class Signal(BaseModel):  # type: ignore[misc]
+    __receivers: List[Receiver] = PrivateAttr(default_factory=list)
+
+    def connect(self, receiver: Receiver) -> None:
+        self.__receivers.append(receiver)
+
+    def disconnect(self, receiver: Receiver) -> None:
+        self.__receivers.remove(receiver)
+
+    def emit(self, *args: Any) -> None:
+        for receiver in self.__receivers:
+            receiver(*args)
+
+
+class Key(BaseModel):  # type: ignore[misc]
     """Represents a list of key codes, with optionally a name."""
 
     ids: List[PositiveInt] = Field(unique=True)
     name: Optional[str] = None
+
+    __signal: Signal = PrivateAttr(default_factory=Signal)
 
     @field_validator("ids")
     @classmethod
@@ -43,14 +61,22 @@ class Key(BaseModel):  # type: ignore
 
         return m
 
+    @property
+    def signal(self) -> Signal:
+        return self.__signal
 
-class Keys(BaseModel):  # type: ignore
+    def connect(self, function: Receiver) -> None:
+        self.__signal.connect(function)
+
+
+class Keys(BaseModel):  # type: ignore[misc]
     QUIT: Key = Key(ids=[Qt.Key_Q], name="QUIT")
-    CONTINUE: Key = Key(ids=[Qt.Key_Right], name="CONTINUE / NEXT")
-    BACK: Key = Key(ids=[Qt.Key_Left], name="BACK")
-    REVERSE: Key = Key(ids=[Qt.Key_V], name="REVERSE")
-    REWIND: Key = Key(ids=[Qt.Key_R], name="REWIND")
     PLAY_PAUSE: Key = Key(ids=[Qt.Key_Space], name="PLAY / PAUSE")
+    NEXT: Key = Key(ids=[Qt.Key_Right], name="NEXT")
+    PREVIOUS: Key = Key(ids=[Qt.Key_Left], name="PREVIOUS")
+    REVERSE: Key = Key(ids=[Qt.Key_V], name="REVERSE")
+    REPLAY: Key = Key(ids=[Qt.Key_R], name="REPLAY")
+    FULL_SCREEN: Key = Key(ids=[Qt.Key_F], name="TOGGLE FULL SCREEN")
     HIDE_MOUSE: Key = Key(ids=[Qt.Key_H], name="HIDE / SHOW MOUSE")
 
     @model_validator(mode="before")
@@ -74,8 +100,21 @@ class Keys(BaseModel):  # type: ignore
 
         return self
 
+    def dispatch_key_function(self) -> Callable[[PositiveInt], None]:
+        _dispatch = {}
 
-class Config(BaseModel):  # type: ignore
+        for _, key in self:
+            for _id in key.ids:
+                _dispatch[_id] = key.signal
+
+        def dispatch(key: PositiveInt) -> None:
+            if signal := _dispatch.get(key, None):
+                signal.emit()
+
+        return dispatch
+
+
+class Config(BaseModel):  # type: ignore[misc]
     """General Manim Slides config"""
 
     keys: Keys = Keys()
@@ -94,16 +133,10 @@ class Config(BaseModel):  # type: ignore
         return self
 
 
-class SlideType(str, Enum):
-    slide = "slide"
-    loop = "loop"
-    last = "last"
-
-
 class PreSlideConfig(BaseModel):  # type: ignore
-    type: SlideType
     start_animation: int
     end_animation: int
+    loop: bool = False
 
     @field_validator("start_animation", "end_animation")
     @classmethod
@@ -112,12 +145,12 @@ class PreSlideConfig(BaseModel):  # type: ignore
             raise ValueError("Animation index (start or end) cannot be negative")
         return v
 
-    @model_validator(mode="before")
+    @model_validator(mode="after")
     def start_animation_is_before_end(
-        cls, values: Dict[str, Union[SlideType, int, bool]]
-    ) -> Dict[str, Union[SlideType, int, bool]]:
-        if values["start_animation"] >= values["end_animation"]:  # type: ignore
-            if values["start_animation"] == values["end_animation"] == 0:
+        cls, pre_slide_config: "PreSlideConfig"
+    ) -> "PreSlideConfig":
+        if pre_slide_config.start_animation >= pre_slide_config.end_animation:
+            if pre_slide_config.start_animation == pre_slide_config.end_animation == 0:
                 raise ValueError(
                     "You have to play at least one animation (e.g., `self.wait()`) before pausing. If you want to start paused, use the approriate command-line option when presenting. IMPORTANT: when using ManimGL, `self.wait()` is not considered to be an animation, so prefer to directly use `self.play(...)`."
                 )
@@ -126,36 +159,26 @@ class PreSlideConfig(BaseModel):  # type: ignore
                 "Start animation index must be strictly lower than end animation index"
             )
 
-        return values
+        return pre_slide_config
 
     @property
     def slides_slice(self) -> slice:
         return slice(self.start_animation, self.end_animation)
 
 
-class SlideConfig(BaseModel):  # type: ignore
-    type: SlideType
+class SlideConfig(BaseModel):  # type: ignore[misc]
     file: FilePath
     rev_file: FilePath
-    terminated: bool = Field(False, exclude=True)
+    loop: bool = False
 
     @classmethod
     def from_pre_slide_config_and_files(
         cls, pre_slide_config: PreSlideConfig, file: Path, rev_file: Path
     ) -> "SlideConfig":
-        return cls(type=pre_slide_config.type, file=file, rev_file=rev_file)
-
-    def is_slide(self) -> bool:
-        return self.type == SlideType.slide
-
-    def is_loop(self) -> bool:
-        return self.type == SlideType.loop
-
-    def is_last(self) -> bool:
-        return self.type == SlideType.last
+        return cls(file=file, rev_file=rev_file, loop=pre_slide_config.loop)
 
 
-class PresentationConfig(BaseModel):  # type: ignore
+class PresentationConfig(BaseModel):  # type: ignore[misc]
     slides: List[SlideConfig] = Field(min_length=1)
     resolution: Tuple[PositiveInt, PositiveInt] = (1920, 1080)
     background_color: Color = "black"
