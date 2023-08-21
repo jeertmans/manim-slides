@@ -335,7 +335,7 @@ def present(
     #    screen=screen,
     # )
 
-    a = VideoPlayer(config, presentation_configs, exit_after_last_slide)
+    a = VideoPlayer(config, presentation_configs, exit_after_last_slide=exit_after_last_slide)
 
     a.show()
 

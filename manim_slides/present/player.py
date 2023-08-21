@@ -1,7 +1,7 @@
 from pathlib import Path
 from typing import List
 
-from PySide6.QtCore import QUrl
+from PySide6.QtCore import Qt, QUrl
 from PySide6.QtGui import QIcon, QKeyEvent
 from PySide6.QtMultimedia import QMediaPlayer
 from PySide6.QtMultimediaWidgets import QVideoWidget
@@ -20,8 +20,11 @@ class VideoPlayer(QMainWindow):
         self,
         config: Config,
         presentation_configs: List[PresentationConfig],
+        *,
+        aspect_ratio_mode: Qt.AspectRatioMode = Qt.KeepAspectRatio,
         exit_after_last_slide: bool = False,
-        start_paused: bool = False,
+        fullscreen: bool = True,
+        screen = None,
     ):
         super().__init__()
 
@@ -40,13 +43,22 @@ class VideoPlayer(QMainWindow):
 
         # Widgets
 
+        if screen:
+            self.setScreen(screen)
+
+        self.setGeometry(0, 0, *self.current_presentation_config.resolution)
+        self.frameGeometry().moveCenter(self.primaryScreen().availableGeometry().center())
+
+        if fullscreen:
+            self.showFullScreen()
+
         self.setWindowTitle(WINDOW_NAME)
         self.icon = QIcon(":/icon.png")
         self.setWindowIcon(self.icon)
 
-        self.setGeometry(100, 100, 800, 600)
 
         self.video_widget = QVideoWidget()
+        self.video_widget.setAspectRatioMode(aspect_ratio_mode)
         self.setCentralWidget(self.video_widget)
 
         self.media_player = QMediaPlayer(self)
