@@ -95,7 +95,7 @@ def test_folder_path_option() -> None:
 
 @pytest.mark.parametrize(
     ("verbosity",),
-    [("PeRF",), ("DEBUG",), ("info",), ("waRNING",), ("eRRor",), ("CrItIcAl",)],
+    [("DEBUG",), ("info",), ("waRNING",), ("eRRor",), ("CrItIcAl",)],
 )
 def test_valid_verbosity_option(verbosity: str) -> None:
     @click.command()
