@@ -16,9 +16,13 @@ WINDOW_INFO_NAME = f"{WINDOW_NAME}: Info"
 
 
 class VideoPlayer(QMainWindow):
-    def __init__(self, config: Config,
-            presentation_configs: List[PresentationConfig],
-            exit_after_last_slide: bool = False):
+    def __init__(
+        self,
+        config: Config,
+        presentation_configs: List[PresentationConfig],
+        exit_after_last_slide: bool = False,
+        start_paused: bool = False,
+    ):
         super().__init__()
 
         # Wizard's config
@@ -48,9 +52,7 @@ class VideoPlayer(QMainWindow):
         self.media_player = QMediaPlayer(self)
         self.media_player.setVideoOutput(self.video_widget)
 
-        url = QUrl.fromLocalFile(self.current_file)
-        self.media_player.setSource(url)
-        self.media_player.play()
+        self.load_current_media(start_paused=start_paused)
 
         # Misc
 
@@ -68,6 +70,8 @@ class VideoPlayer(QMainWindow):
     def current_presentation_index(self, index: int) -> None:
         if 0 <= index < self.presentations_count:
             self.__current_presentation_index = index
+        elif -self.presentations_count <= index < 0:
+            self.__current_presentation_index = index + self.presentations_count
         else:
             logger.warn(f"Could not set presentation index to {index}")
 
@@ -87,6 +91,8 @@ class VideoPlayer(QMainWindow):
     def current_slide_index(self, index: int) -> None:
         if 0 <= index < self.current_slides_count:
             self.__current_slide_index = index
+        elif -self.current_slides_count <= index < 0:
+            self.__current_slide_index = index + self.current_slides_count
         else:
             logger.warn(f"Could not set slide index to {index}")
 
@@ -110,11 +116,13 @@ class VideoPlayer(QMainWindow):
     def playing_reversed_slide(self, playing_reversed_slide: bool) -> None:
         self.__playing_reversed_slide = playing_reversed_slide
 
-    def load_current_media(self, play=True):
+    def load_current_media(self, start_paused=False):
         url = QUrl.fromLocalFile(self.current_file)
         self.media_player.setSource(url)
 
-        if play:
+        if start_paused:
+            self.media_player.pause()
+        else:
             self.media_player.play()
 
     def load_current_slide(self):
@@ -151,7 +159,7 @@ class VideoPlayer(QMainWindow):
             self.current_presentation_index += 1
             self.current_slide_index = 0
         elif self.exit_after_last_slide:
-            self.deleteLater()
+            self.closeAll()
         else:
             logger.info("No more slide to play.")
             return
@@ -163,6 +171,9 @@ class VideoPlayer(QMainWindow):
         self.current_file = self.current_slide_config.rev_file
         self.load_current_media()
 
+    def closeAll(self):
+        self.deleteLater()
+
     def keyPressEvent(self, event: QKeyEvent) -> None:
         key = event.key()
         if self.config.keys.HIDE_MOUSE.match(key):
@@ -173,12 +184,25 @@ class VideoPlayer(QMainWindow):
                 self.setCursor(Qt.BlankCursor)
                 self.hide_mouse = True
 
+        elif self.config.keys.PLAY_PAUSE.match(key):
+            state = self.media_player.playbackState()
+            if state == QMediaPlayer.PausedState:
+                self.media_player.play()
+            elif state == QMediaPlayer.PlayingState:
+                self.media_player.pause()
+
         elif self.config.keys.CONTINUE.match(key):
-            self.load_next_slide()
+            if self.media_player.playbackState() == QMediaPlayer.PausedState:
+                self.media_player.play()
+            else:
+                self.load_next_slide()
 
         elif self.config.keys.BACK.match(key):
             self.load_previous_slide()
 
         elif self.config.keys.REVERSE.match(key):
             self.load_reversed_slide()
+
+        elif self.config.keys.QUIT.match(key):
+            self.closeAll()
         event.accept()
