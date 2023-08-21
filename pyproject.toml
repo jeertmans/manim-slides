@@ -43,7 +43,7 @@ packages = [
 ]
 readme = "README.md"
 repository = "https://github.com/jeertmans/manim-slides"
-version = "4.16.0"
+version = "5.0.0-rc1"
 
 [tool.poetry.dependencies]
 click = "^8.1.3"
