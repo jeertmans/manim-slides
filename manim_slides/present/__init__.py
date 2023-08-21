@@ -240,7 +240,7 @@ def present(
 
     You can present the same SCENE multiple times by repeating the parameter.
 
-    Use `manim-slide list-scenes` to list all available
+    Use ``manim-slide list-scenes`` to list all available
     scenes in a given folder.
     """
 
