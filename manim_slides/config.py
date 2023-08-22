@@ -14,25 +14,11 @@ from pydantic import (
     model_validator,
 )
 from pydantic_extra_types.color import Color
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, Signal
 
 from .logger import logger
 
 Receiver = Callable[..., Any]
-
-
-class Signal(BaseModel):  # type: ignore[misc]
-    __receivers: List[Receiver] = PrivateAttr(default_factory=list)
-
-    def connect(self, receiver: Receiver) -> None:
-        self.__receivers.append(receiver)
-
-    def disconnect(self, receiver: Receiver) -> None:
-        self.__receivers.remove(receiver)
-
-    def emit(self, *args: Any) -> None:
-        for receiver in self.__receivers:
-            receiver(*args)
 
 
 class Key(BaseModel):  # type: ignore[misc]
