@@ -54,7 +54,6 @@ jinja2 = {version = "^3.1.2", optional = true}
 lxml = "^4.9.2"
 manim = {version = "^0.17.3", optional = true}
 manimgl = {version = "^1.6.1", optional = true}
-notebook = {version = "^7.0.2", optional = true}
 numpy = "^1.19"
 opencv-python = "^4.6.0.66"
 pillow = "^9.5.0"
