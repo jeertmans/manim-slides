@@ -83,7 +83,11 @@ class Slide(Scene):  # type:ignore
         if MANIMGL:
             return self.camera_config["background_color"].hex  # type: ignore
         else:
-            return config["background_color"].hex  # type: ignore
+            color = config["background_color"]
+            if hex_color := getattr(color, "hex", None):
+                return hex_color  # type: ignore
+            else:  # manim>=0.18, see https://github.com/ManimCommunity/manim/pull/3020
+                return color.to_hex()  # type: ignore
 
     @property
     def __resolution(self) -> Tuple[int, int]:
