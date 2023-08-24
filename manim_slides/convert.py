@@ -140,43 +140,48 @@ class Str(str):
     def __str__(self) -> str:
         """Ensures that the string is correctly quoted."""
         if self in ["true", "false", "null"]:
-            return super().__str__()
+            return self
         else:
             return f"'{super().__str__()}'"
+
+
+class StrEnum(Enum):
+    def __str__(self) -> str:
+        return str(self.value)
 
 
 Function = str  # Basically, anything
 
 
-class JsTrue(str, Enum):
+class JsTrue(str, StrEnum):
     true = "true"
 
 
-class JsFalse(str, Enum):
+class JsFalse(str, StrEnum):
     false = "false"
 
 
-class JsBool(Str, Enum):  # type: ignore
+class JsBool(Str, StrEnum):  # type: ignore
     true = "true"
     false = "false"
 
 
-class JsNull(Str, Enum):  # type: ignore
+class JsNull(Str, StrEnum):  # type: ignore
     null = "null"
 
 
-class ControlsLayout(Str, Enum):  # type: ignore
+class ControlsLayout(Str, StrEnum):  # type: ignore
     edges = "edges"
     bottom_right = "bottom-right"
 
 
-class ControlsBackArrows(Str, Enum):  # type: ignore
+class ControlsBackArrows(Str, StrEnum):  # type: ignore
     faded = "faded"
     hidden = "hidden"
     visibly = "visibly"
 
 
-class SlideNumber(Str, Enum):  # type: ignore
+class SlideNumber(Str, StrEnum):  # type: ignore
     true = "true"
     false = "false"
     hdotv = "h.v"
@@ -185,24 +190,24 @@ class SlideNumber(Str, Enum):  # type: ignore
     candt = "c/t"
 
 
-class ShowSlideNumber(Str, Enum):  # type: ignore
+class ShowSlideNumber(Str, StrEnum):  # type: ignore
     all = "all"
     print = "print"
     speaker = "speaker"
 
 
-class KeyboardCondition(Str, Enum):  # type: ignore
+class KeyboardCondition(Str, StrEnum):  # type: ignore
     null = "null"
     focused = "focused"
 
 
-class NavigationMode(Str, Enum):  # type: ignore
+class NavigationMode(Str, StrEnum):  # type: ignore
     default = "default"
     linear = "linear"
     grid = "grid"
 
 
-class AutoPlayMedia(Str, Enum):  # type: ignore
+class AutoPlayMedia(Str, StrEnum):  # type: ignore
     null = "null"
     true = "true"
     false = "false"
@@ -211,25 +216,25 @@ class AutoPlayMedia(Str, Enum):  # type: ignore
 PreloadIframes = AutoPlayMedia
 
 
-class AutoAnimateMatcher(Str, Enum):  # type: ignore
+class AutoAnimateMatcher(Str, StrEnum):  # type: ignore
     null = "null"
 
 
-class AutoAnimateEasing(Str, Enum):  # type: ignore
+class AutoAnimateEasing(Str, StrEnum):  # type: ignore
     ease = "ease"
 
 
 AutoSlide = Union[PositiveInt, JsFalse]
 
 
-class AutoSlideMethod(Str, Enum):  # type: ignore
+class AutoSlideMethod(Str, StrEnum):  # type: ignore
     null = "null"
 
 
 MouseWheel = Union[JsNull, float]
 
 
-class Transition(Str, Enum):  # type: ignore
+class Transition(Str, StrEnum):  # type: ignore
     none = "none"
     fade = "fade"
     slide = "slide"
@@ -238,13 +243,13 @@ class Transition(Str, Enum):  # type: ignore
     zoom = "zoom"
 
 
-class TransitionSpeed(Str, Enum):  # type: ignore
+class TransitionSpeed(Str, StrEnum):  # type: ignore
     default = "default"
     fast = "fast"
     slow = "slow"
 
 
-class BackgroundSize(Str, Enum):  # type: ignore
+class BackgroundSize(Str, StrEnum):  # type: ignore
     # From: https://developer.mozilla.org/en-US/docs/Web/CSS/background-size
     # TODO: support more background size
     contain = "contain"
@@ -254,11 +259,11 @@ class BackgroundSize(Str, Enum):  # type: ignore
 BackgroundTransition = Transition
 
 
-class Display(Str, Enum):  # type: ignore
+class Display(Str, StrEnum):  # type: ignore
     block = "block"
 
 
-class RevealTheme(str, Enum):
+class RevealTheme(str, StrEnum):
     black = "black"
     white = "white"
     league = "league"
