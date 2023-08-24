@@ -47,6 +47,16 @@ In an effort to better document changes, this CHANGELOG document is now created.
   `REWIND` to `REPLAY`.
   [#243](https://github.com/jeertmans/manim-slides/pull/243)
 
+### Fixed
+
+- Patched enums in `manim_slides/convert.py` to correctly call `str`'s
+  `__str__` method, and not the `Enum` one.
+  This bug was discovered by
+  [@alexanderskulikov](https://github.com/alexanderskulikov) in
+  [#253](https://github.com/jeertmans/manim-slides/discussions/253), caused by
+  Python 3.11's change in how `Enum` work.
+  [#257](https://github.com/jeertmans/manim-slides/pull/257).
+
 ### Removed
 
 - Removed `--start-at-animation-number` option from `manim-slides present`.
