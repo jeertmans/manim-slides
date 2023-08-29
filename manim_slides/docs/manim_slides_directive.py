@@ -1,6 +1,6 @@
 # type: ignore
 r"""
-A directive for including Manim slides in a Sphinx document
+A directive for including Manim Slides in a Sphinx document
 ===========================================================
 
 .. warning::
