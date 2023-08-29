@@ -233,9 +233,7 @@ class ManimSlidesDirective(Directive):
             else:
                 return None, arg
 
-        arguments = [
-            split_file_cls(arg) for arg in self.arguments
-        ]
+        arguments = [split_file_cls(arg) for arg in self.arguments]
 
         clsname = arguments[0][1]
         if clsname not in classnamedict:
@@ -299,7 +297,7 @@ class ManimSlidesDirective(Directive):
 
         if file := arguments[0][0]:
             user_code = file.absolute().read_text().splitlines()
-        else:   
+        else:
             user_code = self.content
 
         if user_code[0].startswith(">>> "):  # check whether block comes from doctest
