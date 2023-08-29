@@ -19,7 +19,7 @@ directive implemented here allows to include rendered videos.
 This directive requires three additional dependencies:
 ``manim``, ``docutils`` and ``jinja2``. The last two are usually bundled
 with Sphinx.
-You can install them manually, or with the extra keyword:
+You can install them manually, or with the extra keyword::
 
     pip install manim-slides[sphinx-directive]
 
@@ -30,7 +30,7 @@ see
 Usage
 -----
 
-First, you must include the directive in the Sphinx configuration file:
+First, you must include the directive in the Sphinx configuration file::
 
 .. code-block:: python
     :caption: Sphinx configuration file (usually :code:`docs/source/conf.py`).
@@ -70,12 +70,26 @@ render scenes that are defined within doctests, for example::
         ...     def construct(self):
         ...         self.play(Create(dot))
 
+A third application is to render scenes from another specific file::
+
+    .. manim-slides:: file.py:FileExample
+        :hide_source:
+        :quality: high
+
+.. warning::
+
+    The code will be executed with the current working directory
+    being the same as the one ``sphinx-build` was called in. This being said,
+    you should probably not include examples that rely on external files, since
+    relative paths risk to be broken.
+
+
 Options
 -------
 
 Options can be passed as follows::
 
-    .. manim-slides:: <Class name>
+    .. manim-slides:: <file>:<Class name>
         :<option name>: <value>
 
 The following configuration options are supported by the
@@ -110,6 +124,7 @@ import re
 import sys
 from pathlib import Path
 from timeit import timeit
+from typing import Tuple
 
 import jinja2
 from docutils import nodes
@@ -211,7 +226,19 @@ class ManimSlidesDirective(Directive):
 
         global classnamedict
 
-        clsname = self.arguments[0]
+        def split_file_cls(arg: str) -> Tuple[Path, str]:
+            if ":" in arg:
+                file, cls = arg.split(":", maxsplit=1)
+                _, file = self.state.document.settings.env.relfn2path(file)
+                return Path(file), cls
+            else:
+                return None, arg
+
+        arguments = [
+            split_file_cls(arg) for arg in self.arguments
+        ]
+
+        clsname = arguments[0][1]
         if clsname not in classnamedict:
             classnamedict[clsname] = 1
         else:
@@ -271,14 +298,17 @@ class ManimSlidesDirective(Directive):
             "output_file": output_file,
         }
 
-        user_code = self.content
+        if file := arguments[0][0]:
+            user_code = file.absolute().read_text().splitlines()
+        else:   
+            user_code = self.content
+
         if user_code[0].startswith(">>> "):  # check whether block comes from doctest
             user_code = [
                 line[4:] for line in user_code if line.startswith((">>> ", "... "))
             ]
 
         code = [
-            "from manim import *",
             *user_code,
             f"{clsname}().render()",
         ]
@@ -306,9 +336,6 @@ class ManimSlidesDirective(Directive):
         RevealJS(presentation_configs=presentation_configs, controls="true").convert_to(
             destfile
         )
-        # shutil.copyfile(filesrc, destfile)
-
-        print("CLASS NAME:", clsname)
 
         rendered_template = jinja2.Template(TEMPLATE).render(
             clsname=clsname,
@@ -400,6 +427,7 @@ TEMPLATE = r"""
 
 .. raw:: html
 
+    <!-- From: https://faq.dailymotion.com/hc/en-us/articles/360022841393-How-to-preserve-the-player-aspect-ratio-on-a-responsive-page -->
 
     <div style="position:relative;padding-bottom:56.25%;">
         <iframe

@@ -25,6 +25,9 @@ In an effort to better document changes, this CHANGELOG document is now created.
 - Added a full screen key binding (defaults to <kbd>F</kbd>) in the
   presenter.
   [#243](https://github.com/jeertmans/manim-slides/pull/243)
+- Added support for including code from a file in Manim Slides
+  Sphinx directive.
+  [#261](https://github.com/jeertmans/manim-slides/pull/261)
 
 ### Changed
 
