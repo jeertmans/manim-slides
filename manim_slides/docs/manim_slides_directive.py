@@ -19,7 +19,7 @@ directive implemented here allows to include rendered videos.
 This directive requires three additional dependencies:
 ``manim``, ``docutils`` and ``jinja2``. The last two are usually bundled
 with Sphinx.
-You can install them manually, or with the extra keyword::
+You can install them manually, or with the extra keyword:
 
     pip install manim-slides[sphinx-directive]
 
@@ -30,7 +30,7 @@ see
 Usage
 -----
 
-First, you must include the directive in the Sphinx configuration file::
+First, you must include the directive in the Sphinx configuration file:
 
 .. code-block:: python
     :caption: Sphinx configuration file (usually :code:`docs/source/conf.py`).
@@ -79,10 +79,9 @@ A third application is to render scenes from another specific file::
 .. warning::
 
     The code will be executed with the current working directory
-    being the same as the one ``sphinx-build` was called in. This being said,
+    being the same as the one containing the source file. This being said,
     you should probably not include examples that rely on external files, since
     relative paths risk to be broken.
-
 
 Options
 -------
@@ -93,7 +92,7 @@ Options can be passed as follows::
         :<option name>: <value>
 
 The following configuration options are supported by the
-directive:
+directive::
 
     hide_source
         If this flag is present without argument,
@@ -315,6 +314,7 @@ class ManimSlidesDirective(Directive):
 
         try:
             with tempconfig(example_config):
+                print(f"Rendering {clsname}...")
                 run_time = timeit(lambda: exec("\n".join(code), globals()), number=1)
                 video_dir = config.get_dir("video_dir")
         except Exception as e:

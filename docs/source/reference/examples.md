@@ -44,11 +44,13 @@ Basic example from quickstart.
 
 Example using 3D camera. As Manim and ManimGL handle 3D differently, definitions are slightly different.
 
-<div style="position:relative;padding-bottom:56.25%;"> <iframe style="width:100%;height:100%;position:absolute;left:0px;top:0px;" frameborder="0" width="100%" height="100%" allowfullscreen allow="autoplay" src="../_static/three_d_example.html"></iframe></div>
-
 ### With Manim
 
 ```{eval-rst}
+.. manim-slides: ../../../example.py:ThreeDExample
+    :hide_source:
+    :quality: high
+
 .. literalinclude:: ../../../example.py
    :language: python
    :linenos:
@@ -122,9 +124,11 @@ directly write the `construct` method in the body of `MovingCameraSlide`.
 
 A more advanced example is `ConvertExample`, which is used as demo slide and tutorial.
 
-<div style="position:relative;padding-bottom:56.25%;"> <iframe style="width:100%;height:100%;position:absolute;left:0px;top:0px;" frameborder="0" width="100%" height="100%" allowfullscreen allow="autoplay" src="../_static/slides.html"></iframe></div>
-
 ```{eval-rst}
+.. manim-slides: ../../../example.py:ConvertExample
+    :hide_source:
+    :quality: high
+
 .. literalinclude:: ../../../example.py
    :language: python
    :linenos:
