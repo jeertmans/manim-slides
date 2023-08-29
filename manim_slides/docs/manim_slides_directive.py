@@ -92,7 +92,7 @@ Options can be passed as follows::
         :<option name>: <value>
 
 The following configuration options are supported by the
-directive::
+directive:
 
     hide_source
         If this flag is present without argument,
