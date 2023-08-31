@@ -59,6 +59,9 @@ In an effort to better document changes, this CHANGELOG document is now created.
   [#253](https://github.com/jeertmans/manim-slides/discussions/253), caused by
   Python 3.11's change in how `Enum` work.
   [#257](https://github.com/jeertmans/manim-slides/pull/257).
+- Fixed potential non-existing parent path issue in
+  `manim convert`'s destination path.
+  [#262](https://github.com/jeertmans/manim-slides/pull/262)
 
 ### Removed
 
