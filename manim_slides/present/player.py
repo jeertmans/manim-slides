@@ -3,7 +3,7 @@ from typing import Any, List, Optional
 
 from PySide6.QtCore import Qt, QUrl, Signal, Slot
 from PySide6.QtGui import QCloseEvent, QIcon, QKeyEvent, QScreen
-from PySide6.QtMultimedia import QMediaPlayer
+from PySide6.QtMultimedia import QAudioOutput, QMediaPlayer
 from PySide6.QtMultimediaWidgets import QVideoWidget
 from PySide6.QtWidgets import QDialog, QGridLayout, QLabel, QMainWindow
 
@@ -98,7 +98,9 @@ class Player(QMainWindow):  # type: ignore[misc]
         self.video_widget.setAspectRatioMode(aspect_ratio_mode)
         self.setCentralWidget(self.video_widget)
 
+        self.audio_output = QAudioOutput()
         self.media_player = QMediaPlayer(self)
+        self.media_player.setAudioOutput(self.audio_output)
         self.media_player.setVideoOutput(self.video_widget)
 
         self.presentation_changed.connect(self.presentation_changed_callback)
