@@ -101,8 +101,8 @@ And later use this class anywhere in your code:
 
 class SubclassExample(MovingCameraSlide):
     def construct(self):
-        eq1 = MathTex("x", "=", "1")
-        eq2 = MathTex("x", "=", "2")
+        eq1 = Text("x", "=", "1")
+        eq2 = Text("x", "=", "2")
 
         self.play(Write(eq1))
 
@@ -135,8 +135,8 @@ directly write the `construct` method in the body of `MovingCameraSlide`.
     
     class SubclassExample(MovingCameraSlide):
         def construct(self):
-            eq1 = MathTex("x", "=", "1")
-            eq2 = MathTex("x", "=", "2")
+            eq1 = Text("x", "=", "1")
+            eq2 = Text("x", "=", "2")
     
             self.play(Write(eq1))
     
