@@ -121,6 +121,35 @@ If you do not plan to reuse `MovingCameraSlide` more than once, then you can
 directly write the `construct` method in the body of `MovingCameraSlide`.
 :::
 
+```{eval-rst}
+.. manim-slides:: SubclassExample
+    :hide_source:
+    :quality: high
+
+    from manim import *
+    from manim_slides import Slide
+    
+    
+    class MovingCameraSlide(Slide, MovingCameraScene):
+        pass
+    
+    class SubclassExample(MovingCameraSlide):
+        def construct(self):
+            eq1 = MathTex("x", "=", "1")
+            eq2 = MathTex("x", "=", "2")
+    
+            self.play(Write(eq1))
+    
+            self.next_slide()
+    
+            self.play(
+                TransformMatchingTex(eq1, eq2),
+                self.camera.frame.animate.scale(0.5)
+            )
+    
+            self.wait()
+```
+
 ## Advanced Example
 
 A more advanced example is `ConvertExample`, which is used as demo slide and tutorial.
