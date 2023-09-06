@@ -131,9 +131,9 @@ and it there to preserve the original aspect ratio (16:9).
 
 ### Sharing ONE HTML file
 
-A future feature, that will be available once
-[#122](https://github.com/jeertmans/manim-slides/issues/122) is solved, will be
-to include all animations as data URI encoded, within the HTML file itself.
+If you set the `data_uri` option to `true` (with `-cdata_uri=true`),
+all animations will be data URI encoded, making the HTML a self-contained
+presentation file that can be shared on its own.
 
 ### Over the internet
 
