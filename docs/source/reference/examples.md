@@ -30,7 +30,7 @@ where `-ccontrols=true` indicates that we want to display the blue navigation ar
 Basic example from quickstart.
 
 ```{eval-rst}
-.. manim-slides: ../../../example.py:BasicExample
+.. manim-slides:: ../../../example.py:BasicExample
     :hide_source:
     :quality: high
 
@@ -42,12 +42,13 @@ Basic example from quickstart.
 
 ## 3D Example
 
-Example using 3D camera. As Manim and ManimGL handle 3D differently, definitions are slightly different.
+Example using 3D camera. As Manim and ManimGL handle 3D differently,
+definitions are slightly different.
 
 ### With Manim
 
 ```{eval-rst}
-.. manim-slides: ../../../example.py:ThreeDExample
+.. manim-slides:: ../../../example.py:ThreeDExample
     :hide_source:
     :quality: high
 
@@ -125,7 +126,7 @@ directly write the `construct` method in the body of `MovingCameraSlide`.
 A more advanced example is `ConvertExample`, which is used as demo slide and tutorial.
 
 ```{eval-rst}
-.. manim-slides: ../../../example.py:ConvertExample
+.. manim-slides:: ../../../example.py:ConvertExample
     :hide_source:
     :quality: high
 
