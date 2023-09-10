@@ -1,9 +1,5 @@
 import platform
 from pathlib import Path
-from manim import *
-from manim_slides import Slide
-from typing import Any, Mapping, Sequence
-from manim import AnimationGroup, FadeIn, FadeOut, Mobject
 from typing import (
     Any,
     List,
@@ -17,7 +13,11 @@ from typing import (
 from warnings import warn
 
 import numpy as np
+from manim import *
+from manim import AnimationGroup, FadeIn, FadeOut, Mobject
 from tqdm import tqdm
+
+from manim_slides import Slide
 
 from .config import PresentationConfig, PreSlideConfig, SlideConfig
 from .defaults import FOLDER_PATH
@@ -610,7 +610,9 @@ class Slide(Scene):  # type:ignore
             animations.append(FadeOut(mobject, shift=shift_amount, **fade_out_kwargs))
 
         return AnimationGroup(*animations, **kwargs)'''
-#created a wipe class
+
+
+# created a wipe class
 class Wipe(AnimationGroup):
     def __init__(
         self,
@@ -621,7 +623,9 @@ class Wipe(AnimationGroup):
         fade_out_kwargs: Mapping[str, Any] = {},
         **kwargs: Any,
     ):
-        shift_amount = np.asarray(direction) * np.array([config.frame_width, config.frame_height, 0.0])
+        shift_amount = np.asarray(direction) * np.array(
+            [config.frame_width, config.frame_height, 0.0]
+        )
 
         animations = []
 
@@ -632,7 +636,6 @@ class Wipe(AnimationGroup):
             animations.append(FadeOut(mobject, shift=shift_amount, **fade_out_kwargs))
 
         super().__init__(*animations, **kwargs)
-
 
     '''
     commented as zoom class is made after this function finishes
@@ -700,9 +703,20 @@ class Wipe(AnimationGroup):
         return AnimationGroup(*animations, **kwargs)
 
     '''
-#creating zoom class instead of zoom function
-class zoomclasses():
-    def __init__(self, current=[], future=[], scale=4.0, out=False, fade_in_kwargs={}, fade_out_kwargs={}, **kwargs):
+
+
+# creating zoom class instead of zoom function
+class zoomclasses:
+    def __init__(
+        self,
+        current=[],
+        future=[],
+        scale=4.0,
+        out=False,
+        fade_in_kwargs={},
+        fade_out_kwargs={},
+        **kwargs,
+    ):
         self.current = current
         self.future = future
         self.scale = scale
@@ -710,6 +724,7 @@ class zoomclasses():
         self.fade_in_kwargs = fade_in_kwargs
         self.fade_out_kwargs = fade_out_kwargs
         self.kwargs = kwargs
+
     def create_zoom_animation(self):
         scale_in = 1.0 / self.scale
         scale_out = self.scale if not self.out else scale_in
