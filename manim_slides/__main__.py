@@ -3,6 +3,7 @@ import json
 import click
 import requests
 from click_default_group import DefaultGroup
+from trogon import tui
 
 from .__version__ import __version__
 from .convert import convert
@@ -11,6 +12,7 @@ from .present import list_scenes, present
 from .wizard import init, wizard
 
 
+@tui()
 @click.group(cls=DefaultGroup, default="present", default_if_no_args=True)
 @click.option(
     "--notify-outdated-version/--silent",
@@ -69,6 +71,7 @@ cli.add_command(init)
 cli.add_command(list_scenes)
 cli.add_command(present)
 cli.add_command(wizard)
+
 
 if __name__ == "__main__":
     cli()
