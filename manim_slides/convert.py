@@ -29,34 +29,13 @@ from pydantic import (
 from pydantic_core import CoreSchema, core_schema
 from tqdm import tqdm
 
-from . import data
+from jinja2 import Template
+
+from . import templates
 from .commons import folder_path_option, verbosity_option
 from .config import PresentationConfig
 from .logger import logger
 from .present import get_scenes_presentation_config
-
-DATA_URI_FIX = r"""
-// Fix found by @t-fritsch on GitHub
-// see: https://github.com/hakimel/reveal.js/discussions/3362#discussioncomment-6651475.
-function fixBase64VideoBackground(event) {
-    // event.previousSlide, event.currentSlide, event.indexh, event.indexv
-    if (event.currentSlide.getAttribute('data-background-video')) {
-        const background = Reveal.getSlideBackground(event.indexh, event.indexv),
-            video = background.querySelector('video'),
-            sources = video.querySelectorAll('source');
-
-        sources.forEach((source, i) => {
-            const src = source.getAttribute('src');
-            if(src.match(/^data:video.*;base64$/)){
-                const nextSrc = sources[i+1]?.getAttribute('src');
-                video.setAttribute('src', `${src},${nextSrc}`);
-            }
-        });
-    }
-}
-Reveal.on( 'ready', fixBase64VideoBackground );
-Reveal.on( 'slidechanged', fixBase64VideoBackground );
-"""
 
 
 def open_with_default(file: Path) -> None:
@@ -86,7 +65,7 @@ def validate_config_option(
     return config
 
 
-def data_uri(file: Path) -> str:
+def file_to_data_uri(file: Path) -> str:
     """
     Reads a video and returns the corresponding data-uri.
     """
@@ -363,39 +342,15 @@ class RevealJS(Converter):
     title: str = "Manim Slides"
     model_config = ConfigDict(use_enum_values=True, extra="forbid")
 
-    def get_sections_iter(self, assets_dir: Path) -> Generator[str, None, None]:
-        """Generates a sequence of sections, one per slide, that will be included into the html template."""
-        for presentation_config in self.presentation_configs:
-            for slide_config in presentation_config.slides:
-                file = slide_config.file
-
-                logger.debug(f"Writing video section with file {file}")
-
-                if self.data_uri:
-                    file = data_uri(file)
-                else:
-                    file = assets_dir / file.name
-
-                # TODO: document this
-                # Videos are muted because, otherwise, the first slide never plays correctly.
-                # This is due to a restriction in playing audio without the user doing anything.
-                # Later, this might be useful to only mute the first video, or to make it optional.
-                # Read more about this:
-                #   https://developer.mozilla.org/en-US/docs/Web/Media/Autoplay_guide#autoplay_and_autoplay_blocking
-                if slide_config.loop:
-                    yield f'<section data-background-size={self.background_size.value} data-background-color="{presentation_config.background_color}" data-background-video="{file}" data-background-video-muted data-background-video-loop></section>'
-                else:
-                    yield f'<section data-background-size={self.background_size.value} data-background-color="{presentation_config.background_color}" data-background-video="{file}" data-background-video-muted></section>'
-
     def load_template(self) -> str:
         """Returns the RevealJS HTML template as a string."""
         if isinstance(self.template, Path):
             return self.template.read_text()
 
         if sys.version_info < (3, 9):
-            return resources.read_text(data, "revealjs_template.html")
+            return resources.read_text(templates, "revealjs.html")
 
-        return resources.files(data).joinpath("revealjs_template.html").read_text()
+        return resources.files(templates).joinpath("revealjs.html").read_text()
 
     def open(self, file: Path) -> bool:
         return webbrowser.open(file.absolute().as_uri())
@@ -422,18 +377,12 @@ class RevealJS(Converter):
                 presentation_config.copy_to(full_assets_dir)
 
         with open(dest, "w") as f:
-            sections = "".join(self.get_sections_iter(assets_dir))
+            revealjs_template = Template(self.load_template())
 
-            revealjs_template = self.load_template()
+            options = self.dict()
+            options["assets_dir"] = assets_dir
 
-            if self.data_uri:
-                data_uri_fix = DATA_URI_FIX
-            else:
-                data_uri_fix = ""
-
-            content = revealjs_template.format(
-                sections=sections, data_uri_fix=data_uri_fix, **self.dict()
-            )
+            content = revealjs_template.render(file_to_data_uri=file_to_data_uri, **options)
 
             f.write(content)
 
