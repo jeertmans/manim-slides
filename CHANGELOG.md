@@ -53,6 +53,8 @@ In an effort to better document changes, this CHANGELOG document is now created.
   been modified accordingly, and old templates will not work anymore.
   This is a **breaking change**.
   [#271](https://github.com/jeertmans/manim-slides/pull/271)
+- Bumped RevealJS' default version to v4.6.1, and added three new themes.
+  [#272](https://github.com/jeertmans/manim-slides/pull/272)
 
 ### Fixed
 
