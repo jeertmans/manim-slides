@@ -253,6 +253,9 @@ class RevealTheme(str, StrEnum):
     soralized = "solarized"
     blood = "blood"
     moon = "moon"
+    black_contrast = "black-contrast"
+    white_contrast = "white-contrast"
+    dracula = "dracula"
 
 
 class RevealJS(Converter):
@@ -336,7 +339,7 @@ class RevealJS(Converter):
     hide_cursor_time: int = 5000
     # Add. options
     background_color: str = "black"  # TODO: use pydantic.color.Color
-    reveal_version: str = "4.4.0"
+    reveal_version: str = "4.6.1"
     reveal_theme: RevealTheme = RevealTheme.black
     title: str = "Manim Slides"
     model_config = ConfigDict(use_enum_values=True, extra="forbid")
