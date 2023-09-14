@@ -9,12 +9,13 @@ from base64 import b64encode
 from enum import Enum
 from importlib import resources
 from pathlib import Path
-from typing import Any, Callable, Dict, Generator, List, Optional, Type, Union
+from typing import Any, Callable, Dict, List, Optional, Type, Union
 
 import click
 import cv2
 import pptx
 from click import Context, Parameter
+from jinja2 import Template
 from lxml import etree
 from PIL import Image
 from pydantic import (
@@ -28,8 +29,6 @@ from pydantic import (
 )
 from pydantic_core import CoreSchema, core_schema
 from tqdm import tqdm
-
-from jinja2 import Template
 
 from . import templates
 from .commons import folder_path_option, verbosity_option
@@ -382,7 +381,9 @@ class RevealJS(Converter):
             options = self.dict()
             options["assets_dir"] = assets_dir
 
-            content = revealjs_template.render(file_to_data_uri=file_to_data_uri, **options)
+            content = revealjs_template.render(
+                file_to_data_uri=file_to_data_uri, **options
+            )
 
             f.write(content)
 
