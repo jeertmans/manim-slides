@@ -311,7 +311,7 @@
             const background = Reveal.getSlideBackground(event.indexh, event.indexv),
               video = background.querySelector('video'),
               sources = video.querySelectorAll('source');
-        
+
             sources.forEach((source, i) => {
               const src = source.getAttribute('src');
               if(src.match(/^data:video.*;base64$/)) {
