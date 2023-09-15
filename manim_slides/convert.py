@@ -378,6 +378,8 @@ class RevealJS(Converter):
             for presentation_config in self.presentation_configs:
                 presentation_config.copy_to(full_assets_dir)
 
+        dest.parent.mkdir(parents=True, exist_ok=True)
+
         with open(dest, "w") as f:
             revealjs_template = Template(self.load_template())
 
@@ -433,6 +435,8 @@ class PDF(Converter):
                 images.append(
                     read_image_from_video_file(slide_config.file, self.frame_index)
                 )
+
+        dest.parent.mkdir(parents=True, exist_ok=True)
 
         images[0].save(
             dest,
@@ -524,6 +528,7 @@ class PowerPoint(Converter):
                 if self.auto_play_media:
                     auto_play_media(movie, loop=slide_config.is_loop())
 
+        dest.parent.mkdir(parents=True, exist_ok=True)
         prs.save(dest)
 
 
