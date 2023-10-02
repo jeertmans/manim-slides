@@ -151,7 +151,11 @@ reason.
 
 ### Using the Github starter template
 
-A [starter template](https://github.com/jeertmans/manim-slides-starter) is available which allows to quickly get going with a new Manim slides presentation on your Github account. The template comes ready with functionality to automate tasks using Github actions and publish to Github Pages. Please refer to the template page for usage instructions.
+A [starter template](https://github.com/jeertmans/manim-slides-starter) is
+available which allows to quickly get going with a new Manim slides
+presentation on your Github account. The template comes ready with
+functionality to automate tasks using Github actions and publish to Github
+Pages. Please refer to the template page for usage instructions.
 
 ### With PowerPoint (*EXPERIMENTAL*)
 
