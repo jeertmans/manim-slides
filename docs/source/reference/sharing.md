@@ -137,7 +137,7 @@ presentation file that can be shared on its own.
 
 ### Over the internet
 
-Finally, HTML conversion makes it convenient to play your presentation on a
+HTML conversion makes it convenient to play your presentation on a
 remote server.
 
 This is how your are able to watch all the examples on this website. If you want
@@ -147,6 +147,15 @@ to know how to share your slide with GitHub pages, see the
 > **WARNING:** keep in mind that playing large video files over the internet
 can take some time, and *glitches* may occur between slide transitions for this
 reason.
+
+
+### Using the Github starter template
+
+A [starter template](https://github.com/jeertmans/manim-slides-starter) is
+available which allows to quickly get going with a new Manim slides
+presentation on your Github account. The template comes ready with
+functionality to automate tasks using Github actions and publish to Github
+Pages. Please refer to the template page for usage instructions.
 
 ### With PowerPoint (*EXPERIMENTAL*)
 
