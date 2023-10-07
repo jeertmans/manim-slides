@@ -9,7 +9,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        pyversion: [ "3.8", "3.9", "3.10", "3.11", "3.12" ]
+        pyversion: ["3.8", "3.9", "3.10", "3.11", "3.12"]
     runs-on: ubuntu-latest
     env:
       QT_QPA_PLATFORM: offscreen
@@ -54,7 +54,7 @@ jobs:
       matrix:
         manim: [manim, manimgl]
         os: [macos-latest, ubuntu-latest, windows-latest]
-        pyversion: [ "3.8", "3.9", "3.10", "3.11", "3.12" ]
+        pyversion: ["3.8", "3.9", "3.10", "3.11", "3.12"]
         exclude:
         # excludes manimgl on Windows because if throws errors
         # related to OpenGL, which seems hard to fix:
