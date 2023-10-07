@@ -9,7 +9,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        pyversion: ["3.8", "3.9", "3.10", "3.11", "3.12"]
+        pyversion: ['3.8', '3.9', '3.10', '3.11', '3.12']
     runs-on: ubuntu-latest
     env:
       QT_QPA_PLATFORM: offscreen
@@ -54,7 +54,7 @@ jobs:
       matrix:
         manim: [manim, manimgl]
         os: [macos-latest, ubuntu-latest, windows-latest]
-        pyversion: ["3.8", "3.9", "3.10", "3.11", "3.12"]
+        pyversion: ['3.8', '3.9', '3.10', '3.11', '3.12']
         exclude:
         # excludes manimgl on Windows because if throws errors
         # related to OpenGL, which seems hard to fix:
@@ -99,16 +99,16 @@ jobs:
     - name: Append to Path on MacOS
       if: matrix.os == 'macos-latest'
       run: |
-        echo "${HOME}/.local/bin" >> $GITHUB_PATH
-        echo "/Users/runner/Library/Python/${{ matrix.pyversion }}/bin" >> $GITHUB_PATH
+        echo '${HOME}/.local/bin' >> $GITHUB_PATH
+        echo '/Users/runner/Library/Python/${{ matrix.pyversion }}/bin' >> $GITHUB_PATH
 
     - name: Append to Path on Ubuntu
       if: matrix.os == 'ubuntu-latest'
-      run: echo "${HOME}/.local/bin" >> $GITHUB_PATH
+      run: echo '${HOME}/.local/bin' >> $GITHUB_PATH
 
     - name: Append to Path on Windows
       if: matrix.os == 'windows-latest'
-      run: echo "${HOME}/.local/bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+      run: echo '${HOME}/.local/bin' | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
 
       # OS depedencies
     - name: Install manim dependencies on MacOs
