@@ -1,7 +1,9 @@
 from enum import EnumMeta
+from pathlib import Path
 
 import pytest
 
+from manim_slides.config import PresentationConfig
 from manim_slides.convert import (
     PDF,
     AutoAnimateEasing,
@@ -129,3 +131,31 @@ class TestConverter:
     )
     def test_from_string(self, name: str, converter: type) -> None:
         assert Converter.from_string(name) == converter
+
+    def test_revealjs_converter(
+        self, tmp_path: Path, presentation_config: PresentationConfig
+    ) -> None:
+        out_file = tmp_path / "slides.html"
+        RevealJS(presentation_configs=[presentation_config]).convert_to(out_file)
+        assert out_file.exists()
+        assert Path(tmp_path / "slides_assets").is_dir()
+        file_contents = Path(out_file).read_text()
+        assert "manim" in file_contents.casefold()
+
+    def test_pdf_converter(
+        self, tmp_path: Path, presentation_config: PresentationConfig
+    ) -> None:
+        out_file = tmp_path / "slides.pdf"
+        PDF(presentation_configs=[presentation_config]).convert_to(out_file)
+        assert out_file.exists()
+
+    def test_pdf_converter_no_presentation_config(self, tmp_path: Path) -> None:
+        with pytest.raises(IndexError):
+            PDF().convert_to(tmp_path / "slides.pdf")
+
+    def test_pptx_converter(
+        self, tmp_path: Path, presentation_config: PresentationConfig
+    ) -> None:
+        out_file = tmp_path / "slides.pptx"
+        PowerPoint(presentation_configs=[presentation_config]).convert_to(out_file)
+        assert out_file.exists()
