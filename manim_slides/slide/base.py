@@ -405,10 +405,7 @@ class Base(ABC):
 
         scene_files_folder.mkdir(parents=True, exist_ok=True)
 
-        # When rendering with -na,b (manim only)
-        # the animations not in [a,b] will be skipped,
-        # but animation before a will have a None source file.
-        files: List[Path] = list(filter(None, self._partial_movie_files))
+        files: List[Path] = self._partial_movie_files
 
         # We must filter slides that end before the animation offset
         if offset := self._start_at_animation_number:

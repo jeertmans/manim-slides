@@ -45,6 +45,8 @@ def concatenate_video_files(ffmpeg_bin: Path, files: List[Path], dest: Path) -> 
 
 def merge_basenames(files: List[Path]) -> Path:
     """Merge multiple filenames by concatenating basenames."""
+    if len(files) == 0:
+        raise ValueError("Cannot merge an empty list of files!")
 
     dirname: Path = files[0].parent
     ext = files[0].suffix
