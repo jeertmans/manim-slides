@@ -207,7 +207,7 @@ class Example(Slide):
             language="console",
         ).shift(DOWN)
 
-        self.play(self.wipe(title, code))
+        self.wipe(title, code)
         self.next_slide()
 
         self.play(FadeIn(step, shift=RIGHT))

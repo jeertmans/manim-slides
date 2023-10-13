@@ -12,6 +12,7 @@ from typing import (
     ValuesView,
 )
 
+import numpy as np
 from tqdm import tqdm
 
 from ..config import PresentationConfig, PreSlideConfig, SlideConfig
@@ -136,7 +137,7 @@ class Base(ABC):
 
                     square = Square()
 
-                    self.play(self.wipe(self.mobjects_without_canvas, square))
+                    self.wipe(self.mobjects_without_canvas, square)
                     self.next_slide()
 
                     self.update_canvas()
@@ -149,8 +150,7 @@ class Base(ABC):
                     self.next_slide()
 
                     self.remove_from_canvas("title", "slide_number")
-                    self.play(self.wipe(self.mobjects_without_canvas, []))
-
+                    self.wipe(self.mobjects_without_canvas, [])
         """
         return self._canvas
 
@@ -170,25 +170,19 @@ class Base(ABC):
         self._canvas.update(objects)
 
     def remove_from_canvas(self, *names: str) -> None:
-        """
-        Removes objects from the canvas.
-        """
+        """Removes objects from the canvas."""
         for name in names:
             self._canvas.pop(name)
 
     @property
     def canvas_mobjects(self) -> ValuesView[Mobject]:
-        """
-        Returns Mobjects contained in the canvas.
-        """
+        """Returns Mobjects contained in the canvas."""
         return self.canvas.values()
 
     @property
     def mobjects_without_canvas(self) -> Sequence[Mobject]:
-        """
-        Returns the list of objects contained in the scene,
-        minus those present in the canvas.
-        """
+        """Returns the list of objects contained in the scene, minus those present in
+        the canvas."""
         return [
             mobject for mobject in self.mobjects if mobject not in self.canvas_mobjects
         ]
@@ -246,7 +240,6 @@ class Base(ABC):
                     self.next_slide()
 
                     self.play(FadeOut(circle))
-
         """
         return self._wait_time_between_slides
 
@@ -378,7 +371,11 @@ class Base(ABC):
         self._loop_start_animation = self._current_animation
 
     def end_loop(self) -> None:
-        """Ends an existing loop. See :func:`start_loop` for more details."""
+        """
+        Ends an existing loop.
+
+        See :func:`start_loop` for more details.
+        """
         assert (
             self._loop_start_animation is not None
         ), "You have to start a loop before ending it"
@@ -466,3 +463,54 @@ class Base(ABC):
         logger.info(
             f"Slide '{scene_name}' configuration written in '{slide_path.absolute()}'"
         )
+
+    def wipe(
+        self,
+        *args: Any,
+        direction: np.ndarray = np.array([-1.0, 0.0, 0.0]),
+        **kwargs: Any,
+    ) -> None:
+        """
+        Plays a wipe animation that will shift all the current objects outside of the
+        current scene's scope, and all the future objects inside.
+
+        :param args: Positional arguments passed to
+            :class:`Wipe<manim_slides.slide.animation.Wipe>`.
+        :param direction: The wipe direction, that will be scaled by the scene size.
+        :param kwargs: Keyword arguments passed to
+            :class:`Wipe<manim_slides.slide.animation.Wipe>`.
+        """
+        from .animation import Wipe
+
+        shift_amount = np.asarray(direction) * np.array(
+            [self._frame_width, self._frame_height, 0.0]
+        )
+
+        animation = Wipe(
+            *args,
+            shift=shift_amount,
+            **kwargs,
+        )
+
+        self.play(animation)
+
+    def zoom(
+        self,
+        *args: Any,
+        **kwargs: Any,
+    ) -> None:
+        """
+        Plays a zoom animation that will fade out all the current objects, and fade in
+        all the future objects. Objects are faded in a direction that goes towards the
+        camera.
+
+        :param args: Positional arguments passed to
+            :class:`Zoom<manim_slides.slide.animation.Zoom>`.
+        :param kwargs: Keyword arguments passed to
+            :class:`Zoom<manim_slides.slide.animation.Zoom>`.
+        """
+        from .animation import Zoom
+
+        animation = Zoom(*args, **kwargs)
+
+        self.play(animation)

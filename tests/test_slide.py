@@ -105,7 +105,7 @@ class TestSlide:
             assert text in self.mobjects
             assert bye not in self.mobjects
 
-            self.play(self.wipe([text], [bye]))
+            self.wipe([text], [bye])
 
             assert text not in self.mobjects
             assert bye in self.mobjects
@@ -121,7 +121,7 @@ class TestSlide:
             assert text in self.mobjects
             assert bye not in self.mobjects
 
-            self.play(self.zoom([text], [bye]))
+            self.zoom([text], [bye])
 
             assert text not in self.mobjects
             assert bye in self.mobjects

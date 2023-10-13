@@ -59,8 +59,8 @@ class ManimSlidesMagic(Magics):  # type: ignore
         cell: Optional[str] = None,
         local_ns: Dict[str, Any] = {},
     ) -> None:
-        r"""Render Manim Slides contained in IPython cells.
-        Works as a line or cell magic.
+        r"""
+        Render Manim Slides contained in IPython cells. Works as a line or cell magic.
 
         .. note::
 
@@ -143,7 +143,6 @@ class ManimSlidesMagic(Magics):  # type: ignore
             In case you want to hide the red box containing the output progress bar, the ``progress_bar`` config
             option should be set to ``None``. This can also be done by passing ``--progress_bar None`` as a
             CLI flag.
-
         """
         if cell:
             exec(cell, local_ns)

@@ -115,7 +115,7 @@ class Keys(BaseModel):  # type: ignore[misc]
 
 
 class Config(BaseModel):  # type: ignore[misc]
-    """General Manim Slides config"""
+    """General Manim Slides config."""
 
     keys: Keys = Keys()
 
@@ -207,9 +207,7 @@ class PresentationConfig(BaseModel):  # type: ignore[misc]
             f.write(self.model_dump_json(indent=2))
 
     def copy_to(self, folder: Path, use_cached: bool = True) -> "PresentationConfig":
-        """
-        Copy the files to a given directory.
-        """
+        """Copy the files to a given directory."""
         for slide_config in self.slides:
             file = slide_config.file
             rev_file = slide_config.rev_file

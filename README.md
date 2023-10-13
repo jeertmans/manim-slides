@@ -95,8 +95,10 @@ Wrap a series of animations between `self.start_loop()` and `self.stop_loop()` w
 # example.py
 
 from manim import *
+
 # or: from manimlib import *
 from manim_slides import Slide
+
 
 class BasicExample(Slide):
     def construct(self):

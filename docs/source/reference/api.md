@@ -24,4 +24,9 @@ use, not the methods used internally when rendering.
 
 .. autoclass:: manim_slides.slide.ThreeDSlide
     :members:
+
+.. automodule:: manim_slides.slide.animation
+    :members:
+        Wipe,
+        Zoom,
 ```

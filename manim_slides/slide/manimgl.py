@@ -66,7 +66,7 @@ class Slide(Base, Scene):
         return getattr(self, "start_at_animation_number", None)
 
     def run(self, *args: Any, **kwargs: Any) -> None:
-        """MANIMGL renderer"""
+        """MANIMGL renderer."""
         super().run(*args, **kwargs)
         self._save_slides(use_cache=False)
 

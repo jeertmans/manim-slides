@@ -7,9 +7,8 @@ from .base import Base
 
 
 class Slide(Base, Scene):
-    """
-    Inherits from :class:`Scene<manim.scene.scene.Scene>` and provide necessary tools for slides rendering.
-    """
+    """Inherits from :class:`Scene<manim.scene.scene.Scene>` and provide necessary tools
+    for slides rendering."""
 
     @property
     def _ffmpeg_bin(self) -> Path:
@@ -57,7 +56,7 @@ class Slide(Base, Scene):
         return config["from_animation_number"]  # type: ignore
 
     def render(self, *args: Any, **kwargs: Any) -> None:
-        """MANIM render"""
+        """MANIM render."""
         # We need to disable the caching limit since we rely on intermediate files
         max_files_cached = config["max_files_cached"]
         config["max_files_cached"] = float("inf")
@@ -71,7 +70,9 @@ class Slide(Base, Scene):
 
 class ThreeDSlide(Slide, ThreeDScene):  # type: ignore
     """
-    Inherits from :class:`Slide` and :class:`ThreeDScene<manim.scene.three_d_scene.ThreeDScene>` and provide necessary tools for slides rendering.
+    Inherits from :class:`Slide` and
+    :class:`ThreeDScene<manim.scene.three_d_scene.ThreeDScene>` and provide necessary
+    tools for slides rendering.
 
     .. note:: ManimGL does not need ThreeDScene for 3D rendering in recent versions, see `example.py`.
 

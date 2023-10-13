@@ -149,7 +149,8 @@ def init(
 def _init(
     config_path: Path, force: bool, merge: bool, skip_interactive: bool = False
 ) -> None:
-    """Actual initialization code for configuration file, with optional interactive mode."""
+    """Actual initialization code for configuration file, with optional interactive
+    mode."""
 
     if config_path.exists():
         click.secho(f"The `{CONFIG_PATH}` configuration file exists")
