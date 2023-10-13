@@ -67,7 +67,7 @@ class Slide(Base, Scene):
 
 
 class ThreeDSlide(Slide):
-        CONFIG = {
-            "camera_class": ThreeDCamera,
-        }
-        pass
+    CONFIG = {
+        "camera_class": ThreeDCamera,
+    }
+    pass

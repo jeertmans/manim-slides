@@ -1,16 +1,17 @@
 from pathlib import Path
 from typing import Any, List, Optional, Tuple
 
-from manim import ThreeDScene, Scene, config
+from manim import Scene, ThreeDScene, config
 
-from .base import Base
 from ..defaults import FFMPEG_BIN
+from .base import Base
 
 
 class Slide(Base, Scene):
     """
     Inherits from :class:`Scene<manim.scene.scene.Scene>` and provide necessary tools for slides rendering.
     """
+
     @property
     def _ffmpeg_bin(self) -> Path:
         # Prior to v0.16.0.post0,
