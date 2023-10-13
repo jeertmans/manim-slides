@@ -4,10 +4,10 @@ import tempfile
 from pathlib import Path
 from typing import List
 
-from .manim import FFMPEG_BIN, logger
+from .logger import logger
 
 
-def concatenate_video_files(files: List[Path], dest: Path) -> None:
+def concatenate_video_files(ffmpeg_bin: Path, files: List[Path], dest: Path) -> None:
     """
     Concatenate multiple video files into one.
     """
@@ -17,7 +17,7 @@ def concatenate_video_files(files: List[Path], dest: Path) -> None:
     f.close()
 
     command: List[str] = [
-        str(FFMPEG_BIN),
+        ffmpeg_bin,
         "-f",
         "concat",
         "-safe",
@@ -66,9 +66,9 @@ def merge_basenames(files: List[Path]) -> Path:
     return dirname.joinpath(basename + ext)
 
 
-def reverse_video_file(src: Path, dst: Path) -> None:
+def reverse_video_file(ffmpeg_bin: Path, src: Path, dst: Path) -> None:
     """Reverses a video file, writting the result to `dst`."""
-    command = [str(FFMPEG_BIN), "-y", "-i", str(src), "-vf", "reverse", str(dst)]
+    command = [ffmpeg_bin, "-y", "-i", str(src), "-vf", "reverse", str(dst)]
     logger.debug(" ".join(command))
     process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     output, error = process.communicate()

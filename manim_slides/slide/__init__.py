@@ -1,3 +1,12 @@
+__all__ = [
+    "MANIM",
+    "MANIMGL",
+    "API_NAME",
+    "Slide",
+    "ThreeDSlide",
+]
+
+
 import os
 import sys
 
@@ -14,7 +23,7 @@ class ManimApiNotFoundError(ImportError):
 API_NAMES = {
     "manim": "manim",
     "manimce": "manim",
-    "manimlib": "manim",
+    "manimlib": "manimlib",
     "manimgl": "manimlib",
 }
 
@@ -31,28 +40,22 @@ if API not in API_NAMES:
 
 API_NAME = API_NAMES[API]
 
-MANIM = True
-MANIMGL = False
-
-
 if not os.environ.get(FORCE_MANIM_API):
     if "manim" in sys.modules:
         API_NAME = "manim"
     elif "manimlib" in sys.modules:
-        API_NAME = "manimgl"
+        API_NAME = "manimlib"
 
+MANIM = API_NAME == "manim"
+MANIMGL = API_NAME == "manimlib"
 
 if MANIM:
     try:
         from .manim import Slide, ThreeDSlide
-    except ImportError:
-        raise ManimApiNotFoundError from None
-    else:
-        os.environ[MANIM_API] = "manim"
+    except ImportError as e:
+        raise ManimApiNotFoundError from e
 elif MANIMGL:
     try:
         from .manimgl import Slide, ThreeDSlide
-    except ImportError:
-        raise ManimApiNotFoundError from None
-    else:
-        os.environ[MANIM_API] = "manimgl"
+    except ImportError as e:
+        raise ManimApiNotFoundError from e

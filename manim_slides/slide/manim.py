@@ -3,7 +3,6 @@ from typing import Any, List, Optional, Tuple
 
 from manim import Scene, ThreeDScene, config
 
-from ..defaults import FFMPEG_BIN
 from .base import Base
 
 
@@ -19,7 +18,7 @@ class Slide(Base, Scene):
         try:
             return Path(config.ffmpeg_executable)
         except AttributeError:
-            return FFMPEG_BIN
+            return super()._ffmpeg_bin
 
     @property
     def _frame_height(self) -> float:

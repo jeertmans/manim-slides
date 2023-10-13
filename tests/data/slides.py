@@ -29,5 +29,4 @@ class BasicSlide(Slide):
 
         self.play(dot.animate.move_to(ORIGIN))
         self.next_slide()
-
         self.play(self.wipe(Group(dot, circle), []))

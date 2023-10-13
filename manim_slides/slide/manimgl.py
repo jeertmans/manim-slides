@@ -10,11 +10,11 @@ from .base import Base
 class Slide(Base, Scene):
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         Path("videos").mkdir(exist_ok=True)
-        kwargs["file_writer_config"] = {
-            "break_into_partial_movies": True,
-            "output_directory": "",
-            "write_to_movie": True,
-        }
+        kwargs["file_writer_config"].update(
+            break_into_partial_movies=True,
+            output_directory="",
+            write_to_movie=True,
+        )
 
         kwargs.setdefault("preview", False)  # Avoid opening a preview window
 
@@ -64,6 +64,11 @@ class Slide(Base, Scene):
     @property
     def _start_at_animation_number(self) -> Optional[int]:
         return getattr(self, "start_at_animation_number", None)
+
+    def run(self, *args: Any, **kwargs: Any) -> None:
+        """MANIMGL renderer"""
+        super().run(*args, **kwargs)
+        self._save_slides(use_cache=False)
 
 
 class ThreeDSlide(Slide):
