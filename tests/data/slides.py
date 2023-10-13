@@ -1,6 +1,15 @@
 # flake8: noqa: F403, F405
 # type: ignore
-from manim import *
+import sys
+
+if "manimlib" in sys.modules:
+    from manimlib import *
+
+    MANIMGL = True
+else:
+    from manim import *
+
+    MANIMGL = False
 
 from manim_slides import Slide
 

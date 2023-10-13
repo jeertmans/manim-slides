@@ -1,13 +1,30 @@
+import subprocess
+import sys
 from pathlib import Path
 
+import click
 import pytest
 from click.testing import CliRunner
 from manim import Text
-from manim.__main__ import main as cli
+from manim.__main__ import main as manim_cli
 from pydantic import ValidationError
 
 from manim_slides.config import PresentationConfig
 from manim_slides.slide import Slide
+
+
+@click.command(
+    context_settings=dict(
+        ignore_unknown_options=True,
+        allow_extra_args=True,
+    )
+)
+@click.pass_context
+def manimgl_cli(ctx):
+    return subprocess.run([sys.executable, "-m", "manimlib", *ctx.args])
+
+
+cli = pytest.mark.parametrize(["cli"], [[manim_cli], [manimgl_cli]])
 
 
 def assert_construct(cls: type) -> type:
@@ -19,8 +36,9 @@ def assert_construct(cls: type) -> type:
     return Wrapper
 
 
+@cli
 def test_render_basic_examples(
-    slides_file: Path, presentation_config: PresentationConfig
+    cli: click.Command, slides_file: Path, presentation_config: PresentationConfig
 ) -> None:
     runner = CliRunner()
 
