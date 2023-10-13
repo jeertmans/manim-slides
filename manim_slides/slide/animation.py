@@ -112,7 +112,7 @@ class Zoom(AnimationGroup):
                 self.zoom(square, circle, out=True, scale=10.0)
     """
 
-    def zoom(
+    def __init__(
         self,
         current: Sequence[Mobject] = [],
         future: Sequence[Mobject] = [],
