@@ -184,7 +184,7 @@ class Base(ABC):
         """Returns the list of objects contained in the scene, minus those present in
         the canvas."""
         return [
-            mobject for mobject in self.mobjects if mobject not in self.canvas_mobjects
+            mobject for mobject in self.mobjects if mobject not in self.canvas_mobjects  # type: ignore[attr-defined]
         ]
 
     @property
@@ -249,7 +249,7 @@ class Base(ABC):
 
     def play(self, *args: Any, **kwargs: Any) -> None:
         """Overloads `self.play` and increment animation count."""
-        super().play(*args, **kwargs)
+        super().play(*args, **kwargs)  # type: ignore[misc]
         self._current_animation += 1
 
     def next_slide(self) -> None:
@@ -297,7 +297,7 @@ class Base(ABC):
         ), "You cannot call `self.next_slide()` inside a loop"
 
         if self.wait_time_between_slides > 0.0:
-            self.wait(self.wait_time_between_slides)
+            self.wait(self.wait_time_between_slides)  # type: ignore[attr-defined]
 
         self._slides.append(
             PreSlideConfig(
@@ -486,9 +486,10 @@ class Base(ABC):
             [self._frame_width, self._frame_height, 0.0]
         )
 
+        kwargs.setdefault("shift", shift_amount)
+
         animation = Wipe(
             *args,
-            shift=shift_amount,
             **kwargs,
         )
 

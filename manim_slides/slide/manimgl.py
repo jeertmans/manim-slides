@@ -7,7 +7,7 @@ from manimlib.utils.file_ops import get_sorted_integer_files
 from .base import Base
 
 
-class Slide(Base, Scene):
+class Slide(Base, Scene):  # type: ignore[misc]
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         Path("videos").mkdir(exist_ok=True)
         kwargs["file_writer_config"].update(

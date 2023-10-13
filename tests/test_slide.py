@@ -20,8 +20,8 @@ from manim_slides.slide.manim import Slide
     )
 )
 @click.pass_context
-def manimgl_cli(ctx):
-    return subprocess.run([sys.executable, "-m", "manimlib", *ctx.args])
+def manimgl_cli(ctx: click.Context) -> None:
+    subprocess.run([sys.executable, "-m", "manimlib", *ctx.args])
 
 
 cli = pytest.mark.parametrize(

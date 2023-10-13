@@ -12,7 +12,7 @@ else:
     from manimlib import LEFT, AnimationGroup, FadeIn, FadeOut, Mobject
 
 
-class Wipe(AnimationGroup):
+class Wipe(AnimationGroup):  # type: ignore[misc]
     """
     Creates a wipe animation that will shift all the current objects and future objects
     by a given value.
@@ -74,7 +74,7 @@ class Wipe(AnimationGroup):
         super().__init__(*animations, **kwargs)
 
 
-class Zoom(AnimationGroup):
+class Zoom(AnimationGroup):  # type: ignore[misc]
     """
     Creates a zoom animation that will fade out all the current objects, and fade in all
     the future objects. Objects are faded in a direction that goes towards the camera.
@@ -121,7 +121,7 @@ class Zoom(AnimationGroup):
         fade_in_kwargs: Mapping[str, Any] = {},
         fade_out_kwargs: Mapping[str, Any] = {},
         **kwargs: Any,
-    ) -> AnimationGroup:
+    ) -> None:
         scale_in = 1.0 / scale
         scale_out = scale
 
