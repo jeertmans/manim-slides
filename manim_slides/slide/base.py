@@ -1,4 +1,5 @@
 import platform
+from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import (
     TYPE_CHECKING,
@@ -10,12 +11,11 @@ from typing import (
     Tuple,
     ValuesView,
 )
-from abc import abstractmethod, ABC
 
 from tqdm import tqdm
 
 from ..config import PresentationConfig, PreSlideConfig, SlideConfig
-from ..defaults import FOLDER_PATH, FFMPEG_BIN
+from ..defaults import FFMPEG_BIN, FOLDER_PATH
 from ..logger import logger
 from ..utils import concatenate_video_files, merge_basenames, reverse_video_file
 
@@ -34,7 +34,7 @@ class Base(ABC):
     _pause_start_animation = 0
     _canvas: MutableMapping[str, Mobject] = {}
     _wait_time_between_slides = 0.0
-     
+
     @property
     @abstractmethod
     def _ffmpeg_bin(self) -> Path:

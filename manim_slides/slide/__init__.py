@@ -44,14 +44,14 @@ if not os.environ.get(FORCE_MANIM_API):
 
 if MANIM:
     try:
-        from .manim import ThreeDSlide, Slide
+        from .manim import Slide, ThreeDSlide
     except ImportError:
         raise ManimApiNotFoundError from None
     else:
         os.environ[MANIM_API] = "manim"
 elif MANIMGL:
     try:
-        from .manimgl import ThreeDSlide, Slide
+        from .manimgl import Slide, ThreeDSlide
     except ImportError:
         raise ManimApiNotFoundError from None
     else:
