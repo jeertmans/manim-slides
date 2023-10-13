@@ -44,7 +44,11 @@ class Slide(Base, Scene):  # type: ignore[misc]
         # When rendering with -na,b (manim only)
         # the animations not in [a,b] will be skipped,
         # but animation before a will have a None source file.
-        return [Path(file) for file in self.renderer.file_writer.partial_movie_files if file is not None]
+        return [
+            Path(file)
+            for file in self.renderer.file_writer.partial_movie_files
+            if file is not None
+        ]
 
     @property
     def _show_progress_bar(self) -> bool:
