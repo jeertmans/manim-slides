@@ -15,7 +15,6 @@ use, not the methods used internally when rendering.
         end_loop,
         mobjects_without_canvas,
         next_slide,
-        pause,
         remove_from_canvas,
         start_loop,
         wait_time_between_slides,

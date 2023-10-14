@@ -2,16 +2,13 @@
 # type: ignore
 import sys
 
-if "manimlib" in sys.modules:
-    from manimlib import *
-
-    MANIMGL = True
-else:
-    from manim import *
-
-    MANIMGL = False
-
 from manim_slides import Slide, ThreeDSlide
+from manim_slides.slide import MANIM, MANIMGL
+
+if MANIM:
+    from manim import *
+elif MANIMGL:
+    from manimlib import *
 
 
 class BasicExample(Slide):
@@ -27,7 +24,6 @@ class BasicExample(Slide):
         self.end_loop()  # This will loop until user inputs a key
 
         self.play(dot.animate.move_to(ORIGIN))
-        self.next_slide()  # Waits user to press continue to go to the next slide
 
 
 class MultipleAnimationsInLastSlide(Slide):
@@ -46,8 +42,6 @@ class MultipleAnimationsInLastSlide(Slide):
         self.play(dot.animate.move_to(LEFT))
         self.play(dot.animate.move_to(DOWN))
 
-        self.next_slide()
-
 
 class TestFileTooLong(Slide):
     """This is used to check against solution for issue #123."""
@@ -63,8 +57,6 @@ class TestFileTooLong(Slide):
             direction = (random.random() - 0.5) * LEFT + (random.random() - 0.5) * UP
             self.play(dot.animate.move_to(direction), run_time=0.1)
             self.play(dot.animate.move_to(ORIGIN), run_time=0.1)
-
-        self.next_slide()
 
 
 class ConvertExample(Slide):
