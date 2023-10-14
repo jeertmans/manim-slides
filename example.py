@@ -1,6 +1,5 @@
 # flake8: noqa: F403, F405
 # type: ignore
-import sys
 
 from manim_slides import Slide, ThreeDSlide
 from manim_slides.slide import MANIM, MANIMGL
