@@ -108,7 +108,7 @@ class Zoom(AnimationGroup):  # type: ignore[misc]
                 self.play(FadeIn(circles[0]))
                 self.next_slide()
 
-                for i in range(3):
+                for i in range(2):
                     self.play(Zoom(circles[i], circles[i+1]))
                     self.next_slide()
     """
