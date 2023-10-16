@@ -23,6 +23,7 @@ extensions = [
     "nbsphinx",
     "myst_parser",
     "sphinxext.opengraph",
+    # "sphinx_autodoc_typehints",
     "sphinx_click",
     "sphinx_copybutton",
     # Custom

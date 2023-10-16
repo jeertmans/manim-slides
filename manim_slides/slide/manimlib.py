@@ -9,24 +9,22 @@ from .base import BaseSlide
 
 class Slide(BaseSlide, Scene):  # type: ignore[misc]
     def __init__(self, *args: Any, **kwargs: Any) -> None:
-        Path("videos").mkdir(exist_ok=True)
-        kwargs["file_writer_config"].update(
+        kwargs.setdefault("file_writer_config", {}).update(
+            skip_animations=True,
             break_into_partial_movies=True,
-            output_directory="",
             write_to_movie=True,
         )
 
-        kwargs.setdefault("preview", False)  # Avoid opening a preview window
-
+        kwargs["preview"] = False  # Avoid opening a preview window
         super().__init__(*args, **kwargs)
 
     @property
     def _frame_height(self) -> float:
-        return self.frame_height  # type: ignore
+        return self.camera.frame.get_height()  # type: ignore
 
     @property
     def _frame_width(self) -> float:
-        return self.frame_width  # type: ignore
+        return self.camera.frame.get_width()  # type: ignore
 
     @property
     def _background_color(self) -> str:
@@ -55,15 +53,15 @@ class Slide(BaseSlide, Scene):  # type: ignore[misc]
 
     @property
     def _show_progress_bar(self) -> bool:
-        return getattr(self, "show_progress_bar", True)
+        return True
 
     @property
     def _leave_progress_bar(self) -> bool:
-        return getattr(self, "leave_progress_bars", False)
+        return self.leave_progress_bars  # type: ignore
 
     @property
     def _start_at_animation_number(self) -> Optional[int]:
-        return getattr(self, "start_at_animation_number", None)
+        return self.start_at_animation_number  # type: ignore
 
     def run(self, *args: Any, **kwargs: Any) -> None:
         """MANIMGL renderer."""

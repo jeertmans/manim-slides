@@ -1,28 +1,40 @@
 # flake8: noqa: F403, F405
 # type: ignore
-import sys
-
-if "manimlib" in sys.modules:
-    from manimlib import *
-else:
-    from manim import *
 
 from manim_slides import Slide
+from manim_slides.slide import MANIM, MANIMGL
+
+if MANIM:
+    from manim import *
+elif MANIMGL:
+    from manimlib import *
 
 
 class BasicSlide(Slide):
     def construct(self):
-        circle = Circle(radius=3, color=BLUE)
-        dot = Dot()
+        text = Text("This is some text")
 
-        self.play(GrowFromCenter(circle))
+        self.play(Write(text))
+
+        circle = Circle(radius=3, color=BLUE)
+
+        self.play(Transform(text, circle))
+
+        circle = text  # this is to avoid name confusion
+
+        square = Square()
+
+        self.play(FadeIn(square))
+
         self.next_slide()
 
         self.start_loop()
-        self.play(MoveAlongPath(dot, circle), run_time=2, rate_func=linear)
-        self.wait(2.0)
+        self.play(Rotate(square, +PI / 2))
+        self.play(Rotate(square, -PI / 2))
         self.end_loop()
 
-        self.play(dot.animate.move_to(ORIGIN))
+        other_text = Text("Other text")
+        self.wipe([square, circle], [other_text])
+
         self.next_slide()
-        self.wipe(Group(dot, circle), [])
+        self.zoom(other_text, [])
