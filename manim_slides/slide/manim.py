@@ -5,6 +5,7 @@ from manim import Scene, ThreeDScene, config
 
 from .base import BaseSlide
 
+
 class Slide(BaseSlide, Scene):  # type: ignore[misc]
     """Inherits from :class:`Scene<manim.scene.scene.Scene>` and provide necessary tools
     for slides rendering."""

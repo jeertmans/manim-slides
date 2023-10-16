@@ -10,8 +10,8 @@ from manim.__main__ import main as manim_cli
 from pydantic import ValidationError
 
 from manim_slides.config import PresentationConfig
-from manim_slides.slide.manim import Slide
 from manim_slides.defaults import FOLDER_PATH
+from manim_slides.slide.manim import Slide
 
 
 @click.command(

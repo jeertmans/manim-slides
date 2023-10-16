@@ -1,5 +1,5 @@
 import platform
-from abc import ABC, abstractmethod
+from abc import abstractmethod
 from pathlib import Path
 from typing import (
     TYPE_CHECKING,
@@ -10,7 +10,6 @@ from typing import (
     Sequence,
     Tuple,
     ValuesView,
-    Protocol
 )
 
 import numpy as np
@@ -28,7 +27,9 @@ else:
 
 
 class BaseSlide:
-    def __init__(self, *args: Any, output_folder: Path = FOLDER_PATH, **kwargs: Any) -> None:
+    def __init__(
+        self, *args: Any, output_folder: Path = FOLDER_PATH, **kwargs: Any
+    ) -> None:
         super().__init__(*args, **kwargs)
         self._output_folder: Path = output_folder
         self._slides: List[PreSlideConfig] = []

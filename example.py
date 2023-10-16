@@ -3,11 +3,11 @@
 """
 Examples of Slides generated with Manim and Manim Slides.
 
-The following examples are most likely not going to work with ManimGL,
-but Manim Slides still provides support for ManimGL, and should be fully
-compatible with it.
+The following examples are most likely not going to work with ManimGL, but Manim Slides
+still provides support for ManimGL, and should be fully compatible with it.
 """
 from manim import *
+
 from manim_slides import Slide, ThreeDSlide
 
 
@@ -258,6 +258,7 @@ class Example(Slide):
         )
 
         self.play(Transform(square, learn_more_text))
+
 
 class ThreeDExample(ThreeDSlide):
     def construct(self):
