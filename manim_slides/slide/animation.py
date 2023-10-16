@@ -1,4 +1,5 @@
-"""Additional animations for Manim objects.
+"""
+Additional animations for Manim objects.
 
 Like with Manim, animations are classes that must be put inside a
 :meth:`Scene.play<manim.scene.scene.Scene.play>` call.

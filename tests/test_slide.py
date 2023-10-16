@@ -46,7 +46,10 @@ def assert_construct(cls: type) -> type:
 
 @cli
 def test_render_basic_slide(
-        cli: click.Command, slides_file: Path, presentation_config: PresentationConfig, manimgl_config: Path
+    cli: click.Command,
+    slides_file: Path,
+    presentation_config: PresentationConfig,
+    manimgl_config: Path,
 ) -> None:
     runner = CliRunner()
 
