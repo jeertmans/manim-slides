@@ -1,3 +1,4 @@
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -45,11 +46,12 @@ def assert_construct(cls: type) -> type:
 
 @cli
 def test_render_basic_slide(
-    cli: click.Command, slides_file: Path, presentation_config: PresentationConfig
+        cli: click.Command, slides_file: Path, presentation_config: PresentationConfig, manimgl_config: Path
 ) -> None:
     runner = CliRunner()
 
-    with runner.isolated_filesystem():
+    with runner.isolated_filesystem() as tmp_dir:
+        shutil.copy(manimgl_config, tmp_dir)
         results = runner.invoke(cli, [str(slides_file), "BasicSlide", "-ql"])
 
         assert results.exit_code == 0

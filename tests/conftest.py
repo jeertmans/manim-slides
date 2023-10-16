@@ -6,14 +6,25 @@ from typing import Generator, Iterator, List
 import pytest
 
 from manim_slides.config import PresentationConfig
-from manim_slides.logger import make_logger
-
-_ = make_logger()  # This is run so that logger is created
 
 
 @pytest.fixture
-def data_folder() -> Iterator[Path]:
-    path = (Path(__file__).parent / "data").resolve()
+def tests_folder() -> Iterator[Path]:
+    path = Path(__file__).parent.resolve()
+    assert path.exists()
+    yield path
+
+
+@pytest.fixture
+def project_folder(tests_folder: Path) -> Iterator[Path]:
+    path = tests_folder.parent.resolve()
+    assert path.exists()
+    yield path
+
+
+@pytest.fixture
+def data_folder(tests_folder: Path) -> Iterator[Path]:
+    path = (tests_folder / "data").resolve()
     assert path.exists()
     yield path
 
@@ -28,6 +39,13 @@ def slides_folder(data_folder: Path) -> Iterator[Path]:
 @pytest.fixture
 def slides_file(data_folder: Path) -> Iterator[Path]:
     path = (data_folder / "slides.py").resolve()
+    assert path.exists()
+    yield path
+
+
+@pytest.fixture
+def manimgl_config(project_folder: Path) -> Iterator[Path]:
+    path = (project_folder / "custom_config.yml").resolve()
     assert path.exists()
     yield path
 

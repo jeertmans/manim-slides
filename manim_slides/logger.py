@@ -9,7 +9,7 @@ import logging
 from rich.console import Console
 from rich.logging import RichHandler
 
-__all__ = ["logger", "make_logger"]
+__all__ = ["logger"]
 
 HIGHLIGHTED_KEYWORDS = [  # these keywords are highlighted specially
     "Played",
@@ -42,5 +42,7 @@ def make_logger() -> logging.Logger:
 
     return logger
 
+
+make_logger()
 
 logger = logging.getLogger("manim-slides")
