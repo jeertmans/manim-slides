@@ -2,28 +2,25 @@
 
 Contents of `example.py`.
 
-Do not forget to import Manim Slides and Manim or ManimGL:
+Do not forget to import Manim Slides and Manim[^1]:
 
 ```python
 from manim import *
 from manim_slides import Slide, ThreeDSlide
 ```
 
-or
-
-```python
-from manimlib import *
-from manim_slides import Slide, ThreeDSlide
-```
-
 Then, each presentation, named `SCENE`, was generated with those two commands:
 
 ```bash
-manim example.py SCENE # or manimgl example SCENE
+manim example.py SCENE
 manim-slides convert SCENE scene.html -ccontrols=true
 ```
 
 where `-ccontrols=true` indicates that we want to display the blue navigation arrows.
+
+[^1]: While Manim Slides is compatible with ManimGL, writing scenes that both
+  render with Manim and ManimGL has become very hard, so the examples below
+  are only tested to work with Manim.
 
 ## Basic Example
 
@@ -42,10 +39,7 @@ Basic example from quickstart.
 
 ## 3D Example
 
-Example using 3D camera. As Manim and ManimGL handle 3D differently,
-definitions are slightly different.
-
-### With Manim
+Example using 3D camera.
 
 ```{eval-rst}
 .. manim-slides:: ../../../example.py:ThreeDExample
@@ -55,20 +49,7 @@ definitions are slightly different.
 .. literalinclude:: ../../../example.py
    :language: python
    :linenos:
-   :dedent: 4
-   :start-after: [manim-3d]
-   :end-before: [manim-3d]
-```
-
-### With ManimGL
-
-```{eval-rst}
-.. literalinclude:: ../../../example.py
-   :language: python
-   :linenos:
-   :dedent: 4
-   :start-after: [manimgl-3d]
-   :end-before: [manimgl-3d]
+   :pyobject: ThreeDExample
 ```
 
 ## Subclass Custom Scenes

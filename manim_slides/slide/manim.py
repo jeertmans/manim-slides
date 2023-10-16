@@ -3,10 +3,9 @@ from typing import Any, List, Optional, Tuple
 
 from manim import Scene, ThreeDScene, config
 
-from .base import Base
+from .base import BaseSlide
 
-
-class Slide(Base, Scene):  # type: ignore[misc]
+class Slide(BaseSlide, Scene):  # type: ignore[misc]
     """Inherits from :class:`Scene<manim.scene.scene.Scene>` and provide necessary tools
     for slides rendering."""
 
@@ -110,20 +109,16 @@ class ThreeDSlide(Slide, ThreeDScene):  # type: ignore[misc]
                 bye = Text("Bye!")
 
                 self.start_loop()
-                self.play(
-                    self.wipe(
-                        self.mobjects_without_canvas,
-                        [bye],
-                        direction=UP
-                    )
+                self.wipe(
+                    self.mobjects_without_canvas,
+                    [bye],
+                    direction=UP
                 )
                 self.wait(.5)
-                self.play(
-                    self.wipe(
-                        self.mobjects_without_canvas,
-                        [title, sphere],
-                        direction=DOWN
-                    )
+                self.wipe(
+                    self.mobjects_without_canvas,
+                    [title, sphere],
+                    direction=DOWN
                 )
                 self.wait(.5)
                 self.end_loop()

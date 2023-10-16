@@ -11,6 +11,7 @@ from pydantic import ValidationError
 
 from manim_slides.config import PresentationConfig
 from manim_slides.slide.manim import Slide
+from manim_slides.defaults import FOLDER_PATH
 
 
 @click.command(
@@ -79,6 +80,17 @@ def test_render_basic_examples(
 
 
 class TestSlide:
+    @assert_construct
+    class TestDefaultProperties(Slide):
+        def construct(self) -> None:
+            assert self._output_folder == FOLDER_PATH
+            assert len(self._slides) == 0
+            assert self._current_slide == 1
+            assert self._loop_start_animation is None
+            assert self._pause_start_animation == 0
+            assert len(self._canvas) == 0
+            assert self._wait_time_between_slides == 0.0
+
     @assert_construct
     class TestLoop(Slide):
         def construct(self) -> None:

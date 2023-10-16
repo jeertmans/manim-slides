@@ -56,6 +56,8 @@ if MANIM:
         raise ManimApiNotFoundError from e
 elif MANIMGL:
     try:
-        from .manimgl import Slide, ThreeDSlide
+        from .manimlib import Slide, ThreeDSlide
     except ImportError as e:
         raise ManimApiNotFoundError from e
+else:
+    raise ManimApiNotFoundError

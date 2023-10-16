@@ -10,6 +10,7 @@ from typing import (
     Sequence,
     Tuple,
     ValuesView,
+    Protocol
 )
 
 import numpy as np
@@ -26,15 +27,17 @@ else:
     Mobject = Any
 
 
-class Base(ABC):
-    _output_folder: Path = FOLDER_PATH
-    _slides: List[PreSlideConfig] = []
-    _current_slide = 1
-    _current_animation = 0
-    _loop_start_animation: Optional[int] = None
-    _pause_start_animation = 0
-    _canvas: MutableMapping[str, Mobject] = {}
-    _wait_time_between_slides = 0.0
+class BaseSlide:
+    def __init__(self, *args: Any, output_folder: Path = FOLDER_PATH, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+        self._output_folder: Path = output_folder
+        self._slides: List[PreSlideConfig] = []
+        self._current_slide = 1
+        self._current_animation = 0
+        self._loop_start_animation: Optional[int] = None
+        self._pause_start_animation = 0
+        self._canvas: MutableMapping[str, Mobject] = {}
+        self._wait_time_between_slides = 0.0
 
     @property
     def _ffmpeg_bin(self) -> Path:

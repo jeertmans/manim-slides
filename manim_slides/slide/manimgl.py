@@ -4,10 +4,10 @@ from typing import Any, List, Optional, Tuple
 from manimlib import Scene, ThreeDCamera
 from manimlib.utils.file_ops import get_sorted_integer_files
 
-from .base import Base
+from .base import BaseSlide
 
 
-class Slide(Base, Scene):  # type: ignore[misc]
+class Slide(BaseSlide, Scene):  # type: ignore[misc]
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         Path("videos").mkdir(exist_ok=True)
         kwargs["file_writer_config"].update(
