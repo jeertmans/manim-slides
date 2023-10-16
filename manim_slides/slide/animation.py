@@ -53,7 +53,7 @@ class Wipe(AnimationGroup):  # type: ignore[misc]
                 self.play(FadeIn(circle))
                 self.next_slide()
 
-                self.play(Wipe(circle, square))
+                self.play(Wipe(circle, square, shift=3 * LEFT))
     """
 
     def __init__(
