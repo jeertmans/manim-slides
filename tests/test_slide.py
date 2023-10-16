@@ -29,7 +29,7 @@ cli = pytest.mark.parametrize(
     ["cli"],
     [
         [manim_cli],
-        pytest.param(manimgl_cli, marks=pytest.mark.xfail(reason="OpenGL issue")),
+        [manimgl_cli],
     ],
 )
 
@@ -44,7 +44,7 @@ def assert_construct(cls: type) -> type:
 
 
 @cli
-def test_render_basic_examples(
+def test_render_basic_slide(
     cli: click.Command, slides_file: Path, presentation_config: PresentationConfig
 ) -> None:
     runner = CliRunner()
