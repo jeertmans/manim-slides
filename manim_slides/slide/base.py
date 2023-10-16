@@ -480,6 +480,32 @@ class BaseSlide:
         :param direction: The wipe direction, that will be scaled by the scene size.
         :param kwargs: Keyword arguments passed to
             :class:`Wipe<manim_slides.slide.animation.Wipe>`.
+
+        Examples
+        --------
+
+        .. manim-slides:: WipeExample
+
+            from manim import *
+            from manim_slides import Slide
+
+            class WipeExample(Slide):
+                def construct(self):
+                    circle = Circle(radius=3, color=BLUE)
+                    square = Square()
+                    text = Text("This is a wipe example").next_to(square, DOWN)
+                    beautiful = Text("Beautiful, no?")
+
+                    self.play(FadeIn(circle))
+                    self.next_slide()
+
+                    self.wipe(circle, Group(square, text))
+                    self.next_slide()
+
+                    self.wipe(Group(square, text), beautiful, direction=UP)
+                    self.next_slide()
+
+                    self.wipe(beautiful, circle, direction=DOWN + RIGHT)
         """
         from .animation import Wipe
 
@@ -510,6 +536,27 @@ class BaseSlide:
             :class:`Zoom<manim_slides.slide.animation.Zoom>`.
         :param kwargs: Keyword arguments passed to
             :class:`Zoom<manim_slides.slide.animation.Zoom>`.
+
+        Examples
+        --------
+
+        .. manim-slides:: ZoomExample
+
+            from manim import *
+            from manim_slides import Slide
+
+            class ZoomExample(Slide):
+                def construct(self):
+                    circle = Circle(radius=3, color=BLUE)
+                    square = Square()
+
+                    self.play(FadeIn(circle))
+                    self.next_slide()
+
+                    self.zoom(circle, square)
+                    self.next_slide()
+
+                    self.zoom(square, circle, out=True, scale=10.0)
         """
         from .animation import Zoom
 

@@ -81,8 +81,6 @@ class ThreeDSlide(Slide, ThreeDScene):  # type: ignore[misc]
     :class:`ThreeDScene<manim.scene.three_d_scene.ThreeDScene>` and provide necessary
     tools for slides rendering.
 
-    .. note:: ManimGL does not need ThreeDScene for 3D rendering in recent versions, see `example.py`.
-
     Examples
     --------
 

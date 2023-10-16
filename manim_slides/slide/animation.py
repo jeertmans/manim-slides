@@ -1,4 +1,12 @@
-"""Additional animations for Manim objects."""
+"""Additional animations for Manim objects.
+
+Like with Manim, animations are classes that must be put inside a
+:meth:`Scene.play<manim.scene.scene.Scene.play>` call.
+
+For each of the provided classes, there exists a method variant
+that directly calls :python:`self.play(Animation(...))`, see
+:class:`Slide`.
+"""
 
 from typing import Any, Mapping, Sequence
 
@@ -30,28 +38,21 @@ class Wipe(AnimationGroup):  # type: ignore[misc]
     Examples
     --------
 
-    .. manim-slides:: WipeExample
+    .. manim-slides:: WipeClassExample
 
         from manim import *
         from manim_slides import Slide
+        from manim_slides.slide.animation import Wipe
 
-        class WipeExample(Slide):
+        class WipeClassExample(Slide):
             def construct(self):
                 circle = Circle(radius=3, color=BLUE)
                 square = Square()
-                text = Text("This is a wipe example").next_to(square, DOWN)
-                beautiful = Text("Beautiful, no?")
 
                 self.play(FadeIn(circle))
                 self.next_slide()
 
-                self.wipe(circle, Group(square, text))
-                self.next_slide()
-
-                self.wipe(Group(square, text), beautiful, direction=UP)
-                self.next_slide()
-
-                self.wipe(beautiful, circle, direction=DOWN + RIGHT)
+                self.play(Wipe(circle, square))
     """
 
     def __init__(
@@ -93,23 +94,22 @@ class Zoom(AnimationGroup):  # type: ignore[misc]
     Examples
     --------
 
-    .. manim-slides:: ZoomExample
+    .. manim-slides:: ZoomClassExample
 
         from manim import *
         from manim_slides import Slide
+        from manim_slides.slide.animation import Zoom
 
-        class ZoomExample(Slide):
+        class ZoomClassExample(Slide):
             def construct(self):
-                circle = Circle(radius=3, color=BLUE)
-                square = Square()
+                circles = [Circle(radius=i) for i in range(1, 4)]
 
-                self.play(FadeIn(circle))
+                self.play(FadeIn(circles[0]))
                 self.next_slide()
 
-                self.zoom(circle, square)
-                self.next_slide()
-
-                self.zoom(square, circle, out=True, scale=10.0)
+                for i in range(3):
+                    self.play(Zoom(circles[i], circles[i+1]))
+                    self.next_slide()
     """
 
     def __init__(

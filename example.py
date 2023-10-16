@@ -1,14 +1,13 @@
 # flake8: noqa: F403, F405
 # type: ignore
-"""
-Examples of Slides generated with Manim and Manim Slides.
-
-The following examples are most likely not going to work with ManimGL, but Manim Slides
-still provides support for ManimGL, and should be fully compatible with it.
-"""
-from manim import *
 
 from manim_slides import Slide, ThreeDSlide
+from manim_slides.slide import MANIM, MANIMGL
+
+if MANIM:
+    from manim import *
+elif MANIMGL:
+    from manimlib import *
 
 
 class BasicExample(Slide):
@@ -260,36 +259,88 @@ class Example(Slide):
         self.play(Transform(square, learn_more_text))
 
 
-class ThreeDExample(ThreeDSlide):
-    def construct(self):
-        axes = ThreeDAxes()
-        circle = Circle(radius=3, color=BLUE)
-        dot = Dot(color=RED)
+# For ThreeDExample, things are different
 
-        self.add(axes)
+if not MANIMGL:
+    # [manim-3d]
+    class ThreeDExample(ThreeDSlide):
+        def construct(self):
+            axes = ThreeDAxes()
+            circle = Circle(radius=3, color=BLUE)
+            dot = Dot(color=RED)
 
-        self.set_camera_orientation(phi=75 * DEGREES, theta=30 * DEGREES)
+            self.add(axes)
 
-        self.play(GrowFromCenter(circle))
-        self.begin_ambient_camera_rotation(rate=75 * DEGREES / 4)
+            self.set_camera_orientation(phi=75 * DEGREES, theta=30 * DEGREES)
 
-        self.next_slide()
+            self.play(GrowFromCenter(circle))
+            self.begin_ambient_camera_rotation(rate=75 * DEGREES / 4)
 
-        self.start_loop()
-        self.play(MoveAlongPath(dot, circle), run_time=4, rate_func=linear)
-        self.end_loop()
+            self.next_slide()
 
-        self.stop_ambient_camera_rotation()
-        self.move_camera(phi=75 * DEGREES, theta=30 * DEGREES)
+            self.start_loop()
+            self.play(MoveAlongPath(dot, circle), run_time=4, rate_func=linear)
+            self.end_loop()
 
-        self.play(dot.animate.move_to(ORIGIN))
-        self.next_slide()
+            self.stop_ambient_camera_rotation()
+            self.move_camera(phi=75 * DEGREES, theta=30 * DEGREES)
 
-        self.play(dot.animate.move_to(RIGHT * 3))
-        self.next_slide()
+            self.play(dot.animate.move_to(ORIGIN))
+            self.next_slide()
 
-        self.start_loop()
-        self.play(MoveAlongPath(dot, circle), run_time=2, rate_func=linear)
-        self.end_loop()
+            self.play(dot.animate.move_to(RIGHT * 3))
+            self.next_slide()
 
-        self.play(dot.animate.move_to(ORIGIN))
+            self.start_loop()
+            self.play(MoveAlongPath(dot, circle), run_time=2, rate_func=linear)
+            self.end_loop()
+
+            self.play(dot.animate.move_to(ORIGIN))
+
+    # [manim-3d]
+else:
+    # [manimgl-3d]
+    # WARNING: 3b1b's manim change how ThreeDScene work,
+    # this is why things have to be managed differently.
+    class ThreeDExample(ThreeDSlide):
+        def construct(self):
+            axes = ThreeDAxes()
+            circle = Circle(radius=3, color=BLUE)
+            dot = Dot(color=RED)
+
+            self.add(axes)
+
+            frame = self.camera.frame
+            frame.set_euler_angles(
+                theta=30 * DEGREES,
+                phi=75 * DEGREES,
+            )
+
+            self.play(GrowFromCenter(circle))
+
+            def updater(m, dt):
+                return m.increment_theta((75 * DEGREES / 4) * dt)
+
+            frame.add_updater(updater)
+
+            self.next_slide()
+
+            self.start_loop()
+            self.play(MoveAlongPath(dot, circle), run_time=4, rate_func=linear)
+            self.end_loop()
+
+            frame.remove_updater(updater)
+            self.play(frame.animate.set_theta(30 * DEGREES))
+            self.play(dot.animate.move_to(ORIGIN))
+            self.next_slide()
+
+            self.play(dot.animate.move_to(RIGHT * 3))
+            self.next_slide()
+
+            self.start_loop()
+            self.play(MoveAlongPath(dot, circle), run_time=2, rate_func=linear)
+            self.end_loop()
+
+            self.play(dot.animate.move_to(ORIGIN))
+
+    # [manimgl-3d]
