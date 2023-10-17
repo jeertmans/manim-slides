@@ -65,7 +65,9 @@ def test_render_basic_slide(
 
         local_slides_folder = (Path(tmp_dir) / "slides").resolve(strict=True)
 
-        local_config_file = (local_slides_folder / "BasicSlide.json").resolve(strict=True)
+        local_config_file = (local_slides_folder / "BasicSlide.json").resolve(
+            strict=True
+        )
 
         local_presentation_config = PresentationConfig.from_file(local_config_file)
 
