@@ -1,5 +1,6 @@
 from pathlib import Path
 
+import pytest
 from click.testing import CliRunner
 
 from manim_slides.__main__ import cli
@@ -38,7 +39,8 @@ def test_present(slides_folder: Path) -> None:
         assert results.exit_code == 0
 
 
-def test_convert(slides_folder: Path) -> None:
+@pytest.mark.parametrize(("extension",), [("html",), ("pdf",), ("pptx",)])
+def test_convert(slides_folder: Path, extension: str) -> None:
     runner = CliRunner()
 
     with runner.isolated_filesystem():
@@ -47,9 +49,11 @@ def test_convert(slides_folder: Path) -> None:
             [
                 "convert",
                 "BasicSlide",
-                "basic_example.html",
+                f"basic_example.{extension}",
                 "--folder",
                 str(slides_folder),
+                "--to",
+                extension,
             ],
         )
 

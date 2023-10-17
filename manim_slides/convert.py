@@ -528,7 +528,7 @@ class PowerPoint(Converter):
                     mime_type=mime_type,
                 )
                 if self.auto_play_media:
-                    auto_play_media(movie, loop=slide_config.is_loop())
+                    auto_play_media(movie, loop=slide_config.loop)
 
         dest.parent.mkdir(parents=True, exist_ok=True)
         prs.save(dest)
