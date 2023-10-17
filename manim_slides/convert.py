@@ -26,6 +26,7 @@ from pydantic import (
     PositiveFloat,
     PositiveInt,
     ValidationError,
+    conlist,
 )
 from pydantic_core import CoreSchema, core_schema
 from tqdm import tqdm
@@ -73,7 +74,7 @@ def file_to_data_uri(file: Path) -> str:
 
 
 class Converter(BaseModel):  # type: ignore
-    presentation_configs: List[PresentationConfig] = []
+    presentation_configs: conlist(PresentationConfig, min_length=1)  # type: ignore[valid-type]
     assets_dir: str = "{basename}_assets"
     template: Optional[Path] = None
 
@@ -542,7 +543,9 @@ def show_config_options(function: Callable[..., Any]) -> Callable[..., Any]:
 
         to = ctx.params.get("to", "html")
 
-        converter = Converter.from_string(to)(presentation_configs=[])
+        converter = Converter.from_string(to)(
+            presentation_configs=[PresentationConfig()]
+        )
         for key, value in converter.dict().items():
             click.echo(f"{key}: {repr(value)}")
 
@@ -570,7 +573,7 @@ def show_template_option(function: Callable[..., Any]) -> Callable[..., Any]:
         template = ctx.params.get("template", None)
 
         converter = Converter.from_string(to)(
-            presentation_configs=[], template=template
+            presentation_configs=[PresentationConfig()], template=template
         )
         click.echo(converter.load_template())
 
