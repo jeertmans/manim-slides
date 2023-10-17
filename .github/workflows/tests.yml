@@ -67,7 +67,7 @@ jobs:
         poetry install --with test --all-extras
 
     - name: Run pytest
-      if: matrix.os != 'ubuntu-latest' && matrix.pyversion != '3.11'
+      if: matrix.os != 'ubuntu-latest' || matrix.pyversion != '3.11'
       run: poetry run pytest -x -n auto
 
     - name: Run pytest and coverage
