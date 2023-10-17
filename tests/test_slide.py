@@ -1,3 +1,4 @@
+import random
 import shutil
 import subprocess
 import sys
@@ -6,7 +7,19 @@ from pathlib import Path
 import click
 import pytest
 from click.testing import CliRunner
-from manim import Text
+from manim import (
+    BLUE,
+    DOWN,
+    LEFT,
+    ORIGIN,
+    RIGHT,
+    UP,
+    Circle,
+    Dot,
+    FadeIn,
+    GrowFromCenter,
+    Text,
+)
 from manim.__main__ import main as manim_cli
 from pydantic import ValidationError
 
@@ -33,15 +46,6 @@ cli = pytest.mark.parametrize(
         [manimgl_cli],
     ],
 )
-
-
-def assert_construct(cls: type) -> type:
-    class Wrapper:
-        @classmethod
-        def test_construct(_) -> None:
-            cls().construct()
-
-    return Wrapper
 
 
 @cli
@@ -84,8 +88,26 @@ def test_render_basic_slide(
         assert local_presentation_config.resolution == presentation_config.resolution
 
 
+def assert_constructs(cls: type) -> type:
+    class Wrapper:
+        @classmethod
+        def test_render(_) -> None:
+            cls().construct()
+
+    return Wrapper
+
+
+def assert_renders(cls: type) -> type:
+    class Wrapper:
+        @classmethod
+        def test_render(_) -> None:
+            cls().render()
+
+    return Wrapper
+
+
 class TestSlide:
-    @assert_construct
+    @assert_constructs
     class TestDefaultProperties(Slide):
         def construct(self) -> None:
             assert self._output_folder == FOLDER_PATH
@@ -96,7 +118,40 @@ class TestSlide:
             assert len(self._canvas) == 0
             assert self._wait_time_between_slides == 0.0
 
-    @assert_construct
+    @assert_renders
+    class TestMultipleAnimationsInLastSlide(Slide):
+        """This is used to check against solution for issue #161."""
+
+        def construct(self) -> None:
+            circle = Circle(color=BLUE)
+            dot = Dot()
+
+            self.play(GrowFromCenter(circle))
+            self.play(FadeIn(dot))
+            self.next_slide()
+
+            self.play(dot.animate.move_to(RIGHT))
+            self.play(dot.animate.move_to(UP))
+            self.play(dot.animate.move_to(LEFT))
+            self.play(dot.animate.move_to(DOWN))
+
+    @assert_renders
+    class TestFileTooLong(Slide):
+        """This is used to check against solution for issue #123."""
+
+        def construct(self) -> None:
+            circle = Circle(radius=3, color=BLUE)
+            dot = Dot()
+            self.play(GrowFromCenter(circle), run_time=0.1)
+
+            for _ in range(30):
+                direction = (random.random() - 0.5) * LEFT + (
+                    random.random() - 0.5
+                ) * UP
+                self.play(dot.animate.move_to(direction), run_time=0.1)
+                self.play(dot.animate.move_to(ORIGIN), run_time=0.1)
+
+    @assert_constructs
     class TestLoop(Slide):
         def construct(self) -> None:
             text = Text("Some text")
@@ -117,7 +172,7 @@ class TestSlide:
             with pytest.raises(ValidationError):
                 self.end_loop()
 
-    @assert_construct
+    @assert_constructs
     class TestWipe(Slide):
         def construct(self) -> None:
             text = Text("Some text")
@@ -133,7 +188,7 @@ class TestSlide:
             assert text not in self.mobjects
             assert bye in self.mobjects
 
-    @assert_construct
+    @assert_constructs
     class TestZoom(Slide):
         def construct(self) -> None:
             text = Text("Some text")
@@ -149,7 +204,7 @@ class TestSlide:
             assert text not in self.mobjects
             assert bye in self.mobjects
 
-    @assert_construct
+    @assert_constructs
     class TestCanvas(Slide):
         def construct(self) -> None:
             text = Text("Some text")
