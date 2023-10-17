@@ -27,10 +27,10 @@ API_NAMES = {
     "manimgl": "manimlib",
 }
 
-MANIM_API = "MANIM_API"
-FORCE_MANIM_API = "FORCE_" + MANIM_API
+MANIM_API: str = "MANIM_API"
+FORCE_MANIM_API: str = "FORCE_" + MANIM_API
 
-API = os.environ.get(MANIM_API, "manim").lower()
+API: str = os.environ.get(MANIM_API, "manim").lower()
 
 
 if API not in API_NAMES:
@@ -46,8 +46,8 @@ if not os.environ.get(FORCE_MANIM_API):
     elif "manimlib" in sys.modules:
         API_NAME = "manimlib"
 
-MANIM = API_NAME == "manim"
-MANIMGL = API_NAME == "manimlib"
+MANIM: bool = API_NAME == "manim"
+MANIMGL: bool = API_NAME == "manimlib"
 
 if MANIM:
     try:
