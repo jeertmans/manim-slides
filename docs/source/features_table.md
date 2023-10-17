@@ -13,7 +13,6 @@ The following summarizes the different presentation features Manim Slides offers
 | Pause animation | Yes | No | No | N/A |
 | Play slide in reverse | Yes | No | No | N/A |
 | Slide count | Yes | Yes (optional) | Yes (optional) | N/A |
-| Animation count | Yes | No | No | N/A |
 | Needs Python with Manim Slides installed | Yes | No | No | No
 | Requires internet access | No | Yes | No | No |
 | Auto. play slides | Yes | Yes | Yes | N/A |
@@ -23,5 +22,8 @@ The following summarizes the different presentation features Manim Slides offers
 | Works cross-platforms | Yes | Yes | Partly[^1][^2] | Yes |
 :::
 
-[^1]: If you encounter a problem where slides do not automatically play or loops do not work, please [file an issue on GitHub](https://github.com/jeertmans/manim-slides/issues/new/choose).
-[^2]: PowerPoint online does not seem to support automatic playing of videos, so you need LibreOffice Impress on Linux platforms.
+[^1]: If you encounter a problem where slides do not automatically play or loops do not work,
+  please
+  [file an issue on GitHub](https://github.com/jeertmans/manim-slides/issues/new/choose).
+[^2]: PowerPoint online does not seem to support automatic playing of videos,
+  so you need LibreOffice Impress on Linux platforms.

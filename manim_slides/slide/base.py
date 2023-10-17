@@ -1,8 +1,9 @@
+__all__ = ["BaseSlide"]
+
 import platform
 from abc import abstractmethod
 from pathlib import Path
 from typing import (
-    TYPE_CHECKING,
     Any,
     List,
     MutableMapping,
@@ -20,11 +21,12 @@ from ..defaults import FFMPEG_BIN, FOLDER_PATH
 from ..logger import logger
 from ..utils import concatenate_video_files, merge_basenames, reverse_video_file
 
-if TYPE_CHECKING:
-    from manim import Mobject
+from . import MANIM
+
+if MANIM:
+    from manim.mobject.mobject import Mobject
 else:
     Mobject = Any
-
 
 class BaseSlide:
     def __init__(

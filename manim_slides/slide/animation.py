@@ -5,9 +5,11 @@ Like with Manim, animations are classes that must be put inside a
 :meth:`Scene.play<manim.scene.scene.Scene.play>` call.
 
 For each of the provided classes, there exists a method variant
-that directly calls :python:`self.play(Animation(...))`, see
-:class:`Slide`.
+that directly calls ``self.play(Animation(...))``, see
+:class:`Slide<manim_slides.slide.Slide>`.
 """
+
+__all__ = ["Wipe", "Zoom"]
 
 from typing import Any, Mapping, Sequence
 
@@ -16,9 +18,11 @@ import numpy as np
 from . import MANIM
 
 if MANIM:
-    from manim import LEFT, AnimationGroup, FadeIn, FadeOut, Mobject
+    from manim import LEFT, AnimationGroup, FadeIn, FadeOut
+    from manim.mobject.mobject import Mobject
 else:
-    from manimlib import LEFT, AnimationGroup, FadeIn, FadeOut, Mobject
+    from manimlib import LEFT, AnimationGroup, FadeIn, FadeOut
+    Mobject = Any
 
 
 class Wipe(AnimationGroup):  # type: ignore[misc]

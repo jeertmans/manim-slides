@@ -23,21 +23,13 @@ extensions = [
     "nbsphinx",
     "myst_parser",
     "sphinxext.opengraph",
-    # "sphinx_autodoc_typehints",
     "sphinx_click",
     "sphinx_copybutton",
     # Custom
     "manim_slides.docs.manim_slides_directive",
 ]
 
-rst_prolog = """
-.. role:: python(code)
-    :language: python
-"""
-
-typehints_defaults = "comma"
-typehints_use_signature = True
-typehints_use_signature_return = True
+autodoc_typehints = "both"
 
 myst_enable_extensions = [
     "colon_fence",
@@ -82,6 +74,7 @@ intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),
     "manim": ("https://docs.manim.community/en/stable/", None),
     "manimlib": ("https://3b1b.github.io/manim/", None),
+    "numpy": ("https://numpy.org/doc/stable/", None),
 }
 
 # -- OpenGraph settings
