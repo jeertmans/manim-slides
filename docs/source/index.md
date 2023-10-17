@@ -42,6 +42,7 @@ Manim Slides.
 quickstart
 reference/index
 features_table
+manim_or_manimgl
 ```
 
 ```{toctree}

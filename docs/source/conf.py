@@ -29,9 +29,7 @@ extensions = [
     "manim_slides.docs.manim_slides_directive",
 ]
 
-typehints_defaults = "comma"
-typehints_use_signature = True
-typehints_use_signature_return = True
+autodoc_typehints = "both"
 
 myst_enable_extensions = [
     "colon_fence",
@@ -41,6 +39,8 @@ myst_enable_extensions = [
 templates_path = ["_templates"]
 exclude_patterns = []
 
+# Removes the 'package.module' part from package.module.Class
+add_module_names = False
 
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
@@ -74,6 +74,7 @@ intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),
     "manim": ("https://docs.manim.community/en/stable/", None),
     "manimlib": ("https://3b1b.github.io/manim/", None),
+    "numpy": ("https://numpy.org/doc/stable/", None),
 }
 
 # -- OpenGraph settings

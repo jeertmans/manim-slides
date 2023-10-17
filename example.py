@@ -1,17 +1,13 @@
 # flake8: noqa: F403, F405
 # type: ignore
-import sys
-
-if "manimlib" in sys.modules:
-    from manimlib import *
-
-    MANIMGL = True
-else:
-    from manim import *
-
-    MANIMGL = False
 
 from manim_slides import Slide, ThreeDSlide
+from manim_slides.slide import MANIM, MANIMGL
+
+if MANIM:
+    from manim import *
+elif MANIMGL:
+    from manimlib import *
 
 
 class BasicExample(Slide):
@@ -27,44 +23,6 @@ class BasicExample(Slide):
         self.end_loop()  # This will loop until user inputs a key
 
         self.play(dot.animate.move_to(ORIGIN))
-        self.next_slide()  # Waits user to press continue to go to the next slide
-
-
-class MultipleAnimationsInLastSlide(Slide):
-    """This is used to check against solution for issue #161."""
-
-    def construct(self):
-        circle = Circle(color=BLUE)
-        dot = Dot()
-
-        self.play(GrowFromCenter(circle))
-        self.play(FadeIn(dot))
-        self.next_slide()
-
-        self.play(dot.animate.move_to(RIGHT))
-        self.play(dot.animate.move_to(UP))
-        self.play(dot.animate.move_to(LEFT))
-        self.play(dot.animate.move_to(DOWN))
-
-        self.next_slide()
-
-
-class TestFileTooLong(Slide):
-    """This is used to check against solution for issue #123."""
-
-    def construct(self):
-        import random
-
-        circle = Circle(radius=3, color=BLUE)
-        dot = Dot()
-        self.play(GrowFromCenter(circle), run_time=0.1)
-
-        for _ in range(30):
-            direction = (random.random() - 0.5) * LEFT + (random.random() - 0.5) * UP
-            self.play(dot.animate.move_to(direction), run_time=0.1)
-            self.play(dot.animate.move_to(ORIGIN), run_time=0.1)
-
-        self.next_slide()
 
 
 class ConvertExample(Slide):
@@ -207,7 +165,7 @@ class Example(Slide):
             language="console",
         ).shift(DOWN)
 
-        self.play(self.wipe(title, code))
+        self.wipe(title, code)
         self.next_slide()
 
         self.play(FadeIn(step, shift=RIGHT))
@@ -311,11 +269,7 @@ else:
     # [manimgl-3d]
     # WARNING: 3b1b's manim change how ThreeDScene work,
     # this is why things have to be managed differently.
-    class ThreeDExample(Slide):
-        CONFIG = {
-            "camera_class": ThreeDCamera,
-        }
-
+    class ThreeDExample(ThreeDSlide):
         def construct(self):
             axes = ThreeDAxes()
             circle = Circle(radius=3, color=BLUE)
@@ -327,7 +281,6 @@ else:
             frame.set_euler_angles(
                 theta=30 * DEGREES,
                 phi=75 * DEGREES,
-                gamma=0,
             )
 
             self.play(GrowFromCenter(circle))
