@@ -28,6 +28,17 @@ In an effort to better document changes, this CHANGELOG document is now created.
 - Added support for including code from a file in Manim Slides
   Sphinx directive.
   [#261](https://github.com/jeertmans/manim-slides/pull/261)
+- Added the `manim_slides.slide.animation` module and created the
+  `Wipe` and `Zoom` classes, that return a new animation.
+  [#285](https://github.com/jeertmans/manim-slides/pull/285)
+- Added two environ variables, `MANIM_API` and `FORCE_MANIM_API`,
+  to specify the `MANIM_API` to be used: `manim` and `manimce` will
+  import `manim`, while `manimgl` and `manimlib` will import `manimlib`.
+  If one of the two APIs is already imported, use `FORCE_MANIM_API=1` to
+  override this.
+  [#285](https://github.com/jeertmans/manim-slides/pull/285)
+- Added a working `ThreeDSlide` class compatible with `manimlib`.
+  [#285](https://github.com/jeertmans/manim-slides/pull/285)
 
 ### Changed
 
@@ -55,6 +66,19 @@ In an effort to better document changes, this CHANGELOG document is now created.
   [#271](https://github.com/jeertmans/manim-slides/pull/271)
 - Bumped RevealJS' default version to v4.6.1, and added three new themes.
   [#272](https://github.com/jeertmans/manim-slides/pull/272)
+- Changed the logger such that `make_logger` is called at module import,
+  and we do not use Manim's logger anymore.
+  [#285](https://github.com/jeertmans/manim-slides/pull/285)
+- Changed `Slide.wipe` and `Slide.zoom` to automatically call `self.play`.
+  This is a **breaking change** as calling `self.play(self.wipe(...))` now
+  raises an error (because `None` is not an animation).
+  [#285](https://github.com/jeertmans/manim-slides/pull/285)
+- Changed the `manim_slides.slide` module to contain submodules, i.e.,
+  `slide.manim`, `slide.manimlib`, `slide.animation`.
+  Only `slide.animation` is part of the public API.
+  Rules for choosing the Manim API (either `manim` or `manimlib`) has changed,
+  and defaults to the currently imported module, with a preference for `manim`.
+  [#285](https://github.com/jeertmans/manim-slides/pull/285)
 
 ### Fixed
 

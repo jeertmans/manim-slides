@@ -65,9 +65,7 @@ def validate_config_option(
 
 
 def file_to_data_uri(file: Path) -> str:
-    """
-    Reads a video and returns the corresponding data-uri.
-    """
+    """Reads a video and returns the corresponding data-uri."""
     b64 = b64encode(file.read_bytes()).decode("ascii")
     mime_type = mimetypes.guess_type(file)[0] or "video/mp4"
 
@@ -84,9 +82,11 @@ class Converter(BaseModel):  # type: ignore
         raise NotImplementedError
 
     def load_template(self) -> str:
-        """Returns the template as a string.
+        """
+        Returns the template as a string.
 
-        An empty string is returned if no template is used."""
+        An empty string is returned if no template is used.
+        """
         return ""
 
     def open(self, file: Path) -> Any:
@@ -358,7 +358,8 @@ class RevealJS(Converter):
         return webbrowser.open(file.absolute().as_uri())
 
     def convert_to(self, dest: Path) -> None:
-        """Converts this configuration into a RevealJS HTML presentation, saved to DEST."""
+        """Converts this configuration into a RevealJS HTML presentation, saved to
+        DEST."""
         if self.data_uri:
             assets_dir = Path("")  # Actually we won't care.
         else:
@@ -632,9 +633,7 @@ def convert(
     config_options: Dict[str, str],
     template: Optional[Path],
 ) -> None:
-    """
-    Convert SCENE(s) into a given format and writes the result in DEST.
-    """
+    """Convert SCENE(s) into a given format and writes the result in DEST."""
 
     presentation_configs = get_scenes_presentation_config(scenes, folder)
 

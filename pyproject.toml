@@ -5,6 +5,10 @@ requires = ["setuptools", "poetry-core>=1.0.0"]
 [tool.black]
 target-version = ["py38"]
 
+[tool.docformatter]
+black = true
+pre-summary-newline = true
+
 [tool.isort]
 profile = "black"
 py_version = 38

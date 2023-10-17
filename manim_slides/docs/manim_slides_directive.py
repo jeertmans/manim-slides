@@ -138,8 +138,9 @@ classnamedict = {}
 
 
 class SkipManimNode(nodes.Admonition, nodes.Element):
-    """Auxiliary node class that is used when the ``skip-manim-slides`` tag is
-    present or ``.pot`` files are being built.
+    """
+    Auxiliary node class that is used when the ``skip-manim-slides`` tag is present or
+    ``.pot`` files are being built.
 
     Skips rendering the manim-slides directive and outputs a placeholder instead.
     """
@@ -158,8 +159,9 @@ def depart(self, node):
 
 
 def process_name_list(option_input: str, reference_type: str) -> list[str]:
-    r"""Reformats a string of space separated class names
-    as a list of strings containing valid Sphinx references.
+    r"""
+    Reformats a string of space separated class names as a list of strings containing
+    valid Sphinx references.
 
     Tests
     -----
@@ -175,8 +177,8 @@ def process_name_list(option_input: str, reference_type: str) -> list[str]:
 
 
 class ManimSlidesDirective(Directive):
-    r"""The manim-slides directive, rendering videos while building
-    the documentation.
+    r"""
+    The manim-slides directive, rendering videos while building the documentation.
 
     See the module docstring for documentation.
     """
