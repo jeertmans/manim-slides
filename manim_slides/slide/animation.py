@@ -22,6 +22,7 @@ if MANIM:
     from manim.mobject.mobject import Mobject
 else:
     from manimlib import LEFT, AnimationGroup, FadeIn, FadeOut
+
     Mobject = Any
 
 

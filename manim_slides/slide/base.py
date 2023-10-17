@@ -3,15 +3,7 @@ __all__ = ["BaseSlide"]
 import platform
 from abc import abstractmethod
 from pathlib import Path
-from typing import (
-    Any,
-    List,
-    MutableMapping,
-    Optional,
-    Sequence,
-    Tuple,
-    ValuesView,
-)
+from typing import Any, List, MutableMapping, Optional, Sequence, Tuple, ValuesView
 
 import numpy as np
 from tqdm import tqdm
@@ -20,13 +12,13 @@ from ..config import PresentationConfig, PreSlideConfig, SlideConfig
 from ..defaults import FFMPEG_BIN, FOLDER_PATH
 from ..logger import logger
 from ..utils import concatenate_video_files, merge_basenames, reverse_video_file
-
 from . import MANIM
 
 if MANIM:
     from manim.mobject.mobject import Mobject
 else:
     Mobject = Any
+
 
 class BaseSlide:
     def __init__(

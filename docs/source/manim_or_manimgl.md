@@ -47,11 +47,11 @@ automatically subclasses the class from ManimGL, not Manim.
 from manimlib import Scene
 from manim_slides import Slide
 
-assert issubclass(Slide, Scene) # Slide subclasses Scene from ManimGL
+assert issubclass(Slide, Scene)  # Slide subclasses Scene from ManimGL
 
 from manim import Scene
 
-assert not issubclass(Slide, Scene) # but not Scene from Manim
+assert not issubclass(Slide, Scene)  # but not Scene from Manim
 ```
 
 ## Custom Manim API
