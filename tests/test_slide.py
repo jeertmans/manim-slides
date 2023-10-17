@@ -63,13 +63,9 @@ def test_render_basic_slide(
 
         assert results.exit_code == 0
 
-        local_slides_folder = Path("slides")
+        local_slides_folder = (Path(tmp_dir) / "slides").resolve(strict=True)
 
-        assert local_slides_folder.exists()
-
-        local_config_file = local_slides_folder / "BasicSlide.json"
-
-        assert local_config_file.exists()
+        local_config_file = (local_slides_folder / "BasicSlide.json").resolve(strict=True)
 
         local_presentation_config = PresentationConfig.from_file(local_config_file)
 
