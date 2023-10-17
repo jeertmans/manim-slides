@@ -2,6 +2,7 @@ from enum import EnumMeta
 from pathlib import Path
 
 import pytest
+from pydantic import ValidationError
 
 from manim_slides.config import PresentationConfig
 from manim_slides.convert import (
@@ -149,9 +150,9 @@ class TestConverter:
         PDF(presentation_configs=[presentation_config]).convert_to(out_file)
         assert out_file.exists()
 
-    def test_pdf_converter_no_presentation_config(self, tmp_path: Path) -> None:
-        with pytest.raises(IndexError):
-            PDF().convert_to(tmp_path / "slides.pdf")
+    def test_converter_no_presentation_config(self) -> None:
+        with pytest.raises(ValidationError):
+            Converter(presentation_configs=[])
 
     def test_pptx_converter(
         self, tmp_path: Path, presentation_config: PresentationConfig
