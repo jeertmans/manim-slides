@@ -10,44 +10,32 @@ from manim_slides.config import PresentationConfig
 
 @pytest.fixture
 def tests_folder() -> Iterator[Path]:
-    path = Path(__file__)
-    assert path.exists(), f"Path {path} does not exist!"
-    yield path
+    yield Path(__file__).parent.resolve(strict=True)
 
 
 @pytest.fixture
 def project_folder(tests_folder: Path) -> Iterator[Path]:
-    path = tests_folder.parent
-    assert path.exists(), f"Path {path} does not exist!"
-    yield path
+    yield tests_folder.parent.resolve(strict=True)
 
 
 @pytest.fixture
 def data_folder(tests_folder: Path) -> Iterator[Path]:
-    path = (tests_folder / "data")
-    assert path.exists(), f"Path {path} does not exist!"
-    yield path
+    yield (tests_folder / "data").resolve(strict=True)
 
 
 @pytest.fixture
 def slides_folder(data_folder: Path) -> Iterator[Path]:
-    path = (data_folder / "slides")
-    assert path.exists(), f"Path {path} does not exist!"
-    yield path
+    yield (data_folder / "slides").resolve(strict=True)
 
 
 @pytest.fixture
 def slides_file(data_folder: Path) -> Iterator[Path]:
-    path = (data_folder / "slides.py")
-    assert path.exists(), f"Path {path} does not exist!"
-    yield path
+    yield (data_folder / "slides.py").resolve(strict=True)
 
 
 @pytest.fixture
 def manimgl_config(project_folder: Path) -> Iterator[Path]:
-    path = (project_folder / "custom_config.yml")
-    assert path.exists(), f"Path {path} does not exist!"
-    yield path
+    yield (project_folder / "custom_config.yml").resolve(strict=True)
 
 
 def random_path(
@@ -63,7 +51,7 @@ def random_path(
     if touch:
         filepath.touch()
 
-    return filepath
+    return filepath.resolve(strict=touch)
 
 
 @pytest.fixture
