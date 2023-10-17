@@ -152,7 +152,7 @@ class BaseSlide:
         """
         return self._canvas
 
-    def add_to_canvas(self, **objects: Mobject) -> Mobject:
+    def add_to_canvas(self, **objects: Mobject) -> None:
         """
         Adds objects to the canvas, using key values as names.
 
