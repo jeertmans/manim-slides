@@ -501,6 +501,7 @@ class PowerPoint(Converter):
             if ret:
                 f = tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".png")
                 cv2.imwrite(f.name, frame)
+                f.close()
                 return f.name
             else:
                 logger.warn("Failed to read first image from video file")
