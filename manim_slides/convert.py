@@ -421,6 +421,7 @@ class PDF(Converter):
                 cap.set(cv2.CAP_PROP_POS_FRAMES, index - 1)
 
             ret, frame = cap.read()
+            cap.release()
 
             if ret:
                 frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
@@ -495,6 +496,7 @@ class PowerPoint(Converter):
         def save_first_image_from_video_file(file: Path) -> Optional[str]:
             cap = cv2.VideoCapture(file.as_posix())
             ret, frame = cap.read()
+            cap.release()
 
             if ret:
                 f = tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".png")
