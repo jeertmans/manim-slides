@@ -43,7 +43,7 @@ class KeyInput(QDialog):  # type: ignore
         self.layout.addWidget(self.label)
         self.setLayout(self.layout)
 
-    def keyPressEvent(self, event: QKeyEvent) -> None:
+    def keyPressEvent(self, event: QKeyEvent) -> None:  # noqa: N802
         self.key = event.key()
         self.deleteLater()
         event.accept()
@@ -58,11 +58,11 @@ class Wizard(QWidget):  # type: ignore
         self.icon = QIcon(":/icon.png")
         self.setWindowIcon(self.icon)
 
-        QBtn = QDialogButtonBox.Save | QDialogButtonBox.Cancel
+        button = QDialogButtonBox.Save | QDialogButtonBox.Cancel
 
-        self.buttonBox = QDialogButtonBox(QBtn)
-        self.buttonBox.accepted.connect(self.saveConfig)
-        self.buttonBox.rejected.connect(self.closeWithoutSaving)
+        self.buttonBox = QDialogButtonBox(button)
+        self.buttonBox.accepted.connect(self.save_config)
+        self.buttonBox.rejected.connect(self.close_without_saving)
 
         self.buttons = []
 
@@ -83,7 +83,7 @@ class Wizard(QWidget):  # type: ignore
             )
             self.buttons.append(button)
             button.clicked.connect(
-                partial(self.openDialog, i, getattr(self.config.keys, key))
+                partial(self.open_dialog, i, getattr(self.config.keys, key))
             )
             self.layout.addWidget(button, i, 1)
 
@@ -91,16 +91,16 @@ class Wizard(QWidget):  # type: ignore
 
         self.setLayout(self.layout)
 
-    def closeWithoutSaving(self) -> None:
+    def close_without_saving(self) -> None:
         logger.debug("Closing configuration wizard without saving")
         self.deleteLater()
         sys.exit(0)
 
-    def closeEvent(self, event: Any) -> None:
+    def closeEvent(self, event: Any) -> None:  # noqa: N802
         self.closeWithoutSaving()
         event.accept()
 
-    def saveConfig(self) -> None:
+    def save_config(self) -> None:
         try:
             Config.model_validate(self.config.dict())
         except ValueError:
@@ -116,7 +116,7 @@ class Wizard(QWidget):  # type: ignore
 
         self.deleteLater()
 
-    def openDialog(self, button_number: int, key: Key) -> None:
+    def open_dialog(self, button_number: int, key: Key) -> None:
         button = self.buttons[button_number]
         dialog = KeyInput()
         dialog.exec_()

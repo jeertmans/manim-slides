@@ -89,7 +89,7 @@ def test_render_basic_slide(
 def assert_constructs(cls: type) -> type:
     class Wrapper:
         @classmethod
-        def test_render(_) -> None:
+        def test_render(_) -> None:  # noqa: N804
             cls().construct()
 
     return Wrapper
@@ -98,7 +98,7 @@ def assert_constructs(cls: type) -> type:
 def assert_renders(cls: type) -> type:
     class Wrapper:
         @classmethod
-        def test_render(_) -> None:
+        def test_render(_) -> None:  # noqa: N804
             cls().render()
 
     return Wrapper
@@ -118,7 +118,7 @@ class TestSlide:
 
     @assert_renders
     class TestMultipleAnimationsInLastSlide(Slide):
-        """This is used to check against solution for issue #161."""
+        """Check against solution for issue #161."""
 
         def construct(self) -> None:
             circle = Circle(color=BLUE)
@@ -135,7 +135,7 @@ class TestSlide:
 
     @assert_renders
     class TestFileTooLong(Slide):
-        """This is used to check against solution for issue #123."""
+        """Check against solution for issue #123."""
 
         def construct(self) -> None:
             circle = Circle(radius=3, color=BLUE)

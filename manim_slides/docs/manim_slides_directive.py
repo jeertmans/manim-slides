@@ -185,7 +185,7 @@ class ManimSlidesDirective(Directive):
     has_content = True
     required_arguments = 1
     optional_arguments = 0
-    option_spec = {
+    option_spec = {  # noqa: RUF012
         "hide_source": bool,
         "quality": lambda arg: directives.choice(
             arg,
@@ -314,7 +314,7 @@ class ManimSlidesDirective(Directive):
 
         try:
             with tempconfig(example_config):
-                print(f"Rendering {clsname}...")
+                print(f"Rendering {clsname}...")  # noqa: T201
                 run_time = timeit(lambda: exec("\n".join(code), globals()), number=1)
                 video_dir = config.get_dir("video_dir")
         except Exception as e:
@@ -375,7 +375,7 @@ def _log_rendering_times(*args):
         if len(data) == 0:
             sys.exit()
 
-        print("\nRendering Summary\n-----------------\n")
+        print("\nRendering Summary\n-----------------\n")  # noqa: T201
 
         max_file_length = max(len(row[0]) for row in data)
         for key, group in it.groupby(data, key=lambda row: row[0]):
@@ -383,15 +383,17 @@ def _log_rendering_times(*args):
             group = list(group)
             if len(group) == 1:
                 row = group[0]
-                print(f"{key}{row[2].rjust(7, '.')}s {row[1]}")
+                print(f"{key}{row[2].rjust(7, '.')}s {row[1]}")  # noqa: T201
                 continue
             time_sum = sum(float(row[2]) for row in group)
-            print(
+            print(  # noqa: T201
                 f"{key}{f'{time_sum:.3f}'.rjust(7, '.')}s  => {len(group)} EXAMPLES",
             )
             for row in group:
-                print(f"{' '*(max_file_length)} {row[2].rjust(7)}s {row[1]}")
-        print("")
+                print(  # noqa: T201
+                    f"{' '*(max_file_length)} {row[2].rjust(7)}s {row[1]}"
+                )
+        print("")  # noqa: T201
 
 
 def _delete_rendering_times(*args):

@@ -31,7 +31,7 @@ def list_scenes(folder: Path) -> None:
 
 
 def _list_scenes(folder: Path) -> List[str]:
-    """Lists available scenes in given directory."""
+    """List available scenes in given directory."""
     scenes = []
 
     for filepath in folder.glob("*.json"):
@@ -51,7 +51,7 @@ def _list_scenes(folder: Path) -> List[str]:
 
 
 def prompt_for_scenes(folder: Path) -> List[str]:
-    """Prompts the user to select scenes within a given folder."""
+    """Prompt the user to select scenes within a given folder."""
     scene_choices = dict(enumerate(_list_scenes(folder), start=1))
 
     for i, scene in scene_choices.items():
@@ -86,7 +86,7 @@ def prompt_for_scenes(folder: Path) -> List[str]:
 def get_scenes_presentation_config(
     scenes: List[str], folder: Path
 ) -> List[PresentationConfig]:
-    """Returns a list of presentation configurations based on the user input."""
+    """Return a list of presentation configurations based on the user input."""
     if len(scenes) == 0:
         scenes = prompt_for_scenes(folder)
 

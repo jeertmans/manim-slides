@@ -122,14 +122,15 @@ class Config(BaseModel):  # type: ignore[misc]
 
     @classmethod
     def from_file(cls, path: Path) -> "Config":
-        """Reads a configuration from a file."""
+        """Read a configuration from a file."""
         return cls.model_validate(rtoml.load(path))  # type: ignore
 
     def to_file(self, path: Path) -> None:
-        """Dumps the configuration to a file."""
+        """Dump the configuration to a file."""
         rtoml.dump(self.model_dump(), path, pretty=True)
 
     def merge_with(self, other: "Config") -> "Config":
+        """Merge with another config."""
         self.keys = self.keys.merge_with(other.keys)
         return self
 
@@ -187,7 +188,7 @@ class PresentationConfig(BaseModel):  # type: ignore[misc]
 
     @classmethod
     def from_file(cls, path: Path) -> "PresentationConfig":
-        """Reads a presentation configuration from a file."""
+        """Read a presentation configuration from a file."""
         with open(path) as f:
             obj = json.load(f)
 
@@ -204,7 +205,7 @@ class PresentationConfig(BaseModel):  # type: ignore[misc]
             return cls.model_validate(obj)  # type: ignore
 
     def to_file(self, path: Path) -> None:
-        """Dumps the presentation configuration to a file."""
+        """Dump the presentation configuration to a file."""
         with open(path, "w") as f:
             f.write(self.model_dump_json(indent=2))
 

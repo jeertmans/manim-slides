@@ -12,7 +12,7 @@ Wrapper = Callable[[F], F]
 
 
 def config_path_option(function: F) -> F:
-    """Wraps a function to add configuration path option."""
+    """Wrap a function to add configuration path option."""
     wrapper: Wrapper = click.option(
         "-c",
         "--config",
@@ -27,7 +27,7 @@ def config_path_option(function: F) -> F:
 
 
 def config_options(function: F) -> F:
-    """Wraps a function to add configuration options."""
+    """Wrap a function to add configuration options."""
     function = config_path_option(function)
     function = click.option(
         "-f", "--force", is_flag=True, help="Overwrite any existing configuration file."
@@ -42,7 +42,7 @@ def config_options(function: F) -> F:
 
 
 def verbosity_option(function: F) -> F:
-    """Wraps a function to add verbosity option."""
+    """Wrap a function to add verbosity option."""
 
     def callback(ctx: Context, param: Parameter, value: str) -> None:
         if not value or ctx.resilient_parsing:
@@ -69,7 +69,7 @@ def verbosity_option(function: F) -> F:
 
 
 def folder_path_option(function: F) -> F:
-    """Wraps a function to add folder path option."""
+    """Wrap a function to add folder path option."""
     wrapper: Wrapper = click.option(
         "--folder",
         metavar="DIRECTORY",

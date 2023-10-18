@@ -19,6 +19,8 @@ if MANIM:
 else:
     Mobject = Any
 
+LEFT: np.ndarray = np.array([-1.0, 0.0, 0.0])
+
 
 class BaseSlide:
     def __init__(
@@ -36,61 +38,61 @@ class BaseSlide:
 
     @property
     def _ffmpeg_bin(self) -> Path:
-        """Returns the path to the ffmpeg binaries."""
+        """Return the path to the ffmpeg binaries."""
         return FFMPEG_BIN
 
     @property
     @abstractmethod
     def _frame_height(self) -> float:
-        """Returns the scene's frame height."""
+        """Return the scene's frame height."""
         ...
 
     @property
     @abstractmethod
     def _frame_width(self) -> float:
-        """Returns the scene's frame width."""
+        """Return the scene's frame width."""
         ...
 
     @property
     @abstractmethod
     def _background_color(self) -> str:
-        """Returns the scene's background color."""
+        """Return the scene's background color."""
         ...
 
     @property
     @abstractmethod
     def _resolution(self) -> Tuple[int, int]:
-        """Returns the scene's resolution used during rendering."""
+        """Return the scene's resolution used during rendering."""
         ...
 
     @property
     @abstractmethod
     def _partial_movie_files(self) -> List[Path]:
-        """Returns a list of partial movie files, a.k.a animations."""
+        """Return a list of partial movie files, a.k.a animations."""
         ...
 
     @property
     @abstractmethod
     def _show_progress_bar(self) -> bool:
-        """Returns True if progress bar should be displayed."""
+        """Return True if progress bar should be displayed."""
         ...
 
     @property
     @abstractmethod
     def _leave_progress_bar(self) -> bool:
-        """Returns True if progress bar should be left after completed."""
+        """Return True if progress bar should be left after completed."""
         ...
 
     @property
     @abstractmethod
     def _start_at_animation_number(self) -> Optional[int]:
-        """If set, returns the animation number at which rendering start."""
+        """If set, return the animation number at which rendering start."""
         ...
 
     @property
     def canvas(self) -> MutableMapping[str, Mobject]:
         """
-        Returns the canvas associated to the current slide.
+        Return the canvas associated to the current slide.
 
         The canvas is a mapping between names and Mobjects,
         for objects that are assumed to stay in multiple slides.
@@ -153,7 +155,7 @@ class BaseSlide:
 
     def add_to_canvas(self, **objects: Mobject) -> None:
         """
-        Adds objects to the canvas, using key values as names.
+        Add objects to the canvas, using key values as names.
 
         :param objects: A mapping between names and Mobjects.
 
@@ -167,19 +169,19 @@ class BaseSlide:
         self._canvas.update(objects)
 
     def remove_from_canvas(self, *names: str) -> None:
-        """Removes objects from the canvas."""
+        """Remove objects from the canvas."""
         for name in names:
             self._canvas.pop(name)
 
     @property
     def canvas_mobjects(self) -> ValuesView[Mobject]:
-        """Returns Mobjects contained in the canvas."""
+        """Return Mobjects contained in the canvas."""
         return self.canvas.values()
 
     @property
     def mobjects_without_canvas(self) -> Sequence[Mobject]:
         """
-        Returns the list of objects contained in the scene, minus those present in
+        Return the list of objects contained in the scene, minus those present in
         the canvas.
         """
         return [
@@ -189,7 +191,7 @@ class BaseSlide:
     @property
     def wait_time_between_slides(self) -> float:
         r"""
-        Returns the wait duration (in seconds) added between two slides.
+        Return the wait duration (in seconds) added between two slides.
 
         By default, this value is set to 0.
 
@@ -246,13 +248,13 @@ class BaseSlide:
         self._wait_time_between_slides = max(wait_time, 0.0)
 
     def play(self, *args: Any, **kwargs: Any) -> None:
-        """Overloads `self.play` and increment animation count."""
+        """Overload `self.play` and increment animation count."""
         super().play(*args, **kwargs)  # type: ignore[misc]
         self._current_animation += 1
 
     def next_slide(self) -> None:
         """
-        Creates a new slide with previous animations.
+        Create a new slide with previous animations.
 
         This usually means that the user will need to press some key before the
         next slide is played. By default, this is the right arrow key.
@@ -306,7 +308,7 @@ class BaseSlide:
         self._pause_start_animation = self._current_animation
 
     def _add_last_slide(self) -> None:
-        """Adds a 'last' slide to the end of slides."""
+        """Add a 'last' slide to the end of slides."""
         if (
             len(self._slides) > 0
             and self._current_animation == self._slides[-1].end_animation
@@ -323,7 +325,7 @@ class BaseSlide:
 
     def start_loop(self) -> None:
         """
-        Starts a loop. End it with :func:`end_loop`.
+        Start a loop. End it with :func:`end_loop`.
 
         A loop will automatically replay the slide, i.e., everything between
         :func:`start_loop` and :func:`end_loop`, upon reaching end.
@@ -367,7 +369,7 @@ class BaseSlide:
 
     def end_loop(self) -> None:
         """
-        Ends an existing loop.
+        End an existing loop.
 
         See :func:`start_loop` for more details.
         """
@@ -387,7 +389,7 @@ class BaseSlide:
 
     def _save_slides(self, use_cache: bool = True) -> None:
         """
-        Saves slides, optionally using cached files.
+        Save slides, optionally using cached files.
 
         Note that cached files only work with Manim.
         """
@@ -459,11 +461,11 @@ class BaseSlide:
     def wipe(
         self,
         *args: Any,
-        direction: np.ndarray = np.array([-1.0, 0.0, 0.0]),
+        direction: np.ndarray = LEFT,
         **kwargs: Any,
     ) -> None:
         """
-        Plays a wipe animation that will shift all the current objects outside of the
+        Play a wipe animation that will shift all the current objects outside of the
         current scene's scope, and all the future objects inside.
 
         :param args: Positional arguments passed to
@@ -518,7 +520,7 @@ class BaseSlide:
         **kwargs: Any,
     ) -> None:
         """
-        Plays a zoom animation that will fade out all the current objects, and fade in
+        Play a zoom animation that will fade out all the current objects, and fade in
         all the future objects. Objects are faded in a direction that goes towards the
         camera.
 
