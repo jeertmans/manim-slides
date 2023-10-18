@@ -46,7 +46,7 @@ cli = pytest.mark.parametrize(
         [manim_cli],
         pytest.param(
             manimgl_cli,
-            marks=pytest.mark.skipif(
+            marks=pytest.mark.xfail(
                 sys.platform == "win32" and os.environ.get("GITHUB_WORKFLOWS"),
                 reason="OpenGL cannot be installed on Windows in GitHub workflows",
             ),
