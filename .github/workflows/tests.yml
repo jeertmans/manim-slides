@@ -62,10 +62,6 @@ jobs:
       if: matrix.os == 'windows-latest'
       run: choco install ffmpeg
 
-    - name: Install Windows (bis)
-      if: matrix.os == 'windows-latest'
-      uses: openrndr/setup-opengl@v1.1
-
     - name: Install Manim Slides
       run: |
         poetry install --with test --all-extras
