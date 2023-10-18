@@ -1,3 +1,4 @@
+import os
 import random
 import shutil
 import subprocess
@@ -43,7 +44,13 @@ cli = pytest.mark.parametrize(
     ["cli"],
     [
         [manim_cli],
-        [manimgl_cli],
+        pytest.param(
+            manimgl_cli,
+            marks=pytest.mark.skipif(
+                sys.platform == "win32" and os.environ.get("GITHUB_WORKFLOWS"),
+                reason="OpenGL cannot be installed on Windows in GitHub workflows",
+            ),
+        ),
     ],
 )
 

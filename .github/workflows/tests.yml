@@ -17,6 +17,7 @@ jobs:
       MANIM_SLIDES_VERBOSITY: debug
       PYTHONFAULTHANDLER: 1
       DISPLAY: :99
+      GITHUB_WORKFLOWS: 1
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
