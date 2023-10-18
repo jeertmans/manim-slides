@@ -22,7 +22,7 @@ from .commons import config_options, verbosity_option
 from .config import Config, Key
 from .defaults import CONFIG_PATH
 from .logger import logger
-from .resources import *  # noqa: F401, F403
+from .resources import *  # noqa: F403
 
 WINDOW_NAME: str = "Configuration Wizard"
 
@@ -149,9 +149,10 @@ def init(
 def _init(
     config_path: Path, force: bool, merge: bool, skip_interactive: bool = False
 ) -> None:
-    """Actual initialization code for configuration file, with optional interactive
-    mode."""
-
+    """
+    Actual initialization code for configuration file, with optional interactive
+    mode.
+    """
     if config_path.exists():
         click.secho(f"The `{CONFIG_PATH}` configuration file exists")
 

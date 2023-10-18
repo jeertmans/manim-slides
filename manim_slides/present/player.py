@@ -9,7 +9,7 @@ from PySide6.QtWidgets import QDialog, QGridLayout, QLabel, QMainWindow
 
 from ..config import Config, PresentationConfig, SlideConfig
 from ..logger import logger
-from ..resources import *  # noqa: F401, F403
+from ..resources import *  # noqa: F403
 
 WINDOW_NAME = "Manim Slides"
 

@@ -43,7 +43,6 @@ class Wipe(AnimationGroup):  # type: ignore[misc]
 
     Examples
     --------
-
     .. manim-slides:: WipeClassExample
 
         from manim import *
@@ -99,7 +98,6 @@ class Zoom(AnimationGroup):  # type: ignore[misc]
 
     Examples
     --------
-
     .. manim-slides:: ZoomClassExample
 
         from manim import *

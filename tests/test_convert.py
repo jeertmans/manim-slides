@@ -67,7 +67,7 @@ def test_format_enum(enum_type: EnumMeta) -> None:
 
         assert expected == got
 
-        got = "{enum}".format(enum=enum)
+        got = "{enum}".format(enum=enum)  # noqa: UP032
 
         assert expected == got
 

@@ -359,8 +359,10 @@ class RevealJS(Converter):
         return webbrowser.open(file.absolute().as_uri())
 
     def convert_to(self, dest: Path) -> None:
-        """Converts this configuration into a RevealJS HTML presentation, saved to
-        DEST."""
+        """
+        Converts this configuration into a RevealJS HTML presentation, saved to
+        DEST.
+        """
         if self.data_uri:
             assets_dir = Path("")  # Actually we won't care.
         else:
@@ -547,7 +549,7 @@ def show_config_options(function: Callable[..., Any]) -> Callable[..., Any]:
             presentation_configs=[PresentationConfig()]
         )
         for key, value in converter.dict().items():
-            click.echo(f"{key}: {repr(value)}")
+            click.echo(f"{key}: {value!r}")
 
         ctx.exit()
 
@@ -637,7 +639,6 @@ def convert(
     template: Optional[Path],
 ) -> None:
     """Convert SCENE(s) into a given format and writes the result in DEST."""
-
     presentation_configs = get_scenes_presentation_config(scenes, folder)
 
     try:

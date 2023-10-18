@@ -99,7 +99,6 @@ class BaseSlide:
 
         Examples
         --------
-
         .. manim-slides:: CanvasExample
 
             from manim import *
@@ -179,8 +178,10 @@ class BaseSlide:
 
     @property
     def mobjects_without_canvas(self) -> Sequence[Mobject]:
-        """Returns the list of objects contained in the scene, minus those present in
-        the canvas."""
+        """
+        Returns the list of objects contained in the scene, minus those present in
+        the canvas.
+        """
         return [
             mobject for mobject in self.mobjects if mobject not in self.canvas_mobjects  # type: ignore[attr-defined]
         ]
@@ -203,7 +204,6 @@ class BaseSlide:
 
         Examples
         --------
-
         .. manim-slides:: WithoutWaitExample
 
             from manim import *
@@ -269,7 +269,6 @@ class BaseSlide:
 
         Examples
         --------
-
         The following contains 3 slides:
 
         #. the first with nothing on it;
@@ -308,7 +307,6 @@ class BaseSlide:
 
     def _add_last_slide(self) -> None:
         """Adds a 'last' slide to the end of slides."""
-
         if (
             len(self._slides) > 0
             and self._current_animation == self._slides[-1].end_animation
@@ -342,7 +340,6 @@ class BaseSlide:
 
         Examples
         --------
-
         The following contains one slide that will loop endlessly.
 
         .. manim-slides:: LoopExample
@@ -477,7 +474,6 @@ class BaseSlide:
 
         Examples
         --------
-
         .. manim-slides:: WipeExample
 
             from manim import *
@@ -533,7 +529,6 @@ class BaseSlide:
 
         Examples
         --------
-
         .. manim-slides:: ZoomExample
 
             from manim import *

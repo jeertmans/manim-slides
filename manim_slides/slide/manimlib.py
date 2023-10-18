@@ -39,7 +39,6 @@ class Slide(BaseSlide, Scene):  # type: ignore[misc]
     @property
     def _partial_movie_files(self) -> List[Path]:
         """Returns a list of partial movie files, a.k.a animations."""
-
         kwargs = {
             "remove_non_integer_files": True,
             "extension": self.file_writer.movie_file_extension,

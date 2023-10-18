@@ -26,7 +26,6 @@ ASPECT_RATIO_MODES = {
 @verbosity_option
 def list_scenes(folder: Path) -> None:
     """List available scenes."""
-
     for i, scene in enumerate(_list_scenes(folder), start=1):
         click.secho(f"{i}: {scene}", fg="green")
 
@@ -53,7 +52,6 @@ def _list_scenes(folder: Path) -> List[str]:
 
 def prompt_for_scenes(folder: Path) -> List[str]:
     """Prompts the user to select scenes within a given folder."""
-
     scene_choices = dict(enumerate(_list_scenes(folder), start=1))
 
     for i, scene in scene_choices.items():
@@ -242,7 +240,6 @@ def present(
     Use ``manim-slide list-scenes`` to list all available
     scenes in a given folder.
     """
-
     if skip_all:
         exit_after_last_slide = True
 

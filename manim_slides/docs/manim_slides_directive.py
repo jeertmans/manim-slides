@@ -114,7 +114,7 @@ directive:
         A list of methods, separated by spaces,
         that is rendered in a reference block after the source code.
 
-"""
+"""  # noqa: D400, D415
 from __future__ import annotations
 
 import csv
@@ -123,7 +123,6 @@ import re
 import sys
 from pathlib import Path
 from timeit import timeit
-from typing import Tuple
 
 import jinja2
 from docutils import nodes
@@ -182,6 +181,7 @@ class ManimSlidesDirective(Directive):
 
     See the module docstring for documentation.
     """
+
     has_content = True
     required_arguments = 1
     optional_arguments = 0
@@ -227,7 +227,7 @@ class ManimSlidesDirective(Directive):
 
         global classnamedict
 
-        def split_file_cls(arg: str) -> Tuple[Path, str]:
+        def split_file_cls(arg: str) -> tuple[Path, str]:
             if ":" in arg:
                 file, cls = arg.split(":", maxsplit=1)
                 _, file = self.state.document.settings.env.relfn2path(file)

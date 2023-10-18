@@ -123,8 +123,11 @@ filterwarnings = [
 [tool.ruff]
 extend-select = ["B", "C90", "D", "I", "N", "RUF", "UP", "T"]
 ignore = [
+  "D203",
+  "D205",
   "D212",
   "E501"
 ]
 isort = {known-first-party = ['manim_slides', 'tests']}
+line-length = 88
 target-version = "py38"

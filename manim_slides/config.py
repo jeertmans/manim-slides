@@ -188,7 +188,7 @@ class PresentationConfig(BaseModel):  # type: ignore[misc]
     @classmethod
     def from_file(cls, path: Path) -> "PresentationConfig":
         """Reads a presentation configuration from a file."""
-        with open(path, "r") as f:
+        with open(path) as f:
             obj = json.load(f)
 
             slides = obj.setdefault("slides", [])

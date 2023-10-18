@@ -1,4 +1,3 @@
-# flake8: noqa: F401
 import sys
 from types import ModuleType
 from typing import Any, List
