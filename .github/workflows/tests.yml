@@ -68,7 +68,7 @@ jobs:
 
     - name: Run pytest
       if: matrix.os != 'ubuntu-latest' || matrix.pyversion != '3.11'
-      run: poetry run pytest -x -n auto
+      run: poetry run pytest
 
     - name: Run pytest and coverage
       if: matrix.os == 'ubuntu-latest' && matrix.pyversion == '3.11'
