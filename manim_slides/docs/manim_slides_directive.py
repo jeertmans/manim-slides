@@ -114,7 +114,7 @@ directive:
         A list of methods, separated by spaces,
         that is rendered in a reference block after the source code.
 
-"""
+"""  # noqa: D400, D415
 from __future__ import annotations
 
 import csv
@@ -123,7 +123,6 @@ import re
 import sys
 from pathlib import Path
 from timeit import timeit
-from typing import Tuple
 
 import jinja2
 from docutils import nodes
@@ -182,10 +181,11 @@ class ManimSlidesDirective(Directive):
 
     See the module docstring for documentation.
     """
+
     has_content = True
     required_arguments = 1
     optional_arguments = 0
-    option_spec = {
+    option_spec = {  # noqa: RUF012
         "hide_source": bool,
         "quality": lambda arg: directives.choice(
             arg,
@@ -198,7 +198,7 @@ class ManimSlidesDirective(Directive):
     }
     final_argument_whitespace = True
 
-    def run(self):
+    def run(self):  # noqa: C901
         # Rendering is skipped if the tag skip-manim is present,
         # or if we are making the pot-files
         should_skip = (
@@ -227,7 +227,7 @@ class ManimSlidesDirective(Directive):
 
         global classnamedict
 
-        def split_file_cls(arg: str) -> Tuple[Path, str]:
+        def split_file_cls(arg: str) -> tuple[Path, str]:
             if ":" in arg:
                 file, cls = arg.split(":", maxsplit=1)
                 _, file = self.state.document.settings.env.relfn2path(file)
@@ -314,7 +314,7 @@ class ManimSlidesDirective(Directive):
 
         try:
             with tempconfig(example_config):
-                print(f"Rendering {clsname}...")
+                print(f"Rendering {clsname}...")  # noqa: T201
                 run_time = timeit(lambda: exec("\n".join(code), globals()), number=1)
                 video_dir = config.get_dir("video_dir")
         except Exception as e:
@@ -375,7 +375,7 @@ def _log_rendering_times(*args):
         if len(data) == 0:
             sys.exit()
 
-        print("\nRendering Summary\n-----------------\n")
+        print("\nRendering Summary\n-----------------\n")  # noqa: T201
 
         max_file_length = max(len(row[0]) for row in data)
         for key, group in it.groupby(data, key=lambda row: row[0]):
@@ -383,15 +383,17 @@ def _log_rendering_times(*args):
             group = list(group)
             if len(group) == 1:
                 row = group[0]
-                print(f"{key}{row[2].rjust(7, '.')}s {row[1]}")
+                print(f"{key}{row[2].rjust(7, '.')}s {row[1]}")  # noqa: T201
                 continue
             time_sum = sum(float(row[2]) for row in group)
-            print(
+            print(  # noqa: T201
                 f"{key}{f'{time_sum:.3f}'.rjust(7, '.')}s  => {len(group)} EXAMPLES",
             )
             for row in group:
-                print(f"{' '*(max_file_length)} {row[2].rjust(7)}s {row[1]}")
-        print("")
+                print(  # noqa: T201
+                    f"{' '*(max_file_length)} {row[2].rjust(7)}s {row[1]}"
+                )
+        print("")  # noqa: T201
 
 
 def _delete_rendering_times(*args):

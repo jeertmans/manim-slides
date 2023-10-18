@@ -9,7 +9,6 @@ from .logger import logger
 
 def concatenate_video_files(ffmpeg_bin: Path, files: List[Path], dest: Path) -> None:
     """Concatenate multiple video files into one."""
-
     f = tempfile.NamedTemporaryFile(mode="w", delete=False)
     f.writelines(f"file '{path.absolute()}'\n" for path in files)
     f.close()

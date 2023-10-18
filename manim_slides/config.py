@@ -80,6 +80,7 @@ class Keys(BaseModel):  # type: ignore[misc]
     HIDE_MOUSE: Key = Key(ids=[Qt.Key_H], name="HIDE / SHOW MOUSE")
 
     @model_validator(mode="before")
+    @classmethod
     def ids_are_unique_across_keys(cls, values: Dict[str, Key]) -> Dict[str, Key]:
         ids: Set[int] = set()
 
@@ -121,14 +122,15 @@ class Config(BaseModel):  # type: ignore[misc]
 
     @classmethod
     def from_file(cls, path: Path) -> "Config":
-        """Reads a configuration from a file."""
+        """Read a configuration from a file."""
         return cls.model_validate(rtoml.load(path))  # type: ignore
 
     def to_file(self, path: Path) -> None:
-        """Dumps the configuration to a file."""
+        """Dump the configuration to a file."""
         rtoml.dump(self.model_dump(), path, pretty=True)
 
     def merge_with(self, other: "Config") -> "Config":
+        """Merge with another config."""
         self.keys = self.keys.merge_with(other.keys)
         return self
 
@@ -146,6 +148,7 @@ class PreSlideConfig(BaseModel):  # type: ignore
         return v
 
     @model_validator(mode="after")
+    @classmethod
     def start_animation_is_before_end(
         cls, pre_slide_config: "PreSlideConfig"
     ) -> "PreSlideConfig":
@@ -185,8 +188,8 @@ class PresentationConfig(BaseModel):  # type: ignore[misc]
 
     @classmethod
     def from_file(cls, path: Path) -> "PresentationConfig":
-        """Reads a presentation configuration from a file."""
-        with open(path, "r") as f:
+        """Read a presentation configuration from a file."""
+        with open(path) as f:
             obj = json.load(f)
 
             slides = obj.setdefault("slides", [])
@@ -202,7 +205,7 @@ class PresentationConfig(BaseModel):  # type: ignore[misc]
             return cls.model_validate(obj)  # type: ignore
 
     def to_file(self, path: Path) -> None:
-        """Dumps the presentation configuration to a file."""
+        """Dump the presentation configuration to a file."""
         with open(path, "w") as f:
             f.write(self.model_dump_json(indent=2))
 

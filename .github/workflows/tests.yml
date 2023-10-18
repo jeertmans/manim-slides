@@ -17,6 +17,7 @@ jobs:
       MANIM_SLIDES_VERBOSITY: debug
       PYTHONFAULTHANDLER: 1
       DISPLAY: :99
+      GITHUB_WORKFLOWS: 1
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
@@ -68,7 +69,7 @@ jobs:
 
     - name: Run pytest
       if: matrix.os != 'ubuntu-latest' || matrix.pyversion != '3.11'
-      run: poetry run pytest -x -n auto
+      run: poetry run pytest
 
     - name: Run pytest and coverage
       if: matrix.os == 'ubuntu-latest' && matrix.pyversion == '3.11'

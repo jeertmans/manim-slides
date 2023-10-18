@@ -9,7 +9,7 @@ from base64 import b64encode
 from enum import Enum
 from importlib import resources
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Type, Union
+from typing import Any, Callable, ClassVar, Dict, List, Optional, Type, Union
 
 import click
 import cv2
@@ -60,13 +60,13 @@ def validate_config_option(
         except ValueError:
             raise click.BadParameter(
                 f"Configuration options `{c_option}` could not be parsed into a proper (key, value) pair. Please use an `=` sign to separate key from value."
-            )
+            ) from None
 
     return config
 
 
 def file_to_data_uri(file: Path) -> str:
-    """Reads a video and returns the corresponding data-uri."""
+    """Read a video and return the corresponding data-uri."""
     b64 = b64encode(file.read_bytes()).decode("ascii")
     mime_type = mimetypes.guess_type(file)[0] or "video/mp4"
 
@@ -79,24 +79,24 @@ class Converter(BaseModel):  # type: ignore
     template: Optional[Path] = None
 
     def convert_to(self, dest: Path) -> None:
-        """Converts self, i.e., a list of presentations, into a given format."""
+        """Convert self, i.e., a list of presentations, into a given format."""
         raise NotImplementedError
 
     def load_template(self) -> str:
         """
-        Returns the template as a string.
+        Return the template as a string.
 
         An empty string is returned if no template is used.
         """
         return ""
 
     def open(self, file: Path) -> Any:
-        """Opens a file, generated with converter, using appropriate application."""
+        """Open a file, generated with converter, using appropriate application."""
         raise NotImplementedError
 
     @classmethod
     def from_string(cls, s: str) -> Type["Converter"]:
-        """Returns the appropriate converter from a string name."""
+        """Return the appropriate converter from a string name."""
         return {
             "html": RevealJS,
             "pdf": PDF,
@@ -117,7 +117,7 @@ class Str(str):
         return core_schema.str_schema()
 
     def __str__(self) -> str:
-        """Ensures that the string is correctly quoted."""
+        """Ensure that the string is correctly quoted."""
         if self in ["true", "false", "null"]:
             return self
         else:
@@ -303,7 +303,7 @@ class RevealJS(Converter):
     auto_animate_easing: AutoAnimateEasing = AutoAnimateEasing.ease
     auto_animate_duration: float = 1.0
     auto_animate_unmatched: JsBool = JsBool.true
-    auto_animate_styles: List[str] = [
+    auto_animate_styles: ClassVar[List[str]] = [
         "opacity",
         "color",
         "background-color",
@@ -346,7 +346,7 @@ class RevealJS(Converter):
     model_config = ConfigDict(use_enum_values=True, extra="forbid")
 
     def load_template(self) -> str:
-        """Returns the RevealJS HTML template as a string."""
+        """Return the RevealJS HTML template as a string."""
         if isinstance(self.template, Path):
             return self.template.read_text()
 
@@ -359,8 +359,10 @@ class RevealJS(Converter):
         return webbrowser.open(file.absolute().as_uri())
 
     def convert_to(self, dest: Path) -> None:
-        """Converts this configuration into a RevealJS HTML presentation, saved to
-        DEST."""
+        """
+        Convert this configuration into a RevealJS HTML presentation, saved to
+        DEST.
+        """
         if self.data_uri:
             assets_dir = Path("")  # Actually we won't care.
         else:
@@ -409,7 +411,7 @@ class PDF(Converter):
         return open_with_default(file)
 
     def convert_to(self, dest: Path) -> None:
-        """Converts this configuration into a PDF presentation, saved to DEST."""
+        """Convert this configuration into a PDF presentation, saved to DEST."""
 
         def read_image_from_video_file(file: Path, frame_index: FrameIndex) -> Image:
             cap = cv2.VideoCapture(str(file))
@@ -419,6 +421,7 @@ class PDF(Converter):
                 cap.set(cv2.CAP_PROP_POS_FRAMES, index - 1)
 
             ret, frame = cap.read()
+            cap.release()
 
             if ret:
                 frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
@@ -462,7 +465,7 @@ class PowerPoint(Converter):
         return open_with_default(file)
 
     def convert_to(self, dest: Path) -> None:
-        """Converts this configuration into a PowerPoint presentation, saved to DEST."""
+        """Convert this configuration into a PowerPoint presentation, saved to DEST."""
         prs = pptx.Presentation()
         prs.slide_width = self.width * 9525
         prs.slide_height = self.height * 9525
@@ -493,10 +496,12 @@ class PowerPoint(Converter):
         def save_first_image_from_video_file(file: Path) -> Optional[str]:
             cap = cv2.VideoCapture(file.as_posix())
             ret, frame = cap.read()
+            cap.release()
 
             if ret:
                 f = tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".png")
                 cv2.imwrite(f.name, frame)
+                f.close()
                 return f.name
             else:
                 logger.warn("Failed to read first image from video file")
@@ -535,7 +540,7 @@ class PowerPoint(Converter):
 
 
 def show_config_options(function: Callable[..., Any]) -> Callable[..., Any]:
-    """Wraps a function to add a `--show-config` option."""
+    """Wrap a function to add a `--show-config` option."""
 
     def callback(ctx: Context, param: Parameter, value: bool) -> None:
         if not value or ctx.resilient_parsing:
@@ -547,7 +552,7 @@ def show_config_options(function: Callable[..., Any]) -> Callable[..., Any]:
             presentation_configs=[PresentationConfig()]
         )
         for key, value in converter.dict().items():
-            click.echo(f"{key}: {repr(value)}")
+            click.echo(f"{key}: {value!r}")
 
         ctx.exit()
 
@@ -563,7 +568,7 @@ def show_config_options(function: Callable[..., Any]) -> Callable[..., Any]:
 
 
 def show_template_option(function: Callable[..., Any]) -> Callable[..., Any]:
-    """Wraps a function to add a `--show-template` option."""
+    """Wrap a function to add a `--show-template` option."""
 
     def callback(ctx: Context, param: Parameter, value: bool) -> None:
         if not value or ctx.resilient_parsing:
@@ -637,7 +642,6 @@ def convert(
     template: Optional[Path],
 ) -> None:
     """Convert SCENE(s) into a given format and writes the result in DEST."""
-
     presentation_configs = get_scenes_presentation_config(scenes, folder)
 
     try:
@@ -664,4 +668,4 @@ def convert(
             _msg = error["msg"]
             msg.append(f"Option '{option}': {_msg}")
 
-        raise click.UsageError("\n".join(msg))
+        raise click.UsageError("\n".join(msg)) from None

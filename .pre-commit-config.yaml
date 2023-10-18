@@ -6,11 +6,6 @@ repos:
   - id: check-toml
   - id: end-of-file-fixer
   - id: trailing-whitespace
-- repo: https://github.com/pycqa/isort
-  rev: 5.12.0
-  hooks:
-  - id: isort
-    name: isort (python)
 - repo: https://github.com/macisamuele/language-formatters-pre-commit-hooks
   rev: v2.11.0
   hooks:
@@ -29,12 +24,6 @@ repos:
   - id: blacken-docs
     additional_dependencies:
     - black==23.9.1
-- repo: https://github.com/PyCQA/docformatter
-  rev: v1.7.5
-  hooks:
-  - id: docformatter
-    additional_dependencies: [tomli]
-    args: [--in-place, --config, ./pyproject.toml]
 - repo: https://github.com/astral-sh/ruff-pre-commit
   rev: v0.0.292
   hooks:

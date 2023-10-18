@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Any, List, Optional, Tuple
+from typing import Any, ClassVar, Dict, List, Optional, Tuple
 
 from manimlib import Scene, ThreeDCamera
 from manimlib.utils.file_ops import get_sorted_integer_files
@@ -28,18 +28,14 @@ class Slide(BaseSlide, Scene):  # type: ignore[misc]
 
     @property
     def _background_color(self) -> str:
-        """Returns the scene's background color."""
         return self.camera_config["background_color"].hex  # type: ignore
 
     @property
     def _resolution(self) -> Tuple[int, int]:
-        """Returns the scene's resolution used during rendering."""
         return self.camera_config["pixel_width"], self.camera_config["pixel_height"]
 
     @property
     def _partial_movie_files(self) -> List[Path]:
-        """Returns a list of partial movie files, a.k.a animations."""
-
         kwargs = {
             "remove_non_integer_files": True,
             "extension": self.file_writer.movie_file_extension,
@@ -70,7 +66,7 @@ class Slide(BaseSlide, Scene):  # type: ignore[misc]
 
 
 class ThreeDSlide(Slide):
-    CONFIG = {
+    CONFIG: ClassVar[Dict[str, Any]] = {
         "camera_class": ThreeDCamera,
     }
     pass

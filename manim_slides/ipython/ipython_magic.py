@@ -21,7 +21,7 @@ You can install them manually, or with the extra keyword:
 Note that you will still need to install Manim's platform-specific dependencies,
 see
 `their installation page <https://docs.manim.community/en/stable/installation.html>`_.
-"""
+"""  # noqa: D400, D415
 
 from __future__ import annotations
 
@@ -30,7 +30,7 @@ import mimetypes
 import shutil
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any
 
 from IPython import get_ipython
 from IPython.core.interactiveshell import InteractiveShell
@@ -49,15 +49,15 @@ from ..present import get_scenes_presentation_config
 class ManimSlidesMagic(Magics):  # type: ignore
     def __init__(self, shell: InteractiveShell) -> None:
         super().__init__(shell)
-        self.rendered_files: Dict[Path, Path] = {}
+        self.rendered_files: dict[Path, Path] = {}
 
     @needs_local_scope
     @line_cell_magic
-    def manim_slides(
+    def manim_slides(  # noqa: C901
         self,
         line: str,
-        cell: Optional[str] = None,
-        local_ns: Dict[str, Any] = {},
+        cell: str | None = None,
+        local_ns: dict[str, Any] | None = None,
     ) -> None:
         r"""
         Render Manim Slides contained in IPython cells. Works as a line or cell magic.
@@ -118,7 +118,6 @@ class ManimSlidesMagic(Magics):  # type: ignore
 
         Examples
         --------
-
         First make sure to put ``from manim_slides import ManimSlidesMagic``,
         or even ``from manim_slides import *``
         in a cell and evaluate it. Then, a typical Jupyter notebook cell for Manim Slides
@@ -144,6 +143,8 @@ class ManimSlidesMagic(Magics):  # type: ignore
             option should be set to ``None``. This can also be done by passing ``--progress_bar None`` as a
             CLI flag.
         """
+        if local_ns is None:
+            local_ns = {}
         if cell:
             exec(cell, local_ns)
 
@@ -173,8 +174,8 @@ class ManimSlidesMagic(Magics):  # type: ignore
                 renderer = OpenGLRenderer()
 
             try:
-                SceneClass = local_ns[config["scene_names"][0]]
-                scene = SceneClass(renderer=renderer)
+                scene_cls = local_ns[config["scene_names"][0]]
+                scene = scene_cls(renderer=renderer)
                 scene.render()
             finally:
                 # Shader cache becomes invalid as the context is destroyed

@@ -5,14 +5,6 @@ requires = ["setuptools", "poetry-core>=1.0.0"]
 [tool.black]
 target-version = ["py38"]
 
-[tool.docformatter]
-black = true
-pre-summary-newline = true
-
-[tool.isort]
-profile = "black"
-py_version = 38
-
 [tool.mypy]
 disallow_untyped_decorators = false
 install_types = true
@@ -129,7 +121,22 @@ filterwarnings = [
 ]
 
 [tool.ruff]
-ignore = [
+extend-exclude = ["manim_slides/resources.py"]
+extend-ignore = [
+  "D100",
+  "D101",
+  "D102",
+  "D103",
+  "D104",
+  "D105",
+  "D106",
+  "D107",
+  "D203",
+  "D205",
+  "D212",
   "E501"
 ]
+extend-select = ["B", "C90", "D", "I", "N", "RUF", "UP", "T"]
+isort = {known-first-party = ['manim_slides', 'tests']}
+line-length = 88
 target-version = "py38"

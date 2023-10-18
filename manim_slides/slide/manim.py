@@ -7,8 +7,10 @@ from .base import BaseSlide
 
 
 class Slide(BaseSlide, Scene):  # type: ignore[misc]
-    """Inherits from :class:`Scene<manim.scene.scene.Scene>` and provide necessary tools
-    for slides rendering."""
+    """
+    Inherits from :class:`Scene<manim.scene.scene.Scene>` and provide necessary tools
+    for slides rendering.
+    """
 
     @property
     def _ffmpeg_bin(self) -> Path:
@@ -83,7 +85,6 @@ class ThreeDSlide(Slide, ThreeDScene):  # type: ignore[misc]
 
     Examples
     --------
-
     .. manim-slides:: ThreeDExample
 
         from manim import *
