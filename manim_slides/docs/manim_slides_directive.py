@@ -198,7 +198,7 @@ class ManimSlidesDirective(Directive):
     }
     final_argument_whitespace = True
 
-    def run(self):
+    def run(self):  # noqa: C901
         # Rendering is skipped if the tag skip-manim is present,
         # or if we are making the pot-files
         should_skip = (

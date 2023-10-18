@@ -80,6 +80,7 @@ class Keys(BaseModel):  # type: ignore[misc]
     HIDE_MOUSE: Key = Key(ids=[Qt.Key_H], name="HIDE / SHOW MOUSE")
 
     @model_validator(mode="before")
+    @classmethod
     def ids_are_unique_across_keys(cls, values: Dict[str, Key]) -> Dict[str, Key]:
         ids: Set[int] = set()
 
@@ -146,6 +147,7 @@ class PreSlideConfig(BaseModel):  # type: ignore
         return v
 
     @model_validator(mode="after")
+    @classmethod
     def start_animation_is_before_end(
         cls, pre_slide_config: "PreSlideConfig"
     ) -> "PreSlideConfig":

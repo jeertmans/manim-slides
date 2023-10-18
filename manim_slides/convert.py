@@ -60,7 +60,7 @@ def validate_config_option(
         except ValueError:
             raise click.BadParameter(
                 f"Configuration options `{c_option}` could not be parsed into a proper (key, value) pair. Please use an `=` sign to separate key from value."
-            )
+            ) from None
 
     return config
 
@@ -664,4 +664,4 @@ def convert(
             _msg = error["msg"]
             msg.append(f"Option '{option}': {_msg}")
 
-        raise click.UsageError("\n".join(msg))
+        raise click.UsageError("\n".join(msg)) from None

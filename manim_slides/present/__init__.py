@@ -82,14 +82,13 @@ def prompt_for_scenes(folder: Path) -> List[str]:
             scenes = click.prompt("Choice(s)", value_proc=value_proc)
             return scenes  # type: ignore
         except ValueError as e:
-            raise click.UsageError(str(e))
+            raise click.UsageError(str(e)) from None
 
 
 def get_scenes_presentation_config(
     scenes: List[str], folder: Path
 ) -> List[PresentationConfig]:
     """Returns a list of presentation configurations based on the user input."""
-
     if len(scenes) == 0:
         scenes = prompt_for_scenes(folder)
 
@@ -103,7 +102,7 @@ def get_scenes_presentation_config(
         try:
             presentation_configs.append(PresentationConfig.from_file(config_file))
         except ValidationError as e:
-            raise click.UsageError(str(e))
+            raise click.UsageError(str(e)) from None
 
     return presentation_configs
 
@@ -125,7 +124,7 @@ def start_at_callback(
                     f"start index can only be an integer or an empty string, not `{value}`",
                     ctx=ctx,
                     param=param,
-                )
+                ) from None
 
     values_tuple = values.split(",")
     n_values = len(values_tuple)
@@ -253,7 +252,7 @@ def present(
         try:
             config = Config.from_file(config_path)
         except ValidationError as e:
-            raise click.UsageError(str(e))
+            raise click.UsageError(str(e)) from None
     else:
         logger.debug("No configuration file found, using default configuration.")
         config = Config()

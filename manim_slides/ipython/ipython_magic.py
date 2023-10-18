@@ -53,7 +53,7 @@ class ManimSlidesMagic(Magics):  # type: ignore
 
     @needs_local_scope
     @line_cell_magic
-    def manim_slides(
+    def manim_slides(  # noqa: C901
         self,
         line: str,
         cell: Optional[str] = None,
@@ -173,8 +173,8 @@ class ManimSlidesMagic(Magics):  # type: ignore
                 renderer = OpenGLRenderer()
 
             try:
-                SceneClass = local_ns[config["scene_names"][0]]
-                scene = SceneClass(renderer=renderer)
+                scene_cls = local_ns[config["scene_names"][0]]
+                scene = scene_cls(renderer=renderer)
                 scene.render()
             finally:
                 # Shader cache becomes invalid as the context is destroyed
