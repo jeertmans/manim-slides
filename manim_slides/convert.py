@@ -9,7 +9,7 @@ from base64 import b64encode
 from enum import Enum
 from importlib import resources
 from pathlib import Path
-from typing import Any, Callable, ClassVar, Dict, List, Optional, Type, Union
+from typing import Any, Callable, Dict, List, Optional, Type, Union
 
 import click
 import cv2
@@ -21,6 +21,7 @@ from PIL import Image
 from pydantic import (
     BaseModel,
     ConfigDict,
+    Field,
     FilePath,
     GetCoreSchemaHandler,
     PositiveFloat,
@@ -303,20 +304,22 @@ class RevealJS(Converter):
     auto_animate_easing: AutoAnimateEasing = AutoAnimateEasing.ease
     auto_animate_duration: float = 1.0
     auto_animate_unmatched: JsBool = JsBool.true
-    auto_animate_styles: ClassVar[List[str]] = [
-        "opacity",
-        "color",
-        "background-color",
-        "padding",
-        "font-size",
-        "line-height",
-        "letter-spacing",
-        "border-width",
-        "border-color",
-        "border-radius",
-        "outline",
-        "outline-offset",
-    ]
+    auto_animate_styles: List[str] = Field(
+        default_factory=lambda: [
+            "opacity",
+            "color",
+            "background-color",
+            "padding",
+            "font-size",
+            "line-height",
+            "letter-spacing",
+            "border-width",
+            "border-color",
+            "border-radius",
+            "outline",
+            "outline-offset",
+        ]
+    )
     auto_slide: AutoSlide = 0
     auto_slide_stoppable: JsBool = JsBool.true
     auto_slide_method: Union[AutoSlideMethod, Function] = AutoSlideMethod.null
