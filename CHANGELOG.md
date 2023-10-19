@@ -41,7 +41,7 @@ In an effort to better document changes, this CHANGELOG document is now created.
   [#285](https://github.com/jeertmans/manim-slides/pull/285)
 - Added `loop` option to `Slide`'s `next_slide` method.
   Calling `next_slide` will never fail anymore.
-  [#285](https://github.com/jeertmans/manim-slides/pull/294)
+  [#294](https://github.com/jeertmans/manim-slides/pull/294)
 
 ### Changed
 
@@ -108,6 +108,6 @@ In an effort to better document changes, this CHANGELOG document is now created.
 - Remove `Slide`'s method `start_loop` and `self.end_loop`
   in favor to `self.next_slide(loop=True)`.
   This is a **breaking change**.
-  [#285](https://github.com/jeertmans/manim-slides/pull/294)
+  [#294](https://github.com/jeertmans/manim-slides/pull/294)
 
 <!-- end changelog -->
