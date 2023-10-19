@@ -341,11 +341,12 @@ class RevealJS(Converter):
     display: Display = Display.block
     hide_inactive_cursor: JsBool = JsBool.true
     hide_cursor_time: int = 5000
-    # Add. options
+    # Appearance options from RevealJS
     background_color: str = "black"  # TODO: use pydantic.color.Color
     reveal_version: str = "4.6.1"
     reveal_theme: RevealTheme = RevealTheme.black
     title: str = "Manim Slides"
+    # Pydantic options
     model_config = ConfigDict(use_enum_values=True, extra="forbid")
 
     def load_template(self) -> str:
