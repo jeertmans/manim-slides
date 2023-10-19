@@ -6,30 +6,36 @@ from typing import Generator, Iterator, List
 import pytest
 
 from manim_slides.config import PresentationConfig
-from manim_slides.logger import make_logger
-
-_ = make_logger()  # This is run so that logger is created
 
 
 @pytest.fixture
-def data_folder() -> Iterator[Path]:
-    path = (Path(__file__).parent / "data").resolve()
-    assert path.exists()
-    yield path
+def tests_folder() -> Iterator[Path]:
+    yield Path(__file__).parent.resolve(strict=True)
+
+
+@pytest.fixture
+def project_folder(tests_folder: Path) -> Iterator[Path]:
+    yield tests_folder.parent.resolve(strict=True)
+
+
+@pytest.fixture
+def data_folder(tests_folder: Path) -> Iterator[Path]:
+    yield (tests_folder / "data").resolve(strict=True)
 
 
 @pytest.fixture
 def slides_folder(data_folder: Path) -> Iterator[Path]:
-    path = (data_folder / "slides").resolve()
-    assert path.exists()
-    yield path
+    yield (data_folder / "slides").resolve(strict=True)
 
 
 @pytest.fixture
 def slides_file(data_folder: Path) -> Iterator[Path]:
-    path = (data_folder / "slides.py").resolve()
-    assert path.exists()
-    yield path
+    yield (data_folder / "slides.py").resolve(strict=True)
+
+
+@pytest.fixture
+def manimgl_config(project_folder: Path) -> Iterator[Path]:
+    yield (project_folder / "custom_config.yml").resolve(strict=True)
 
 
 def random_path(
@@ -45,7 +51,7 @@ def random_path(
     if touch:
         filepath.touch()
 
-    return filepath
+    return filepath.resolve(strict=touch)
 
 
 @pytest.fixture

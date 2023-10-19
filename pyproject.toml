@@ -5,10 +5,6 @@ requires = ["setuptools", "poetry-core>=1.0.0"]
 [tool.black]
 target-version = ["py38"]
 
-[tool.isort]
-profile = "black"
-py_version = 38
-
 [tool.mypy]
 disallow_untyped_decorators = false
 install_types = true
@@ -43,14 +39,14 @@ packages = [
 ]
 readme = "README.md"
 repository = "https://github.com/jeertmans/manim-slides"
-version = "5.0.0-rc1"
+version = "5.0.0-rc2"
 
 [tool.poetry.dependencies]
 click = "^8.1.3"
 click-default-group = "^1.2.2"
 docutils = {version = "^0.20.1", optional = true}
 ipython = {version = ">=8.12.2", optional = true}
-jinja2 = {version = "^3.1.2", optional = true}
+jinja2 = "^3.1.2"
 lxml = "^4.9.2"
 manim = {version = "^0.17.3", optional = true}
 manimgl = {version = "^1.6.1", optional = true}
@@ -71,7 +67,7 @@ tqdm = "^4.64.1"
 magic = ["manim", "ipython"]
 manim = ["manim"]
 manimgl = ["manimgl"]
-sphinx-directive = ["docutils", "jinja2", "manim"]
+sphinx-directive = ["docutils", "manim"]
 
 [tool.poetry.group.dev]
 optional = true
@@ -125,7 +121,22 @@ filterwarnings = [
 ]
 
 [tool.ruff]
-ignore = [
+extend-exclude = ["manim_slides/resources.py"]
+extend-ignore = [
+  "D100",
+  "D101",
+  "D102",
+  "D103",
+  "D104",
+  "D105",
+  "D106",
+  "D107",
+  "D203",
+  "D205",
+  "D212",
   "E501"
 ]
+extend-select = ["B", "C90", "D", "I", "N", "RUF", "UP", "T"]
+isort = {known-first-party = ['manim_slides', 'tests']}
+line-length = 88
 target-version = "py38"

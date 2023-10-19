@@ -32,7 +32,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
     - name: Install Poetry
       run: pipx install poetry
     - name: Install Python
@@ -56,18 +56,8 @@ jobs:
       id: cache-media-restore
       uses: actions/cache/restore@v3
       with:
-        path: media
-        key: ${{ runner.os }}-media
-    - name: Build animations
-      run: |
-        poetry run manim example.py ConvertExample BasicExample ThreeDExample
-    - name: Convert animations to HTML slides
-      run: |
-        poetry run manim-slides convert -v DEBUG ConvertExample docs/source/_static/slides.html -ccontrols=true
-        poetry run manim-slides convert -v DEBUG BasicExample docs/source/_static/basic_example.html -ccontrols=true
-        poetry run manim-slides convert -v DEBUG ThreeDExample docs/source/_static/three_d_example.html -ccontrols=true
-    - name: Show docs/source/_static/ dir content (video only)
-      run: tree -L 3 docs/source/_static/ -P '*.mp4'
+        path: docs/media
+        key: ${{ runner.os }}-docs-media
     - name: Clear cache
       run: |
         gh extension install actions/gh-actions-cache
@@ -78,7 +68,7 @@ jobs:
       id: cache-media-save
       uses: actions/cache/save@v3
       with:
-        path: media
+        path: docs/media
         key: ${{ steps.cache-media-restore.outputs.cache-primary-key }}
     - name: Build docs
       run: cd docs && poetry run make html

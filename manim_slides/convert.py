@@ -9,12 +9,13 @@ from base64 import b64encode
 from enum import Enum
 from importlib import resources
 from pathlib import Path
-from typing import Any, Callable, Dict, Generator, List, Optional, Type, Union
+from typing import Any, Callable, ClassVar, Dict, List, Optional, Type, Union
 
 import click
 import cv2
 import pptx
 from click import Context, Parameter
+from jinja2 import Template
 from lxml import etree
 from PIL import Image
 from pydantic import (
@@ -25,38 +26,16 @@ from pydantic import (
     PositiveFloat,
     PositiveInt,
     ValidationError,
+    conlist,
 )
 from pydantic_core import CoreSchema, core_schema
 from tqdm import tqdm
 
-from . import data
+from . import templates
 from .commons import folder_path_option, verbosity_option
 from .config import PresentationConfig
 from .logger import logger
 from .present import get_scenes_presentation_config
-
-DATA_URI_FIX = r"""
-// Fix found by @t-fritsch on GitHub
-// see: https://github.com/hakimel/reveal.js/discussions/3362#discussioncomment-6651475.
-function fixBase64VideoBackground(event) {
-    // event.previousSlide, event.currentSlide, event.indexh, event.indexv
-    if (event.currentSlide.getAttribute('data-background-video')) {
-        const background = Reveal.getSlideBackground(event.indexh, event.indexv),
-            video = background.querySelector('video'),
-            sources = video.querySelectorAll('source');
-
-        sources.forEach((source, i) => {
-            const src = source.getAttribute('src');
-            if(src.match(/^data:video.*;base64$/)){
-                const nextSrc = sources[i+1]?.getAttribute('src');
-                video.setAttribute('src', `${src},${nextSrc}`);
-            }
-        });
-    }
-}
-Reveal.on( 'ready', fixBase64VideoBackground );
-Reveal.on( 'slidechanged', fixBase64VideoBackground );
-"""
 
 
 def open_with_default(file: Path) -> None:
@@ -81,15 +60,13 @@ def validate_config_option(
         except ValueError:
             raise click.BadParameter(
                 f"Configuration options `{c_option}` could not be parsed into a proper (key, value) pair. Please use an `=` sign to separate key from value."
-            )
+            ) from None
 
     return config
 
 
-def data_uri(file: Path) -> str:
-    """
-    Reads a video and returns the corresponding data-uri.
-    """
+def file_to_data_uri(file: Path) -> str:
+    """Read a video and return the corresponding data-uri."""
     b64 = b64encode(file.read_bytes()).decode("ascii")
     mime_type = mimetypes.guess_type(file)[0] or "video/mp4"
 
@@ -97,27 +74,29 @@ def data_uri(file: Path) -> str:
 
 
 class Converter(BaseModel):  # type: ignore
-    presentation_configs: List[PresentationConfig] = []
+    presentation_configs: conlist(PresentationConfig, min_length=1)  # type: ignore[valid-type]
     assets_dir: str = "{basename}_assets"
     template: Optional[Path] = None
 
     def convert_to(self, dest: Path) -> None:
-        """Converts self, i.e., a list of presentations, into a given format."""
+        """Convert self, i.e., a list of presentations, into a given format."""
         raise NotImplementedError
 
     def load_template(self) -> str:
-        """Returns the template as a string.
+        """
+        Return the template as a string.
 
-        An empty string is returned if no template is used."""
+        An empty string is returned if no template is used.
+        """
         return ""
 
     def open(self, file: Path) -> Any:
-        """Opens a file, generated with converter, using appropriate application."""
+        """Open a file, generated with converter, using appropriate application."""
         raise NotImplementedError
 
     @classmethod
     def from_string(cls, s: str) -> Type["Converter"]:
-        """Returns the appropriate converter from a string name."""
+        """Return the appropriate converter from a string name."""
         return {
             "html": RevealJS,
             "pdf": PDF,
@@ -138,45 +117,50 @@ class Str(str):
         return core_schema.str_schema()
 
     def __str__(self) -> str:
-        """Ensures that the string is correctly quoted."""
+        """Ensure that the string is correctly quoted."""
         if self in ["true", "false", "null"]:
-            return super().__str__()
+            return self
         else:
             return f"'{super().__str__()}'"
+
+
+class StrEnum(Enum):
+    def __str__(self) -> str:
+        return str(self.value)
 
 
 Function = str  # Basically, anything
 
 
-class JsTrue(str, Enum):
+class JsTrue(str, StrEnum):
     true = "true"
 
 
-class JsFalse(str, Enum):
+class JsFalse(str, StrEnum):
     false = "false"
 
 
-class JsBool(Str, Enum):  # type: ignore
+class JsBool(Str, StrEnum):  # type: ignore
     true = "true"
     false = "false"
 
 
-class JsNull(Str, Enum):  # type: ignore
+class JsNull(Str, StrEnum):  # type: ignore
     null = "null"
 
 
-class ControlsLayout(Str, Enum):  # type: ignore
+class ControlsLayout(Str, StrEnum):  # type: ignore
     edges = "edges"
     bottom_right = "bottom-right"
 
 
-class ControlsBackArrows(Str, Enum):  # type: ignore
+class ControlsBackArrows(Str, StrEnum):  # type: ignore
     faded = "faded"
     hidden = "hidden"
     visibly = "visibly"
 
 
-class SlideNumber(Str, Enum):  # type: ignore
+class SlideNumber(Str, StrEnum):  # type: ignore
     true = "true"
     false = "false"
     hdotv = "h.v"
@@ -185,24 +169,24 @@ class SlideNumber(Str, Enum):  # type: ignore
     candt = "c/t"
 
 
-class ShowSlideNumber(Str, Enum):  # type: ignore
+class ShowSlideNumber(Str, StrEnum):  # type: ignore
     all = "all"
     print = "print"
     speaker = "speaker"
 
 
-class KeyboardCondition(Str, Enum):  # type: ignore
+class KeyboardCondition(Str, StrEnum):  # type: ignore
     null = "null"
     focused = "focused"
 
 
-class NavigationMode(Str, Enum):  # type: ignore
+class NavigationMode(Str, StrEnum):  # type: ignore
     default = "default"
     linear = "linear"
     grid = "grid"
 
 
-class AutoPlayMedia(Str, Enum):  # type: ignore
+class AutoPlayMedia(Str, StrEnum):  # type: ignore
     null = "null"
     true = "true"
     false = "false"
@@ -211,25 +195,25 @@ class AutoPlayMedia(Str, Enum):  # type: ignore
 PreloadIframes = AutoPlayMedia
 
 
-class AutoAnimateMatcher(Str, Enum):  # type: ignore
+class AutoAnimateMatcher(Str, StrEnum):  # type: ignore
     null = "null"
 
 
-class AutoAnimateEasing(Str, Enum):  # type: ignore
+class AutoAnimateEasing(Str, StrEnum):  # type: ignore
     ease = "ease"
 
 
 AutoSlide = Union[PositiveInt, JsFalse]
 
 
-class AutoSlideMethod(Str, Enum):  # type: ignore
+class AutoSlideMethod(Str, StrEnum):  # type: ignore
     null = "null"
 
 
 MouseWheel = Union[JsNull, float]
 
 
-class Transition(Str, Enum):  # type: ignore
+class Transition(Str, StrEnum):  # type: ignore
     none = "none"
     fade = "fade"
     slide = "slide"
@@ -238,13 +222,13 @@ class Transition(Str, Enum):  # type: ignore
     zoom = "zoom"
 
 
-class TransitionSpeed(Str, Enum):  # type: ignore
+class TransitionSpeed(Str, StrEnum):  # type: ignore
     default = "default"
     fast = "fast"
     slow = "slow"
 
 
-class BackgroundSize(Str, Enum):  # type: ignore
+class BackgroundSize(Str, StrEnum):  # type: ignore
     # From: https://developer.mozilla.org/en-US/docs/Web/CSS/background-size
     # TODO: support more background size
     contain = "contain"
@@ -254,11 +238,11 @@ class BackgroundSize(Str, Enum):  # type: ignore
 BackgroundTransition = Transition
 
 
-class Display(Str, Enum):  # type: ignore
+class Display(Str, StrEnum):  # type: ignore
     block = "block"
 
 
-class RevealTheme(str, Enum):
+class RevealTheme(str, StrEnum):
     black = "black"
     white = "white"
     league = "league"
@@ -270,6 +254,9 @@ class RevealTheme(str, Enum):
     soralized = "solarized"
     blood = "blood"
     moon = "moon"
+    black_contrast = "black-contrast"
+    white_contrast = "white-contrast"
+    dracula = "dracula"
 
 
 class RevealJS(Converter):
@@ -316,7 +303,7 @@ class RevealJS(Converter):
     auto_animate_easing: AutoAnimateEasing = AutoAnimateEasing.ease
     auto_animate_duration: float = 1.0
     auto_animate_unmatched: JsBool = JsBool.true
-    auto_animate_styles: List[str] = [
+    auto_animate_styles: ClassVar[List[str]] = [
         "opacity",
         "color",
         "background-color",
@@ -353,50 +340,29 @@ class RevealJS(Converter):
     hide_cursor_time: int = 5000
     # Add. options
     background_color: str = "black"  # TODO: use pydantic.color.Color
-    reveal_version: str = "4.4.0"
+    reveal_version: str = "4.6.1"
     reveal_theme: RevealTheme = RevealTheme.black
     title: str = "Manim Slides"
     model_config = ConfigDict(use_enum_values=True, extra="forbid")
 
-    def get_sections_iter(self, assets_dir: Path) -> Generator[str, None, None]:
-        """Generates a sequence of sections, one per slide, that will be included into the html template."""
-        for presentation_config in self.presentation_configs:
-            for slide_config in presentation_config.slides:
-                file = slide_config.file
-
-                logger.debug(f"Writing video section with file {file}")
-
-                if self.data_uri:
-                    file = data_uri(file)
-                else:
-                    file = assets_dir / file.name
-
-                # TODO: document this
-                # Videos are muted because, otherwise, the first slide never plays correctly.
-                # This is due to a restriction in playing audio without the user doing anything.
-                # Later, this might be useful to only mute the first video, or to make it optional.
-                # Read more about this:
-                #   https://developer.mozilla.org/en-US/docs/Web/Media/Autoplay_guide#autoplay_and_autoplay_blocking
-                if slide_config.loop:
-                    yield f'<section data-background-size={self.background_size.value} data-background-color="{presentation_config.background_color}" data-background-video="{file}" data-background-video-muted data-background-video-loop></section>'
-                else:
-                    yield f'<section data-background-size={self.background_size.value} data-background-color="{presentation_config.background_color}" data-background-video="{file}" data-background-video-muted></section>'
-
     def load_template(self) -> str:
-        """Returns the RevealJS HTML template as a string."""
+        """Return the RevealJS HTML template as a string."""
         if isinstance(self.template, Path):
             return self.template.read_text()
 
         if sys.version_info < (3, 9):
-            return resources.read_text(data, "revealjs_template.html")
+            return resources.read_text(templates, "revealjs.html")
 
-        return resources.files(data).joinpath("revealjs_template.html").read_text()
+        return resources.files(templates).joinpath("revealjs.html").read_text()
 
     def open(self, file: Path) -> bool:
         return webbrowser.open(file.absolute().as_uri())
 
     def convert_to(self, dest: Path) -> None:
-        """Converts this configuration into a RevealJS HTML presentation, saved to DEST."""
+        """
+        Convert this configuration into a RevealJS HTML presentation, saved to
+        DEST.
+        """
         if self.data_uri:
             assets_dir = Path("")  # Actually we won't care.
         else:
@@ -416,18 +382,16 @@ class RevealJS(Converter):
             for presentation_config in self.presentation_configs:
                 presentation_config.copy_to(full_assets_dir)
 
+        dest.parent.mkdir(parents=True, exist_ok=True)
+
         with open(dest, "w") as f:
-            sections = "".join(self.get_sections_iter(assets_dir))
+            revealjs_template = Template(self.load_template())
 
-            revealjs_template = self.load_template()
+            options = self.dict()
+            options["assets_dir"] = assets_dir
 
-            if self.data_uri:
-                data_uri_fix = DATA_URI_FIX
-            else:
-                data_uri_fix = ""
-
-            content = revealjs_template.format(
-                sections=sections, data_uri_fix=data_uri_fix, **self.dict()
+            content = revealjs_template.render(
+                file_to_data_uri=file_to_data_uri, **options
             )
 
             f.write(content)
@@ -447,7 +411,7 @@ class PDF(Converter):
         return open_with_default(file)
 
     def convert_to(self, dest: Path) -> None:
-        """Converts this configuration into a PDF presentation, saved to DEST."""
+        """Convert this configuration into a PDF presentation, saved to DEST."""
 
         def read_image_from_video_file(file: Path, frame_index: FrameIndex) -> Image:
             cap = cv2.VideoCapture(str(file))
@@ -457,6 +421,7 @@ class PDF(Converter):
                 cap.set(cv2.CAP_PROP_POS_FRAMES, index - 1)
 
             ret, frame = cap.read()
+            cap.release()
 
             if ret:
                 frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
@@ -475,6 +440,8 @@ class PDF(Converter):
                 images.append(
                     read_image_from_video_file(slide_config.file, self.frame_index)
                 )
+
+        dest.parent.mkdir(parents=True, exist_ok=True)
 
         images[0].save(
             dest,
@@ -498,7 +465,7 @@ class PowerPoint(Converter):
         return open_with_default(file)
 
     def convert_to(self, dest: Path) -> None:
-        """Converts this configuration into a PowerPoint presentation, saved to DEST."""
+        """Convert this configuration into a PowerPoint presentation, saved to DEST."""
         prs = pptx.Presentation()
         prs.slide_width = self.width * 9525
         prs.slide_height = self.height * 9525
@@ -529,10 +496,12 @@ class PowerPoint(Converter):
         def save_first_image_from_video_file(file: Path) -> Optional[str]:
             cap = cv2.VideoCapture(file.as_posix())
             ret, frame = cap.read()
+            cap.release()
 
             if ret:
                 f = tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".png")
                 cv2.imwrite(f.name, frame)
+                f.close()
                 return f.name
             else:
                 logger.warn("Failed to read first image from video file")
@@ -564,13 +533,14 @@ class PowerPoint(Converter):
                     mime_type=mime_type,
                 )
                 if self.auto_play_media:
-                    auto_play_media(movie, loop=slide_config.is_loop())
+                    auto_play_media(movie, loop=slide_config.loop)
 
+        dest.parent.mkdir(parents=True, exist_ok=True)
         prs.save(dest)
 
 
 def show_config_options(function: Callable[..., Any]) -> Callable[..., Any]:
-    """Wraps a function to add a `--show-config` option."""
+    """Wrap a function to add a `--show-config` option."""
 
     def callback(ctx: Context, param: Parameter, value: bool) -> None:
         if not value or ctx.resilient_parsing:
@@ -578,9 +548,11 @@ def show_config_options(function: Callable[..., Any]) -> Callable[..., Any]:
 
         to = ctx.params.get("to", "html")
 
-        converter = Converter.from_string(to)(presentation_configs=[])
+        converter = Converter.from_string(to)(
+            presentation_configs=[PresentationConfig()]
+        )
         for key, value in converter.dict().items():
-            click.echo(f"{key}: {repr(value)}")
+            click.echo(f"{key}: {value!r}")
 
         ctx.exit()
 
@@ -596,7 +568,7 @@ def show_config_options(function: Callable[..., Any]) -> Callable[..., Any]:
 
 
 def show_template_option(function: Callable[..., Any]) -> Callable[..., Any]:
-    """Wraps a function to add a `--show-template` option."""
+    """Wrap a function to add a `--show-template` option."""
 
     def callback(ctx: Context, param: Parameter, value: bool) -> None:
         if not value or ctx.resilient_parsing:
@@ -606,7 +578,7 @@ def show_template_option(function: Callable[..., Any]) -> Callable[..., Any]:
         template = ctx.params.get("template", None)
 
         converter = Converter.from_string(to)(
-            presentation_configs=[], template=template
+            presentation_configs=[PresentationConfig()], template=template
         )
         click.echo(converter.load_template())
 
@@ -669,10 +641,7 @@ def convert(
     config_options: Dict[str, str],
     template: Optional[Path],
 ) -> None:
-    """
-    Convert SCENE(s) into a given format and writes the result in DEST.
-    """
-
+    """Convert SCENE(s) into a given format and writes the result in DEST."""
     presentation_configs = get_scenes_presentation_config(scenes, folder)
 
     try:
@@ -699,4 +668,4 @@ def convert(
             _msg = error["msg"]
             msg.append(f"Option '{option}': {_msg}")
 
-        raise click.UsageError("\n".join(msg))
+        raise click.UsageError("\n".join(msg)) from None

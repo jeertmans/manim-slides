@@ -94,9 +94,10 @@ Wrap a series of animations between `self.start_loop()` and `self.stop_loop()` w
 ```python
 # example.py
 
-from manim import *
-# or: from manimlib import *
+from manim import *  # or: from manimlib import *
+
 from manim_slides import Slide
+
 
 class BasicExample(Slide):
     def construct(self):
@@ -111,7 +112,6 @@ class BasicExample(Slide):
         self.end_loop()  # This will loop until user inputs a key
 
         self.play(dot.animate.move_to(ORIGIN))
-        self.next_slide()  # Waits user to press continue to go to the next slide
 ```
 
 First, render the animation files:

@@ -6,8 +6,10 @@ and `ThreeDSlide`, which are subclasses of `Scene` and `ThreeDScene` from Manim.
 Therefore, we only document here the methods we think the end-user will ever
 use, not the methods used internally when rendering.
 
+## Slide
+
 ```{eval-rst}
-.. autoclass:: manim_slides.Slide
+.. autoclass:: manim_slides.slide.Slide
     :members:
         add_to_canvas,
         canvas,
@@ -15,13 +17,25 @@ use, not the methods used internally when rendering.
         end_loop,
         mobjects_without_canvas,
         next_slide,
-        pause,
         remove_from_canvas,
         start_loop,
         wait_time_between_slides,
         wipe,
         zoom,
+```
 
-.. autoclass:: manim_slides.ThreeDSlide
+## 3D Slide
+
+```{eval-rst}
+.. autoclass:: manim_slides.slide.ThreeDSlide
     :members:
+```
+
+## Animations
+
+```{eval-rst}
+.. automodule:: manim_slides.slide.animation
+    :members:
+        Wipe,
+        Zoom,
 ```

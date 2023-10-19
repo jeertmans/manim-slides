@@ -9,7 +9,7 @@ from PySide6.QtWidgets import QDialog, QGridLayout, QLabel, QMainWindow
 
 from ..config import Config, PresentationConfig, SlideConfig
 from ..logger import logger
-from ..resources import *  # noqa: F401, F403
+from ..resources import *  # noqa: F403
 
 WINDOW_NAME = "Manim Slides"
 
@@ -337,10 +337,10 @@ class Player(QMainWindow):  # type: ignore[misc]
         else:
             self.setCursor(Qt.BlankCursor)
 
-    def closeEvent(self, event: QCloseEvent) -> None:
+    def closeEvent(self, event: QCloseEvent) -> None:  # noqa: N802
         self.quit()
 
-    def keyPressEvent(self, event: QKeyEvent) -> None:
+    def keyPressEvent(self, event: QKeyEvent) -> None:  # noqa: N802
         key = event.key()
         self.dispatch(key)
         event.accept()
