@@ -108,7 +108,7 @@ class ThreeDSlide(Slide, ThreeDScene):  # type: ignore[misc]
 
                 bye = Text("Bye!")
 
-                self.start_loop()
+                self.next_slide(loop=True)
                 self.wipe(
                     self.mobjects_without_canvas,
                     [bye],
@@ -121,7 +121,7 @@ class ThreeDSlide(Slide, ThreeDScene):  # type: ignore[misc]
                     direction=DOWN
                 )
                 self.wait(.5)
-                self.end_loop()
+                self.next_slide()
 
                 self.play(*[FadeOut(mobject) for mobject in self.mobjects])
     """

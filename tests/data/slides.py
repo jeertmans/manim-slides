@@ -26,12 +26,12 @@ class BasicSlide(Slide):
 
         self.play(FadeIn(square))
 
-        self.next_slide()
+        self.next_slide(loop=True)
 
-        self.start_loop()
         self.play(Rotate(square, +PI / 2))
         self.play(Rotate(square, -PI / 2))
-        self.end_loop()
+
+        self.next_slide()
 
         other_text = Text("Other text")
         self.wipe([square, circle], [other_text])

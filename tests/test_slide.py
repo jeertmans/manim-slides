@@ -21,7 +21,6 @@ from manim import (
     Text,
 )
 from manim.__main__ import main as manim_cli
-from pydantic import ValidationError
 
 from manim_slides.config import PresentationConfig
 from manim_slides.defaults import FOLDER_PATH
@@ -89,7 +88,7 @@ def test_render_basic_slide(
 def assert_constructs(cls: type) -> type:
     class Wrapper:
         @classmethod
-        def test_render(_) -> None:  # noqa: N804
+        def test_construct(_) -> None:  # noqa: N804
             cls().construct()
 
     return Wrapper
@@ -111,8 +110,7 @@ class TestSlide:
             assert self._output_folder == FOLDER_PATH
             assert len(self._slides) == 0
             assert self._current_slide == 1
-            assert self._loop_start_animation is None
-            assert self._pause_start_animation == 0
+            assert self._start_animation == 0
             assert len(self._canvas) == 0
             assert self._wait_time_between_slides == 0.0
 
@@ -156,19 +154,16 @@ class TestSlide:
 
             self.add(text)
 
-            self.start_loop()
+            assert "loop" not in self._pre_slide_config_kwargs
+
+            self.next_slide(loop=True)
             self.play(text.animate.scale(2))
-            self.end_loop()
 
-            with pytest.raises(AssertionError):
-                self.end_loop()
+            assert self._pre_slide_config_kwargs["loop"]
 
-            self.start_loop()
-            with pytest.raises(AssertionError):
-                self.start_loop()
+            self.next_slide(loop=False)
 
-            with pytest.raises(ValidationError):
-                self.end_loop()
+            assert not self._pre_slide_config_kwargs["loop"]
 
     @assert_constructs
     class TestWipe(Slide):
