@@ -30,6 +30,7 @@ from pydantic import (
     conlist,
 )
 from pydantic_core import CoreSchema, core_schema
+from pydantic_extra_types.color import Color
 from tqdm import tqdm
 
 from . import templates
@@ -342,7 +343,7 @@ class RevealJS(Converter):
     hide_inactive_cursor: JsBool = JsBool.true
     hide_cursor_time: int = 5000
     # Appearance options from RevealJS
-    background_color: str = "black"  # TODO: use pydantic.color.Color
+    background_color: Color = "black"
     reveal_version: str = "4.6.1"
     reveal_theme: RevealTheme = RevealTheme.black
     title: str = "Manim Slides"
