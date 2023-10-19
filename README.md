@@ -89,7 +89,9 @@ The documentation is available [online](https://eertmans.be/manim-slides/).
 
 ### Basic Example
 
-Wrap a series of animations between `self.start_loop()` and `self.stop_loop()` when you want to loop them (until input to continue):
+Call `self.next_slide()` everytime you want to create a pause between
+animations, and `self.next_slide(loop=True)` if you want the next slide to loop
+over animations until the user presses continue:
 
 ```python
 # example.py
@@ -107,9 +109,9 @@ class BasicExample(Slide):
         self.play(GrowFromCenter(circle))
         self.next_slide()  # Waits user to press continue to go to the next slide
 
-        self.start_loop()  # Start loop
+        self.next_slide(loop=True)  # Start loop
         self.play(MoveAlongPath(dot, circle), run_time=2, rate_func=linear)
-        self.end_loop()  # This will loop until user inputs a key
+        self.next_slide()  # This will start a new non-looping slide
 
         self.play(dot.animate.move_to(ORIGIN))
 ```

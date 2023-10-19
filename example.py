@@ -16,11 +16,10 @@ class BasicExample(Slide):
         dot = Dot()
 
         self.play(GrowFromCenter(circle))
-        self.next_slide()  # Waits user to press continue to go to the next slide
 
-        self.start_loop()  # Start loop
+        self.next_slide(loop=True)
         self.play(MoveAlongPath(dot, circle), run_time=2, rate_func=linear)
-        self.end_loop()  # This will loop until user inputs a key
+        self.next_slide()
 
         self.play(dot.animate.move_to(ORIGIN))
 
@@ -137,9 +136,9 @@ class Example(Slide):
     def construct(self):
         dot = Dot()
         self.add(dot)
-        self.start_loop()
+        self.next_slide(loop=True)
         self.play(Indicate(dot, scale_factor=2))
-        self.end_loop()
+        self.next_slide()
         square = Square()
         self.play(Transform(dot, square))
         self.next_slide()
@@ -195,17 +194,17 @@ class Example(Slide):
 
         watch_text = Text("Watch result on next slides!").shift(2 * DOWN).scale(0.5)
 
-        self.start_loop()
+        self.next_slide(loop=True)
         self.play(FadeIn(watch_text))
         self.play(FadeOut(watch_text))
-        self.end_loop()
+        self.next_slide()
         self.clear()
 
         dot = Dot()
         self.add(dot)
-        self.start_loop()
+        self.next_slide(loop=True)
         self.play(Indicate(dot, scale_factor=2))
-        self.end_loop()
+        self.next_slide()
         square = Square()
         self.play(Transform(dot, square))
         self.remove(dot)
@@ -245,9 +244,9 @@ if not MANIMGL:
 
             self.next_slide()
 
-            self.start_loop()
+            self.next_slide(loop=True)
             self.play(MoveAlongPath(dot, circle), run_time=4, rate_func=linear)
-            self.end_loop()
+            self.next_slide()
 
             self.stop_ambient_camera_rotation()
             self.move_camera(phi=75 * DEGREES, theta=30 * DEGREES)
@@ -258,9 +257,9 @@ if not MANIMGL:
             self.play(dot.animate.move_to(RIGHT * 3))
             self.next_slide()
 
-            self.start_loop()
+            self.next_slide(loop=True)
             self.play(MoveAlongPath(dot, circle), run_time=2, rate_func=linear)
-            self.end_loop()
+            self.next_slide()
 
             self.play(dot.animate.move_to(ORIGIN))
 
@@ -292,9 +291,9 @@ else:
 
             self.next_slide()
 
-            self.start_loop()
+            self.next_slide(loop=True)
             self.play(MoveAlongPath(dot, circle), run_time=4, rate_func=linear)
-            self.end_loop()
+            self.next_slide()
 
             frame.remove_updater(updater)
             self.play(frame.animate.set_theta(30 * DEGREES))
@@ -304,9 +303,9 @@ else:
             self.play(dot.animate.move_to(RIGHT * 3))
             self.next_slide()
 
-            self.start_loop()
+            self.next_slide(loop=True)
             self.play(MoveAlongPath(dot, circle), run_time=2, rate_func=linear)
-            self.end_loop()
+            self.next_slide()
 
             self.play(dot.animate.move_to(ORIGIN))
 

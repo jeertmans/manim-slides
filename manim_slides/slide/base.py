@@ -29,10 +29,10 @@ class BaseSlide:
         super().__init__(*args, **kwargs)
         self._output_folder: Path = output_folder
         self._slides: List[PreSlideConfig] = []
+        self._pre_slide_config_kwargs: MutableMapping[str, Any] = {}
         self._current_slide = 1
         self._current_animation = 0
-        self._loop_start_animation: Optional[int] = None
-        self._pause_start_animation = 0
+        self._start_animation = 0
         self._canvas: MutableMapping[str, Mobject] = {}
         self._wait_time_between_slides = 0.0
 
@@ -252,13 +252,16 @@ class BaseSlide:
         super().play(*args, **kwargs)  # type: ignore[misc]
         self._current_animation += 1
 
-    def next_slide(self) -> None:
+    def next_slide(self, loop: bool = False) -> None:
         """
-        Create a new slide with previous animations.
+        Create a new slide with previous animations, and setup options
+        for the next slide.
 
         This usually means that the user will need to press some key before the
         next slide is played. By default, this is the right arrow key.
 
+        :param loop:
+            If set, next slide will be looping.
 
         .. note::
 
@@ -267,7 +270,8 @@ class BaseSlide:
 
         .. warning::
 
-            This is not allowed to call :func:`next_slide` inside a loop.
+            When rendered with RevealJS, loops cannot be in the first nor
+            the last slide.
 
         Examples
         --------
@@ -290,58 +294,7 @@ class BaseSlide:
 
                     self.next_slide()
                     self.play(FadeOut(text))
-        """
-        assert (
-            self._loop_start_animation is None
-        ), "You cannot call `self.next_slide()` inside a loop"
 
-        if self.wait_time_between_slides > 0.0:
-            self.wait(self.wait_time_between_slides)  # type: ignore[attr-defined]
-
-        self._slides.append(
-            PreSlideConfig(
-                start_animation=self._pause_start_animation,
-                end_animation=self._current_animation,
-            )
-        )
-        self._current_slide += 1
-        self._pause_start_animation = self._current_animation
-
-    def _add_last_slide(self) -> None:
-        """Add a 'last' slide to the end of slides."""
-        if (
-            len(self._slides) > 0
-            and self._current_animation == self._slides[-1].end_animation
-        ):
-            return
-
-        self._slides.append(
-            PreSlideConfig(
-                start_animation=self._pause_start_animation,
-                end_animation=self._current_animation,
-                loop=self._loop_start_animation is not None,
-            )
-        )
-
-    def start_loop(self) -> None:
-        """
-        Start a loop. End it with :func:`end_loop`.
-
-        A loop will automatically replay the slide, i.e., everything between
-        :func:`start_loop` and :func:`end_loop`, upon reaching end.
-
-        .. warning::
-
-            You should always call :func:`next_slide` before calling this
-            method. Otherwise, ...
-
-        .. warning::
-
-            When rendered with RevealJS, loops cannot be in the first nor
-            the last slide.
-
-        Examples
-        --------
         The following contains one slide that will loop endlessly.
 
         .. manim-slides:: LoopExample
@@ -354,38 +307,46 @@ class BaseSlide:
                     dot = Dot(color=BLUE, radius=1)
 
                     self.play(FadeIn(dot))
-                    self.next_slide()
 
-                    self.start_loop()
+                    self.next_slide(loop=True)
 
                     self.play(Indicate(dot, scale_factor=2))
 
-                    self.end_loop()
+                    self.next_slide()
 
                     self.play(FadeOut(dot))
         """
-        assert self._loop_start_animation is None, "You cannot nest loops"
-        self._loop_start_animation = self._current_animation
+        if self._current_animation > self._start_animation:
+            if self.wait_time_between_slides > 0.0:
+                self.wait(self.wait_time_between_slides)  # type: ignore[attr-defined]
 
-    def end_loop(self) -> None:
-        """
-        End an existing loop.
+            self._slides.append(
+                PreSlideConfig(
+                    start_animation=self._start_animation,
+                    end_animation=self._current_animation,
+                    **self._pre_slide_config_kwargs,
+                )
+            )
 
-        See :func:`start_loop` for more details.
-        """
-        assert (
-            self._loop_start_animation is not None
-        ), "You have to start a loop before ending it"
+        self._pre_slide_config_kwargs = dict(loop=loop)
+        self._current_slide += 1
+        self._start_animation = self._current_animation
+
+    def _add_last_slide(self) -> None:
+        """Add a 'last' slide to the end of slides."""
+        if (
+            len(self._slides) > 0
+            and self._current_animation == self._slides[-1].end_animation
+        ):
+            return
+
         self._slides.append(
             PreSlideConfig(
-                start_animation=self._loop_start_animation,
+                start_animation=self._start_animation,
                 end_animation=self._current_animation,
-                loop=True,
+                **self._pre_slide_config_kwargs,
             )
         )
-        self._current_slide += 1
-        self._loop_start_animation = None
-        self._pause_start_animation = self._current_animation
 
     def _save_slides(self, use_cache: bool = True) -> None:
         """
