@@ -143,10 +143,16 @@ class Zoom(AnimationGroup):  # type: ignore[misc]
         animations = []
 
         if future:
+            if fade_in_kwargs is None:
+                fade_in_kwargs = {}
+
             for mobject in future:
                 animations.append(FadeIn(mobject, scale=scale_in, **fade_in_kwargs))
 
         if current:
+            if fade_out_kwargs is None:
+                fade_out_kwargs = {}
+
             for mobject in current:
                 animations.append(FadeOut(mobject, scale=scale_out, **fade_out_kwargs))
 
