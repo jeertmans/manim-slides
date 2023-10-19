@@ -11,7 +11,7 @@ that directly calls ``self.play(Animation(...))``, see
 
 __all__ = ["Wipe", "Zoom"]
 
-from typing import Any, Mapping, Sequence
+from typing import Any, Mapping, Optional, Sequence
 
 import numpy as np
 
@@ -62,20 +62,28 @@ class Wipe(AnimationGroup):  # type: ignore[misc]
 
     def __init__(
         self,
-        current: Sequence[Mobject] = [],
-        future: Sequence[Mobject] = [],
+        current: Optional[Sequence[Mobject]] = None,
+        future: Optional[Sequence[Mobject]] = None,
         shift: np.ndarray = LEFT,
-        fade_in_kwargs: Mapping[str, Any] = {},
-        fade_out_kwargs: Mapping[str, Any] = {},
+        fade_in_kwargs: Optional[Mapping[str, Any]] = None,
+        fade_out_kwargs: Optional[Mapping[str, Any]] = None,
         **kwargs: Any,
     ):
         animations = []
 
-        for mobject in future:
-            animations.append(FadeIn(mobject, shift=shift, **fade_in_kwargs))
+        if future:
+            if fade_in_kwargs is None:
+                fade_in_kwargs = {}
 
-        for mobject in current:
-            animations.append(FadeOut(mobject, shift=shift, **fade_out_kwargs))
+            for mobject in future:
+                animations.append(FadeIn(mobject, shift=shift, **fade_in_kwargs))
+
+        if current:
+            if fade_out_kwargs is None:
+                fade_out_kwargs = {}
+
+            for mobject in current:
+                animations.append(FadeOut(mobject, shift=shift, **fade_out_kwargs))
 
         super().__init__(*animations, **kwargs)
 
@@ -118,12 +126,12 @@ class Zoom(AnimationGroup):  # type: ignore[misc]
 
     def __init__(
         self,
-        current: Sequence[Mobject] = [],
-        future: Sequence[Mobject] = [],
+        current: Optional[Sequence[Mobject]] = None,
+        future: Optional[Sequence[Mobject]] = None,
         scale: float = 4.0,
         out: bool = False,
-        fade_in_kwargs: Mapping[str, Any] = {},
-        fade_out_kwargs: Mapping[str, Any] = {},
+        fade_in_kwargs: Optional[Mapping[str, Any]] = None,
+        fade_out_kwargs: Optional[Mapping[str, Any]] = None,
         **kwargs: Any,
     ) -> None:
         scale_in = 1.0 / scale
@@ -134,10 +142,18 @@ class Zoom(AnimationGroup):  # type: ignore[misc]
 
         animations = []
 
-        for mobject in future:
-            animations.append(FadeIn(mobject, scale=scale_in, **fade_in_kwargs))
+        if future:
+            if fade_in_kwargs is None:
+                fade_in_kwargs = {}
 
-        for mobject in current:
-            animations.append(FadeOut(mobject, scale=scale_out, **fade_out_kwargs))
+            for mobject in future:
+                animations.append(FadeIn(mobject, scale=scale_in, **fade_in_kwargs))
+
+        if current:
+            if fade_out_kwargs is None:
+                fade_out_kwargs = {}
+
+            for mobject in current:
+                animations.append(FadeOut(mobject, scale=scale_out, **fade_out_kwargs))
 
         super().__init__(*animations, **kwargs)
