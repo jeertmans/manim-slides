@@ -64,6 +64,25 @@ class Slide(BaseSlide, Scene):  # type: ignore[misc]
     def _start_at_animation_number(self) -> Optional[int]:
         return config["from_animation_number"]  # type: ignore
 
+    def next_section(self, *args: Any, **kwargs: Any) -> None:
+        """
+        Alias to :meth:`next_slide`.
+
+        :param args:
+            Positional arguments to be passed to :meth:`next_slide`.
+        :param kwargs:
+            Keyword arguments to be passed to :meth:`next_slide`.
+
+        .. attention::
+            
+            This method is only available when using ``manim`` API.
+        """
+        self.next_slide(*args, **kwargs)
+
+    def next_slide(self, *args: Any, loop: bool = False, **kwargs: Any) -> None:
+        Scene.next_section(self, *args, **kwargs)
+        BaseSlide.next_slide(self, loop=loop)
+
     def render(self, *args: Any, **kwargs: Any) -> None:
         """MANIM render."""
         # We need to disable the caching limit since we rely on intermediate files
