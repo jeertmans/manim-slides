@@ -15,6 +15,7 @@ pull requests.
 
 In an effort to better document changes, this CHANGELOG document is now created.
 
+(v5-added)=
 ### Added
 
 - Added the following option aliases to `manim-slides present`:
@@ -43,6 +44,7 @@ In an effort to better document changes, this CHANGELOG document is now created.
   Calling `next_slide` will never fail anymore.
   [#294](https://github.com/jeertmans/manim-slides/pull/294)
 
+(v5-changed)=
 ### Changed
 
 - Automatically concatenate all animations from a slide into one.
@@ -83,6 +85,7 @@ In an effort to better document changes, this CHANGELOG document is now created.
   and defaults to the currently imported module, with a preference for `manim`.
   [#285](https://github.com/jeertmans/manim-slides/pull/285)
 
+(v5-fixed)=
 ### Fixed
 
 - Patched enums in `manim_slides/convert.py` to correctly call `str`'s
@@ -96,6 +99,7 @@ In an effort to better document changes, this CHANGELOG document is now created.
   `manim convert`'s destination path.
   [#262](https://github.com/jeertmans/manim-slides/pull/262)
 
+(v5-removed)=
 ### Removed
 
 - Removed `--start-at-animation-number` option from `manim-slides present`.
