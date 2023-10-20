@@ -74,7 +74,7 @@ class Slide(BaseSlide, Scene):  # type: ignore[misc]
             Keyword arguments to be passed to :meth:`next_slide`.
 
         .. attention::
-            
+
             This method is only available when using ``manim`` API.
         """
         self.next_slide(*args, **kwargs)

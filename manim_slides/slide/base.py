@@ -282,7 +282,7 @@ class BaseSlide:
             the last slide.
 
         .. seealso::
-            
+
             When using ``manim`` API, this method will also call
             :meth:`Scene.next_section<manim.scene.scene.Scene.next_section>`.
 
