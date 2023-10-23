@@ -43,6 +43,9 @@ In an effort to better document changes, this CHANGELOG document is now created.
 - Added `loop` option to `Slide`'s `next_slide` method.
   Calling `next_slide` will never fail anymore.
   [#294](https://github.com/jeertmans/manim-slides/pull/294)
+- Added `Slide.next_section` for compatibility with `manim`'s
+  `Scene.next_section` method.
+  [#295](https://github.com/jeertmans/manim-slides/pull/295)
 
 (v5-changed)=
 ### Changed

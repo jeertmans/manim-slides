@@ -252,7 +252,7 @@ class BaseSlide:
         super().play(*args, **kwargs)  # type: ignore[misc]
         self._current_animation += 1
 
-    def next_slide(self, loop: bool = False) -> None:
+    def next_slide(self, *, loop: bool = False, **kwargs: Any) -> None:
         """
         Create a new slide with previous animations, and setup options
         for the next slide.
@@ -260,8 +260,16 @@ class BaseSlide:
         This usually means that the user will need to press some key before the
         next slide is played. By default, this is the right arrow key.
 
+        :param args:
+            Positional arguments to be passed to
+            :meth:`Scene.next_section<manim.scene.scene.Scene.next_section>`,
+            or ignored if `manimlib` API is used.
         :param loop:
             If set, next slide will be looping.
+        :param kwargs:
+            Keyword arguments to be passed to
+            :meth:`Scene.next_section<manim.scene.scene.Scene.next_section>`,
+            or ignored if `manimlib` API is used.
 
         .. note::
 
@@ -272,6 +280,11 @@ class BaseSlide:
 
             When rendered with RevealJS, loops cannot be in the first nor
             the last slide.
+
+        .. seealso::
+
+            When using ``manim`` API, this method will also call
+            :meth:`Scene.next_section<manim.scene.scene.Scene.next_section>`.
 
         Examples
         --------
