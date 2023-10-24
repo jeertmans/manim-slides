@@ -1,16 +1,14 @@
-from PySide6.QtCore import Qt
 from pathlib import Path
 
 from click.testing import CliRunner
-
+from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
     QMessageBox,
 )
 
-
 from manim_slides.config import Config
 from manim_slides.defaults import CONFIG_PATH
-from manim_slides.wizard import KeyInput, Wizard, wizard, init
+from manim_slides.wizard import KeyInput, Wizard, init
 
 
 class TestKeyInput:
@@ -47,7 +45,6 @@ class TestWizard:
         widget = Wizard(Config())
         widget.show()
         qtbot.addWidget(widget)
-
 
         def open_dialog(self, button_number, key):
             button = self.buttons[button_number]
@@ -98,9 +95,7 @@ def test_init_custom_path() -> None:
         assert not custom_path.exists()
         results = runner.invoke(
             init,
-            [
-                "--config", str(custom_path)
-            ],
+            ["--config", str(custom_path)],
         )
 
         assert results.exit_code == 0
@@ -122,23 +117,14 @@ def test_init_path_exists() -> None:
         assert CONFIG_PATH.exists()
         assert Config().dict() == Config.from_file(CONFIG_PATH).dict()
 
-        results = runner.invoke(
-            init,
-            input="o"
-        )
+        results = runner.invoke(init, input="o")
 
         assert results.exit_code == 0
 
-        results = runner.invoke(
-            init,
-            input="m"
-        )
+        results = runner.invoke(init, input="m")
 
         assert results.exit_code == 0
 
-        results = runner.invoke(
-            init,
-            input="q"
-        )
+        results = runner.invoke(init, input="q")
 
         assert results.exit_code == 0

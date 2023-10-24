@@ -196,4 +196,3 @@ def _init(
     config.to_file(config_path)
 
     click.secho(f"Configuration file successfully saved to `{config_path}`")
-
