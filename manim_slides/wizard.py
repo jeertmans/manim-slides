@@ -24,8 +24,6 @@ from .defaults import CONFIG_PATH
 from .logger import logger
 from .resources import *  # noqa: F403
 
-WINDOW_NAME: str = "Configuration Wizard"
-
 keymap = {}
 for key in Qt.Key:
     keymap[key.value] = key.name.partition("_")[2]
@@ -57,12 +55,13 @@ class Wizard(QWidget):  # type: ignore
         self.config = config
         self.icon = QIcon(":/icon.png")
         self.setWindowIcon(self.icon)
+        self.closed_without_saving = False
 
         button = QDialogButtonBox.Save | QDialogButtonBox.Cancel
 
-        self.buttonBox = QDialogButtonBox(button)
-        self.buttonBox.accepted.connect(self.save_config)
-        self.buttonBox.rejected.connect(self.close_without_saving)
+        self.button_box = QDialogButtonBox(button)
+        self.button_box.accepted.connect(self.save_config)
+        self.button_box.rejected.connect(self.close_without_saving)
 
         self.buttons = []
 
@@ -87,17 +86,17 @@ class Wizard(QWidget):  # type: ignore
             )
             self.layout.addWidget(button, i, 1)
 
-        self.layout.addWidget(self.buttonBox, len(self.buttons), 1)
+        self.layout.addWidget(self.button_box, len(self.buttons), 1)
 
         self.setLayout(self.layout)
 
     def close_without_saving(self) -> None:
         logger.debug("Closing configuration wizard without saving")
+        self.closed_without_saving = True
         self.deleteLater()
-        sys.exit(0)
 
     def closeEvent(self, event: Any) -> None:  # noqa: N802
-        self.closeWithoutSaving()
+        self.close_without_saving()
         event.accept()
 
     def save_config(self) -> None:
@@ -111,7 +110,7 @@ class Wizard(QWidget):  # type: ignore
                 "Two or more actions share a common key: make sure actions have distinct key codes."
             )
             msg.setWindowTitle("Error: duplicated keys")
-            msg.exec_()
+            msg.exec()
             return
 
         self.deleteLater()
@@ -119,7 +118,7 @@ class Wizard(QWidget):  # type: ignore
     def open_dialog(self, button_number: int, key: Key) -> None:
         button = self.buttons[button_number]
         dialog = KeyInput()
-        dialog.exec_()
+        dialog.exec()
         if dialog.key is not None:
             key_name = keymap[dialog.key]
             key.set_ids(dialog.key)
@@ -186,6 +185,9 @@ def _init(
         window.show()
         app.exec()
 
+        if window.closed_without_saving:
+            sys.exit(0)
+
         config = window.config
 
     if merge:
@@ -194,3 +196,4 @@ def _init(
     config.to_file(config_path)
 
     click.secho(f"Configuration file successfully saved to `{config_path}`")
+

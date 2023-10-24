@@ -90,8 +90,3 @@ def test_list_scenes(slides_folder: Path) -> None:
 
         assert results.exit_code == 0
         assert "BasicSlide" in results.output
-
-
-def test_wizard() -> None:
-    # TODO
-    pass

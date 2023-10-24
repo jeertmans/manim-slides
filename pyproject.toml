@@ -105,6 +105,7 @@ pytest = "^7.4.0"
 pytest-cov = "^4.1.0"
 pytest-env = "^0.8.2"
 pytest-xdist = "^3.3.1"
+pytest-qt = "^4.2.0"
 
 [tool.poetry.plugins]
 
