@@ -147,7 +147,7 @@ def init(
     return _init(config_path, force, merge, skip_interactive=True)
 
 
-def _init(
+def _init(  # noqa: C901
     config_path: Path, force: bool, merge: bool, skip_interactive: bool = False
 ) -> None:
     """
@@ -181,7 +181,11 @@ def _init(
         if config_path.exists():
             config = Config.from_file(config_path)
 
-        app = QApplication(sys.argv)
+        if maybe_app := QApplication.instance():
+            app = maybe_app
+        else:
+            app = QApplication(sys.argv)
+
         app.setApplicationName("Manim Slides Wizard")
         window = Wizard(config)
         window.show()
