@@ -54,6 +54,7 @@ class Player(QMainWindow):  # type: ignore[misc]
         slide_index: int = 0,
         screen: Optional[QScreen] = None,
         playback_rate: float = 1.0,
+        next_terminates_loop: bool = False,
     ):
         super().__init__()
 
@@ -125,6 +126,7 @@ class Player(QMainWindow):  # type: ignore[misc]
         # Misc
 
         self.exit_after_last_slide = exit_after_last_slide
+        self.next_terminates_loop = next_terminates_loop
 
         # Setting-up everything
 
@@ -313,6 +315,8 @@ class Player(QMainWindow):  # type: ignore[misc]
     def next(self) -> None:
         if self.media_player.playbackState() == QMediaPlayer.PausedState:
             self.media_player.play()
+        elif self.next_terminates_loop and self.media_player.loops() != 1:
+            self.media_player.setLoops(1)
         else:
             self.load_next_slide()
 
