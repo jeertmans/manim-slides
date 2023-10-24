@@ -24,6 +24,8 @@ from .defaults import CONFIG_PATH
 from .logger import logger
 from .resources import *  # noqa: F403
 
+WINDOW_NAME: str = "Configuration Wizard"
+
 keymap = {}
 for key in Qt.Key:
     keymap[key.value] = key.name.partition("_")[2]
