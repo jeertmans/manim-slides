@@ -198,6 +198,42 @@ class TestSlide:
             assert bye in self.mobjects
 
     @assert_constructs
+    class TestPlay(Slide):
+        def construct(self) -> None:
+            assert self._current_animation == 0
+            circle = Circle(color=BLUE)
+            dot = Dot()
+
+            self.play(GrowFromCenter(circle))
+            assert self._current_animation == 1
+            self.play(FadeIn(dot))
+            assert self._current_animation == 2
+
+    @assert_constructs
+    class TestWaitTimeBetweenSlides(Slide):
+        def construct(self) -> None:
+            self._wait_time_between_slides = 1.0
+            assert self._current_animation == 0
+            circle = Circle(color=BLUE)
+            self.play(GrowFromCenter(circle))
+            assert self._current_animation == 1
+            self.next_slide()
+            assert self._current_animation == 2  # self.wait = +1
+
+    @assert_constructs
+    class TestNextSlide(Slide):
+        def construct(self) -> None:
+            assert self._current_slide == 1
+            self.next_slide()
+            assert self._current_slide == 1
+            circle = Circle(color=BLUE)
+            self.play(GrowFromCenter(circle))
+            self.next_slide()
+            assert self._current_slide == 2
+            self.next_slide()
+            assert self._current_slide == 2
+
+    @assert_constructs
     class TestCanvas(Slide):
         def construct(self) -> None:
             text = Text("Some text")

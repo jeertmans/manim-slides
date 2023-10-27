@@ -46,6 +46,8 @@ In an effort to better document changes, this CHANGELOG document is now created.
 - Added `Slide.next_section` for compatibility with `manim`'s
   `Scene.next_section` method.
   [#295](https://github.com/jeertmans/manim-slides/pull/295)
+- Added `--playback-rate` option to `manim-slides present` for testing purposes.
+  [#300](https://github.com/jeertmans/manim-slides/pull/300)
 
 (v5-changed)=
 ### Changed

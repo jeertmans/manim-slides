@@ -8,32 +8,32 @@ import pytest
 from manim_slides.config import PresentationConfig
 
 
-@pytest.fixture
+@pytest.fixture(scope="session")
 def tests_folder() -> Iterator[Path]:
     yield Path(__file__).parent.resolve(strict=True)
 
 
-@pytest.fixture
+@pytest.fixture(scope="session")
 def project_folder(tests_folder: Path) -> Iterator[Path]:
     yield tests_folder.parent.resolve(strict=True)
 
 
-@pytest.fixture
+@pytest.fixture(scope="session")
 def data_folder(tests_folder: Path) -> Iterator[Path]:
     yield (tests_folder / "data").resolve(strict=True)
 
 
-@pytest.fixture
+@pytest.fixture(scope="session")
 def slides_folder(data_folder: Path) -> Iterator[Path]:
     yield (data_folder / "slides").resolve(strict=True)
 
 
-@pytest.fixture
+@pytest.fixture(scope="session")
 def slides_file(data_folder: Path) -> Iterator[Path]:
     yield (data_folder / "slides.py").resolve(strict=True)
 
 
-@pytest.fixture
+@pytest.fixture(scope="session")
 def manimgl_config(project_folder: Path) -> Iterator[Path]:
     yield (project_folder / "custom_config.yml").resolve(strict=True)
 
@@ -61,7 +61,7 @@ def paths() -> Generator[List[Path], None, None]:
     yield [random_path() for _ in range(20)]
 
 
-@pytest.fixture
+@pytest.fixture(scope="session")
 def presentation_config(
     slides_folder: Path,
 ) -> Generator[PresentationConfig, None, None]:

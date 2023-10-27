@@ -53,6 +53,7 @@ class Player(QMainWindow):  # type: ignore[misc]
         presentation_index: int = 0,
         slide_index: int = 0,
         screen: Optional[QScreen] = None,
+        playback_rate: float = 1.0,
     ):
         super().__init__()
 
@@ -65,10 +66,11 @@ class Player(QMainWindow):  # type: ignore[misc]
         self.presentation_configs = presentation_configs
         self.__current_presentation_index = 0
         self.__current_slide_index = 0
-        self.__current_file: Path = self.current_slide_config.file
 
         self.current_presentation_index = presentation_index
         self.current_slide_index = slide_index
+
+        self.__current_file: Path = self.current_slide_config.file
 
         self.__playing_reversed_slide = False
 
@@ -100,6 +102,7 @@ class Player(QMainWindow):  # type: ignore[misc]
 
         self.media_player = QMediaPlayer(self)
         self.media_player.setVideoOutput(self.video_widget)
+        self.media_player.setPlaybackRate(playback_rate)
 
         self.presentation_changed.connect(self.presentation_changed_callback)
         self.slide_changed.connect(self.slide_changed_callback)
@@ -108,7 +111,7 @@ class Player(QMainWindow):  # type: ignore[misc]
 
         # Connecting key callbacks
 
-        self.config.keys.QUIT.connect(self.quit)
+        self.config.keys.QUIT.connect(self.close)
         self.config.keys.PLAY_PAUSE.connect(self.play_pause)
         self.config.keys.NEXT.connect(self.next)
         self.config.keys.PREVIOUS.connect(self.previous)
@@ -161,7 +164,7 @@ class Player(QMainWindow):  # type: ignore[misc]
         elif -self.presentations_count <= index < 0:
             self.__current_presentation_index = index + self.presentations_count
         else:
-            logger.warn(f"Could not set presentation index to {index}")
+            logger.warn(f"Could not set presentation index to {index}.")
             return
 
         self.presentation_changed.emit()
@@ -185,7 +188,7 @@ class Player(QMainWindow):  # type: ignore[misc]
         elif -self.current_slides_count <= index < 0:
             self.__current_slide_index = index + self.current_slides_count
         else:
-            logger.warn(f"Could not set slide index to {index}")
+            logger.warn(f"Could not set slide index to {index}.")
             return
 
         self.slide_changed.emit()
@@ -257,7 +260,8 @@ class Player(QMainWindow):  # type: ignore[misc]
             self.current_presentation_index += 1
             self.current_slide_index = 0
         elif self.exit_after_last_slide:
-            self.quit()
+            self.close()
+            return
         else:
             logger.info("No more slide to play.")
             return
@@ -290,10 +294,9 @@ class Player(QMainWindow):  # type: ignore[misc]
         self.info.show()
 
     @Slot()
-    def quit(self) -> None:
+    def close(self) -> None:
         logger.info("Closing gracefully...")
-        self.info.deleteLater()
-        self.deleteLater()
+        super().close()
 
     @Slot()
     def next(self) -> None:
@@ -338,7 +341,7 @@ class Player(QMainWindow):  # type: ignore[misc]
             self.setCursor(Qt.BlankCursor)
 
     def closeEvent(self, event: QCloseEvent) -> None:  # noqa: N802
-        self.quit()
+        self.close()
 
     def keyPressEvent(self, event: QKeyEvent) -> None:  # noqa: N802
         key = event.key()

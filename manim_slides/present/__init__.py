@@ -7,11 +7,11 @@ import click
 from click import Context, Parameter
 from pydantic import ValidationError
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QApplication
 
 from ..commons import config_path_option, folder_path_option, verbosity_option
 from ..config import Config, PresentationConfig
 from ..logger import logger
+from ..qt_utils import qapp
 from .player import Player
 
 ASPECT_RATIO_MODES = {
@@ -210,7 +210,14 @@ def start_at_callback(
     metavar="NUMBER",
     type=int,
     default=None,
-    help="Presents content on the given screen (a.k.a. display).",
+    help="Present content on the given screen (a.k.a. display).",
+)
+@click.option(
+    "--playback-rate",
+    metavar="RATE",
+    type=float,
+    default=1.0,
+    help="Playback rate of the video slides, see PySide6 docs for details.",
 )
 @click.help_option("-h", "--help")
 @verbosity_option
@@ -228,6 +235,7 @@ def present(
     start_at_scene_number: int,
     start_at_slide_number: int,
     screen_number: Optional[int] = None,
+    playback_rate: float = 1.0,
 ) -> None:
     """
     Present SCENE(s), one at a time, in order.
@@ -258,13 +266,9 @@ def present(
         start_at_scene_number = start_at[0]
 
     if start_at[1]:
-        start_at_scene_number = start_at[1]
+        start_at_slide_number = start_at[1]
 
-    if maybe_app := QApplication.instance():
-        app = maybe_app
-    else:
-        app = QApplication(sys.argv)
-
+    app = qapp()
     app.setApplicationName("Manim Slides")
 
     if screen_number is not None:
@@ -291,9 +295,10 @@ def present(
         presentation_index=start_at_scene_number,
         slide_index=start_at_slide_number,
         screen=screen,
+        playback_rate=playback_rate,
     )
 
     player.show()
 
     signal.signal(signal.SIGINT, signal.SIG_DFL)
-    sys.exit(app.exec_())
+    sys.exit(app.exec())

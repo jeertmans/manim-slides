@@ -7,7 +7,6 @@ import click
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QIcon, QKeyEvent
 from PySide6.QtWidgets import (
-    QApplication,
     QDialog,
     QDialogButtonBox,
     QGridLayout,
@@ -22,6 +21,7 @@ from .commons import config_options, verbosity_option
 from .config import Config, Key
 from .defaults import CONFIG_PATH
 from .logger import logger
+from .qt_utils import qapp
 from .resources import *  # noqa: F403
 
 WINDOW_NAME: str = "Configuration Wizard"
@@ -57,12 +57,13 @@ class Wizard(QWidget):  # type: ignore
         self.config = config
         self.icon = QIcon(":/icon.png")
         self.setWindowIcon(self.icon)
+        self.closed_without_saving = False
 
         button = QDialogButtonBox.Save | QDialogButtonBox.Cancel
 
-        self.buttonBox = QDialogButtonBox(button)
-        self.buttonBox.accepted.connect(self.save_config)
-        self.buttonBox.rejected.connect(self.close_without_saving)
+        self.button_box = QDialogButtonBox(button)
+        self.button_box.accepted.connect(self.save_config)
+        self.button_box.rejected.connect(self.close_without_saving)
 
         self.buttons = []
 
@@ -87,17 +88,17 @@ class Wizard(QWidget):  # type: ignore
             )
             self.layout.addWidget(button, i, 1)
 
-        self.layout.addWidget(self.buttonBox, len(self.buttons), 1)
+        self.layout.addWidget(self.button_box, len(self.buttons), 1)
 
         self.setLayout(self.layout)
 
     def close_without_saving(self) -> None:
         logger.debug("Closing configuration wizard without saving")
+        self.closed_without_saving = True
         self.deleteLater()
-        sys.exit(0)
 
     def closeEvent(self, event: Any) -> None:  # noqa: N802
-        self.closeWithoutSaving()
+        self.close_without_saving()
         event.accept()
 
     def save_config(self) -> None:
@@ -111,7 +112,7 @@ class Wizard(QWidget):  # type: ignore
                 "Two or more actions share a common key: make sure actions have distinct key codes."
             )
             msg.setWindowTitle("Error: duplicated keys")
-            msg.exec_()
+            msg.exec()
             return
 
         self.deleteLater()
@@ -119,7 +120,7 @@ class Wizard(QWidget):  # type: ignore
     def open_dialog(self, button_number: int, key: Key) -> None:
         button = self.buttons[button_number]
         dialog = KeyInput()
-        dialog.exec_()
+        dialog.exec()
         if dialog.key is not None:
             key_name = keymap[dialog.key]
             key.set_ids(dialog.key)
@@ -180,11 +181,14 @@ def _init(
         if config_path.exists():
             config = Config.from_file(config_path)
 
-        app = QApplication(sys.argv)
+        app = qapp()
         app.setApplicationName("Manim Slides Wizard")
         window = Wizard(config)
         window.show()
         app.exec()
+
+        if window.closed_without_saving:
+            sys.exit(0)
 
         config = window.config
 
