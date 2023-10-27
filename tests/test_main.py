@@ -8,35 +8,39 @@ from manim_slides.__main__ import cli
 
 def test_help() -> None:
     runner = CliRunner()
-    results = runner.invoke(cli, ["-S", "--help"])
 
-    assert results.exit_code == 0
+    with runner.isolated_filesystem():
+        results = runner.invoke(cli, ["-S", "--help"])
 
-    results = runner.invoke(cli, ["-S", "-h"])
+        assert results.exit_code == 0
 
-    assert results.exit_code == 0
+        results = runner.invoke(cli, ["-S", "-h"])
+
+        assert results.exit_code == 0
+        assert "Usage: cli [OPTIONS] COMMAND [ARGS]..." in results.stdout
 
 
 def test_defaults_to_present(slides_folder: Path) -> None:
     runner = CliRunner()
 
     with runner.isolated_filesystem():
-        results = runner.invoke(
-            cli, ["BasicSlide", "--folder", str(slides_folder), "-s"]
-        )
+        results = runner.invoke(cli, ["-S", "BasicSlide", "--help"])
 
         assert results.exit_code == 0
+        assert "Usage: cli present" in results.stdout
 
 
-def test_present(slides_folder: Path) -> None:
+@pytest.mark.parametrize(
+    ["subcommand"], [["present"], ["convert"], ["init"], ["list-scenes"], ["wizard"]]
+)
+def test_help_subcommand(subcommand: str) -> None:
     runner = CliRunner()
 
     with runner.isolated_filesystem():
-        results = runner.invoke(
-            cli, ["present", "BasicSlide", "--folder", str(slides_folder), "-s"]
-        )
+        results = runner.invoke(cli, ["-S", subcommand, "--help"])
 
         assert results.exit_code == 0
+        assert f"Usage: cli {subcommand}" in results.stdout
 
 
 @pytest.mark.parametrize(("extension",), [("html",), ("pdf",), ("pptx",)])

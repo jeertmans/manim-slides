@@ -10,4 +10,5 @@ def qapp() -> QApplication:
     """
     if app := QApplication.instance():
         return app
+
     return QApplication([])
