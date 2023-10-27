@@ -13,3 +13,7 @@ def test_config_path() -> None:
 
 def test_ffmpeg_bin() -> None:
     assert FFMPEG_BIN == Path("ffmpeg")
+
+
+def test_ffmpeg_bin_exists() -> None:
+    assert FFMPEG_BIN.exists(), "If this fails, many other tests will fail"

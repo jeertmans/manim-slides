@@ -7,7 +7,6 @@ import click
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QIcon, QKeyEvent
 from PySide6.QtWidgets import (
-    QApplication,
     QDialog,
     QDialogButtonBox,
     QGridLayout,
@@ -22,6 +21,7 @@ from .commons import config_options, verbosity_option
 from .config import Config, Key
 from .defaults import CONFIG_PATH
 from .logger import logger
+from .qt_utils import qapp
 from .resources import *  # noqa: F403
 
 WINDOW_NAME: str = "Configuration Wizard"
@@ -147,7 +147,7 @@ def init(
     return _init(config_path, force, merge, skip_interactive=True)
 
 
-def _init(  # noqa: C901
+def _init(
     config_path: Path, force: bool, merge: bool, skip_interactive: bool = False
 ) -> None:
     """
@@ -181,11 +181,7 @@ def _init(  # noqa: C901
         if config_path.exists():
             config = Config.from_file(config_path)
 
-        if maybe_app := QApplication.instance():
-            app = maybe_app
-        else:
-            app = QApplication(sys.argv)
-
+        app = qapp()
         app.setApplicationName("Manim Slides Wizard")
         window = Wizard(config)
         window.show()

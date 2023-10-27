@@ -45,49 +45,49 @@ class BaseSlide:
     @abstractmethod
     def _frame_height(self) -> float:
         """Return the scene's frame height."""
-        ...
+        raise NotImplementedError
 
     @property
     @abstractmethod
     def _frame_width(self) -> float:
         """Return the scene's frame width."""
-        ...
+        raise NotImplementedError
 
     @property
     @abstractmethod
     def _background_color(self) -> str:
         """Return the scene's background color."""
-        ...
+        raise NotImplementedError
 
     @property
     @abstractmethod
     def _resolution(self) -> Tuple[int, int]:
         """Return the scene's resolution used during rendering."""
-        ...
+        raise NotImplementedError
 
     @property
     @abstractmethod
     def _partial_movie_files(self) -> List[Path]:
         """Return a list of partial movie files, a.k.a animations."""
-        ...
+        raise NotImplementedError
 
     @property
     @abstractmethod
     def _show_progress_bar(self) -> bool:
         """Return True if progress bar should be displayed."""
-        ...
+        raise NotImplementedError
 
     @property
     @abstractmethod
     def _leave_progress_bar(self) -> bool:
         """Return True if progress bar should be left after completed."""
-        ...
+        raise NotImplementedError
 
     @property
     @abstractmethod
     def _start_at_animation_number(self) -> Optional[int]:
         """If set, return the animation number at which rendering start."""
-        ...
+        raise NotImplementedError
 
     @property
     def canvas(self) -> MutableMapping[str, Mobject]:
@@ -341,8 +341,9 @@ class BaseSlide:
                 )
             )
 
+            self._current_slide += 1
+
         self._pre_slide_config_kwargs = dict(loop=loop)
-        self._current_slide += 1
         self._start_animation = self._current_animation
 
     def _add_last_slide(self) -> None:

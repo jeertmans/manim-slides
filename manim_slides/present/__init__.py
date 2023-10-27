@@ -7,11 +7,11 @@ import click
 from click import Context, Parameter
 from pydantic import ValidationError
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QApplication
 
 from ..commons import config_path_option, folder_path_option, verbosity_option
 from ..config import Config, PresentationConfig
 from ..logger import logger
+from ..qt_utils import qapp
 from .player import Player
 
 ASPECT_RATIO_MODES = {
@@ -260,11 +260,7 @@ def present(
     if start_at[1]:
         start_at_scene_number = start_at[1]
 
-    if maybe_app := QApplication.instance():
-        app = maybe_app
-    else:
-        app = QApplication(sys.argv)
-
+    app = qapp()
     app.setApplicationName("Manim Slides")
 
     if screen_number is not None:
