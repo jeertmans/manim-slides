@@ -18,5 +18,5 @@ def test_ffmpeg_bin() -> None:
 
 def test_ffmpeg_bin_exists() -> None:
     assert (
-        shutil.which(FFMPEG_BIN) is not None
+        shutil.which(str(FFMPEG_BIN)) is not None
     ), "If this fails, many other tests will fail"
