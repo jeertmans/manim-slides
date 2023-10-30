@@ -240,8 +240,8 @@ def present(
     start_at: Tuple[Optional[int], Optional[int], Optional[int]],
     start_at_scene_number: int,
     start_at_slide_number: int,
-    screen_number: Optional[int] = None,
-    playback_rate: float = 1.0,
+    screen_number: Optional[int],
+    playback_rate: float,
     next_terminates_loop: bool,
 ) -> None:
     """

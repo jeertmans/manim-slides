@@ -316,7 +316,11 @@ class Player(QMainWindow):  # type: ignore[misc]
         if self.media_player.playbackState() == QMediaPlayer.PausedState:
             self.media_player.play()
         elif self.next_terminates_loop and self.media_player.loops() != 1:
+            position = self.media_player.position()
             self.media_player.setLoops(1)
+            self.media_player.stop()
+            self.media_player.setPosition(position)
+            self.media_player.play()
         else:
             self.load_next_slide()
 
