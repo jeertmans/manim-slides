@@ -219,6 +219,12 @@ def start_at_callback(
     default=1.0,
     help="Playback rate of the video slides, see PySide6 docs for details.",
 )
+@click.option(
+    "--next-terminates-loop",
+    "next_terminates_loop",
+    is_flag=True,
+    help="If set, pressing next will turn any looping slide into a play slide.",
+)
 @click.help_option("-h", "--help")
 @verbosity_option
 def present(
@@ -234,8 +240,9 @@ def present(
     start_at: Tuple[Optional[int], Optional[int], Optional[int]],
     start_at_scene_number: int,
     start_at_slide_number: int,
-    screen_number: Optional[int] = None,
-    playback_rate: float = 1.0,
+    screen_number: Optional[int],
+    playback_rate: float,
+    next_terminates_loop: bool,
 ) -> None:
     """
     Present SCENE(s), one at a time, in order.
@@ -296,6 +303,7 @@ def present(
         slide_index=start_at_slide_number,
         screen=screen,
         playback_rate=playback_rate,
+        next_terminates_loop=next_terminates_loop,
     )
 
     player.show()

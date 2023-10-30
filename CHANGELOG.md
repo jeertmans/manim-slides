@@ -46,6 +46,10 @@ In an effort to better document changes, this CHANGELOG document is now created.
 - Added `Slide.next_section` for compatibility with `manim`'s
   `Scene.next_section` method.
   [#295](https://github.com/jeertmans/manim-slides/pull/295)
+- Added `--next-terminates-loop` option to `manim-slides present` for turn a
+  looping slide into a normal one, so that it ends nicely. This is useful to
+  have a smooth transition with the next slide.
+  [#299](https://github.com/jeertmans/manim-slides/pull/299)
 - Added `--playback-rate` option to `manim-slides present` for testing purposes.
   [#300](https://github.com/jeertmans/manim-slides/pull/300)
 - Added `auto_next` option to `Slide`'s `next_slide` method to automatically
