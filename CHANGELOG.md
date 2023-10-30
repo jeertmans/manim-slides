@@ -48,6 +48,10 @@ In an effort to better document changes, this CHANGELOG document is now created.
   [#295](https://github.com/jeertmans/manim-slides/pull/295)
 - Added `--playback-rate` option to `manim-slides present` for testing purposes.
   [#300](https://github.com/jeertmans/manim-slides/pull/300)
+- Added `auto_next` option to `Slide`'s `next_slide` method to automatically
+  play the next slide upon terminating. Supported by `present` and
+  `convert --to=html` commands.
+  [#304](https://github.com/jeertmans/manim-slides/pull/304)
 
 (v5-changed)=
 ### Changed

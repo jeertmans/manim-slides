@@ -21,6 +21,7 @@ from manim import (
     Text,
 )
 from manim.__main__ import main as manim_cli
+from pydantic import ValidationError
 
 from manim_slides.config import PresentationConfig
 from manim_slides.defaults import FOLDER_PATH
@@ -164,6 +165,37 @@ class TestSlide:
             self.next_slide(loop=False)
 
             assert not self._pre_slide_config_kwargs["loop"]
+
+    @assert_constructs
+    class TestAutoNext(Slide):
+        def construct(self) -> None:
+            text = Text("Some text")
+
+            self.add(text)
+
+            assert "auto_next" not in self._pre_slide_config_kwargs
+
+            self.next_slide(auto_next=True)
+            self.play(text.animate.scale(2))
+
+            assert self._pre_slide_config_kwargs["auto_next"]
+
+            self.next_slide(auto_next=False)
+
+            assert not self._pre_slide_config_kwargs["auto_next"]
+
+    @assert_constructs
+    class TestLoopAndAutoNextFails(Slide):
+        def construct(self) -> None:
+            text = Text("Some text")
+
+            self.add(text)
+
+            self.next_slide(loop=True, auto_next=True)
+            self.play(text.animate.scale(2))
+
+            with pytest.raises(ValidationError):
+                self.next_slide()
 
     @assert_constructs
     class TestWipe(Slide):

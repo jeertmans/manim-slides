@@ -185,12 +185,11 @@ class Example(Slide):
 
         self.play(Transform(step, step_5))
         self.play(Transform(code, code_step_5))
-        self.next_slide()
+        self.next_slide(auto_next=True)
 
         self.play(Transform(step, step_6))
         self.play(Transform(code, code_step_6))
         self.play(code.animate.shift(UP), FadeIn(code_step_7), FadeIn(or_text))
-        self.next_slide()
 
         watch_text = Text("Watch result on next slides!").shift(2 * DOWN).scale(0.5)
 

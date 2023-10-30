@@ -137,6 +137,17 @@ class Player(QMainWindow):  # type: ignore[misc]
 
             self.media_player.mediaStatusChanged.connect(media_status_changed)
 
+        else:
+
+            def media_status_changed(status: QMediaPlayer.MediaStatus) -> None:
+                if (
+                    status == QMediaPlayer.EndOfMedia
+                    and self.current_slide_config.auto_next
+                ):
+                    self.load_next_slide()
+
+            self.media_player.mediaStatusChanged.connect(media_status_changed)
+
         if self.current_slide_config.loop:
             self.media_player.setLoops(-1)
 

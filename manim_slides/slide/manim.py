@@ -79,9 +79,11 @@ class Slide(BaseSlide, Scene):  # type: ignore[misc]
         """
         self.next_slide(*args, **kwargs)
 
-    def next_slide(self, *args: Any, loop: bool = False, **kwargs: Any) -> None:
+    def next_slide(
+        self, *args: Any, loop: bool = False, auto_next: bool = False, **kwargs: Any
+    ) -> None:
         Scene.next_section(self, *args, **kwargs)
-        BaseSlide.next_slide(self, loop=loop)
+        BaseSlide.next_slide(self, loop=loop, auto_next=auto_next)
 
     def render(self, *args: Any, **kwargs: Any) -> None:
         """MANIM render."""

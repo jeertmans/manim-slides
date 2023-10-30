@@ -38,6 +38,16 @@ def manimgl_config(project_folder: Path) -> Iterator[Path]:
     yield (project_folder / "custom_config.yml").resolve(strict=True)
 
 
+@pytest.fixture(scope="session")
+def video_file(data_folder: Path) -> Iterator[Path]:
+    yield (data_folder / "video.mp4").resolve(strict=True)
+
+
+@pytest.fixture(scope="session")
+def video_data_uri_file(data_folder: Path) -> Iterator[Path]:
+    yield (data_folder / "video_data_uri.txt").resolve(strict=True)
+
+
 def random_path(
     length: int = 20,
     dirname: Path = Path("./media/videos/example"),
