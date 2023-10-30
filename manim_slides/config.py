@@ -139,6 +139,7 @@ class PreSlideConfig(BaseModel):  # type: ignore
     start_animation: int
     end_animation: int
     loop: bool = False
+    auto_next: bool = False
 
     @field_validator("start_animation", "end_animation")
     @classmethod
@@ -164,6 +165,21 @@ class PreSlideConfig(BaseModel):  # type: ignore
 
         return pre_slide_config
 
+    @model_validator(mode="after")
+    @classmethod
+    def loop_and_auto_next_disallowed(
+        cls, pre_slide_config: "PreSlideConfig"
+    ) -> "PreSlideConfig":
+        if pre_slide_config.loop and pre_slide_config.auto_next:
+            raise ValueError(
+                "You cannot have both `loop=True` and `auto_next=True`, "
+                "because a looping slide has no ending. "
+                "This may be supported in the future if "
+                "https://github.com/jeertmans/manim-slides/pull/299 gets merged."
+            )
+
+        return pre_slide_config
+
     @property
     def slides_slice(self) -> slice:
         return slice(self.start_animation, self.end_animation)
@@ -173,12 +189,18 @@ class SlideConfig(BaseModel):  # type: ignore[misc]
     file: FilePath
     rev_file: FilePath
     loop: bool = False
+    auto_next: bool = False
 
     @classmethod
     def from_pre_slide_config_and_files(
         cls, pre_slide_config: PreSlideConfig, file: Path, rev_file: Path
     ) -> "SlideConfig":
-        return cls(file=file, rev_file=rev_file, loop=pre_slide_config.loop)
+        return cls(
+            file=file,
+            rev_file=rev_file,
+            loop=pre_slide_config.loop,
+            auto_next=pre_slide_config.auto_next,
+        )
 
 
 class PresentationConfig(BaseModel):  # type: ignore[misc]

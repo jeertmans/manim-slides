@@ -36,6 +36,9 @@
               {%- endif -%}
               {% if slide_config.loop -%}
                 data-background-video-loop
+              {%- endif -%}
+              {% if slide_config.auto_next -%}
+                data-autoslide="{{ get_duration_ms(slide_config.file) }}"
               {%- endif -%}>
             </section>
           {%- endfor -%}

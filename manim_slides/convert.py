@@ -61,7 +61,9 @@ def validate_config_option(
             config[key] = value
         except ValueError:
             raise click.BadParameter(
-                f"Configuration options `{c_option}` could not be parsed into a proper (key, value) pair. Please use an `=` sign to separate key from value."
+                f"Configuration options `{c_option}` could not be parsed into "
+                "a proper (key, value) pair. "
+                "Please use an `=` sign to separate key from value."
             ) from None
 
     return config
@@ -73,6 +75,15 @@ def file_to_data_uri(file: Path) -> str:
     mime_type = mimetypes.guess_type(file)[0] or "video/mp4"
 
     return f"data:{mime_type};base64,{b64}"
+
+
+def get_duration_ms(file: Path) -> float:
+    """Read a video and return its duration in milliseconds."""
+    cap = cv2.VideoCapture(str(file))
+    fps: int = cap.get(cv2.CAP_PROP_FPS)
+    frame_count: int = cap.get(cv2.CAP_PROP_FRAME_COUNT)
+
+    return 1000 * frame_count / fps
 
 
 class Converter(BaseModel):  # type: ignore
@@ -396,7 +407,9 @@ class RevealJS(Converter):
             options["assets_dir"] = assets_dir
 
             content = revealjs_template.render(
-                file_to_data_uri=file_to_data_uri, **options
+                file_to_data_uri=file_to_data_uri,
+                get_duration_ms=get_duration_ms,
+                **options,
             )
 
             f.write(content)

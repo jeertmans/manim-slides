@@ -252,7 +252,9 @@ class BaseSlide:
         super().play(*args, **kwargs)  # type: ignore[misc]
         self._current_animation += 1
 
-    def next_slide(self, *, loop: bool = False, **kwargs: Any) -> None:
+    def next_slide(
+        self, *, loop: bool = False, auto_next: bool = False, **kwargs: Any
+    ) -> None:
         """
         Create a new slide with previous animations, and setup options
         for the next slide.
@@ -266,6 +268,12 @@ class BaseSlide:
             or ignored if `manimlib` API is used.
         :param loop:
             If set, next slide will be looping.
+        :param auto_next:
+            If set, next slide will play immediately play the next slide
+            upon terminating.
+
+            Note that this is only supported by ``manim-slides present``
+            and ``manim-slides convert --to=html``.
         :param kwargs:
             Keyword arguments to be passed to
             :meth:`Scene.next_section<manim.scene.scene.Scene.next_section>`,
@@ -328,6 +336,28 @@ class BaseSlide:
                     self.next_slide()
 
                     self.play(FadeOut(dot))
+
+        The following contains one slide that triggers the next slide
+        upon terminating.
+
+        .. manim-slides:: AutoNextExample
+
+            from manim import *
+            from manim_slides import Slide
+
+            class AutoNextExample(Slide):
+                def construct(self):
+                    square = Square(color=RED, side_length=2)
+
+                    self.play(GrowFromCenter(square))
+
+                    self.next_slide(auto_next=True)
+
+                    self.play(Wiggle(square))
+
+                    self.next_slide()
+
+                    self.wipe(square)
         """
         if self._current_animation > self._start_animation:
             if self.wait_time_between_slides > 0.0:
@@ -343,7 +373,7 @@ class BaseSlide:
 
             self._current_slide += 1
 
-        self._pre_slide_config_kwargs = dict(loop=loop)
+        self._pre_slide_config_kwargs = dict(loop=loop, auto_next=auto_next)
         self._start_animation = self._current_animation
 
     def _add_last_slide(self) -> None:

@@ -31,7 +31,17 @@ from manim_slides.convert import (
     SlideNumber,
     Transition,
     TransitionSpeed,
+    file_to_data_uri,
+    get_duration_ms,
 )
+
+
+def test_get_duration_ms(video_file: Path) -> None:
+    assert get_duration_ms(video_file) == 2000.0
+
+
+def test_file_to_data_uri(video_file: Path, video_data_uri_file: Path) -> None:
+    assert file_to_data_uri(video_file) == video_data_uri_file.read_text().strip()
 
 
 @pytest.mark.parametrize(
