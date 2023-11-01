@@ -201,7 +201,7 @@ Below is a comparison of the most used ones with Manim Slides:
 On Windows platform, one may encounter a lower image resolution than expected. Usually, this is observed because Windows rescales every application to fit the screen.
 As found by [@arashash](https://github.com/arashash), in [#20](https://github.com/jeertmans/manim-slides/issues/20), the problem can be addressed by changing the scaling factor to 100%:
 
-![Windows Fix Scaling](static/windows_quality_fix.png)
+![Windows Fix Scaling](https://raw.githubusercontent.com/jeertmans/manim-slides/main/static/windows_quality_fix.png)
 
 in *Settings*->*Display*.
 
