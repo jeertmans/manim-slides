@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <!-- start changelog -->
 
+(v5.1)=
+## [v5.1 (Unreleased)](https://github.com/jeertmans/manim-slides/compare/v5.0.0...HEAD)
+
+(v5.1-added)=
+### Added
+
+- Added the `--hide-info-window` option to `manim-slides present`.
+  [#313](https://github.com/jeertmans/manim-slides/pull/313)
+
 ## [v5](https://github.com/jeertmans/manim-slides/compare/v4.16.0...v5.0.0)
 
 Prior to v5, there was no real CHANGELOG other than the GitHub releases,
