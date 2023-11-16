@@ -122,7 +122,7 @@ class Player(QMainWindow):  # type: ignore[misc]
         self.config.keys.REPLAY.connect(self.replay)
         self.config.keys.FULL_SCREEN.connect(self.full_screen)
         self.config.keys.HIDE_MOUSE.connect(self.hide_mouse)
-        #self.config.keys.PREVIOUS_REVERSE.connect(self.previous_reverse)
+        # self.config.keys.PREVIOUS_REVERSE.connect(self.previous_reverse)
 
         self.dispatch = self.config.keys.dispatch_key_function()
 
@@ -342,7 +342,7 @@ class Player(QMainWindow):  # type: ignore[misc]
         position = self.media_player.position()
         self.media_player.setPlaybackRate(-1.0)
         self.media_player.setPosition(position)
-        #self.load_reversed_slide()
+        # self.load_reversed_slide()
 
     @Slot()
     def replay(self) -> None:
