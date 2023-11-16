@@ -225,6 +225,11 @@ def start_at_callback(
     is_flag=True,
     help="If set, pressing next will turn any looping slide into a play slide.",
 )
+@click.option(
+    "--hide-info-window",
+    is_flag=True,
+    help="Hide info window.",
+)
 @click.help_option("-h", "--help")
 @verbosity_option
 def present(
@@ -243,6 +248,7 @@ def present(
     screen_number: Optional[int],
     playback_rate: float,
     next_terminates_loop: bool,
+    hide_info_window: bool,
 ) -> None:
     """
     Present SCENE(s), one at a time, in order.
@@ -304,6 +310,7 @@ def present(
         screen=screen,
         playback_rate=playback_rate,
         next_terminates_loop=next_terminates_loop,
+        hide_info_window=hide_info_window,
     )
 
     player.show()

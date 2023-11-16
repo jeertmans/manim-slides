@@ -55,6 +55,7 @@ class Player(QMainWindow):  # type: ignore[misc]
         screen: Optional[QScreen] = None,
         playback_rate: float = 1.0,
         next_terminates_loop: bool = False,
+        hide_info_window: bool = False,
     ):
         super().__init__()
 
@@ -109,6 +110,7 @@ class Player(QMainWindow):  # type: ignore[misc]
         self.slide_changed.connect(self.slide_changed_callback)
 
         self.info = Info(parent=self)
+        self.hide_info_window = hide_info_window
 
         # Connecting key callbacks
 
@@ -120,6 +122,7 @@ class Player(QMainWindow):  # type: ignore[misc]
         self.config.keys.REPLAY.connect(self.replay)
         self.config.keys.FULL_SCREEN.connect(self.full_screen)
         self.config.keys.HIDE_MOUSE.connect(self.hide_mouse)
+        # self.config.keys.PREVIOUS_REVERSE.connect(self.previous_reverse)
 
         self.dispatch = self.config.keys.dispatch_key_function()
 
@@ -304,7 +307,9 @@ class Player(QMainWindow):  # type: ignore[misc]
 
     def show(self) -> None:
         super().show()
-        self.info.show()
+
+        if not self.hide_info_window:
+            self.info.show()
 
     @Slot()
     def close(self) -> None:
@@ -331,6 +336,13 @@ class Player(QMainWindow):  # type: ignore[misc]
     @Slot()
     def reverse(self) -> None:
         self.load_reversed_slide()
+
+    @Slot()
+    def previous_reverse(self) -> None:
+        position = self.media_player.position()
+        self.media_player.setPlaybackRate(-1.0)
+        self.media_player.setPosition(position)
+        # self.load_reversed_slide()
 
     @Slot()
     def replay(self) -> None:
