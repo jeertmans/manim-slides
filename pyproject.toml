@@ -73,12 +73,8 @@ sphinx-directive = ["docutils", "manim"]
 optional = true
 
 [tool.poetry.group.dev.dependencies]
-black = "^22.10.0"
 bump2version = "^1.0.1"
-isort = "^5.12.0"
-mypy = "^0.991"
 pre-commit = "^3.0.2"
-ruff = "^0.0.219"
 
 [tool.poetry.group.docs]
 optional = true
@@ -137,6 +133,7 @@ extend-ignore = [
   "D212",
   "E501"
 ]
+extend-include = ["*.ipynb"]
 extend-select = ["B", "C90", "D", "I", "N", "RUF", "UP", "T"]
 isort = {known-first-party = ['manim_slides', 'tests']}
 line-length = 88

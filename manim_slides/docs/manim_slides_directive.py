@@ -69,6 +69,7 @@ render scenes that are defined within doctests, for example::
         >>> class DirectiveDoctestExample(Slide):
         ...     def construct(self):
         ...         self.play(Create(dot))
+        ...
 
 A third application is to render scenes from another specific file::
 

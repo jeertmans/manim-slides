@@ -8,6 +8,7 @@ from .__version__ import __version__
 from .convert import convert
 from .logger import logger
 from .present import list_scenes, present
+from .render import render
 from .wizard import init, wizard
 
 
@@ -67,6 +68,7 @@ cli.add_command(convert)
 cli.add_command(init)
 cli.add_command(list_scenes)
 cli.add_command(present)
+cli.add_command(render)
 cli.add_command(wizard)
 
 if __name__ == "__main__":
