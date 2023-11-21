@@ -1,7 +1,5 @@
 import random
 import shutil
-import subprocess
-import sys
 from pathlib import Path
 
 import pytest
@@ -27,7 +25,6 @@ from manim_slides.render import render
 from manim_slides.slide.manim import Slide
 
 
-
 @pytest.mark.parametrize(
     "renderer",
     [
@@ -45,7 +42,9 @@ def test_render_basic_slide(
 
     with runner.isolated_filesystem() as tmp_dir:
         shutil.copy(manimgl_config, tmp_dir)
-        results = runner.invoke(render, [renderer, str(slides_file), "BasicSlide", "-ql"])
+        results = runner.invoke(
+            render, [renderer, str(slides_file), "BasicSlide", "-ql"]
+        )
 
         assert results.exit_code == 0
 
