@@ -51,6 +51,11 @@ If none of those packages are installed, please refer to their specific installa
 - [Manim](https://docs.manim.community/en/stable/installation.html)
 - [ManimGL](https://3b1b.github.io/manim/getting_started/installation.html)
 
+> **NOTE**: if you install Manim from its git repository, as suggested by ManimGL,
+  make sure to first checkout a supported version (e.g., `git checkout tags/v1.6.1`
+  for ManimGL), otherwise it might install an unsupported version of Manim!
+  See [#314](https://github.com/jeertmans/manim-slides/issues/314) for an example.
+
 <!-- end deps -->
 
 ### Pip Install
