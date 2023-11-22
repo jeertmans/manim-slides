@@ -185,7 +185,9 @@ class BaseSlide:
         the canvas.
         """
         return [
-            mobject for mobject in self.mobjects if mobject not in self.canvas_mobjects  # type: ignore[attr-defined]
+            mobject
+            for mobject in self.mobjects  # type: ignore[attr-defined]
+            if mobject not in self.canvas_mobjects
         ]
 
     @property

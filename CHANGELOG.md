@@ -15,6 +15,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Added the `--hide-info-window` option to `manim-slides present`.
   [#313](https://github.com/jeertmans/manim-slides/pull/313)
+- Added the `manim-slides render` command
+  to render slides using correct Manim installation.
+  [#317](https://github.com/jeertmans/manim-slides/pull/317)
 
 ## [v5](https://github.com/jeertmans/manim-slides/compare/v4.16.0...v5.0.0)
 
