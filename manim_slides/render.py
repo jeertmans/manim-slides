@@ -36,7 +36,7 @@ import click
     is_flag=True,
     envvar="MANIMGL_RENDERER",
     show_envvar=True,
-    help="If set, use ManinGL renderer.",
+    help="If set, use ManimGL renderer.",
 )
 @click.argument("args", metavar="[RENDERER_ARGS]...", nargs=-1, type=click.UNPROCESSED)
 def render(ce: bool, gl: bool, args: Tuple[str, ...]) -> None:
