@@ -10,17 +10,17 @@ This is especially useful for two reasons:
 2. You can pass options to the config.
 """
 
-import subprocess
 import sys
+import subprocess
+
 from typing import Tuple
 
 import click
 
-from .logger import logger
-
 
 @click.command(
-    context_settings=dict(ignore_unknown_options=True, help_option_names=("-h",))
+    context_settings=dict(ignore_unknown_options=True, allow_extra_args=True, help_option_names=("-h",)),
+    options_metavar="[--CE|--GL]"
 )
 @click.option(
     "--CE",
@@ -37,7 +37,7 @@ from .logger import logger
     show_envvar=True,
     help="If set, use ManinGL renderer.",
 )
-@click.argument("args", nargs=-1, type=click.UNPROCESSED)
+@click.argument("args", metavar="[RENDERER_ARGS]...", nargs=-1, type=click.UNPROCESSED)
 def render(ce: bool, gl: bool, args: Tuple[str, ...]) -> None:
     """
     Render SCENE(s) from the input FILE, using the specified renderer.
@@ -48,13 +48,8 @@ def render(ce: bool, gl: bool, args: Tuple[str, ...]) -> None:
     if ce and gl:
         raise click.UsageError("You cannot specify both --CE and --GL renderers.")
     if gl:
-        p_args = [sys.executable, "-m", "manimlib", *args]
-        print(f"Rendering using ManimGL: {p_args}")
-        logger.debug(f"Rendering using ManimGL: {p_args}")
-        subprocess.run(p_args)
+        module = "manimlib"
     else:
-        from manim.cli.render.commands import render
+        module = "manim"
 
-        logger.debug(f"Rendering using ManimCE: {args}")
-        print("Rendering using ManimCE: {args}")
-        render.main(args)
+    subprocess.run([sys.executable, "-m", module, *args])
