@@ -11,15 +11,16 @@ This is especially useful for two reasons:
 """
 
 import sys
-
 from typing import Tuple
 
 import click
 
 
 @click.command(
-    context_settings=dict(ignore_unknown_options=True, allow_extra_args=True, help_option_names=("-h",)),
-    options_metavar="[-h] [--CE|--GL]"
+    context_settings=dict(
+        ignore_unknown_options=True, allow_extra_args=True, help_option_names=("-h",)
+    ),
+    options_metavar="[-h] [--CE|--GL]",
 )
 @click.option(
     "--CE",
