@@ -10,6 +10,7 @@ This is especially useful for two reasons:
 2. You can pass options to the config.
 """
 
+import subprocess
 import sys
 from typing import Tuple
 
@@ -48,14 +49,6 @@ def render(ce: bool, gl: bool, args: Tuple[str, ...]) -> None:
     if ce and gl:
         raise click.UsageError("You cannot specify both --CE and --GL renderers.")
     if gl:
-        from manimlib.__main__ import main
-
-        sys.argv[0] = "manimgl"
-        sys.argv[1:] = args
-
-        main()
+        subprocess.run([sys.executable, "-m", "manimlib", *args])
     else:
-        from manim.cli.render.commands import render
-
-        sys.argv[0] = "manim render"
-        render.main(args)
+        subprocess.run([sys.executable, "-m", "manim", "render", *args])
