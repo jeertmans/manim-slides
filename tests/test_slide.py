@@ -46,7 +46,7 @@ def test_render_basic_slide(
             render, [renderer, str(slides_file), "BasicSlide", "-ql"]
         )
 
-        assert results.exit_code == 0
+        assert results.exit_code == 0, results
 
         local_slides_folder = (Path(tmp_dir) / "slides").resolve(strict=True)
 
