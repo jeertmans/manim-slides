@@ -1,7 +1,10 @@
 import random
 import shutil
+import subprocess
+import sys
 from pathlib import Path
 
+import click
 import pytest
 from click.testing import CliRunner
 from manim import (
@@ -17,23 +20,37 @@ from manim import (
     GrowFromCenter,
     Text,
 )
+from manim.__main__ import main as manim_cli
 from pydantic import ValidationError
 
 from manim_slides.config import PresentationConfig
 from manim_slides.defaults import FOLDER_PATH
-from manim_slides.render import render
 from manim_slides.slide.manim import Slide
 
 
-@pytest.mark.parametrize(
-    "renderer",
+@click.command(
+    context_settings=dict(
+        ignore_unknown_options=True,
+        allow_extra_args=True,
+    )
+)
+@click.pass_context
+def manimgl_cli(ctx: click.Context) -> None:
+    subprocess.run([sys.executable, "-m", "manimlib", *ctx.args])
+
+
+cli = pytest.mark.parametrize(
+    ["cli"],
     [
-        "--CE",
-        "--GL",
+        [manim_cli],
+        [manimgl_cli],
     ],
 )
+
+
+@cli
 def test_render_basic_slide(
-    renderer: str,
+    cli: click.Command,
     slides_file: Path,
     presentation_config: PresentationConfig,
     manimgl_config: Path,
@@ -42,11 +59,9 @@ def test_render_basic_slide(
 
     with runner.isolated_filesystem() as tmp_dir:
         shutil.copy(manimgl_config, tmp_dir)
-        results = runner.invoke(
-            render, [renderer, str(slides_file), "BasicSlide", "-ql"]
-        )
+        results = runner.invoke(cli, [str(slides_file), "BasicSlide", "-ql"])
 
-        assert results.exit_code == 0, results
+        assert results.exit_code == 0
 
         local_slides_folder = (Path(tmp_dir) / "slides").resolve(strict=True)
 
