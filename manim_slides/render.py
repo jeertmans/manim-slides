@@ -49,10 +49,12 @@ def render(ce: bool, gl: bool, args: Tuple[str, ...]) -> None:
         raise click.UsageError("You cannot specify both --CE and --GL renderers.")
     if gl:
         p_args = [sys.executable, "-m", "manimlib", *args]
+        print(f"Rendering using ManimGL: {p_args}")
         logger.debug(f"Rendering using ManimGL: {p_args}")
         subprocess.run(p_args)
     else:
         from manim.cli.render.commands import render
 
         logger.debug(f"Rendering using ManimCE: {args}")
+        print("Rendering using ManimCE: {args}")
         render.main(args)
