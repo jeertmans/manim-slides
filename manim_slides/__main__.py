@@ -35,7 +35,7 @@ def cli(notify_outdated_version: bool) -> None:
         warn_prompt = "Cannot check if latest release of Manim Slides is installed"
         try:
             req_info: requests.models.Response = requests.get(
-                manim_info_url, timeout=10
+                manim_info_url, timeout=2
             )
             req_info.raise_for_status()
             stable = req_info.json()["info"]["version"]
