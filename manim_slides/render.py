@@ -11,7 +11,6 @@ This is especially useful for two reasons:
 """
 
 import sys
-import subprocess
 
 from typing import Tuple
 
@@ -20,7 +19,7 @@ import click
 
 @click.command(
     context_settings=dict(ignore_unknown_options=True, allow_extra_args=True, help_option_names=("-h",)),
-    options_metavar="[--CE|--GL]"
+    options_metavar="[-h] [--CE|--GL]"
 )
 @click.option(
     "--CE",
@@ -28,7 +27,7 @@ import click
     envvar="MANIM_RENDERER",
     show_envvar=True,
     help="If set, use Manim Community Edition (CE) renderer. "
-    "If this or --CE is not set, default to CE renderer.",
+    "If this or --GL is not set, default to CE renderer.",
 )
 @click.option(
     "--GL",
@@ -48,8 +47,14 @@ def render(ce: bool, gl: bool, args: Tuple[str, ...]) -> None:
     if ce and gl:
         raise click.UsageError("You cannot specify both --CE and --GL renderers.")
     if gl:
-        module = "manimlib"
-    else:
-        module = "manim"
+        from manimlib.__main__ import main
 
-    subprocess.run([sys.executable, "-m", module, *args])
+        sys.argv[0] = "manimgl"
+        sys.argv[1:] = args
+
+        main()
+    else:
+        from manim.cli.render.commands import render
+
+        sys.argv[0] = "manim render"
+        render.main(args)
