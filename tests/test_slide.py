@@ -194,7 +194,7 @@ class TestSlide:
             self.next_slide(playback_rate=2.0)
             self.play(text.animate.scale(2))
 
-            assert self._base_slide_config.playback_rate == 0.0
+            assert self._base_slide_config.playback_rate == 2.0
 
     @assert_constructs
     class TestWipe(Slide):

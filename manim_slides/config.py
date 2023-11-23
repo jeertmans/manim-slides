@@ -146,7 +146,7 @@ class BaseSlideConfig(BaseModel):  # type: ignore
     reversed_playback_rate: float = 1.0
 
     @classmethod
-    def wrapper(cls, arg_name: str):
+    def wrapper(cls, arg_name: str) -> Callable[..., Any]:
         """
         Wrap a function to transform keyword argument into an instance of this class.
 
@@ -157,9 +157,9 @@ class BaseSlideConfig(BaseModel):  # type: ignore
         - and its second last parameter must be ``<arg_name>``.
         """
 
-        def _wrapper_(fun):
+        def _wrapper_(fun: Callable[..., Any]) -> Callable[..., Any]:
             @wraps(fun)
-            def __wrapper__(*args, **kwargs):
+            def __wrapper__(*args: Any, **kwargs: Any) -> Any:  # noqa: N807
                 fun_kwargs = {
                     key: value
                     for key, value in kwargs.items()
@@ -181,7 +181,7 @@ class BaseSlideConfig(BaseModel):  # type: ignore
             ]
 
             sig = sig.replace(parameters=parameters)
-            __wrapper__.__signature__ = sig
+            __wrapper__.__signature__ = sig  # type: ignore[attr-defined]
 
             return __wrapper__
 
