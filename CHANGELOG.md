@@ -22,6 +22,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   to slide config.
   [#320](https://github.com/jeertmans/manim-slides/pull/320)
 
+(v5.1-modified)=
+### Modified
+
+- Modified the internal logic to simplify adding configuration options.
+  [#321](https://github.com/jeertmans/manim-slides/pull/321)
+
 ## [v5](https://github.com/jeertmans/manim-slides/compare/v4.16.0...v5.0.0)
 
 Prior to v5, there was no real CHANGELOG other than the GitHub releases,

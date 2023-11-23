@@ -140,16 +140,16 @@ class TestSlide:
 
             self.add(text)
 
-            assert "loop" not in self._pre_slide_config_kwargs
+            assert not self._base_slide_config.loop
 
             self.next_slide(loop=True)
             self.play(text.animate.scale(2))
 
-            assert self._pre_slide_config_kwargs["loop"]
+            assert self._base_slide_config.loop
 
             self.next_slide(loop=False)
 
-            assert not self._pre_slide_config_kwargs["loop"]
+            assert not self._base_slide_config.loop
 
     @assert_constructs
     class TestAutoNext(Slide):
@@ -158,16 +158,16 @@ class TestSlide:
 
             self.add(text)
 
-            assert "auto_next" not in self._pre_slide_config_kwargs
+            assert not self._base_slide_config.auto_next
 
             self.next_slide(auto_next=True)
             self.play(text.animate.scale(2))
 
-            assert self._pre_slide_config_kwargs["auto_next"]
+            assert self._base_slide_config.auto_next
 
             self.next_slide(auto_next=False)
 
-            assert not self._pre_slide_config_kwargs["auto_next"]
+            assert not self._base_slide_config.auto_next
 
     @assert_constructs
     class TestLoopAndAutoNextFails(Slide):
@@ -189,12 +189,12 @@ class TestSlide:
 
             self.add(text)
 
-            assert "playback_rate" not in self._pre_slide_config_kwargs
+            assert self._base_slide_config.playback_rate == 1.0
 
             self.next_slide(playback_rate=2.0)
             self.play(text.animate.scale(2))
 
-            assert self._pre_slide_config_kwargs["playback_rate"] == 2.0
+            assert self._base_slide_config.playback_rate == 0.0
 
     @assert_constructs
     class TestWipe(Slide):
