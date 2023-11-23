@@ -408,8 +408,8 @@ class RevealJS(Converter):
 
             has_notes = any(
                 slide_config.notes != ""
-                for slide_config in presentation_config.slides
                 for presentation_config in self.presentation_configs
+                for slide_config in presentation_config.slides
             )
 
             content = revealjs_template.render(
