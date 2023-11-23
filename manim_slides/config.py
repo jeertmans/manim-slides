@@ -1,8 +1,8 @@
 import json
 import shutil
-from pathlib import Path
-from inspect import signature, Parameter
 from functools import wraps
+from inspect import Parameter, signature
+from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional, Set, Tuple
 
 import rtoml
@@ -156,17 +156,29 @@ class BaseSlideConfig(BaseModel):  # type: ignore
         - its last parameter must be ``**kwargs`` (or equivalent);
         - and its second last parameter must be ``<arg_name>``.
         """
-        def _wrapper_(fun):
 
+        def _wrapper_(fun):
             @wraps(fun)
             def __wrapper__(*args, **kwargs):
-                fun_kwargs = {key: value for key, value in kwargs.items() if key not in cls.__fields__}
+                fun_kwargs = {
+                    key: value
+                    for key, value in kwargs.items()
+                    if key not in cls.__fields__
+                }
                 fun_kwargs[arg_name] = cls(**kwargs)
                 return fun(*args, **fun_kwargs)
 
             sig = signature(fun)
             parameters = list(sig.parameters.values())
-            parameters[-2:-1] = [Parameter(field_name, Parameter.KEYWORD_ONLY, default=field_info.default, annotation=field_info.annotation) for field_name, field_info in cls.__fields__.items()]
+            parameters[-2:-1] = [
+                Parameter(
+                    field_name,
+                    Parameter.KEYWORD_ONLY,
+                    default=field_info.default,
+                    annotation=field_info.annotation,
+                )
+                for field_name, field_info in cls.__fields__.items()
+            ]
 
             sig = sig.replace(parameters=parameters)
             __wrapper__.__signature__ = sig
@@ -175,16 +187,25 @@ class BaseSlideConfig(BaseModel):  # type: ignore
 
         return _wrapper_
 
+
 class PreSlideConfig(BaseSlideConfig):
     """Slide config to be used prior to rendering."""
+
     start_animation: int
     end_animation: int
 
     @classmethod
     def from_base_slide_config_and_animation_indices(
-            cls, base_slide_config: BaseSlideConfig, start_animation: int, end_animation: int
+        cls,
+        base_slide_config: BaseSlideConfig,
+        start_animation: int,
+        end_animation: int,
     ) -> "PreSlideConfig":
-        return cls(start_animation=start_animation, end_animation=end_animation, **base_slide_config.dict())
+        return cls(
+            start_animation=start_animation,
+            end_animation=end_animation,
+            **base_slide_config.dict(),
+        )
 
     @field_validator("start_animation", "end_animation")
     @classmethod
@@ -232,6 +253,7 @@ class PreSlideConfig(BaseSlideConfig):
 
 class SlideConfig(BaseSlideConfig):
     """Slide config to be used after rendering."""
+
     file: FilePath
     rev_file: FilePath
 

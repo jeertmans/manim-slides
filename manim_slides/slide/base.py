@@ -8,7 +8,7 @@ from typing import Any, List, MutableMapping, Optional, Sequence, Tuple, ValuesV
 import numpy as np
 from tqdm import tqdm
 
-from ..config import PresentationConfig, PreSlideConfig, SlideConfig, BaseSlideConfig
+from ..config import BaseSlideConfig, PresentationConfig, PreSlideConfig, SlideConfig
 from ..defaults import FFMPEG_BIN, FOLDER_PATH
 from ..logger import logger
 from ..utils import concatenate_video_files, merge_basenames, reverse_video_file
@@ -379,10 +379,10 @@ class BaseSlide:
 
             self._slides.append(
                 PreSlideConfig.from_base_slide_config_and_animation_indices(
-                self._base_slide_config,
-                self._start_animation,
-                self._current_animation,
-            )
+                    self._base_slide_config,
+                    self._start_animation,
+                    self._current_animation,
+                )
             )
 
             self._current_slide += 1

@@ -3,8 +3,8 @@ from typing import Any, List, Optional, Tuple
 
 from manim import Scene, ThreeDScene, config
 
-from .base import BaseSlide
 from ..config import BaseSlideConfig
+from .base import BaseSlide
 
 
 class Slide(BaseSlide, Scene):  # type: ignore[misc]
