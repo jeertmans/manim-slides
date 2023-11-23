@@ -222,7 +222,7 @@ class TestSlide:
             self.next_slide(notes="test")
             self.play(text.animate.scale(2))
 
-            assert self._base_slide_config.notes == ""
+            assert self._base_slide_config.notes == "test"
 
     @assert_constructs
     class TestWipe(Slide):
