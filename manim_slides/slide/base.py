@@ -8,7 +8,7 @@ from typing import Any, List, MutableMapping, Optional, Sequence, Tuple, ValuesV
 import numpy as np
 from tqdm import tqdm
 
-from ..config import PresentationConfig, PreSlideConfig, SlideConfig
+from ..config import BaseSlideConfig, PresentationConfig, PreSlideConfig, SlideConfig
 from ..defaults import FFMPEG_BIN, FOLDER_PATH
 from ..logger import logger
 from ..utils import concatenate_video_files, merge_basenames, reverse_video_file
@@ -29,7 +29,7 @@ class BaseSlide:
         super().__init__(*args, **kwargs)
         self._output_folder: Path = output_folder
         self._slides: List[PreSlideConfig] = []
-        self._pre_slide_config_kwargs: MutableMapping[str, Any] = {}
+        self._base_slide_config: BaseSlideConfig = BaseSlideConfig()
         self._current_slide = 1
         self._current_animation = 0
         self._start_animation = 0
@@ -254,13 +254,11 @@ class BaseSlide:
         super().play(*args, **kwargs)  # type: ignore[misc]
         self._current_animation += 1
 
+    @BaseSlideConfig.wrapper("base_slide_config")
     def next_slide(
         self,
         *,
-        loop: bool = False,
-        auto_next: bool = False,
-        playback_rate: float = 1.0,
-        reversed_playback_rate: float = 1.0,
+        base_slide_config: BaseSlideConfig,
         **kwargs: Any,
     ) -> None:
         """
@@ -380,21 +378,16 @@ class BaseSlide:
                 self.wait(self.wait_time_between_slides)  # type: ignore[attr-defined]
 
             self._slides.append(
-                PreSlideConfig(
-                    start_animation=self._start_animation,
-                    end_animation=self._current_animation,
-                    **self._pre_slide_config_kwargs,
+                PreSlideConfig.from_base_slide_config_and_animation_indices(
+                    self._base_slide_config,
+                    self._start_animation,
+                    self._current_animation,
                 )
             )
 
             self._current_slide += 1
 
-        self._pre_slide_config_kwargs = dict(
-            loop=loop,
-            auto_next=auto_next,
-            playback_rate=playback_rate,
-            reversed_playback_rate=reversed_playback_rate,
-        )
+        self._base_slide_config = base_slide_config
         self._start_animation = self._current_animation
 
     def _add_last_slide(self) -> None:
@@ -406,10 +399,10 @@ class BaseSlide:
             return
 
         self._slides.append(
-            PreSlideConfig(
-                start_animation=self._start_animation,
-                end_animation=self._current_animation,
-                **self._pre_slide_config_kwargs,
+            PreSlideConfig.from_base_slide_config_and_animation_indices(
+                self._base_slide_config,
+                self._start_animation,
+                self._current_animation,
             )
         )
 

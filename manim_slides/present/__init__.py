@@ -217,7 +217,9 @@ def start_at_callback(
     metavar="RATE",
     type=float,
     default=1.0,
-    help="Playback rate of the video slides, see PySide6 docs for details.",
+    help="Playback rate of the video slides, see PySide6 docs for details. "
+    " The playback rate of each slide is defined as the product of its default "
+    " playback rate and the provided value.",
 )
 @click.option(
     "--next-terminates-loop",

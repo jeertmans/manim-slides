@@ -104,7 +104,7 @@ class Player(QMainWindow):  # type: ignore[misc]
 
         self.media_player = QMediaPlayer(self)
         self.media_player.setVideoOutput(self.video_widget)
-        self.media_player.setPlaybackRate(playback_rate)
+        self.playback_rate = playback_rate
 
         self.presentation_changed.connect(self.presentation_changed_callback)
         self.slide_changed.connect(self.slide_changed_callback)
@@ -238,10 +238,12 @@ class Player(QMainWindow):  # type: ignore[misc]
 
         if self.playing_reversed_slide:
             self.media_player.setPlaybackRate(
-                self.current_slide_config.reversed_playback_rate
+                self.current_slide_config.reversed_playback_rate * self.playback_rate
             )
         else:
-            self.media_player.setPlaybackRate(self.current_slide_config.playback_rate)
+            self.media_player.setPlaybackRate(
+                self.current_slide_config.playback_rate * self.playback_rate
+            )
 
         if start_paused:
             self.media_player.pause()

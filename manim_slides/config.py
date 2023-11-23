@@ -1,5 +1,7 @@
 import json
 import shutil
+from functools import wraps
+from inspect import Parameter, signature
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional, Set, Tuple
 
@@ -135,13 +137,75 @@ class Config(BaseModel):  # type: ignore[misc]
         return self
 
 
-class PreSlideConfig(BaseModel):  # type: ignore
-    start_animation: int
-    end_animation: int
+class BaseSlideConfig(BaseModel):  # type: ignore
+    """Base class for slide config."""
+
     loop: bool = False
     auto_next: bool = False
     playback_rate: float = 1.0
     reversed_playback_rate: float = 1.0
+
+    @classmethod
+    def wrapper(cls, arg_name: str) -> Callable[..., Any]:
+        """
+        Wrap a function to transform keyword argument into an instance of this class.
+
+        The function signature is updated to reflect the new keyword-only arguments.
+
+        The wrapped function must follow two criteria:
+        - its last parameter must be ``**kwargs`` (or equivalent);
+        - and its second last parameter must be ``<arg_name>``.
+        """
+
+        def _wrapper_(fun: Callable[..., Any]) -> Callable[..., Any]:
+            @wraps(fun)
+            def __wrapper__(*args: Any, **kwargs: Any) -> Any:  # noqa: N807
+                fun_kwargs = {
+                    key: value
+                    for key, value in kwargs.items()
+                    if key not in cls.__fields__
+                }
+                fun_kwargs[arg_name] = cls(**kwargs)
+                return fun(*args, **fun_kwargs)
+
+            sig = signature(fun)
+            parameters = list(sig.parameters.values())
+            parameters[-2:-1] = [
+                Parameter(
+                    field_name,
+                    Parameter.KEYWORD_ONLY,
+                    default=field_info.default,
+                    annotation=field_info.annotation,
+                )
+                for field_name, field_info in cls.__fields__.items()
+            ]
+
+            sig = sig.replace(parameters=parameters)
+            __wrapper__.__signature__ = sig  # type: ignore[attr-defined]
+
+            return __wrapper__
+
+        return _wrapper_
+
+
+class PreSlideConfig(BaseSlideConfig):
+    """Slide config to be used prior to rendering."""
+
+    start_animation: int
+    end_animation: int
+
+    @classmethod
+    def from_base_slide_config_and_animation_indices(
+        cls,
+        base_slide_config: BaseSlideConfig,
+        start_animation: int,
+        end_animation: int,
+    ) -> "PreSlideConfig":
+        return cls(
+            start_animation=start_animation,
+            end_animation=end_animation,
+            **base_slide_config.dict(),
+        )
 
     @field_validator("start_animation", "end_animation")
     @classmethod
@@ -187,26 +251,17 @@ class PreSlideConfig(BaseModel):  # type: ignore
         return slice(self.start_animation, self.end_animation)
 
 
-class SlideConfig(BaseModel):  # type: ignore[misc]
+class SlideConfig(BaseSlideConfig):
+    """Slide config to be used after rendering."""
+
     file: FilePath
     rev_file: FilePath
-    loop: bool = False
-    auto_next: bool = False
-    playback_rate: float = 1.0
-    reversed_playback_rate: float = 1.0
 
     @classmethod
     def from_pre_slide_config_and_files(
         cls, pre_slide_config: PreSlideConfig, file: Path, rev_file: Path
     ) -> "SlideConfig":
-        return cls(
-            file=file,
-            rev_file=rev_file,
-            loop=pre_slide_config.loop,
-            auto_next=pre_slide_config.auto_next,
-            playback_rate=pre_slide_config.playback_rate,
-            reversed_playback_rate=pre_slide_config.reversed_playback_rate,
-        )
+        return cls(file=file, rev_file=rev_file, **pre_slide_config.dict())
 
 
 class PresentationConfig(BaseModel):  # type: ignore[misc]
