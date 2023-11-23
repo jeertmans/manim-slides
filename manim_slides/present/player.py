@@ -236,6 +236,13 @@ class Player(QMainWindow):  # type: ignore[misc]
         url = QUrl.fromLocalFile(self.current_file)
         self.media_player.setSource(url)
 
+        if self.playing_reversed_slide:
+            self.media_player.setPlaybackRate(
+                self.current_slide_config.reversed_playback_rate
+            )
+        else:
+            self.media_player.setPlaybackRate(self.current_slide_config.playback_rate)
+
         if start_paused:
             self.media_player.pause()
         else:

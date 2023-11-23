@@ -140,6 +140,8 @@ class PreSlideConfig(BaseModel):  # type: ignore
     end_animation: int
     loop: bool = False
     auto_next: bool = False
+    playback_rate: float = 1.0
+    reversed_playback_rate: float = 1.0
 
     @field_validator("start_animation", "end_animation")
     @classmethod
@@ -190,6 +192,8 @@ class SlideConfig(BaseModel):  # type: ignore[misc]
     rev_file: FilePath
     loop: bool = False
     auto_next: bool = False
+    playback_rate: float = 1.0
+    reversed_playback_rate: float = 1.0
 
     @classmethod
     def from_pre_slide_config_and_files(
@@ -200,6 +204,8 @@ class SlideConfig(BaseModel):  # type: ignore[misc]
             rev_file=rev_file,
             loop=pre_slide_config.loop,
             auto_next=pre_slide_config.auto_next,
+            playback_rate=pre_slide_config.playback_rate,
+            reversed_playback_rate=pre_slide_config.reversed_playback_rate,
         )
 
 
