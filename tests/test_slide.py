@@ -205,7 +205,7 @@ class TestSlide:
 
             assert self._base_slide_config.reversed_playback_rate == 1.0
 
-            self.next_slide(reverserd_playback_rate=2.0)
+            self.next_slide(reversed_playback_rate=2.0)
             self.play(text.animate.scale(2))
 
             assert self._base_slide_config.reversed_playback_rate == 2.0
