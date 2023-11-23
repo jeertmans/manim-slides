@@ -144,6 +144,7 @@ class BaseSlideConfig(BaseModel):  # type: ignore
     auto_next: bool = False
     playback_rate: float = 1.0
     reversed_playback_rate: float = 1.0
+    notes: str = ""
 
     @classmethod
     def wrapper(cls, arg_name: str) -> Callable[..., Any]:

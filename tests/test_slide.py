@@ -197,6 +197,34 @@ class TestSlide:
             assert self._base_slide_config.playback_rate == 2.0
 
     @assert_constructs
+    class TestReversedPlaybackRate(Slide):
+        def construct(self) -> None:
+            text = Text("Some text")
+
+            self.add(text)
+
+            assert self._base_slide_config.reversed_playback_rate == 1.0
+
+            self.next_slide(reversed_playback_rate=2.0)
+            self.play(text.animate.scale(2))
+
+            assert self._base_slide_config.reversed_playback_rate == 2.0
+
+    @assert_constructs
+    class TestNotes(Slide):
+        def construct(self) -> None:
+            text = Text("Some text")
+
+            self.add(text)
+
+            assert self._base_slide_config.notes == ""
+
+            self.next_slide(notes="test")
+            self.play(text.animate.scale(2))
+
+            assert self._base_slide_config.notes == "test"
+
+    @assert_constructs
     class TestWipe(Slide):
         def construct(self) -> None:
             text = Text("Some text")

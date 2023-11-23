@@ -40,6 +40,9 @@
               {% if slide_config.auto_next -%}
                 data-autoslide="{{ get_duration_ms(slide_config.file) }}"
               {%- endif -%}>
+              {% if slide_config.notes != "" -%}
+                <aside class="notes">{{ slide_config.notes }}</aside>
+              {%- endif %}
             </section>
           {%- endfor -%}
         {%- endfor -%}
@@ -50,9 +53,16 @@
 
     <!-- To include plugins, see: https://revealjs.com/plugins/ -->
 
+    {% if has_notes -%}
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/{{ reveal_version }}/plugin/notes/notes.min.js"></script>
+    {%- endif -%}
+
     <!-- <script src="index.js"></script> -->
     <script>
       Reveal.initialize({
+        {% if has_notes -%}
+          plugins: [ RevealNotes ],
+        {%- endif %}
         // The "normal" size of the presentation, aspect ratio will
         // be preserved when the presentation is scaled to fit different
         // resolutions. Can be specified using percentage units.

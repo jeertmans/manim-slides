@@ -288,6 +288,11 @@ class BaseSlide:
             Playback rate at which the reversed video is played.
 
             Note that this is only supported by ``manim-slides present``.
+        :param notes:
+            Presenter notes, in HTML format.
+
+            Note that this is only supported by ``manim-slides present``
+            and ``manim-slides convert --to=html``.
         :param kwargs:
             Keyword arguments to be passed to
             :meth:`Scene.next_section<manim.scene.scene.Scene.next_section>`,
@@ -372,6 +377,29 @@ class BaseSlide:
                     self.next_slide()
 
                     self.wipe(square)
+
+        The following contains speaker notes. On the webbrowser,
+        the speaker view can be triggered by pressing :kbd:`S`.
+
+        .. manim-slides:: SpeakerNotesExample
+
+            from manim import *
+            from manim_slides import Slide
+
+            class SpeakerNotesExample(Slide):
+                def construct(self):
+                    self.next_slide(notes="Some introduction")
+                    square = Square(color=GREEN, side_length=2)
+
+                    self.play(GrowFromCenter(square))
+
+                    self.next_slide(notes="We now rotate the slide")
+
+                    self.play(Rotate(square, PI / 2))
+
+                    self.next_slide(notes="Bye bye")
+
+                    self.zoom(square)
         """
         if self._current_animation > self._start_animation:
             if self.wait_time_between_slides > 0.0:
