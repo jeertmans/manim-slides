@@ -183,6 +183,21 @@ class TestSlide:
                 self.next_slide()
 
     @assert_constructs
+    class TestPlaybackRate(Slide):
+        def construct(self) -> None:
+            text = Text("Some text")
+
+            self.add(text)
+
+            assert "playback_rate" not in self._pre_slide_config_kwargs
+
+            self.next_slide(playback_rate=2.0)
+            self.play(text.animate.scale(2))
+
+            assert self._pre_slide_config_kwargs["playback_rate"] == 2.0
+
+
+    @assert_constructs
     class TestWipe(Slide):
         def construct(self) -> None:
             text = Text("Some text")

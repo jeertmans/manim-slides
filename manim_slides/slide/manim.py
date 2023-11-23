@@ -80,10 +80,10 @@ class Slide(BaseSlide, Scene):  # type: ignore[misc]
         self.next_slide(*args, **kwargs)
 
     def next_slide(
-        self, *args: Any, loop: bool = False, auto_next: bool = False, **kwargs: Any
+            self, *args: Any, loop: bool = False, auto_next: bool = False, playback_rate: float = 1.0, reversed_playback_rate: float = 1.0, **kwargs: Any
     ) -> None:
         Scene.next_section(self, *args, **kwargs)
-        BaseSlide.next_slide(self, loop=loop, auto_next=auto_next)
+        BaseSlide.next_slide(self, loop=loop, auto_next=auto_next, playback_rate=playback_rate, reversed_playback_rate=reversed_playback_rate)
 
     def render(self, *args: Any, **kwargs: Any) -> None:
         """MANIM render."""

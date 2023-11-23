@@ -18,6 +18,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added the `manim-slides render` command
   to render slides using correct Manim installation.
   [#317](https://github.com/jeertmans/manim-slides/pull/317)
+- Added the `playback-rate` and `reversed-playback-rate` options
+  to slide config.
+  [#320](https://github.com/jeertmans/manim-slides/pull/320)
 
 ## [v5](https://github.com/jeertmans/manim-slides/compare/v4.16.0...v5.0.0)
 
