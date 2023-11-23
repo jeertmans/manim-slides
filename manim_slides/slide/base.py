@@ -255,7 +255,13 @@ class BaseSlide:
         self._current_animation += 1
 
     def next_slide(
-            self, *, loop: bool = False, auto_next: bool = False, playback_rate: float = 1.0, reversed_playback_rate: float = 1.0, **kwargs: Any
+        self,
+        *,
+        loop: bool = False,
+        auto_next: bool = False,
+        playback_rate: float = 1.0,
+        reversed_playback_rate: float = 1.0,
+        **kwargs: Any,
     ) -> None:
         """
         Create a new slide with previous animations, and setup options
@@ -383,7 +389,12 @@ class BaseSlide:
 
             self._current_slide += 1
 
-        self._pre_slide_config_kwargs = dict(loop=loop, auto_next=auto_next, playback_rate=playback_rate, reversed_playback_rate=reversed_playback_rate)
+        self._pre_slide_config_kwargs = dict(
+            loop=loop,
+            auto_next=auto_next,
+            playback_rate=playback_rate,
+            reversed_playback_rate=reversed_playback_rate,
+        )
         self._start_animation = self._current_animation
 
     def _add_last_slide(self) -> None:

@@ -196,7 +196,6 @@ class TestSlide:
 
             assert self._pre_slide_config_kwargs["playback_rate"] == 2.0
 
-
     @assert_constructs
     class TestWipe(Slide):
         def construct(self) -> None:
