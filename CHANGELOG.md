@@ -21,6 +21,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added the `playback-rate` and `reversed-playback-rate` options
   to slide config.
   [#320](https://github.com/jeertmans/manim-slides/pull/320)
+- Added the speaker notes option.
+  [#322](https://github.com/jeertmans/manim-slides/pull/322)
 
 (v5.1-modified)=
 ### Modified

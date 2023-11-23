@@ -406,9 +406,12 @@ class RevealJS(Converter):
             options = self.dict()
             options["assets_dir"] = assets_dir
 
+            has_notes = any(slide_config.notes != "" for slide_config in presentation_config.slides for presentation_config in self.presentation_configs)
+
             content = revealjs_template.render(
                 file_to_data_uri=file_to_data_uri,
                 get_duration_ms=get_duration_ms,
+                has_notes=has_notes,
                 **options,
             )
 

@@ -5,7 +5,7 @@ from PySide6.QtCore import Qt, QUrl, Signal, Slot
 from PySide6.QtGui import QCloseEvent, QIcon, QKeyEvent, QScreen
 from PySide6.QtMultimedia import QMediaPlayer
 from PySide6.QtMultimediaWidgets import QVideoWidget
-from PySide6.QtWidgets import QDialog, QGridLayout, QLabel, QMainWindow
+from PySide6.QtWidgets import QDialog, QGridLayout, QVBoxLayout, QLabel, QMainWindow
 
 from ..config import Config, PresentationConfig, SlideConfig
 from ..logger import logger
@@ -18,17 +18,25 @@ class Info(QDialog):  # type: ignore[misc]
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
-        layout = QGridLayout()
+        main_layout = QVBoxLayout()
+        labels_layout = QGridLayout()
+        notes_layout = QVBoxLayout()
         self.scene_label = QLabel()
         self.slide_label = QLabel()
+        self.slide_notes = QLabel("")
+        self.slide_notes.setWordWrap(True)
 
-        layout.addWidget(QLabel("Scene:"), 1, 1)
-        layout.addWidget(QLabel("Slide:"), 2, 1)
-        layout.addWidget(self.scene_label, 1, 2)
-        layout.addWidget(self.slide_label, 2, 2)
-        self.setLayout(layout)
-        self.setFixedWidth(150)
-        self.setFixedHeight(80)
+        labels_layout.addWidget(QLabel("Scene:"), 1, 1)
+        labels_layout.addWidget(QLabel("Slide:"), 2, 1)
+        labels_layout.addWidget(self.scene_label, 1, 2)
+        labels_layout.addWidget(self.slide_label, 2, 2)
+
+        notes_layout.addWidget(self.slide_notes)
+
+        main_layout.addLayout(labels_layout)
+        main_layout.addLayout(notes_layout)
+
+        self.setLayout(main_layout)
 
         if parent := self.parent():
             self.closeEvent = parent.closeEvent
@@ -312,6 +320,7 @@ class Player(QMainWindow):  # type: ignore[misc]
         index = self.current_slide_index
         count = self.current_slides_count
         self.info.slide_label.setText(f"{index+1:4d}/{count:4<d}")
+        self.info.slide_notes.setText(self.current_slide_config.notes)
 
     def show(self) -> None:
         super().show()
