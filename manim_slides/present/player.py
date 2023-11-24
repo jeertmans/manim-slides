@@ -5,7 +5,14 @@ from PySide6.QtCore import Qt, QUrl, Signal, Slot
 from PySide6.QtGui import QCloseEvent, QIcon, QKeyEvent, QScreen
 from PySide6.QtMultimedia import QMediaPlayer
 from PySide6.QtMultimediaWidgets import QVideoWidget
-from PySide6.QtWidgets import QDialog, QGridLayout, QLabel, QMainWindow, QVBoxLayout, QTextEdit
+from PySide6.QtWidgets import (
+    QDialog,
+    QGridLayout,
+    QLabel,
+    QMainWindow,
+    QTextEdit,
+    QVBoxLayout,
+)
 
 from ..config import Config, PresentationConfig, SlideConfig
 from ..logger import logger
