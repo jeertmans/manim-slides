@@ -3,6 +3,7 @@ import shutil
 from functools import wraps
 from inspect import Parameter, signature
 from pathlib import Path
+from textwrap import dedent
 from typing import Any, Callable, Dict, List, Optional, Set, Tuple
 
 import rtoml
@@ -145,6 +146,7 @@ class BaseSlideConfig(BaseModel):  # type: ignore
     playback_rate: float = 1.0
     reversed_playback_rate: float = 1.0
     notes: str = ""
+    dedent_notes: bool = True
 
     @classmethod
     def wrapper(cls, arg_name: str) -> Callable[..., Any]:
@@ -187,6 +189,16 @@ class BaseSlideConfig(BaseModel):  # type: ignore
             return __wrapper__
 
         return _wrapper_
+
+    @model_validator(mode="after")
+    @classmethod
+    def apply_dedent_notes(
+        cls, base_slide_config: "BaseSlideConfig"
+    ) -> "BaseSlideConfig":
+        if base_slide_config.dedent_notes:
+            base_slide_config.notes = dedent(base_slide_config.notes)
+
+        return base_slide_config
 
 
 class PreSlideConfig(BaseSlideConfig):

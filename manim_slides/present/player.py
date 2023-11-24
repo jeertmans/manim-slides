@@ -5,7 +5,7 @@ from PySide6.QtCore import Qt, QUrl, Signal, Slot
 from PySide6.QtGui import QCloseEvent, QIcon, QKeyEvent, QScreen
 from PySide6.QtMultimedia import QMediaPlayer
 from PySide6.QtMultimediaWidgets import QVideoWidget
-from PySide6.QtWidgets import QDialog, QGridLayout, QLabel, QMainWindow, QVBoxLayout
+from PySide6.QtWidgets import QDialog, QGridLayout, QLabel, QMainWindow, QVBoxLayout, QTextEdit
 
 from ..config import Config, PresentationConfig, SlideConfig
 from ..logger import logger
@@ -23,8 +23,8 @@ class Info(QDialog):  # type: ignore[misc]
         notes_layout = QVBoxLayout()
         self.scene_label = QLabel()
         self.slide_label = QLabel()
-        self.slide_notes = QLabel("")
-        self.slide_notes.setWordWrap(True)
+        self.slide_notes = QTextEdit()
+        self.slide_notes.setReadOnly(True)
 
         labels_layout.addWidget(QLabel("Scene:"), 1, 1)
         labels_layout.addWidget(QLabel("Slide:"), 2, 1)
@@ -320,7 +320,7 @@ class Player(QMainWindow):  # type: ignore[misc]
         index = self.current_slide_index
         count = self.current_slides_count
         self.info.slide_label.setText(f"{index+1:4d}/{count:4<d}")
-        self.info.slide_notes.setText(self.current_slide_config.notes)
+        self.info.slide_notes.setMarkdown(self.current_slide_config.notes)
 
     def show(self) -> None:
         super().show()

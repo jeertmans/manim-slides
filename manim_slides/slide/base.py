@@ -289,10 +289,14 @@ class BaseSlide:
 
             Note that this is only supported by ``manim-slides present``.
         :param notes:
-            Presenter notes, in HTML format.
+            Presenter notes, in Markdown format.
+
+            Note that PowerPoint does not support Markdown.
 
             Note that this is only supported by ``manim-slides present``
-            and ``manim-slides convert --to=html``.
+            and ``manim-slides convert --to=html/pptx``.
+        :param dedent_notes:
+            If set, apply :func:`textwrap.dedent` to notes.
         :param kwargs:
             Keyword arguments to be passed to
             :meth:`Scene.next_section<manim.scene.scene.Scene.next_section>`,

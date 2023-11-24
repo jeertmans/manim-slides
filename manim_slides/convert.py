@@ -557,6 +557,9 @@ class PowerPoint(Converter):
                     poster_frame_image=poster_frame_image,
                     mime_type=mime_type,
                 )
+                if slide_config.notes != "":
+                    slide.notes_slide.notes_text_frame.text = slide_config.notes
+
                 if self.auto_play_media:
                     auto_play_media(movie, loop=slide_config.loop)
 
