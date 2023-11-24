@@ -489,7 +489,7 @@ class PowerPoint(Converter):
     def open(self, file: Path) -> None:
         return open_with_default(file)
 
-    def convert_to(self, dest: Path) -> None:
+    def convert_to(self, dest: Path) -> None:  # noqa: C901
         """Convert this configuration into a PowerPoint presentation, saved to DEST."""
         prs = pptx.Presentation()
         prs.slide_width = self.width * 9525
