@@ -23,6 +23,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   [#320](https://github.com/jeertmans/manim-slides/pull/320)
 - Added the speaker notes option.
   [#322](https://github.com/jeertmans/manim-slides/pull/322)
+- Added `auto` option for conversion format, which is the default.
+  This is somewhat a **breaking change**, but changes to the CLI
+  API are not considered to be very important.
+  [#325](https://github.com/jeertmans/manim-slides/pull/325)
 
 (v5.1-modified)=
 ### Modified
