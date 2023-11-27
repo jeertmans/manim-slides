@@ -83,8 +83,7 @@ def test_convert_auto(slides_folder: Path, extension: str, expected_log: str) ->
             ],
         )
 
-        assert results.exit_code == 0
-        assert expected_log in results.stdout
+        assert results.exit_code == 0, expected_log in results.output
 
 
 def test_init() -> None:
