@@ -676,7 +676,9 @@ def convert(
             try:
                 cls = Converter.from_string(fmt)
             except KeyError:
-                logger.warn(f"Could not guess conversion format from {str(dest)}, defaulting to HTML.")
+                logger.warn(
+                    f"Could not guess conversion format from {dest!s}, defaulting to HTML."
+                )
                 cls = RevealJS
         else:
             cls = Converter.from_string(fmt)
