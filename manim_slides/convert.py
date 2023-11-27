@@ -626,10 +626,11 @@ def show_template_option(function: Callable[..., Any]) -> Callable[..., Any]:
 @click.argument("dest", type=click.Path(dir_okay=False, path_type=Path))
 @click.option(
     "--to",
-    type=click.Choice(["html", "pdf", "pptx"], case_sensitive=False),
-    default="html",
+    type=click.Choice(["auto", "html", "pdf", "pptx"], case_sensitive=False),
+    metavar="FORMAT",
+    default="auto",
     show_default=True,
-    help="Set the conversion format to use.",
+    help="Set the conversion format to use. Use 'auto' to detect format from DEST.",
 )
 @click.option(
     "--open",
@@ -670,7 +671,17 @@ def convert(
     presentation_configs = get_scenes_presentation_config(scenes, folder)
 
     try:
-        converter = Converter.from_string(to)(
+        if to == "auto":
+            fmt = dest.suffix[1:].lower()
+            try:
+                cls = Converter.from_string(fmt)
+            except KeyError:
+                logger.warn(f"Could not guess conversion format from {str(dest)}, defaulting to HTML.")
+                cls = RevealJS
+        else:
+            cls = Converter.from_string(fmt)
+
+        converter = cls(
             presentation_configs=presentation_configs,
             template=template,
             **config_options,
