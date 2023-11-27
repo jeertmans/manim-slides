@@ -63,6 +63,25 @@ def test_convert(slides_folder: Path, extension: str) -> None:
 
         assert results.exit_code == 0
 
+@pytest.mark.parametrize(("extension", "expected_log"), [("html", ""), ("pdf", ""), ("pptx", ""), ("ppt", "WARNING")])
+def test_convert_auto(slides_folder: Path, extension: str, expected_log: str) -> None:
+    runner = CliRunner()
+
+    with runner.isolated_filesystem():
+        results = runner.invoke(
+            cli,
+            [
+                "convert",
+                "BasicSlide",
+                f"basic_example.{extension}",
+                "--folder",
+                str(slides_folder),
+            ],
+        )
+
+        assert results.exit_code == 0
+        assert expected_log in results.stdout
+
 
 def test_init() -> None:
     runner = CliRunner()

@@ -681,7 +681,7 @@ def convert(
                 )
                 cls = RevealJS
         else:
-            cls = Converter.from_string(fmt)
+            cls = Converter.from_string(to)
 
         converter = cls(
             presentation_configs=presentation_configs,
