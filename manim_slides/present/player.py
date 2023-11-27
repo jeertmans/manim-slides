@@ -1,19 +1,17 @@
 from pathlib import Path
-from typing import Any, List, Optional
+from typing import List, Optional
 
 from PySide6.QtCore import Qt, QUrl, Signal, Slot
 from PySide6.QtGui import QCloseEvent, QIcon, QKeyEvent, QScreen
 from PySide6.QtMultimedia import QMediaPlayer
 from PySide6.QtMultimediaWidgets import QVideoWidget
 from PySide6.QtWidgets import (
-        QWidget,
-    QDialog,
-    QGridLayout,
+    QHBoxLayout,
     QLabel,
     QMainWindow,
     QTextEdit,
-    QHBoxLayout,
     QVBoxLayout,
+    QWidget,
 )
 
 from ..config import Config, PresentationConfig, SlideConfig
@@ -27,7 +25,13 @@ class Info(QWidget):  # type: ignore[misc]
     key_press_event: Signal = Signal(QKeyEvent)
     close_event: Signal = Signal(QCloseEvent)
 
-    def __init__(self, *, full_screen: bool, aspect_ratio_mode: Qt.AspectRatioMode, screen: Optional[int]) -> None:
+    def __init__(
+        self,
+        *,
+        full_screen: bool,
+        aspect_ratio_mode: Qt.AspectRatioMode,
+        screen: Optional[int],
+    ) -> None:
         super().__init__()
 
         if screen:
@@ -55,7 +59,9 @@ class Info(QWidget):  # type: ignore[misc]
         main_video_widget.setAspectRatioMode(aspect_ratio_mode)
         self.video_sink = main_video_widget.videoSink()
 
-        left_layout.addWidget(QLabel("Current slide"), alignment=Qt.AlignmentFlag.AlignHCenter)
+        left_layout.addWidget(
+            QLabel("Current slide"), alignment=Qt.AlignmentFlag.AlignHCenter
+        )
         left_layout.addWidget(main_video_widget, stretch=100)
 
         # Current slide informations
@@ -77,7 +83,9 @@ class Info(QWidget):  # type: ignore[misc]
 
         # Next slide preview
 
-        right_layout.addWidget(QLabel("Next slide"), alignment=Qt.AlignmentFlag.AlignHCenter)
+        right_layout.addWidget(
+            QLabel("Next slide"), alignment=Qt.AlignmentFlag.AlignHCenter
+        )
         next_video_widget = QVideoWidget()
         next_video_widget.setAspectRatioMode(aspect_ratio_mode)
         self.next_media_player = QMediaPlayer()
@@ -179,10 +187,14 @@ class Player(QMainWindow):  # type: ignore[misc]
         self.presentation_changed.connect(self.presentation_changed_callback)
         self.slide_changed.connect(self.slide_changed_callback)
 
-        self.info = Info(full_screen=full_screen, aspect_ratio_mode=aspect_ratio_mode, screen=screen)
+        self.info = Info(
+            full_screen=full_screen, aspect_ratio_mode=aspect_ratio_mode, screen=screen
+        )
         self.info.close_event.connect(self.closeEvent)
         self.info.key_press_event.connect(self.keyPressEvent)
-        self.video_sink.videoFrameChanged.connect(lambda frame: self.info.video_sink.setVideoFrame(frame))
+        self.video_sink.videoFrameChanged.connect(
+            lambda frame: self.info.video_sink.setVideoFrame(frame)
+        )
         self.hide_info_window = hide_info_window
 
         # Connecting key callbacks
@@ -298,9 +310,13 @@ class Player(QMainWindow):  # type: ignore[misc]
         if self.playing_reversed_slide:
             return self.current_slide_config
         elif self.current_slide_index < self.current_slides_count - 1:
-            return self.presentation_configs[self.current_presentation_index].slides[self.current_slide_index + 1]
+            return self.presentation_configs[self.current_presentation_index].slides[
+                self.current_slide_index + 1
+            ]
         elif self.current_presentation_index < self.presentations_count - 1:
-            return self.presentation_configs[self.current_presentation_index + 1].slides[0]
+            return self.presentation_configs[
+                self.current_presentation_index + 1
+            ].slides[0]
         else:
             return None
 
