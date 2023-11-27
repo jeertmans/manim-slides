@@ -6,11 +6,13 @@ from PySide6.QtGui import QCloseEvent, QIcon, QKeyEvent, QScreen
 from PySide6.QtMultimedia import QMediaPlayer
 from PySide6.QtMultimediaWidgets import QVideoWidget
 from PySide6.QtWidgets import (
+        QWidget,
     QDialog,
     QGridLayout,
     QLabel,
     QMainWindow,
     QTextEdit,
+    QHBoxLayout,
     QVBoxLayout,
 )
 
@@ -21,33 +23,85 @@ from ..resources import *  # noqa: F403
 WINDOW_NAME = "Manim Slides"
 
 
-class Info(QDialog):  # type: ignore[misc]
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
+class Info(QWidget):  # type: ignore[misc]
+    key_press_event: Signal = Signal(QKeyEvent)
+    close_event: Signal = Signal(QCloseEvent)
 
-        main_layout = QVBoxLayout()
-        labels_layout = QGridLayout()
-        notes_layout = QVBoxLayout()
+    def __init__(self, *, full_screen: bool, aspect_ratio_mode: Qt.AspectRatioMode, screen: Optional[int]) -> None:
+        super().__init__()
+
+        if screen:
+            self.setScreen(screen)
+            self.move(screen.geometry().topLeft())
+
+        if full_screen:
+            self.setWindowState(Qt.WindowFullScreen)
+        else:
+            w, h = 1280, 720
+            geometry = self.geometry()
+            geometry.setWidth(w)
+            geometry.setHeight(h)
+            self.setGeometry(geometry)
+
+        layout = QHBoxLayout()
+
+        # Left layout
+
+        left_layout = QVBoxLayout()
+
+        # Current slide view
+
+        main_video_widget = QVideoWidget()
+        main_video_widget.setAspectRatioMode(aspect_ratio_mode)
+        self.video_sink = main_video_widget.videoSink()
+
+        left_layout.addWidget(QLabel("Current slide"), alignment=Qt.AlignmentFlag.AlignHCenter)
+        left_layout.addWidget(main_video_widget, stretch=100)
+
+        # Current slide informations
+
+        labels_layout = QHBoxLayout()
         self.scene_label = QLabel()
         self.slide_label = QLabel()
+
+        labels_layout.addWidget(QLabel("Scene:"), alignment=Qt.AlignmentFlag.AlignRight)
+        labels_layout.addWidget(self.scene_label, alignment=Qt.AlignmentFlag.AlignLeft)
+        labels_layout.addWidget(QLabel("Slide:"), alignment=Qt.AlignmentFlag.AlignRight)
+        labels_layout.addWidget(self.slide_label, alignment=Qt.AlignmentFlag.AlignLeft)
+
+        left_layout.addLayout(labels_layout)
+
+        # Right layout
+
+        right_layout = QVBoxLayout()
+
+        # Next slide preview
+
+        right_layout.addWidget(QLabel("Next slide"), alignment=Qt.AlignmentFlag.AlignHCenter)
+        next_video_widget = QVideoWidget()
+        next_video_widget.setAspectRatioMode(aspect_ratio_mode)
+        self.next_media_player = QMediaPlayer()
+        self.next_media_player.setVideoOutput(next_video_widget)
+        self.next_media_player.setLoops(-1)
+        right_layout.addWidget(next_video_widget, stretch=50)
+
+        # Notes
         self.slide_notes = QTextEdit()
         self.slide_notes.setReadOnly(True)
+        right_layout.addWidget(self.slide_notes, stretch=50)
 
-        labels_layout.addWidget(QLabel("Scene:"), 1, 1)
-        labels_layout.addWidget(QLabel("Slide:"), 2, 1)
-        labels_layout.addWidget(self.scene_label, 1, 2)
-        labels_layout.addWidget(self.slide_label, 2, 2)
+        layout.addLayout(left_layout, stretch=3)
+        layout.addLayout(right_layout, stretch=1)
 
-        notes_layout.addWidget(self.slide_notes)
+        self.setLayout(layout)
 
-        main_layout.addLayout(labels_layout)
-        main_layout.addLayout(notes_layout)
+    @Slot()
+    def closeEvent(self, event: QCloseEvent) -> None:  # noqa: N802
+        self.close_event.emit(event)
 
-        self.setLayout(main_layout)
-
-        if parent := self.parent():
-            self.closeEvent = parent.closeEvent
-            self.keyPressEvent = parent.keyPressEvent
+    @Slot()
+    def keyPressEvent(self, event: QKeyEvent) -> None:  # noqa: N802
+        self.key_press_event.emit(event)
 
 
 class Player(QMainWindow):  # type: ignore[misc]
@@ -114,6 +168,7 @@ class Player(QMainWindow):  # type: ignore[misc]
         self.setWindowIcon(self.icon)
 
         self.video_widget = QVideoWidget()
+        self.video_sink = self.video_widget.videoSink()
         self.video_widget.setAspectRatioMode(aspect_ratio_mode)
         self.setCentralWidget(self.video_widget)
 
@@ -124,7 +179,10 @@ class Player(QMainWindow):  # type: ignore[misc]
         self.presentation_changed.connect(self.presentation_changed_callback)
         self.slide_changed.connect(self.slide_changed_callback)
 
-        self.info = Info(parent=self)
+        self.info = Info(full_screen=full_screen, aspect_ratio_mode=aspect_ratio_mode, screen=screen)
+        self.info.close_event.connect(self.closeEvent)
+        self.info.key_press_event.connect(self.keyPressEvent)
+        self.video_sink.videoFrameChanged.connect(lambda frame: self.info.video_sink.setVideoFrame(frame))
         self.hide_info_window = hide_info_window
 
         # Connecting key callbacks
@@ -236,6 +294,24 @@ class Player(QMainWindow):  # type: ignore[misc]
         self.__current_file = file
 
     @property
+    def next_slide_config(self) -> Optional[SlideConfig]:
+        if self.playing_reversed_slide:
+            return self.current_slide_config
+        elif self.current_slide_index < self.current_slides_count - 1:
+            return self.presentation_configs[self.current_presentation_index].slides[self.current_slide_index + 1]
+        elif self.current_presentation_index < self.presentations_count - 1:
+            return self.presentation_configs[self.current_presentation_index + 1].slides[0]
+        else:
+            return None
+
+    @property
+    def next_file(self) -> Optional[Path]:
+        if slide_config := self.next_slide_config:
+            return slide_config.file
+
+        return None
+
+    @property
     def playing_reversed_slide(self) -> bool:
         return self.__playing_reversed_slide
 
@@ -328,6 +404,13 @@ class Player(QMainWindow):  # type: ignore[misc]
         count = self.current_slides_count
         self.info.slide_label.setText(f"{index+1:4d}/{count:4<d}")
         self.info.slide_notes.setMarkdown(self.current_slide_config.notes)
+        self.preview_next_slide()
+
+    def preview_next_slide(self) -> None:
+        if slide_config := self.next_slide_config:
+            url = QUrl.fromLocalFile(slide_config.file)
+            self.info.next_media_player.setSource(url)
+            self.info.next_media_player.play()
 
     def show(self) -> None:
         super().show()
@@ -338,6 +421,7 @@ class Player(QMainWindow):  # type: ignore[misc]
     @Slot()
     def close(self) -> None:
         logger.info("Closing gracefully...")
+        self.info.close()
         super().close()
 
     @Slot()
@@ -360,6 +444,7 @@ class Player(QMainWindow):  # type: ignore[misc]
     @Slot()
     def reverse(self) -> None:
         self.load_reversed_slide()
+        self.preview_next_slide()
 
     @Slot()
     def replay(self) -> None:
@@ -388,9 +473,11 @@ class Player(QMainWindow):  # type: ignore[misc]
         else:
             self.setCursor(Qt.BlankCursor)
 
+    @Slot()
     def closeEvent(self, event: QCloseEvent) -> None:  # noqa: N802
         self.close()
 
+    @Slot()
     def keyPressEvent(self, event: QKeyEvent) -> None:  # noqa: N802
         key = event.key()
         self.dispatch(key)
