@@ -1,7 +1,8 @@
+from datetime import datetime
 from pathlib import Path
 from typing import List, Optional
 
-from PySide6.QtCore import Qt, QUrl, Signal, Slot
+from PySide6.QtCore import Qt, QTimer, QUrl, Signal, Slot
 from PySide6.QtGui import QCloseEvent, QIcon, QKeyEvent, QScreen
 from PySide6.QtMultimedia import QMediaPlayer
 from PySide6.QtMultimediaWidgets import QVideoWidget
@@ -9,7 +10,6 @@ from PySide6.QtWidgets import (
     QHBoxLayout,
     QLabel,
     QMainWindow,
-    QTextEdit,
     QVBoxLayout,
     QWidget,
 )
@@ -30,7 +30,7 @@ class Info(QWidget):  # type: ignore[misc]
         *,
         full_screen: bool,
         aspect_ratio_mode: Qt.AspectRatioMode,
-        screen: Optional[int],
+        screen: Optional[QScreen],
     ) -> None:
         super().__init__()
 
@@ -40,68 +40,118 @@ class Info(QWidget):  # type: ignore[misc]
 
         if full_screen:
             self.setWindowState(Qt.WindowFullScreen)
-        else:
-            w, h = 1280, 720
-            geometry = self.geometry()
-            geometry.setWidth(w)
-            geometry.setHeight(h)
-            self.setGeometry(geometry)
 
         layout = QHBoxLayout()
 
-        # Left layout
-
-        left_layout = QVBoxLayout()
-
         # Current slide view
 
+        left_layout = QVBoxLayout()
+        left_layout.addWidget(
+            QLabel("Current slide"),
+            alignment=Qt.AlignmentFlag.AlignBottom | Qt.AlignmentFlag.AlignHCenter,
+        )
         main_video_widget = QVideoWidget()
         main_video_widget.setAspectRatioMode(aspect_ratio_mode)
+        main_video_widget.setFixedSize(720, 480)
         self.video_sink = main_video_widget.videoSink()
-
-        left_layout.addWidget(
-            QLabel("Current slide"), alignment=Qt.AlignmentFlag.AlignHCenter
-        )
-        left_layout.addWidget(main_video_widget, stretch=100)
+        left_layout.addWidget(main_video_widget)
 
         # Current slide informations
 
-        labels_layout = QHBoxLayout()
         self.scene_label = QLabel()
         self.slide_label = QLabel()
+        self.start_time = datetime.now()
+        self.time_label = QLabel()
+        self.elapsed_label = QLabel("00h00m00s")
+        self.timer = QTimer()
+        self.timer.start(1000)  # every second
+        self.timer.timeout.connect(self.update_time)
 
-        labels_layout.addWidget(QLabel("Scene:"), alignment=Qt.AlignmentFlag.AlignRight)
-        labels_layout.addWidget(self.scene_label, alignment=Qt.AlignmentFlag.AlignLeft)
-        labels_layout.addWidget(QLabel("Slide:"), alignment=Qt.AlignmentFlag.AlignRight)
-        labels_layout.addWidget(self.slide_label, alignment=Qt.AlignmentFlag.AlignLeft)
+        bottom_left_layout = QHBoxLayout()
+        bottom_left_layout.addWidget(
+            QLabel("Scene:"),
+            alignment=Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignRight,
+        )
+        bottom_left_layout.addWidget(
+            self.scene_label,
+            alignment=Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft,
+        )
+        bottom_left_layout.addWidget(
+            QLabel("Slide:"),
+            alignment=Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignRight,
+        )
+        bottom_left_layout.addWidget(
+            self.slide_label,
+            alignment=Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft,
+        )
+        bottom_left_layout.addWidget(
+            QLabel("Time:"),
+            alignment=Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignRight,
+        )
+        bottom_left_layout.addWidget(
+            self.time_label,
+            alignment=Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft,
+        )
+        bottom_left_layout.addWidget(
+            QLabel("Elapsed:"),
+            alignment=Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignRight,
+        )
+        bottom_left_layout.addWidget(
+            self.elapsed_label,
+            alignment=Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft,
+        )
+        left_layout.addLayout(bottom_left_layout)
+        layout.addLayout(left_layout)
 
-        left_layout.addLayout(labels_layout)
-
-        # Right layout
-
-        right_layout = QVBoxLayout()
+        layout.addSpacing(20)
 
         # Next slide preview
 
+        right_layout = QVBoxLayout()
         right_layout.addWidget(
-            QLabel("Next slide"), alignment=Qt.AlignmentFlag.AlignHCenter
+            QLabel("Next slide"),
+            alignment=Qt.AlignmentFlag.AlignBottom | Qt.AlignmentFlag.AlignHCenter,
         )
         next_video_widget = QVideoWidget()
         next_video_widget.setAspectRatioMode(aspect_ratio_mode)
+        next_video_widget.setFixedSize(360, 240)
         self.next_media_player = QMediaPlayer()
         self.next_media_player.setVideoOutput(next_video_widget)
         self.next_media_player.setLoops(-1)
-        right_layout.addWidget(next_video_widget, stretch=50)
+
+        right_layout.addWidget(next_video_widget)
 
         # Notes
-        self.slide_notes = QTextEdit()
-        self.slide_notes.setReadOnly(True)
-        right_layout.addWidget(self.slide_notes, stretch=50)
 
-        layout.addLayout(left_layout, stretch=3)
-        layout.addLayout(right_layout, stretch=1)
+        self.slide_notes = QLabel()
+        self.slide_notes.setWordWrap(True)
+        self.slide_notes.setTextFormat(Qt.TextFormat.MarkdownText)
+        self.slide_notes.setFixedWidth(360)
+        right_layout.addWidget(
+            self.slide_notes,
+            alignment=Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft,
+        )
+        layout.addLayout(right_layout)
 
-        self.setLayout(layout)
+        widget = QWidget()
+
+        widget.setLayout(layout)
+
+        main_layout = QVBoxLayout()
+        main_layout.addWidget(widget, alignment=Qt.AlignmentFlag.AlignCenter)
+
+        self.setLayout(main_layout)
+
+    @Slot()
+    def update_time(self) -> None:
+        now = datetime.now()
+        seconds = (now - self.start_time).total_seconds()
+        hours, seconds = divmod(seconds, 3600)
+        minutes, seconds = divmod(seconds, 60)
+        self.time_label.setText(now.strftime("%Y/%m/%d %H:%M:%S"))
+        self.elapsed_label.setText(
+            f"{int(hours):02d}h{int(minutes):02d}m{int(seconds):02d}s"
+        )
 
     @Slot()
     def closeEvent(self, event: QCloseEvent) -> None:  # noqa: N802
@@ -323,7 +373,7 @@ class Player(QMainWindow):  # type: ignore[misc]
     @property
     def next_file(self) -> Optional[Path]:
         if slide_config := self.next_slide_config:
-            return slide_config.file
+            return slide_config.file  # type: ignore[no-any-return]
 
         return None
 
@@ -385,6 +435,7 @@ class Player(QMainWindow):  # type: ignore[misc]
     def load_next_slide(self) -> None:
         if self.playing_reversed_slide:
             self.playing_reversed_slide = False
+            self.preview_next_slide()  # Slide number did not change, but next did
         elif self.current_slide_index < self.current_slides_count - 1:
             self.current_slide_index += 1
         elif self.current_presentation_index < self.presentations_count - 1:
@@ -419,7 +470,7 @@ class Player(QMainWindow):  # type: ignore[misc]
         index = self.current_slide_index
         count = self.current_slides_count
         self.info.slide_label.setText(f"{index+1:4d}/{count:4<d}")
-        self.info.slide_notes.setMarkdown(self.current_slide_config.notes)
+        self.info.slide_notes.setText(self.current_slide_config.notes)
         self.preview_next_slide()
 
     def preview_next_slide(self) -> None:
