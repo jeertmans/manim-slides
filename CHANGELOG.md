@@ -27,6 +27,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   This is somewhat a **breaking change**, but changes to the CLI
   API are not considered to be very important.
   [#325](https://github.com/jeertmans/manim-slides/pull/325)
+- Added `return_animation` option to slide animations `self.wipe`
+  and `self.zoom`.
+  [#331](https://github.com/jeertmans/manim-slides/pull/331)
 
 (v5.1-modified)=
 ### Modified
