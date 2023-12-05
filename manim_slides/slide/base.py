@@ -1,9 +1,17 @@
+from __future__ import annotations
+
 __all__ = ["BaseSlide"]
 
 import platform
 from abc import abstractmethod
 from pathlib import Path
-from typing import Any, List, MutableMapping, Optional, Sequence, Tuple, ValuesView
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    MutableMapping,
+    Sequence,
+    ValuesView,
+)
 
 import numpy as np
 from tqdm import tqdm
@@ -13,6 +21,9 @@ from ..defaults import FFMPEG_BIN, FOLDER_PATH
 from ..logger import logger
 from ..utils import concatenate_video_files, merge_basenames, reverse_video_file
 from . import MANIM
+
+if TYPE_CHECKING:
+    from .animation import Wipe, Zoom
 
 if MANIM:
     from manim.mobject.mobject import Mobject
@@ -28,7 +39,7 @@ class BaseSlide:
     ) -> None:
         super().__init__(*args, **kwargs)
         self._output_folder: Path = output_folder
-        self._slides: List[PreSlideConfig] = []
+        self._slides: list[PreSlideConfig] = []
         self._base_slide_config: BaseSlideConfig = BaseSlideConfig()
         self._current_slide = 1
         self._current_animation = 0
@@ -61,13 +72,13 @@ class BaseSlide:
 
     @property
     @abstractmethod
-    def _resolution(self) -> Tuple[int, int]:
+    def _resolution(self) -> tuple[int, int]:
         """Return the scene's resolution used during rendering."""
         raise NotImplementedError
 
     @property
     @abstractmethod
-    def _partial_movie_files(self) -> List[Path]:
+    def _partial_movie_files(self) -> list[Path]:
         """Return a list of partial movie files, a.k.a animations."""
         raise NotImplementedError
 
@@ -85,7 +96,7 @@ class BaseSlide:
 
     @property
     @abstractmethod
-    def _start_at_animation_number(self) -> Optional[int]:
+    def _start_at_animation_number(self) -> int | None:
         """If set, return the animation number at which rendering start."""
         raise NotImplementedError
 
@@ -453,7 +464,7 @@ class BaseSlide:
 
         scene_files_folder.mkdir(parents=True, exist_ok=True)
 
-        files: List[Path] = self._partial_movie_files
+        files: list[Path] = self._partial_movie_files
 
         # We must filter slides that end before the animation offset
         if offset := self._start_at_animation_number:
@@ -464,7 +475,7 @@ class BaseSlide:
                 slide.start_animation = max(0, slide.start_animation - offset)
                 slide.end_animation -= offset
 
-        slides: List[SlideConfig] = []
+        slides: list[SlideConfig] = []
 
         for pre_slide_config in tqdm(
             self._slides,
@@ -513,8 +524,9 @@ class BaseSlide:
         self,
         *args: Any,
         direction: np.ndarray = LEFT,
+        return_animation: bool = False,
         **kwargs: Any,
-    ) -> None:
+    ) -> Wipe | None:
         """
         Play a wipe animation that will shift all the current objects outside of the
         current scene's scope, and all the future objects inside.
@@ -522,6 +534,8 @@ class BaseSlide:
         :param args: Positional arguments passed to
             :class:`Wipe<manim_slides.slide.animation.Wipe>`.
         :param direction: The wipe direction, that will be scaled by the scene size.
+        :param return_animation: If set, return the animation instead of
+            playing it. This is useful to combine multiple animations with this one.
         :param kwargs: Keyword arguments passed to
             :class:`Wipe<manim_slides.slide.animation.Wipe>`.
 
@@ -548,7 +562,13 @@ class BaseSlide:
                     self.wipe(Group(square, text), beautiful, direction=UP)
                     self.next_slide()
 
-                    self.wipe(beautiful, circle, direction=DOWN + RIGHT)
+                    anim = self.wipe(
+                        beautiful,
+                        circle,
+                        direction=DOWN + RIGHT,
+                        return_animation=True
+                    )
+                    self.play(anim)
         """
         from .animation import Wipe
 
@@ -563,13 +583,18 @@ class BaseSlide:
             **kwargs,
         )
 
+        if return_animation:
+            return animation
+
         self.play(animation)
+        return None
 
     def zoom(
         self,
         *args: Any,
+        return_animation: bool = False,
         **kwargs: Any,
-    ) -> None:
+    ) -> Zoom | None:
         """
         Play a zoom animation that will fade out all the current objects, and fade in
         all the future objects. Objects are faded in a direction that goes towards the
@@ -577,6 +602,8 @@ class BaseSlide:
 
         :param args: Positional arguments passed to
             :class:`Zoom<manim_slides.slide.animation.Zoom>`.
+        :param return_animation: If set, return the animation instead of
+            playing it. This is useful to combine multiple animations with this one.
         :param kwargs: Keyword arguments passed to
             :class:`Zoom<manim_slides.slide.animation.Zoom>`.
 
@@ -598,10 +625,21 @@ class BaseSlide:
                     self.zoom(circle, square)
                     self.next_slide()
 
-                    self.zoom(square, circle, out=True, scale=10.0)
+                    anim = self.zoom(
+                        square,
+                        circle,
+                        out=True,
+                        scale=10.0,
+                        return_animation=True
+                    )
+                    self.play(anim)
         """
         from .animation import Zoom
 
         animation = Zoom(*args, **kwargs)
 
+        if return_animation:
+            return animation
+
         self.play(animation)
+        return None
