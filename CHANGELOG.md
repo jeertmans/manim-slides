@@ -36,6 +36,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Modified the internal logic to simplify adding configuration options.
   [#321](https://github.com/jeertmans/manim-slides/pull/321)
+- Remove `reversed` file assets when exporting to HTML, as it was not used.
+  [#336](https://github.com/jeertmans/manim-slides/pull/336)
 
 ## [v5](https://github.com/jeertmans/manim-slides/compare/v4.16.0...v5.0.0)
 

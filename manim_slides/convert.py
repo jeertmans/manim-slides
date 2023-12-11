@@ -396,7 +396,7 @@ class RevealJS(Converter):
             full_assets_dir.mkdir(parents=True, exist_ok=True)
 
             for presentation_config in self.presentation_configs:
-                presentation_config.copy_to(full_assets_dir)
+                presentation_config.copy_to(full_assets_dir, include_reversed=False)
 
         dest.parent.mkdir(parents=True, exist_ok=True)
 
