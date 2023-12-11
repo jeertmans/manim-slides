@@ -305,7 +305,9 @@ class PresentationConfig(BaseModel):  # type: ignore[misc]
         with open(path, "w") as f:
             f.write(self.model_dump_json(indent=2))
 
-    def copy_to(self, folder: Path, use_cached: bool = True) -> "PresentationConfig":
+    def copy_to(
+        self, folder: Path, use_cached: bool = True, include_reversed: bool = True
+    ) -> "PresentationConfig":
         """Copy the files to a given directory."""
         for slide_config in self.slides:
             file = slide_config.file
@@ -320,7 +322,7 @@ class PresentationConfig(BaseModel):  # type: ignore[misc]
             if not use_cached or not dest.exists():
                 shutil.copy(file, dest)
 
-            if not use_cached or not rev_dest.exists():
+            if include_reversed and (not use_cached or not rev_dest.exists()):
                 shutil.copy(rev_file, rev_dest)
 
         return self
