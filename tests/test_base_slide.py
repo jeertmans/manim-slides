@@ -2,7 +2,6 @@ from typing import MutableMapping
 
 import pytest
 
-from manim_slides.defaults import FFMPEG_BIN
 from manim_slides.slide.base import BaseSlide
 
 

@@ -1,4 +1,3 @@
-import shutil
 from pathlib import Path
 
 from manim_slides.defaults import CONFIG_PATH, FOLDER_PATH

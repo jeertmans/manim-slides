@@ -17,7 +17,7 @@ import numpy as np
 from tqdm import tqdm
 
 from ..config import BaseSlideConfig, PresentationConfig, PreSlideConfig, SlideConfig
-from ..defaults import FFMPEG_BIN, FOLDER_PATH
+from ..defaults import FOLDER_PATH
 from ..logger import logger
 from ..utils import concatenate_video_files, merge_basenames, reverse_video_file
 from . import MANIM
