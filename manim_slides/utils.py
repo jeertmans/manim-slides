@@ -67,8 +67,7 @@ def reverse_video_file(_: Path, src: Path, dest: Path) -> None:
     input_stream = input_.streams.video[0]
     output = av.open(str(dest), mode="w")
     output_stream = output.add_stream(
-        codec_name=input_stream.codec_context.name,
-        rate=input_stream.base_rate
+        codec_name=input_stream.codec_context.name, rate=input_stream.base_rate
     )
     output_stream.width = input_stream.width
     output_stream.height = input_stream.height
@@ -76,9 +75,9 @@ def reverse_video_file(_: Path, src: Path, dest: Path) -> None:
 
     graph = av.filter.Graph()
     link_nodes(
-            graph.add_buffer(template=input_stream),
-            graph.add("reverse"),
-            graph.add("buffersink"),
+        graph.add_buffer(template=input_stream),
+        graph.add("reverse"),
+        graph.add("buffersink"),
     )
     graph.configure()
 
