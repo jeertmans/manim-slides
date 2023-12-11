@@ -67,7 +67,7 @@ def reverse_video_file(src: Path, dest: Path) -> None:
     input_stream = input_.streams.video[0]
     output = av.open(str(dest), mode="w")
     output_stream = output.add_stream(
-        codec_name=input_stream.codec_context.name, rate=input_stream.base_rate
+        codec_name="libx264", rate=input_stream.base_rate
     )
     output_stream.width = input_stream.width
     output_stream.height = input_stream.height
@@ -82,17 +82,16 @@ def reverse_video_file(src: Path, dest: Path) -> None:
     graph.configure()
 
     frames_count = 0
-    for packet in input_.demux(input_stream):
-        for frame in packet.decode():
-            graph.push(frame)
-            frames_count += 1
+    for frame in input_.decode(video=0):
+        graph.push(frame)
+        frames_count += 1
 
     graph.push(None)  # EOF: https://github.com/PyAV-Org/PyAV/issues/886.
 
     for i in range(frames_count):
         frame = graph.pull()
-        for packet in output_stream.encode(frame):
-            output.mux(packet)
+        frame.pict_type = 1  # Otherwise we get a warning saying it is changed
+        output.mux(output_stream.encode(frame))
 
     for packet in output_stream.encode():
         output.mux(packet)

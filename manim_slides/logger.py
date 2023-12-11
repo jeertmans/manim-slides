@@ -40,7 +40,9 @@ def make_logger() -> logging.Logger:
     logger = logging.getLogger("manim-slides")
     logger.setLevel(logging.getLogger("manim").level)
     logger.addHandler(rich_handler)
-    logging.getLogger("libav").addHandler(rich_handler)
+
+    if not (libav_logger := logging.getLogger("libav")).hasHandlers():
+        libav_logger.addHandler(rich_handler)
 
     return logger
 
