@@ -66,9 +66,7 @@ def reverse_video_file(src: Path, dest: Path) -> None:
     input_ = av.open(str(src))
     input_stream = input_.streams.video[0]
     output = av.open(str(dest), mode="w")
-    output_stream = output.add_stream(
-        codec_name="libx264", rate=input_stream.base_rate
-    )
+    output_stream = output.add_stream(codec_name="libx264", rate=input_stream.base_rate)
     output_stream.width = input_stream.width
     output_stream.height = input_stream.height
     output_stream.pix_fmt = input_stream.pix_fmt
