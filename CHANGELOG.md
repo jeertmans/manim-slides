@@ -37,6 +37,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Modified the internal logic to simplify adding configuration options.
   [#321](https://github.com/jeertmans/manim-slides/pull/321)
 
+(v5.1-chore)=
+### Chore
+
+- Removed subrocess calls to FFMPEG with direct `libav` bindings using
+  the `av` Python module. This should enhance rendering speed and security.
+  [#335](https://github.com/jeertmans/manim-slides/pull/335)
+
 ## [v5](https://github.com/jeertmans/manim-slides/compare/v4.16.0...v5.0.0)
 
 Prior to v5, there was no real CHANGELOG other than the GitHub releases,

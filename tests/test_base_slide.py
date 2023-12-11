@@ -2,7 +2,6 @@ from typing import MutableMapping
 
 import pytest
 
-from manim_slides.defaults import FFMPEG_BIN
 from manim_slides.slide.base import BaseSlide
 
 
@@ -12,9 +11,6 @@ def base_slide() -> BaseSlide:
 
 
 class TestBaseSlide:
-    def test_ffmpeg_bin(self, base_slide: BaseSlide) -> None:
-        assert base_slide._ffmpeg_bin == FFMPEG_BIN
-
     def test_frame_height(self, base_slide: BaseSlide) -> None:
         with pytest.raises(NotImplementedError):
             _ = base_slide._frame_height
