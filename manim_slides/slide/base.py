@@ -48,11 +48,6 @@ class BaseSlide:
         self._wait_time_between_slides = 0.0
 
     @property
-    def _ffmpeg_bin(self) -> Path:
-        """Return the path to the ffmpeg binaries."""
-        return FFMPEG_BIN
-
-    @property
     @abstractmethod
     def _frame_height(self) -> float:
         """Return the scene's frame height."""
@@ -492,11 +487,11 @@ class BaseSlide:
 
             # We only concat animations if it was not present
             if not use_cache or not dst_file.exists():
-                concatenate_video_files(self._ffmpeg_bin, slide_files, dst_file)
+                concatenate_video_files(slide_files, dst_file)
 
             # We only reverse video if it was not present
             if not use_cache or not rev_file.exists():
-                reverse_video_file(self._ffmpeg_bin, dst_file, rev_file)
+                reverse_video_file(dst_file, rev_file)
 
             slides.append(
                 SlideConfig.from_pre_slide_config_and_files(

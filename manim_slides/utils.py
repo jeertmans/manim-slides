@@ -8,7 +8,7 @@ import av
 from .logger import logger
 
 
-def concatenate_video_files(_: Path, files: List[Path], dest: Path) -> None:
+def concatenate_video_files(files: List[Path], dest: Path) -> None:
     """Concatenate multiple video files into one."""
     f = tempfile.NamedTemporaryFile(mode="w", delete=False)
     f.writelines(f"file '{path.absolute()}'\n" for path in files)
@@ -61,7 +61,7 @@ def link_nodes(*nodes: av.filter.context.FilterContext) -> None:
         c.link_to(n)
 
 
-def reverse_video_file(_: Path, src: Path, dest: Path) -> None:
+def reverse_video_file(src: Path, dest: Path) -> None:
     """Reverses a video file, writting the result to `dest`."""
     input_ = av.open(str(src))
     input_stream = input_.streams.video[0]
@@ -88,7 +88,7 @@ def reverse_video_file(_: Path, src: Path, dest: Path) -> None:
             graph.push(frame)
             frames_count += 1
 
-    graph.push(None)
+    graph.push(None)  # EOF: https://github.com/PyAV-Org/PyAV/issues/886.
 
     for i in range(frames_count):
         frame = graph.pull()

@@ -14,15 +14,6 @@ class Slide(BaseSlide, Scene):  # type: ignore[misc]
     """
 
     @property
-    def _ffmpeg_bin(self) -> Path:
-        # Prior to v0.16.0.post0,
-        # ffmpeg was stored as a constant in manim.constants
-        try:
-            return Path(config.ffmpeg_executable)
-        except AttributeError:
-            return super()._ffmpeg_bin
-
-    @property
     def _frame_height(self) -> float:
         return config["frame_height"]  # type: ignore
 
