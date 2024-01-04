@@ -86,7 +86,7 @@ def reverse_video_file(src: Path, dest: Path) -> None:
 
     graph.push(None)  # EOF: https://github.com/PyAV-Org/PyAV/issues/886.
 
-    for i in range(frames_count):
+    for _ in range(frames_count):
         frame = graph.pull()
         frame.pict_type = 1  # Otherwise we get a warning saying it is changed
         output.mux(output_stream.encode(frame))
