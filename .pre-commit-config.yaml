@@ -7,7 +7,7 @@ repos:
   - id: end-of-file-fixer
   - id: trailing-whitespace
 - repo: https://github.com/macisamuele/language-formatters-pre-commit-hooks
-  rev: v2.11.0
+  rev: v2.12.0
   hooks:
   - id: pretty-format-yaml
     args: [--autofix]
@@ -20,13 +20,13 @@ repos:
   - id: blackdoc
     additional_dependencies: [black==23.10.1]
 - repo: https://github.com/astral-sh/ruff-pre-commit
-  rev: v0.1.6
+  rev: v0.1.9
   hooks:
   - id: ruff
     args: [--fix]
   - id: ruff-format
 - repo: https://github.com/pre-commit/mirrors-mypy
-  rev: v1.7.1
+  rev: v1.8.0
   hooks:
   - id: mypy
     additional_dependencies: [types-requests, types-setuptools]

@@ -21,7 +21,7 @@ You can install them manually, or with the extra keyword:
 Note that you will still need to install Manim's platform-specific dependencies,
 see
 `their installation page <https://docs.manim.community/en/stable/installation.html>`_.
-"""  # noqa: D400, D415
+"""
 
 from __future__ import annotations
 
