@@ -6,7 +6,7 @@ from typing import List, Optional, Tuple
 import click
 from click import Context, Parameter
 from pydantic import ValidationError
-from PySide6.QtCore import Qt
+from qtpy.QtCore import Qt
 
 from ..commons import config_path_option, folder_path_option, verbosity_option
 from ..config import Config, PresentationConfig

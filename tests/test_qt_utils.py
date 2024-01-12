@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QApplication
+from qtpy.QtWidgets import QApplication
 
 from manim_slides.qt_utils import qapp
 

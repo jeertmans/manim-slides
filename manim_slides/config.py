@@ -17,7 +17,7 @@ from pydantic import (
     model_validator,
 )
 from pydantic_extra_types.color import Color
-from PySide6.QtCore import Qt
+from qtpy.QtCore import Qt
 
 from .logger import logger
 
