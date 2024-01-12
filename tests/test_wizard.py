@@ -1,13 +1,13 @@
 from pathlib import Path
 
 from click.testing import CliRunner
+from pytest import MonkeyPatch
+from pytestqt.qtbot import QtBot
 from qtpy.QtCore import Qt
 from qtpy.QtWidgets import (
     QApplication,
     QMessageBox,
 )
-from pytest import MonkeyPatch
-from pytestqt.qtbot import QtBot
 
 from manim_slides.config import Config, Key
 from manim_slides.defaults import CONFIG_PATH
