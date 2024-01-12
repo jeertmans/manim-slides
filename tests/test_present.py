@@ -3,7 +3,7 @@ from typing import Iterator, Tuple
 
 import pytest
 from click.testing import CliRunner
-from PySide6.QtWidgets import QApplication
+from qtpy.QtWidgets import QApplication
 
 from manim_slides.present import present
 

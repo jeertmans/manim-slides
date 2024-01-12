@@ -4,9 +4,9 @@ from pathlib import Path
 from typing import Any
 
 import click
-from PySide6.QtCore import Qt
-from PySide6.QtGui import QIcon, QKeyEvent
-from PySide6.QtWidgets import (
+from qtpy.QtCore import Qt
+from qtpy.QtGui import QIcon, QKeyEvent
+from qtpy.QtWidgets import (
     QDialog,
     QDialogButtonBox,
     QGridLayout,

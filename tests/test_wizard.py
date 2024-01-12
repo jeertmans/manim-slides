@@ -1,8 +1,8 @@
 from pathlib import Path
 
 from click.testing import CliRunner
-from PySide6.QtCore import Qt
-from PySide6.QtWidgets import (
+from qtpy.QtCore import Qt
+from qtpy.QtWidgets import (
     QApplication,
     QMessageBox,
 )

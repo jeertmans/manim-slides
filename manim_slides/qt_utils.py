@@ -1,6 +1,6 @@
 """Qt utils."""
 
-from PySide6.QtWidgets import QApplication
+from qtpy.QtWidgets import QApplication
 
 
 def qapp() -> QApplication:

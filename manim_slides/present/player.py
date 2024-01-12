@@ -2,11 +2,11 @@ from datetime import datetime
 from pathlib import Path
 from typing import List, Optional
 
-from PySide6.QtCore import Qt, QTimer, QUrl, Signal, Slot
-from PySide6.QtGui import QCloseEvent, QIcon, QKeyEvent, QScreen
-from PySide6.QtMultimedia import QMediaPlayer
-from PySide6.QtMultimediaWidgets import QVideoWidget
-from PySide6.QtWidgets import (
+from qtpy.QtCore import Qt, QTimer, QUrl, Signal, Slot
+from qtpy.QtGui import QCloseEvent, QIcon, QKeyEvent, QScreen
+from qtpy.QtMultimedia import QMediaPlayer
+from qtpy.QtMultimediaWidgets import QVideoWidget
+from qtpy.QtWidgets import (
     QHBoxLayout,
     QLabel,
     QMainWindow,
