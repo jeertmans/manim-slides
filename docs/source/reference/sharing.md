@@ -34,8 +34,8 @@ the key bindings might not be the same.
 Example:
 
 ```bash
-# If you use ManimGl, replace `manim` with `manimgl`
-manim example.py BasicExample
+# If you use ManimGl, add `--GL` after `render`
+manim-slides render example.py BasicExample
 
 # This or `manim-slides BasicExample` works since
 # `present` is implied by default
