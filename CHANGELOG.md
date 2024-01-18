@@ -31,7 +31,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   and `self.zoom`.
   [#331](https://github.com/jeertmans/manim-slides/pull/331)
 - Created a Docker image, published on GitHub.
-  [#331](https://github.com/jeertmans/manim-slides/pull/355)
+  [#355](https://github.com/jeertmans/manim-slides/pull/355)
 
 (v5.1-modified)=
 ### Modified
@@ -47,6 +47,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Removed subrocess calls to FFMPEG with direct `libav` bindings using
   the `av` Python module. This should enhance rendering speed and security.
   [#335](https://github.com/jeertmans/manim-slides/pull/335)
+- Changed build backend to PDM and reflected on docs.
+  [#354](https://github.com/jeertmans/manim-slides/pull/354)
 
 ## [v5](https://github.com/jeertmans/manim-slides/compare/v4.16.0...v5.0.0)
 
