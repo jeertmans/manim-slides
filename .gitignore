@@ -4,6 +4,7 @@ __pycache__/
 /build
 /dist
 *.egg-info/
+.pdm-python
 
 # Manim files
 images/
@@ -47,5 +48,3 @@ paper/media/
 coverage.xml
 
 rendering_times.csv
-
-.pdm-python
