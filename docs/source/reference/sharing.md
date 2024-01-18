@@ -9,8 +9,10 @@ We will go from the *most restrictive* method, to the least restrictive one.
 If you need to present on a computer without prior knowledge on what will be
 installed on it, please directly refer to the last sections.
 
-> **NOTES:** in the next sections, we will assume your animations are described
+:::{note}
+In the next sections, we will assume your animations are described
 in `example.py`, and you have one presentation called `BasicExample`.
+:::
 
 ## With Manim Slides installed on the target machine
 
@@ -95,7 +97,7 @@ By default, the assets directory will be named after the main HTML file, using `
 
 Example:
 
-```
+```raw
 .
 ├── basic_example_assets
 │   ├── 1413466013_2261824125_223132457.mp4
@@ -128,7 +130,6 @@ The additional code comes from
 [this article](https://faq.dailymotion.com/hc/en-us/articles/360022841393-How-to-preserve-the-player-aspect-ratio-on-a-responsive-page)
 and it there to preserve the original aspect ratio (16:9).
 
-
 ### Sharing ONE HTML file
 
 If you set the `data_uri` option to `true` (with `-cdata_uri=true`),
@@ -144,10 +145,11 @@ This is how your are able to watch all the examples on this website. If you want
 to know how to share your slide with GitHub pages, see the
 [workflow file](https://github.com/jeertmans/manim-slides/blob/main/.github/workflows/pages.yml).
 
-> **WARNING:** keep in mind that playing large video files over the internet
+:::{warning}
+Keep in mind that playing large video files over the internet network
 can take some time, and *glitches* may occur between slide transitions for this
 reason.
-
+:::
 
 ### Using the Github starter template
 
