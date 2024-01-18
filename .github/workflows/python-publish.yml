@@ -39,6 +39,7 @@ jobs:
     env:
       REGISTRY: ghcr.io
       IMAGE_NAME: ${{ github.repository }}`
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
     steps:
     - name: Checkout
       uses: actions/checkout@v4
