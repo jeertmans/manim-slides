@@ -52,7 +52,7 @@ jobs:
       uses: nikeee/setup-pandoc@v1
 
     - name: Install local Python package
-      run: pdm install -dGdocs,github-action
+      run: pdm install -dGdocs -dGgithub-action
 
     - name: Install IPython kernel
       run: pdm run ipython kernel install --name "manim-slides" --user
