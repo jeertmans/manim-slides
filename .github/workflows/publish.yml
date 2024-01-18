@@ -11,6 +11,9 @@ jobs:
     name: Build and release
     runs-on: ubuntu-latest
     environment: release
+    permissions:
+      # IMPORTANT: this permission is mandatory for trusted publishing
+      id-token: write
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
@@ -46,17 +49,23 @@ jobs:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Extract metadata (tags, labels) for Docker
-      id: meta
-      uses: docker/metadata-action@v5
-      with:
-        images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+    - name: Get Version
+      id: create_release
+      shell: python
+      env:
+        tag_act: ${{ github.ref }}
+      run: |
+        import os
+        ref_tag = os.getenv('tag_act').split('/')[-1]
+        with open(os.getenv('GITHUB_OUTPUT'), 'w') as f:
+          print(f"tag_name={ref_tag}", file=f)
 
     - name: Build and push
       uses: docker/build-push-action@v5
       with:
-        context: .
+        platforms: linux/arm64,linux/amd64
         file: docker/Dockerfile
         push: true
-        tags: ${{ steps.meta.outputs.tags }}
-        labels: ${{ steps.meta.outputs.labels }}
+        tags: |
+          jeertmans/manim-slides:latest
+          jeertmans/manim-slides:${{ steps.create_release.outputs.tag_name }}
