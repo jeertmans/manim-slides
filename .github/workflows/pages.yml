@@ -54,7 +54,7 @@ jobs:
       run: poetry run ipython kernel install --name "manim-slides" --user
     - name: Restore cached media
       id: cache-media-restore
-      uses: actions/cache/restore@v3
+      uses: actions/cache/restore@v4
       with:
         path: docs/media
         key: ${{ runner.os }}-docs-media
@@ -66,7 +66,7 @@ jobs:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - name: Save media to cache
       id: cache-media-save
-      uses: actions/cache/save@v3
+      uses: actions/cache/save@v4
       with:
         path: docs/media
         key: ${{ steps.cache-media-restore.outputs.cache-primary-key }}
