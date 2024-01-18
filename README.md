@@ -25,14 +25,7 @@ Manim Slides will *automatically* detect the one you are using!
 > with a lot more features!
 
 - [Installation](#installation)
-  * [Dependencies](#dependencies)
-  * [Pip install](#pip-install)
-  * [Install From Repository](#install-from-repository)
 - [Usage](#usage)
-  * [Basic Example](#basic-example)
-  * [Key Bindings](#key-bindings)
-  * [Interactive Tutorial](#interactive-tutorial)
-  * [Other Examples](#other-examples)
 - [Comparison with Similar Tools](#comparison-with-similar-tools)
 - [F.A.Q](#faq)
   * [How to increase quality on Windows](#how-to-increase-quality-on-windows)
@@ -43,62 +36,10 @@ Manim Slides will *automatically* detect the one you are using!
 
 ## Installation
 
-<!-- start install -->
-
-While installing Manim Slides and its dependencies on your global Python is fine,
-we recommend using a virtual environment
-(e.g., [venv](https://docs.python.org/3/tutorial/venv.html)) for a local installation.
-
-### Dependencies
-
-<!-- start deps -->
-
-Manim Slides requires either Manim or ManimGL to be installed.
-Having both packages installed is fine too.
-
-If none of those packages are installed, please refer to their specific installation guidelines:
-- [Manim](https://docs.manim.community/en/stable/installation.html)
-- [ManimGL](https://3b1b.github.io/manim/getting_started/installation.html)
-
-> [!NOTE]
-> If you install Manim from its git repository, as suggested by ManimGL,
-> make sure to first check out a supported version (e.g., `git checkout tags/v1.6.1`
-> for ManimGL), otherwise it might install an unsupported version of Manim!
-> See [#314](https://github.com/jeertmans/manim-slides/issues/314) for an example.
-
-<!-- end deps -->
-
-### Pip Install
-
-> [!NOTE]
-> For an easy and safe installation, use [`pipx`](https://pipx.pypa.io/)
-> instead of `pip`.
-
-The recommended way to install the latest release is to use pip:
-
-```bash
-pipx install manim-slides
-```
-
-Optionally, you can also install Manim or ManimGL using extras[^1]:
-
-```bash
-pip install "manim-slides[manim]"   # For Manim
-# or
-pip install "manim-slides[manimgl]" # For ManimGL
-```
-
-[^1]: You still need to have Manim or ManimGL platform-specific dependencies
-  installed on your computer.
-
-### Install From Repository
-
-An alternative way to install Manim Slides is to clone the git repository,
-and install from there: read the
-[contributing guide](https://eertmans.be/manim-slides/contributing/workflow.html)
-to know how to process.
-
-<!-- end install -->
+Manim Slides requires either Manim or ManimGL to be installed, along
+with their dependencies. Please checkout the
+[documentation](https://eertmans.be/manim-slides/)
+for detailed install instructions.
 
 ## Usage
 
@@ -167,35 +108,6 @@ manim-slides BasicExample
 ```
 
 <!-- end usage -->
-
-##  Key Bindings
-
-The default key bindings to control the presentation are:
-
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/jeertmans/manim-slides/main/static/wizard_dark.png">
-  <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/jeertmans/manim-slides/main/static/wizard_light.png">
-  <img alt="Manim Slides Wizard" src="https://raw.githubusercontent.com/jeertmans/manim-slides/main/static/wizard_light.png">
-</picture>
-
-
-You can run the **configuration wizard** to change those key bindings:
-
-```bash
-manim-slides wizard
-```
-
-A default file can be created with:
-
-```bash
-manim-slides init
-```
-
-> [!NOTE]
-> `manim-slides` uses key codes, which are platform dependent.
-> Therefore, sharing keys configuration files accross OSes or keyboards
-> is not recommended. Instead, use default key-bindings, or generate
-> a new config with `manim-slides wizard`.
 
 ## Interactive Tutorial
 
