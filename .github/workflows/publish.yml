@@ -8,7 +8,7 @@ on:
 
 jobs:
   publish-python:
-    name: Build and release
+    name: Publish Python package
     runs-on: ubuntu-latest
     environment: release
     permissions:
