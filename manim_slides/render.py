@@ -29,7 +29,7 @@ import click
     envvar="MANIM_RENDERER",
     show_envvar=True,
     help="If set, use Manim Community Edition (CE) renderer. "
-    "If this or --GL is not set, default to CE renderer.",
+    "If this or ``--GL`` is not set, defaults to CE renderer.",
 )
 @click.option(
     "--GL",

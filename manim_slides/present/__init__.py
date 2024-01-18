@@ -154,7 +154,7 @@ def start_at_callback(
     "--skip-all",
     is_flag=True,
     help="Skip all slides, useful the test if slides are working. "
-    "Automatically sets `--exit-after-last-slide` to True.",
+    "Automatically sets ``--exit-after-last-slide`` to True.",
 )
 @click.option(
     "--exit-after-last-slide",
@@ -182,7 +182,7 @@ def start_at_callback(
     type=str,
     callback=start_at_callback,
     default=(None, None),
-    help="Start presenting at (x, y), equivalent to --sacn x --sasn y, "
+    help="Start presenting at (x, y), equivalent to ``--sacn x --sasn y``, "
     "and overrides values if not None.",
 )
 @click.option(
