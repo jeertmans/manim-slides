@@ -35,9 +35,11 @@ dependencies = [
   "tqdm>=4.64.1",
 ]
 description = "Tool for live presentations using manim"
-dynamic = ["license", "readme"]
+dynamic = ["version"]
 keywords = ["manim", "slides", "plugin", "manimgl"]
+license = {text = "MIT"}
 name = "manim-slides"
+readme = "README.md"
 requires-python = ">=3.8,<3.12"
 version = "5.1.0-rc3"
 
@@ -101,6 +103,10 @@ test = [
   "pytest-qt>=4.2.0",
   "pytest-xdist>=3.3.1",
 ]
+
+[tool.pdm.version]
+path = "manim_slides/__version__.py"
+source = "file"
 
 [tool.pytest.ini_options]
 env = [
