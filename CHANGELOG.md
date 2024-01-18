@@ -30,6 +30,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added `return_animation` option to slide animations `self.wipe`
   and `self.zoom`.
   [#331](https://github.com/jeertmans/manim-slides/pull/331)
+- Created a Docker image, published on GitHub.
+  [#331](https://github.com/jeertmans/manim-slides/pull/355)
 
 (v5.1-modified)=
 ### Modified
