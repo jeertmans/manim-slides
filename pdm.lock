@@ -2,10 +2,10 @@
 # It is not intended for manual editing.
 
 [metadata]
-groups = ["default", "all", "dev", "docs", "magic", "manim", "manimgl", "sphinx-directive", "test"]
+groups = ["default", "all", "dev", "docs", "github-action", "magic", "manim", "manimgl", "sphinx-directive", "test"]
 strategy = ["cross_platform", "inherit_metadata"]
 lock_version = "4.4.1"
-content_hash = "sha256:70a2efcf21066eddf6c90318722ac0b31a7cf13925b523e51aad38b32110e836"
+content_hash = "sha256:77c5f53b69ca4e388414b744d94fd6e37bec5352334dbd35ab41ab5439e78929"
 
 [[package]]
 name = "alabaster"
@@ -2958,7 +2958,7 @@ name = "setuptools"
 version = "69.0.3"
 requires_python = ">=3.8"
 summary = "Easily download, build, install, upgrade, and uninstall Python packages"
-groups = ["dev"]
+groups = ["dev", "github-action"]
 files = [
     {file = "setuptools-69.0.3-py3-none-any.whl", hash = "sha256:385eb4edd9c9d5c17540511303e39a147ce2fc04bc55289c322b9e5904fe2c05"},
     {file = "setuptools-69.0.3.tar.gz", hash = "sha256:be1af57fc409f93647f2e8e4573a142ed38724b8cdd389706a867bb4efcf1e78"},

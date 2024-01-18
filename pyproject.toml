@@ -35,10 +35,11 @@ dependencies = [
   "tqdm>=4.64.1",
 ]
 description = "Tool for live presentations using manim"
-dynamic = ["license", "readme", "version"]
+dynamic = ["license", "readme"]
 keywords = ["manim", "slides", "plugin", "manimgl"]
 name = "manim-slides"
 requires-python = ">=3.8,<3.12"
+version = "5.1.0-rc2"
 
 [project.optional-dependencies]
 all = [
@@ -91,6 +92,7 @@ docs = [
   "sphinx-copybutton>=0.5.1",
   "sphinxext-opengraph>=0.7.5",
 ]
+github-action = ["setuptools"]
 test = [
   "manim-slides[manim,manimgl]",
   "pytest>=7.4.0",
