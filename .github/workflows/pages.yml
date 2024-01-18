@@ -33,53 +33,64 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v4
-    - name: Install Poetry
-      run: pipx install poetry
-    - name: Install Python
-      uses: actions/setup-python@v5
+
+    - name: Install PDM
+      uses: pdm-project/setup-pdm@v3
       with:
         python-version: '3.10'
-        cache: poetry
+        cache: true
+
     - name: Setup Pages
       uses: actions/configure-pages@v4
+
     - name: Install Linux Dependencies
       run: |
         sudo apt-get update
         sudo apt-get install libcairo2-dev libpango1.0-dev ffmpeg freeglut3-dev
+
     - name: Setup Pandoc
       uses: nikeee/setup-pandoc@v1
+
     - name: Install local Python package
-      run: poetry install --with docs
+      run: pdm install -dGdocs
+
     - name: Install IPython kernel
-      run: poetry run ipython kernel install --name "manim-slides" --user
+      run: pdm run ipython kernel install --name "manim-slides" --user
+
     - name: Restore cached media
       id: cache-media-restore
       uses: actions/cache/restore@v4
       with:
         path: docs/media
         key: ${{ runner.os }}-docs-media
+
     - name: Clear cache
       run: |
         gh extension install actions/gh-actions-cache
         gh actions-cache delete ${{ steps.cache-media-restore.outputs.cache-primary-key }} --confirm || true
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
     - name: Save media to cache
       id: cache-media-save
       uses: actions/cache/save@v4
       with:
         path: docs/media
         key: ${{ steps.cache-media-restore.outputs.cache-primary-key }}
+
     - name: Build docs
-      run: cd docs && poetry run make html
+      run: cd docs && pdm run make html
+
     - name: Upload artifact
       if: github.event_name != 'pull_request'
       uses: actions/upload-pages-artifact@v3
       with:
         # Upload docs/build/html dir
         path: docs/build/html/
+
     - name: Show docs/build/html/_static/ dir content (video only)
       run: tree -L 3 docs/build/html/_static/ -P '*.mp4'
+
     - name: Deploy to GitHub Pages
       id: deployment
       if: github.event_name != 'pull_request'

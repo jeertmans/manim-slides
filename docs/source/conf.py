@@ -5,6 +5,9 @@
 # https://www.sphinx-doc.org/en/master/usage/configuration.html
 
 import sys
+from datetime import date
+
+from manim_slides import __version__
 
 assert sys.version_info >= (3, 10), "Building docs requires Python 3.10"
 
@@ -12,8 +15,9 @@ assert sys.version_info >= (3, 10), "Building docs requires Python 3.10"
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 project = "Manim Slides"
-copyright = "2023, Jérome Eertmans"
+copyright = f"2024-{date.today().year}, Jérome Eertmans"
 author = "Jérome Eertmans"
+version = __version__
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
