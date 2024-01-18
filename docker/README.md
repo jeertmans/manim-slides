@@ -5,7 +5,7 @@ Manim Slides Docker image, highly inspired from the Manim Community Docker image
 Building the image can be done with:
 
 ```bash
-docker build -t manimcommunity/manim:TAG -f docker/Dockerfile .
+docker build -t manim-slide/manin-slide:TAG -f docker/Dockerfile .
 ```
 
 from the root directory of the repository.
