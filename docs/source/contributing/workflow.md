@@ -4,7 +4,7 @@ This document is there to help you recreate a working environment for Manim Slid
 
 ## Dependencies
 
-```{include} ../../../README.md
+```{include} ../quickstart.md
 :start-after: <!-- start deps -->
 :end-before: <!-- end deps -->
 ```
@@ -20,64 +20,110 @@ Useful links:
 
 Once you feel comfortable with git and GitHub, [fork](https://github.com/jeertmans/manim-slides/fork) the repository, and clone it locally.
 
-As for every Python project, using virtual environment is recommended to avoid conflicts between modules. For Manim Slides, we use [Poetry](https://python-poetry.org/docs/#installing-with-the-official-installer). If not already, please install it.
+As for every Python project, using virtual environment is recommended to avoid
+conflicts between modules.
+For this project, we use [PDM](https://pdm-project.org/) to easily manage project
+and development dependencies. If not already, please install this tool.
 
 ## Installing Python modules
 
-With Poetry, installation becomes straightforward:
+With PDM, installation becomes straightforward:
 
 ```bash
-poetry install
+pdm install
 ```
 
 This, however, only installs the minimal set of dependencies to run the package.
 
-If you would like to install Manim or ManimGL, as documented in the [quickstart](../quickstart),
-you can use the `--extras` option:
+If you would like to install Manim or ManimGL,
+as documented in the [quickstart](../quickstart),
+you can use the `-G|--group` option:
 
 ```bash
-poetry install --extras manim   # For Manim
+pdm install -Gmanim   # For Manim
 # or
-poetry install --extras manimgl # For ManimGL
+pdm install -Gmanimgl # For ManimGL
 ```
 
-Additionnally, Manim Slides comes with group dependencies for development purposes:
+Additionnally, Manim Slides comes with groups of dependencies for development purposes:
 
 ```bash
-poetry install --with dev  # For linters and formatters
+pdm install -dGdev  # For linters and formatters
 # or
-poetry install --with docs # To build the documentation locally
+pdm install --dGdocs # To build the documentation locally
+# or
+pdm install --dGtests # To run tests
 ```
-
-Another group is `test`, but it is only used for
-[GitHub actions](https://github.com/jeertmans/manim-slides/blob/main/.github/workflows/test_examples.yml).
 
 :::{note}
 You can combine any number of groups or extras when installing the package locally.
+
+You can also install everything with `pdm install -G:all`.
 :::
 
 ## Running commands
 
-As modules were installed in a new Python environment, you cannot use them directly in the shell.
-Instead, you either need to prepend `poetry run` to any command, e.g.:
+Because modules are installed in a new Python environment,
+you cannot use them directly in the shell.
+Instead, you either need to prepend `pdm run` to any command, e.g.:
 
 ```bash
-poetry run manim-slides wizard
+pdm run manim-slides wizard
 ```
 
-or enter a new shell that uses this new Python environment:
+or [enter a new shell](https://pdm-project.org/latest/usage/venv/#activate-a-virtualenv)
+that uses this new Python environment:
 
-```
-poetry shell
+```bash
+eval $(pdm venv activate)  # Click on the link above to see shell-specific command
 manim-slides wizard
 ```
 
 ## Testing your code
 
-Most of the tests are done with GitHub actions, thus not on your computer. The only command you should run locally is `pre-commit run --all-files`: this runs a few linter and formatter to make sure the code quality and style stay constant across time. If a warning or an error is displayed, please fix it before going to next step.
+Most of the tests are done with GitHub actions, thus not on your computer.
+The only command you should run locally is:
+
+```bash
+pdm run pre-commit run --all-files
+```
+
+This runs a few linter and formatter to make sure the code quality and style stay
+constant across time.
+If a warning or an error is displayed, please fix it before going to next step.
+
+For testing your code, simply run:
+
+```bash
+pdm run pytest
+```
+
+## Building the documentation
+
+The documentation is generated using Sphinx, based on the content
+in `docs/source` and in the `manim_slides` Python package.
+
+To generate the documentation, run the following:
+
+```bash
+cd docs
+pdm run make html
+```
+
+Then, the output index file is located at `docs/build/html/index.html` and
+can be opened with any modern browser.
+
+:::{warning}
+Building the documentation can take quite some time, especially
+the first time as it needs to render all the animations.
+
+Further builds should run faster.
+:::
 
 ## Proposing changes
 
-Once you feel ready and think your contribution is ready to be reviewed, create a [pull request](https://github.com/jeertmans/manim-slides/pulls) and wait for a reviewer to check your work!
+Once you feel ready and think your contribution is ready to be reviewed,
+create a [pull request](https://github.com/jeertmans/manim-slides/pulls)
+and wait for a reviewer to check your work!
 
 Many thanks to you!

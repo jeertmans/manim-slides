@@ -1,11 +1,7 @@
 # Quickstart
 
-## Installation
-
-```{include} ../../README.md
-:start-after: <!-- start install -->
-:end-before: <!-- end install -->
-```
+If not already, install Manim Slides, along with either Manim or ManimGL,
+see [installation](./installation).
 
 ## Creating your first slides
 

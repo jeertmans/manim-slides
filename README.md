@@ -14,19 +14,18 @@
 
 # Manim Slides
 
-Tool for live presentations using either [Manim (community edition)](https://www.manim.community/) or [ManimGL](https://3b1b.github.io/manim/). Manim Slides will *automatically* detect the one you are using!
+Tool for live presentations using either
+[Manim (community edition)](https://www.manim.community/)
+or [ManimGL](https://3b1b.github.io/manim/).
+Manim Slides will *automatically* detect the one you are using!
 
-> **NOTE:** this project extends the work of [`manim-presentation`](https://github.com/galatolofederico/manim-presentation), with a lot more features!
+> [!NOTE]
+> This project extends the work of
+> [`manim-presentation`](https://github.com/galatolofederico/manim-presentation),
+> with a lot more features!
 
 - [Installation](#installation)
-  * [Dependencies](#dependencies)
-  * [Pip install](#pip-install)
-  * [Install From Repository](#install-from-repository)
 - [Usage](#usage)
-  * [Basic Example](#basic-example)
-  * [Key Bindings](#key-bindings)
-  * [Interactive Tutorial](#interactive-tutorial)
-  * [Other Examples](#other-examples)
 - [Comparison with Similar Tools](#comparison-with-similar-tools)
 - [F.A.Q](#faq)
   * [How to increase quality on Windows](#how-to-increase-quality-on-windows)
@@ -37,58 +36,21 @@ Tool for live presentations using either [Manim (community edition)](https://www
 
 ## Installation
 
-<!-- start install -->
-
-While installing Manim Slides and its dependencies on your global Python is fine, I recommend using a virtual environment (e.g., [venv](https://docs.python.org/3/tutorial/venv.html)) for a local installation.
-
-### Dependencies
-
-<!-- start deps -->
-
-Manim Slides requires either Manim or ManimGL to be installed. Having both packages installed is fine too.
-
-If none of those packages are installed, please refer to their specific installation guidelines:
-- [Manim](https://docs.manim.community/en/stable/installation.html)
-- [ManimGL](https://3b1b.github.io/manim/getting_started/installation.html)
-
-> **NOTE**: if you install Manim from its git repository, as suggested by ManimGL,
-  make sure to first check out a supported version (e.g., `git checkout tags/v1.6.1`
-  for ManimGL), otherwise it might install an unsupported version of Manim!
-  See [#314](https://github.com/jeertmans/manim-slides/issues/314) for an example.
-
-<!-- end deps -->
-
-### Pip Install
-
-The recommended way to install the latest release is to use pip:
-
-```bash
-pip install manim-slides
-```
-
-Optionally, you can also install Manim or ManimGL using extras[^1]:
-
-```bash
-pip install manim-slides[manim]   # For Manim
-# or
-pip install manim-slides[manimgl] # For ManimGL
-```
-
-[^1]: NOTE: you still need to have Manim or ManimGL platform-specific dependencies installed on your computer.
-
-### Install From Repository
-
-An alternative way to install Manim Slides is to clone the git repository, and install from there: read the [contributing guide](https://eertmans.be/manim-slides/contributing/workflow.html) to know how.
-
-<!-- end install -->
+Manim Slides requires either Manim or ManimGL to be installed, along
+with their dependencies. Please checkout the
+[documentation](https://eertmans.be/manim-slides/installation.html)
+for detailed install instructions.
 
 ## Usage
 
 <!-- start usage -->
 
 Using Manim Slides is a two-step process:
-1. Render animations using `Slide` (resp. `ThreeDSlide`) as a base class instead of `Scene` (resp. `ThreeDScene`), and add calls to `self.next_slide()` everytime you want to create a new slide.
-2. Run `manim-slides` on rendered animations and display them like a *Power Point* presentation.
+1. Render animations using `Slide` (resp. `ThreeDSlide`) as a base class instead
+   of `Scene` (resp. `ThreeDScene`), and add calls to `self.next_slide()`
+   everytime you want to create a new slide.
+2. Run `manim-slides` on rendered animations and display them like a
+   *PowerPoint* presentation.
 
 The documentation is available [online](https://eertmans.be/manim-slides/).
 
@@ -99,8 +61,6 @@ animations, and `self.next_slide(loop=True)` if you want the next slide to loop
 over animations until the user presses continue:
 
 ```python
-# example.py
-
 from manim import *  # or: from manimlib import *
 
 from manim_slides import Slide
@@ -124,18 +84,23 @@ class BasicExample(Slide):
 First, render the animation files:
 
 ```bash
-manim example.py BasicExample
-# or
-manimgl example.py BasicExample
+manim-slides render example.py BasicExample
+# or use ManimGL
+manim-slides render --GL example.py BasicExample
 ```
 
-To start the presentation using `Scene1`, `Scene2` and so on simply run:
+> [!NOTE]
+> Using `manim-slides render` makes sure the use the `manim`
+> (or `manimlib`) library that was installed in the Python same environment.
+> Put simply, this is a wrapper of `manim render [ARGS]...` (or `manimgl [ARGS]...`).
+
+To start the presentation using `Scene1`, `Scene2` and so on, run:
 
 ```bash
 manim-slides [OPTIONS] Scene1 Scene2...
 ```
 
-Or in this example:
+In our example:
 
 ```bash
 manim-slides BasicExample
@@ -143,49 +108,30 @@ manim-slides BasicExample
 
 <!-- end usage -->
 
-##  Key Bindings
+<p align="center">
+  <img alt="Manim Slides Logo" src="https://raw.githubusercontent.com/jeertmans/manim-slides/main/static/example.gif">
+</p>
 
-The default key bindings to control the presentation are:
-
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/jeertmans/manim-slides/main/static/wizard_dark.png">
-  <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/jeertmans/manim-slides/main/static/wizard_light.png">
-  <img alt="Manim Slides Wizard" src="https://raw.githubusercontent.com/jeertmans/manim-slides/main/static/wizard_light.png">
-</picture>
-
-
-You can run the **configuration wizard** to change those key bindings:
-
-```bash
-manim-slides wizard
-```
-
-A default file can be created with:
-
-```bash
-manim-slides init
-```
-
-> **_NOTE:_**  `manim-slides` uses key codes, which are platform dependent. Using the configuration wizard is therefore highly recommended.
+For detailed usage documentation, run `manim-slides --help`, or go to the
+[documentation](https://eertmans.be/manim-slides/reference/cli.html).
 
 ## Interactive Tutorial
 
-Click on the image to watch a slides presentation that explains you how to use Manim Slides.
+Click on the image to watch a slides presentation that explains to you how
+to use Manim Slides.
 
 [![Manim Slides Docs](https://raw.githubusercontent.com/jeertmans/manim-slides/main/static/docs.png)](https://eertmans.be/manim-slides/)
 
-## Other Examples
+## More Examples
 
-Other examples are available in the [`example.py`](https://github.com/jeertmans/manim-slides/blob/main/example.py) file, if you downloaded the git repository.
-
-Below is a small recording of me playing with the slides back and forth.
-
-![](https://raw.githubusercontent.com/jeertmans/manim-slides/main/static/example.gif)
-
+More examples are available in the
+[`example.py`](https://github.com/jeertmans/manim-slides/blob/main/example.py)
+file, if you downloaded the git repository.
 
 ## Comparison with Similar Tools
 
-There exists are variety of tools that allows to create slides presentations containing Manim animations.
+There exists a variety of tools that allows to create slides presentations
+containing Manim animations.
 
 Below is a comparison of the most used ones with Manim Slides:
 
@@ -203,8 +149,12 @@ Below is a comparison of the most used ones with Manim Slides:
 
 ### How to increase quality on Windows
 
-On Windows platform, one may encounter a lower image resolution than expected. Usually, this is observed because Windows rescales every application to fit the screen.
-As found by [@arashash](https://github.com/arashash), in [#20](https://github.com/jeertmans/manim-slides/issues/20), the problem can be addressed by changing the scaling factor to 100%:
+On Windows platform, one may encounter a lower image resolution than expected.
+Usually, this is observed because Windows rescales every application to
+fit the screen.
+As found by [@arashash](https://github.com/arashash),
+in [#20](https://github.com/jeertmans/manim-slides/issues/20),
+the problem can be addressed by changing the scaling factor to 100%:
 
 ![Windows Fix Scaling](https://raw.githubusercontent.com/jeertmans/manim-slides/main/static/windows_quality_fix.png)
 
@@ -212,7 +162,8 @@ in *Settings*->*Display*.
 
 ## Contributing
 
-Contributions are more than welcome! Please read through [our contributing section](https://eertmans.be/manim-slides/contributing/index.html).
+Contributions are more than welcome! Please read through
+[our contributing section](https://eertmans.be/manim-slides/contributing/index.html).
 
 ### Reporting an Issue
 

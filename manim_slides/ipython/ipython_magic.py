@@ -16,7 +16,9 @@ Utilities for using Manim Slides with IPython (in particular: Jupyter notebooks)
 This magic requires two additional dependencies: ``manim`` and ``IPython``.
 You can install them manually, or with the extra keyword:
 
-    pip install manim-slides[magic]
+.. code-block:: bash
+
+    pip install "manim-slides[magic]"
 
 Note that you will still need to install Manim's platform-specific dependencies,
 see

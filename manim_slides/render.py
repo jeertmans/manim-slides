@@ -44,7 +44,7 @@ def render(ce: bool, gl: bool, args: Tuple[str, ...]) -> None:
     Render SCENE(s) from the input FILE, using the specified renderer.
 
     Use ``manim-slides render --help`` to see help information for
-    a the specified renderer.
+    a specific renderer.
     """
     if ce and gl:
         raise click.UsageError("You cannot specify both --CE and --GL renderers.")
