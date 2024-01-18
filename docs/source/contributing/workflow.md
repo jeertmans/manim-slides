@@ -82,12 +82,43 @@ manim-slides wizard
 ## Testing your code
 
 Most of the tests are done with GitHub actions, thus not on your computer.
-The only command you should run locally is `pdm run pre-commit run --all-files`:
-this runs a few linter and formatter to make sure the code quality and style stay
+The only command you should run locally is:
+
+```bash
+pdm run pre-commit run --all-files
+```
+
+This runs a few linter and formatter to make sure the code quality and style stay
 constant across time.
 If a warning or an error is displayed, please fix it before going to next step.
 
-For testing your code, simply run `pdm run pytest`.
+For testing your code, simply run:
+
+```bash
+pdm run pytest
+```
+
+## Building the documentation
+
+The documentation is generated using Sphinx, based on the content
+in `docs/source` and in the `manim_slides` Python package.
+
+To generate the documentation, run the following:
+
+```bash
+cd docs
+pdm run make html
+```
+
+Then, the output index file is located at `docs/build/html/index.html` and
+can be opened with any modern browser.
+
+:::{warning}
+Building the documentation can take quite some time, especially
+the first time as it needs to render all the animations.
+
+Further builds should run faster.
+:::
 
 ## Proposing changes
 

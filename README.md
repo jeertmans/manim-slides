@@ -38,7 +38,7 @@ Manim Slides will *automatically* detect the one you are using!
 
 Manim Slides requires either Manim or ManimGL to be installed, along
 with their dependencies. Please checkout the
-[documentation](https://eertmans.be/manim-slides/)
+[documentation](https://eertmans.be/manim-slides/installation.html)
 for detailed install instructions.
 
 ## Usage
@@ -61,8 +61,6 @@ animations, and `self.next_slide(loop=True)` if you want the next slide to loop
 over animations until the user presses continue:
 
 ```python
-# example.py
-
 from manim import *  # or: from manimlib import *
 
 from manim_slides import Slide
@@ -94,20 +92,28 @@ manim-slides render --GL example.py BasicExample
 > [!NOTE]
 > Using `manim-slides render` makes sure the use the `manim`
 > (or `manimlib`) library that was installed in the Python same environment.
+> Put simply, this is a wrapper of `manim render [ARGS]...` (or `manimgl [ARGS]...`).
 
-To start the presentation using `Scene1`, `Scene2` and so on simply run:
+To start the presentation using `Scene1`, `Scene2` and so on, run:
 
 ```bash
 manim-slides [OPTIONS] Scene1 Scene2...
 ```
 
-Or in this example:
+In our example:
 
 ```bash
 manim-slides BasicExample
 ```
 
 <!-- end usage -->
+
+<p align="center">
+  <img alt="Manim Slides Logo" src="https://raw.githubusercontent.com/jeertmans/manim-slides/main/static/example.gif">
+</p>
+
+For detailed usage documentation, run `manim-slides --help`, or go to the
+[documentation](https://eertmans.be/manim-slides/reference/cli.html).
 
 ## Interactive Tutorial
 
@@ -116,16 +122,11 @@ to use Manim Slides.
 
 [![Manim Slides Docs](https://raw.githubusercontent.com/jeertmans/manim-slides/main/static/docs.png)](https://eertmans.be/manim-slides/)
 
-## Other Examples
+## More Examples
 
-Other examples are available in the
+More examples are available in the
 [`example.py`](https://github.com/jeertmans/manim-slides/blob/main/example.py)
 file, if you downloaded the git repository.
-
-Below is a small recording of me playing with the slides back and forth.
-
-![](https://raw.githubusercontent.com/jeertmans/manim-slides/main/static/example.gif)
-
 
 ## Comparison with Similar Tools
 

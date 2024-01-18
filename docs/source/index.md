@@ -26,7 +26,6 @@ Manim Slides makes creating slides with Manim super easy!
 In a [very few steps](./quickstart),
 you can create slides and present them either using the GUI, or your browser.
 
-
 Slide through the demo below to get a quick glimpse on what you can do with
 Manim Slides.
 
@@ -40,6 +39,7 @@ Manim Slides.
 :hidden:
 
 quickstart
+installation
 reference/index
 features_table
 manim_or_manimgl

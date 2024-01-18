@@ -97,7 +97,7 @@ By default, the assets directory will be named after the main HTML file, using `
 
 Example:
 
-```raw
+```
 .
 ├── basic_example_assets
 │   ├── 1413466013_2261824125_223132457.mp4

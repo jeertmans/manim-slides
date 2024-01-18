@@ -21,7 +21,9 @@ This directive requires three additional dependencies:
 with Sphinx.
 You can install them manually, or with the extra keyword:
 
-    pip install manim-slides[sphinx-directive]
+.. code-block:: bash
+
+    pip install "manim-slides[sphinx-directive]"
 
 Note that you will still need to install Manim's platform-specific dependencies,
 see
