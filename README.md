@@ -109,7 +109,7 @@ manim-slides BasicExample
 <!-- end usage -->
 
 <p align="center">
-  <img alt="Manim Slides Logo" src="https://raw.githubusercontent.com/jeertmans/manim-slides/main/static/example.gif">
+  <img alt="Example GIF" src="https://raw.githubusercontent.com/jeertmans/manim-slides/main/static/example.gif">
 </p>
 
 For detailed usage documentation, run `manim-slides --help`, or go to the
@@ -156,7 +156,9 @@ As found by [@arashash](https://github.com/arashash),
 in [#20](https://github.com/jeertmans/manim-slides/issues/20),
 the problem can be addressed by changing the scaling factor to 100%:
 
-![Windows Fix Scaling](https://raw.githubusercontent.com/jeertmans/manim-slides/main/static/windows_quality_fix.png)
+<p align="center">
+  <img alt="Windows Fix Scaling" src="https://raw.githubusercontent.com/jeertmans/manim-slides/main/static/windows_quality_fix.png">
+</p>
 
 in *Settings*->*Display*.
 
