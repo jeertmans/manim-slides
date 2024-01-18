@@ -1,6 +1,6 @@
 [build-system]
 build-backend = "pdm.backend"
-requires = ["pdm-backend"]
+requires = ["pdm-backend", "setuptools"]
 
 [project]
 authors = [{name = "Jérome Eertmans", email = "jeertmans@icloud.com"}]

@@ -109,7 +109,7 @@ Using Manim Slides is a two-step process:
    of `Scene` (resp. `ThreeDScene`), and add calls to `self.next_slide()`
    everytime you want to create a new slide.
 2. Run `manim-slides` on rendered animations and display them like a
-   *Power Point* presentation.
+   *PowerPoint* presentation.
 
 The documentation is available [online](https://eertmans.be/manim-slides/).
 
@@ -199,7 +199,7 @@ manim-slides init
 
 ## Interactive Tutorial
 
-Click on the image to watch a slides presentation that explains you how
+Click on the image to watch a slides presentation that explains to you how
 to use Manim Slides.
 
 [![Manim Slides Docs](https://raw.githubusercontent.com/jeertmans/manim-slides/main/static/docs.png)](https://eertmans.be/manim-slides/)
@@ -217,7 +217,7 @@ Below is a small recording of me playing with the slides back and forth.
 
 ## Comparison with Similar Tools
 
-There exists are variety of tools that allows to create slides presentations
+There exists a variety of tools that allows to create slides presentations
 containing Manim animations.
 
 Below is a comparison of the most used ones with Manim Slides:
