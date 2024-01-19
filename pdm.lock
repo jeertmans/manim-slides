@@ -2,10 +2,10 @@
 # It is not intended for manual editing.
 
 [metadata]
-groups = ["default", "all", "dev", "docs", "github-action", "magic", "manim", "manimgl", "pyside6", "sphinx-directive", "test", "pyqt6"]
+groups = ["default", "dev", "docs", "github-action", "magic", "manim", "manimgl", "pyside6", "sphinx-directive", "test", "pyqt6"]
 strategy = ["cross_platform", "inherit_metadata"]
 lock_version = "4.4.1"
-content_hash = "sha256:512f7fe6380b0d6fdfe77e9a2b06e777dbd7c53f09da0687e46a7722489ffc30"
+content_hash = "sha256:0fa2dbe3741d78793ebb7f81838c44399e75cc7921a732def97995c3ad1df906"
 
 [[package]]
 name = "alabaster"
@@ -23,7 +23,7 @@ name = "annotated-types"
 version = "0.6.0"
 requires_python = ">=3.8"
 summary = "Reusable constraint types to use with typing.Annotated"
-groups = ["all", "default", "docs", "magic", "sphinx-directive", "test"]
+groups = ["default", "docs", "magic", "sphinx-directive", "test"]
 files = [
     {file = "annotated_types-0.6.0-py3-none-any.whl", hash = "sha256:0641064de18ba7a25dee8f96403ebc39113d0cb953a01429249d5c7564666a43"},
     {file = "annotated_types-0.6.0.tar.gz", hash = "sha256:563339e807e53ffd9c267e99fc6d9ea23eb8443c08f112651963e24e22f84a5d"},
@@ -44,7 +44,7 @@ files = [
 name = "asttokens"
 version = "2.4.1"
 summary = "Annotate AST trees with source code positions"
-groups = ["all", "docs", "magic", "manimgl", "test"]
+groups = ["docs", "magic", "manimgl", "test"]
 dependencies = [
     "six>=1.12.0",
 ]
@@ -69,7 +69,7 @@ name = "av"
 version = "11.0.0"
 requires_python = ">=3.8"
 summary = "Pythonic bindings for FFmpeg's libraries."
-groups = ["all", "default", "docs", "magic", "sphinx-directive", "test"]
+groups = ["default", "docs", "magic", "sphinx-directive", "test"]
 files = [
     {file = "av-11.0.0-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:a01f13b37eb6d181e03bbbbda29093fe2d68f10755795188220acdc89560ec27"},
     {file = "av-11.0.0-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:b2236faee1b5d71dff3cdef81ef6eec22cc8b71dbfb45eb037e6437fe80f24e7"},
@@ -168,7 +168,7 @@ name = "certifi"
 version = "2023.11.17"
 requires_python = ">=3.6"
 summary = "Python package for providing Mozilla's CA Bundle."
-groups = ["all", "default", "docs", "magic", "manim", "sphinx-directive", "test"]
+groups = ["default", "docs", "magic", "manim", "sphinx-directive", "test"]
 files = [
     {file = "certifi-2023.11.17-py3-none-any.whl", hash = "sha256:e036ab49d5b79556f99cfc2d9320b34cfbe5be05c5871b51de9329f0603b0474"},
     {file = "certifi-2023.11.17.tar.gz", hash = "sha256:9b469f3a900bf28dc19b8cfbf8019bf47f7fdd1a65a1d4ffb98fc14166beb4d1"},
@@ -247,7 +247,7 @@ name = "charset-normalizer"
 version = "3.3.2"
 requires_python = ">=3.7.0"
 summary = "The Real First Universal Charset Detector. Open, modern and actively maintained alternative to Chardet."
-groups = ["all", "default", "docs", "magic", "manim", "sphinx-directive", "test"]
+groups = ["default", "docs", "magic", "manim", "sphinx-directive", "test"]
 files = [
     {file = "charset-normalizer-3.3.2.tar.gz", hash = "sha256:f30c3cb33b24454a82faecaf01b19c18562b1e89558fb6c56de4d9118a032fd5"},
     {file = "charset_normalizer-3.3.2-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:25baf083bf6f6b341f4121c2f3c548875ee6f5339300e08be3f2b2ba1721cdd3"},
@@ -318,7 +318,7 @@ name = "click"
 version = "8.1.7"
 requires_python = ">=3.7"
 summary = "Composable command line interface toolkit"
-groups = ["all", "default", "docs", "magic", "manim", "sphinx-directive", "test"]
+groups = ["default", "docs", "magic", "manim", "sphinx-directive", "test"]
 dependencies = [
     "colorama; platform_system == \"Windows\"",
 ]
@@ -332,7 +332,7 @@ name = "click-default-group"
 version = "1.2.4"
 requires_python = ">=2.7"
 summary = "click_default_group"
-groups = ["all", "default", "docs", "magic", "manim", "sphinx-directive", "test"]
+groups = ["default", "docs", "magic", "manim", "sphinx-directive", "test"]
 dependencies = [
     "click",
 ]
@@ -346,7 +346,7 @@ name = "cloup"
 version = "2.1.2"
 requires_python = ">=3.7"
 summary = "Adds features to Click: option groups, constraints, subcommand sections and help themes."
-groups = ["all", "docs", "magic", "manim", "sphinx-directive", "test"]
+groups = ["docs", "magic", "manim", "sphinx-directive", "test"]
 dependencies = [
     "click<9.0,>=8.0",
 ]
@@ -360,7 +360,7 @@ name = "colorama"
 version = "0.4.6"
 requires_python = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,!=3.5.*,!=3.6.*,>=2.7"
 summary = "Cross-platform colored terminal text."
-groups = ["all", "default", "docs", "magic", "manim", "manimgl", "sphinx-directive", "test"]
+groups = ["default", "docs", "magic", "manim", "manimgl", "sphinx-directive", "test"]
 marker = "platform_system == \"Windows\" or sys_platform == \"win32\""
 files = [
     {file = "colorama-0.4.6-py2.py3-none-any.whl", hash = "sha256:4f1d9991f5acc0ca119f9d443620b77f9d6b33703e51011c16baf57afb285fc6"},
@@ -371,7 +371,7 @@ files = [
 name = "colour"
 version = "0.1.5"
 summary = "converts and manipulates various color representation (HSL, RVB, web, X11, ...)"
-groups = ["all", "manimgl", "test"]
+groups = ["manimgl", "test"]
 files = [
     {file = "colour-0.1.5-py2.py3-none-any.whl", hash = "sha256:33f6db9d564fadc16e59921a56999b79571160ce09916303d35346dddc17978c"},
     {file = "colour-0.1.5.tar.gz", hash = "sha256:af20120fefd2afede8b001fbef2ea9da70ad7d49fafdb6489025dae8745c3aee"},
@@ -396,7 +396,7 @@ name = "contourpy"
 version = "1.2.0"
 requires_python = ">=3.9"
 summary = "Python library for calculating contours of 2D quadrilateral grids"
-groups = ["all", "manimgl", "test"]
+groups = ["manimgl", "test"]
 dependencies = [
     "numpy<2.0,>=1.20",
 ]
@@ -559,7 +559,7 @@ name = "cycler"
 version = "0.12.1"
 requires_python = ">=3.8"
 summary = "Composable style cycles"
-groups = ["all", "manimgl", "test"]
+groups = ["manimgl", "test"]
 files = [
     {file = "cycler-0.12.1-py3-none-any.whl", hash = "sha256:85cef7cff222d8644161529808465972e51340599459b8ac3ccbac5a854e0d30"},
     {file = "cycler-0.12.1.tar.gz", hash = "sha256:88bb128f02ba341da8ef447245a9e138fae777f6a23943da4540077d3601eb1c"},
@@ -570,7 +570,7 @@ name = "cython"
 version = "3.0.8"
 requires_python = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 summary = "The Cython compiler for writing C extensions in the Python language."
-groups = ["all", "docs", "magic", "manim", "manimgl", "sphinx-directive", "test"]
+groups = ["docs", "magic", "manim", "manimgl", "sphinx-directive", "test"]
 marker = "sys_platform == \"darwin\""
 files = [
     {file = "Cython-3.0.8-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:a846e0a38e2b24e9a5c5dc74b0e54c6e29420d88d1dafabc99e0fc0f3e338636"},
@@ -637,7 +637,7 @@ name = "decorator"
 version = "5.1.1"
 requires_python = ">=3.5"
 summary = "Decorators for Humans"
-groups = ["all", "docs", "magic", "manim", "manimgl", "sphinx-directive", "test"]
+groups = ["docs", "magic", "manim", "manimgl", "sphinx-directive", "test"]
 files = [
     {file = "decorator-5.1.1-py3-none-any.whl", hash = "sha256:b8c3f85900b9dc423225913c5aace94729fe1fa9763b38939a95226f02d37186"},
     {file = "decorator-5.1.1.tar.gz", hash = "sha256:637996211036b6385ef91435e4fae22989472f9d571faba8927ba8253acbc330"},
@@ -669,7 +669,7 @@ name = "docutils"
 version = "0.20.1"
 requires_python = ">=3.7"
 summary = "Docutils -- Python Documentation Utilities"
-groups = ["all", "docs", "sphinx-directive"]
+groups = ["docs", "sphinx-directive"]
 files = [
     {file = "docutils-0.20.1-py3-none-any.whl", hash = "sha256:96f387a2c5562db4476f09f13bbab2192e764cac08ebbf3a34a95d9b1e4a59d6"},
     {file = "docutils-0.20.1.tar.gz", hash = "sha256:f08a4e276c3a1583a86dce3e34aba3fe04d02bba2dd51ed16106244e8a923e3b"},
@@ -680,7 +680,7 @@ name = "exceptiongroup"
 version = "1.2.0"
 requires_python = ">=3.7"
 summary = "Backport of PEP 654 (exception groups)"
-groups = ["all", "docs", "magic", "manimgl", "test"]
+groups = ["docs", "magic", "manimgl", "test"]
 marker = "python_version < \"3.11\""
 files = [
     {file = "exceptiongroup-1.2.0-py3-none-any.whl", hash = "sha256:4bfd3996ac73b41e9b9628b04e079f193850720ea5945fc96a08633c66912f14"},
@@ -703,7 +703,7 @@ name = "executing"
 version = "2.0.1"
 requires_python = ">=3.5"
 summary = "Get the currently executing AST node of a frame, and other information"
-groups = ["all", "docs", "magic", "manimgl", "test"]
+groups = ["docs", "magic", "manimgl", "test"]
 files = [
     {file = "executing-2.0.1-py2.py3-none-any.whl", hash = "sha256:eac49ca94516ccc753f9fb5ce82603156e590b27525a8bc32cce8ae302eb61bc"},
     {file = "executing-2.0.1.tar.gz", hash = "sha256:35afe2ce3affba8ee97f2d69927fa823b08b472b7b994e36a52a964b93d16147"},
@@ -735,7 +735,7 @@ name = "fonttools"
 version = "4.47.2"
 requires_python = ">=3.8"
 summary = "Tools to manipulate font files"
-groups = ["all", "manimgl", "test"]
+groups = ["manimgl", "test"]
 files = [
     {file = "fonttools-4.47.2-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:3b629108351d25512d4ea1a8393a2dba325b7b7d7308116b605ea3f8e1be88df"},
     {file = "fonttools-4.47.2-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:c19044256c44fe299d9a73456aabee4b4d06c6b930287be93b533b4737d70aa1"},
@@ -794,7 +794,7 @@ files = [
 name = "glcontext"
 version = "2.5.0"
 summary = "Portable OpenGL Context"
-groups = ["all", "docs", "magic", "manim", "manimgl", "sphinx-directive", "test"]
+groups = ["docs", "magic", "manim", "manimgl", "sphinx-directive", "test"]
 files = [
     {file = "glcontext-2.5.0-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:3e0f3fbbe483f3e671ae04698a2d38234cb9a5682d2edd49d5bce08a32d48ff1"},
     {file = "glcontext-2.5.0-cp310-cp310-manylinux_2_5_i686.manylinux1_i686.manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:837ae9ed985dc8185b7f7ac62bc2727d58806f1eb125b3766f576a3957aa078b"},
@@ -859,7 +859,7 @@ name = "idna"
 version = "3.6"
 requires_python = ">=3.5"
 summary = "Internationalized Domain Names in Applications (IDNA)"
-groups = ["all", "default", "docs", "magic", "manim", "sphinx-directive", "test"]
+groups = ["default", "docs", "magic", "manim", "sphinx-directive", "test"]
 files = [
     {file = "idna-3.6-py3-none-any.whl", hash = "sha256:c05567e9c24a6b9faaa835c4821bad0590fbb9d5779e7caa6e1cc4978e7eb24f"},
     {file = "idna-3.6.tar.gz", hash = "sha256:9ecdbbd083b06798ae1e86adcbfe8ab1479cf864e4ee30fe4e46a003d12491ca"},
@@ -896,7 +896,7 @@ name = "importlib-resources"
 version = "6.1.1"
 requires_python = ">=3.8"
 summary = "Read resources from Python packages"
-groups = ["all", "manimgl", "test"]
+groups = ["manimgl", "test"]
 marker = "python_version < \"3.10\""
 dependencies = [
     "zipp>=3.1.0; python_version < \"3.10\"",
@@ -948,7 +948,7 @@ name = "ipython"
 version = "8.18.1"
 requires_python = ">=3.9"
 summary = "IPython: Productive Interactive Computing"
-groups = ["all", "docs", "magic", "manimgl", "test"]
+groups = ["docs", "magic", "manimgl", "test"]
 dependencies = [
     "colorama; sys_platform == \"win32\"",
     "decorator",
@@ -971,7 +971,7 @@ files = [
 name = "isosurfaces"
 version = "0.1.0"
 summary = "Construct isolines/isosurfaces over a 2D/3D scalar field defined by a function (not a uniform grid)"
-groups = ["all", "docs", "magic", "manim", "manimgl", "sphinx-directive", "test"]
+groups = ["docs", "magic", "manim", "manimgl", "sphinx-directive", "test"]
 dependencies = [
     "numpy",
 ]
@@ -985,7 +985,7 @@ name = "jedi"
 version = "0.19.1"
 requires_python = ">=3.6"
 summary = "An autocompletion tool for Python that can be used for text editors."
-groups = ["all", "docs", "magic", "manimgl", "test"]
+groups = ["docs", "magic", "manimgl", "test"]
 dependencies = [
     "parso<0.9.0,>=0.8.3",
 ]
@@ -999,7 +999,7 @@ name = "jinja2"
 version = "3.1.3"
 requires_python = ">=3.7"
 summary = "A very fast and expressive template engine."
-groups = ["all", "default", "docs", "magic", "sphinx-directive", "test"]
+groups = ["default", "docs", "magic", "sphinx-directive", "test"]
 dependencies = [
     "MarkupSafe>=2.0",
 ]
@@ -1090,7 +1090,7 @@ name = "kiwisolver"
 version = "1.4.5"
 requires_python = ">=3.7"
 summary = "A fast implementation of the Cassowary constraint solver"
-groups = ["all", "manimgl", "test"]
+groups = ["manimgl", "test"]
 files = [
     {file = "kiwisolver-1.4.5-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:05703cf211d585109fcd72207a31bb170a0f22144d68298dc5e61b3c946518af"},
     {file = "kiwisolver-1.4.5-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:146d14bebb7f1dc4d5fbf74f8a6cb15ac42baadee8912eb84ac0b3b2a3dc6ac3"},
@@ -1175,7 +1175,7 @@ name = "lxml"
 version = "5.1.0"
 requires_python = ">=3.6"
 summary = "Powerful and Pythonic XML processing library combining libxml2/libxslt with the ElementTree API."
-groups = ["all", "default", "docs", "magic", "sphinx-directive", "test"]
+groups = ["default", "docs", "magic", "sphinx-directive", "test"]
 files = [
     {file = "lxml-5.1.0-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:704f5572ff473a5f897745abebc6df40f22d4133c1e0a1f124e4f2bd3330ff7e"},
     {file = "lxml-5.1.0-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:9d3c0f8567ffe7502d969c2c1b809892dc793b5d0665f602aad19895f8d508da"},
@@ -1237,7 +1237,7 @@ name = "manim"
 version = "0.18.0"
 requires_python = ">=3.8,<3.13"
 summary = "Animation engine for explanatory math videos."
-groups = ["all", "docs", "magic", "manim", "sphinx-directive", "test"]
+groups = ["docs", "magic", "manim", "sphinx-directive", "test"]
 dependencies = [
     "Pillow<10.0,>=9.1",
     "Pygments<3.0.0,>=2.10.0",
@@ -1277,7 +1277,7 @@ files = [
 name = "manimgl"
 version = "1.6.1"
 summary = "Animation engine for explanatory math videos"
-groups = ["all", "manimgl", "test"]
+groups = ["manimgl", "test"]
 dependencies = [
     "Pillow",
     "PyOpenGL",
@@ -1312,7 +1312,7 @@ name = "manimpango"
 version = "0.5.0"
 requires_python = ">=3.8"
 summary = "Bindings for Pango for using with Manim."
-groups = ["all", "docs", "magic", "manim", "manimgl", "sphinx-directive", "test"]
+groups = ["docs", "magic", "manim", "manimgl", "sphinx-directive", "test"]
 files = [
     {file = "ManimPango-0.5.0-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:b3309536038e11a4020bf5422d36b691e5583d38f616311c75527faa853fa948"},
     {file = "ManimPango-0.5.0-cp310-cp310-win32.whl", hash = "sha256:7e301f0d2ceeb05b82dbb5ddd1e2397b6de7ef4ab556d04c0765eb29f18be981"},
@@ -1333,7 +1333,7 @@ files = [
 name = "mapbox-earcut"
 version = "1.0.1"
 summary = "Python bindings for the mapbox earcut C++ polygon triangulation library."
-groups = ["all", "docs", "magic", "manim", "manimgl", "sphinx-directive", "test"]
+groups = ["docs", "magic", "manim", "manimgl", "sphinx-directive", "test"]
 dependencies = [
     "numpy",
 ]
@@ -1390,7 +1390,7 @@ name = "markdown-it-py"
 version = "3.0.0"
 requires_python = ">=3.8"
 summary = "Python port of markdown-it. Markdown parsing, done right!"
-groups = ["all", "default", "docs", "magic", "manim", "manimgl", "sphinx-directive", "test"]
+groups = ["default", "docs", "magic", "manim", "manimgl", "sphinx-directive", "test"]
 dependencies = [
     "mdurl~=0.1",
 ]
@@ -1404,7 +1404,7 @@ name = "markupsafe"
 version = "2.1.3"
 requires_python = ">=3.7"
 summary = "Safely add untrusted strings to HTML/XML markup."
-groups = ["all", "default", "docs", "magic", "sphinx-directive", "test"]
+groups = ["default", "docs", "magic", "sphinx-directive", "test"]
 files = [
     {file = "MarkupSafe-2.1.3-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:cd0f502fe016460680cd20aaa5a76d241d6f35a1c3350c474bac1273803893fa"},
     {file = "MarkupSafe-2.1.3-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:e09031c87a1e51556fdcb46e5bd4f59dfb743061cf93c4d6831bf894f125eb57"},
@@ -1454,7 +1454,7 @@ name = "matplotlib"
 version = "3.8.2"
 requires_python = ">=3.9"
 summary = "Python plotting package"
-groups = ["all", "manimgl", "test"]
+groups = ["manimgl", "test"]
 dependencies = [
     "contourpy>=1.0.1",
     "cycler>=0.10",
@@ -1503,7 +1503,7 @@ name = "matplotlib-inline"
 version = "0.1.6"
 requires_python = ">=3.5"
 summary = "Inline Matplotlib backend for Jupyter"
-groups = ["all", "docs", "magic", "manimgl", "test"]
+groups = ["docs", "magic", "manimgl", "test"]
 dependencies = [
     "traitlets",
 ]
@@ -1531,7 +1531,7 @@ name = "mdurl"
 version = "0.1.2"
 requires_python = ">=3.7"
 summary = "Markdown URL utilities"
-groups = ["all", "default", "docs", "magic", "manim", "manimgl", "sphinx-directive", "test"]
+groups = ["default", "docs", "magic", "manim", "manimgl", "sphinx-directive", "test"]
 files = [
     {file = "mdurl-0.1.2-py3-none-any.whl", hash = "sha256:84008a41e51615a49fc9966191ff91509e3c40b939176e643fd50a5c2196b8f8"},
     {file = "mdurl-0.1.2.tar.gz", hash = "sha256:bb413d29f5eea38f31dd4754dd7377d4465116fb207585f97bf925588687c1ba"},
@@ -1553,7 +1553,7 @@ name = "moderngl"
 version = "5.9.0"
 requires_python = ">=3.7"
 summary = "ModernGL: High performance rendering for Python 3"
-groups = ["all", "docs", "magic", "manim", "manimgl", "sphinx-directive", "test"]
+groups = ["docs", "magic", "manim", "manimgl", "sphinx-directive", "test"]
 dependencies = [
     "glcontext<3,>=2.5.0",
 ]
@@ -1610,7 +1610,7 @@ name = "moderngl-window"
 version = "2.4.4"
 requires_python = ">=3.7"
 summary = "A cross platform helper library for ModernGL making window creation and resource loading simple"
-groups = ["all", "docs", "magic", "manim", "manimgl", "sphinx-directive", "test"]
+groups = ["docs", "magic", "manim", "manimgl", "sphinx-directive", "test"]
 dependencies = [
     "Pillow<10,>=9",
     "moderngl<6",
@@ -1627,7 +1627,7 @@ files = [
 name = "mpmath"
 version = "1.3.0"
 summary = "Python library for arbitrary-precision floating-point arithmetic"
-groups = ["all", "manimgl", "test"]
+groups = ["manimgl", "test"]
 files = [
     {file = "mpmath-1.3.0-py3-none-any.whl", hash = "sha256:a0b2b9fe80bbcd81a6647ff13108738cfb482d481d826cc0e02f5b35e5c88d2c"},
     {file = "mpmath-1.3.0.tar.gz", hash = "sha256:7a28eb2a9774d00c7bc92411c19a89209d5da7c4c9a9e227be8330a23a25b91f"},
@@ -1637,7 +1637,7 @@ files = [
 name = "multipledispatch"
 version = "1.0.0"
 summary = "Multiple dispatch"
-groups = ["all", "docs", "magic", "manim", "manimgl", "sphinx-directive", "test"]
+groups = ["docs", "magic", "manim", "manimgl", "sphinx-directive", "test"]
 files = [
     {file = "multipledispatch-1.0.0-py3-none-any.whl", hash = "sha256:0c53cd8b077546da4e48869f49b13164bebafd0c2a5afceb6bb6a316e7fb46e4"},
     {file = "multipledispatch-1.0.0.tar.gz", hash = "sha256:5c839915465c68206c3e9c473357908216c28383b425361e5d144594bf85a7e0"},
@@ -1760,7 +1760,7 @@ name = "networkx"
 version = "3.2.1"
 requires_python = ">=3.9"
 summary = "Python package for creating and manipulating graphs and networks"
-groups = ["all", "docs", "magic", "manim", "sphinx-directive", "test"]
+groups = ["docs", "magic", "manim", "sphinx-directive", "test"]
 files = [
     {file = "networkx-3.2.1-py3-none-any.whl", hash = "sha256:f18c69adc97877c42332c170849c96cefa91881c99a7cb3e95b7c659ebdc1ec2"},
     {file = "networkx-3.2.1.tar.gz", hash = "sha256:9f1bb5cf3409bf324e0a722c20bdb4c20ee39bf1c30ce8ae499c8502b0b5e0c6"},
@@ -1785,7 +1785,7 @@ name = "numpy"
 version = "1.26.3"
 requires_python = ">=3.9"
 summary = "Fundamental package for array computing in Python"
-groups = ["all", "default", "docs", "magic", "manim", "manimgl", "sphinx-directive", "test"]
+groups = ["default", "docs", "magic", "manim", "manimgl", "sphinx-directive", "test"]
 files = [
     {file = "numpy-1.26.3-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:806dd64230dbbfaca8a27faa64e2f414bf1c6622ab78cc4264f7f5f028fee3bf"},
     {file = "numpy-1.26.3-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:02f98011ba4ab17f46f80f7f8f1c291ee7d855fcef0a5a98db80767a468c85cd"},
@@ -1830,7 +1830,7 @@ name = "opencv-python"
 version = "4.9.0.80"
 requires_python = ">=3.6"
 summary = "Wrapper package for OpenCV python bindings."
-groups = ["all", "default", "docs", "magic", "sphinx-directive", "test"]
+groups = ["default", "docs", "magic", "sphinx-directive", "test"]
 dependencies = [
     "numpy>=1.17.0; python_version >= \"3.7\"",
     "numpy>=1.17.3; python_version >= \"3.8\"",
@@ -1857,7 +1857,7 @@ name = "packaging"
 version = "23.2"
 requires_python = ">=3.7"
 summary = "Core utilities for Python packages"
-groups = ["all", "default", "docs", "magic", "manimgl", "sphinx-directive", "test"]
+groups = ["default", "docs", "magic", "manimgl", "sphinx-directive", "test"]
 files = [
     {file = "packaging-23.2-py3-none-any.whl", hash = "sha256:8c491190033a9af7e1d931d0b5dacc2ef47509b34dd0de67ed209b5203fc88c7"},
     {file = "packaging-23.2.tar.gz", hash = "sha256:048fb0e9405036518eaaf48a55953c750c11e1a1b68e0dd1a9d62ed0c092cfc5"},
@@ -1892,7 +1892,7 @@ name = "parso"
 version = "0.8.3"
 requires_python = ">=3.6"
 summary = "A Python Parser"
-groups = ["all", "docs", "magic", "manimgl", "test"]
+groups = ["docs", "magic", "manimgl", "test"]
 files = [
     {file = "parso-0.8.3-py2.py3-none-any.whl", hash = "sha256:c001d4636cd3aecdaf33cbb40aebb59b094be2a74c556778ef5576c175e19e75"},
     {file = "parso-0.8.3.tar.gz", hash = "sha256:8c07be290bb59f03588915921e29e8a50002acaf2cdc5fa0e0114f91709fafa0"},
@@ -1902,7 +1902,7 @@ files = [
 name = "pexpect"
 version = "4.9.0"
 summary = "Pexpect allows easy control of interactive console applications."
-groups = ["all", "docs", "magic", "manimgl", "test"]
+groups = ["docs", "magic", "manimgl", "test"]
 marker = "sys_platform != \"win32\""
 dependencies = [
     "ptyprocess>=0.5",
@@ -1917,7 +1917,7 @@ name = "pillow"
 version = "9.5.0"
 requires_python = ">=3.7"
 summary = "Python Imaging Library (Fork)"
-groups = ["all", "default", "docs", "magic", "manim", "manimgl", "sphinx-directive", "test"]
+groups = ["default", "docs", "magic", "manim", "manimgl", "sphinx-directive", "test"]
 files = [
     {file = "Pillow-9.5.0-cp310-cp310-macosx_10_10_x86_64.whl", hash = "sha256:ace6ca218308447b9077c14ea4ef381ba0b67ee78d64046b3f19cf4e1139ad16"},
     {file = "Pillow-9.5.0-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:d3d403753c9d5adc04d4694d35cf0391f0f3d57c8e0030aac09d7678fa8030aa"},
@@ -2037,7 +2037,7 @@ name = "prompt-toolkit"
 version = "3.0.43"
 requires_python = ">=3.7.0"
 summary = "Library for building powerful interactive command lines in Python"
-groups = ["all", "docs", "magic", "manimgl", "test"]
+groups = ["docs", "magic", "manimgl", "test"]
 dependencies = [
     "wcwidth",
 ]
@@ -2066,7 +2066,7 @@ files = [
 name = "ptyprocess"
 version = "0.7.0"
 summary = "Run a subprocess in a pseudo terminal"
-groups = ["all", "docs", "magic", "manimgl", "test"]
+groups = ["docs", "magic", "manimgl", "test"]
 marker = "sys_platform != \"win32\""
 files = [
     {file = "ptyprocess-0.7.0-py2.py3-none-any.whl", hash = "sha256:4b41f3967fce3af57cc7e94b888626c18bf37a083e3651ca8feeb66d492fef35"},
@@ -2077,7 +2077,7 @@ files = [
 name = "pure-eval"
 version = "0.2.2"
 summary = "Safely evaluate AST nodes without side effects"
-groups = ["all", "docs", "magic", "manimgl", "test"]
+groups = ["docs", "magic", "manimgl", "test"]
 files = [
     {file = "pure_eval-0.2.2-py3-none-any.whl", hash = "sha256:01eaab343580944bc56080ebe0a674b39ec44a945e6d09ba7db3cb8cec289350"},
     {file = "pure_eval-0.2.2.tar.gz", hash = "sha256:2b45320af6dfaa1750f543d714b6d1c520a1688dec6fd24d339063ce0aaa9ac3"},
@@ -2088,7 +2088,7 @@ name = "pycairo"
 version = "1.25.1"
 requires_python = ">=3.8"
 summary = "Python interface for cairo"
-groups = ["all", "docs", "magic", "manim", "sphinx-directive", "test"]
+groups = ["docs", "magic", "manim", "sphinx-directive", "test"]
 files = [
     {file = "pycairo-1.25.1-cp310-cp310-win32.whl", hash = "sha256:cacb5c2abbfdfc79c728ab261ff791511e4957b606c660f9b380975b678b728f"},
     {file = "pycairo-1.25.1-cp310-cp310-win_amd64.whl", hash = "sha256:109ebbeb5bbc510b726fc31251071264dec241e5084d0668f846d7e17e5af8e0"},
@@ -2122,7 +2122,7 @@ name = "pydantic"
 version = "2.5.3"
 requires_python = ">=3.7"
 summary = "Data validation using Python type hints"
-groups = ["all", "default", "docs", "magic", "sphinx-directive", "test"]
+groups = ["default", "docs", "magic", "sphinx-directive", "test"]
 dependencies = [
     "annotated-types>=0.4.0",
     "pydantic-core==2.14.6",
@@ -2138,7 +2138,7 @@ name = "pydantic-core"
 version = "2.14.6"
 requires_python = ">=3.7"
 summary = ""
-groups = ["all", "default", "docs", "magic", "sphinx-directive", "test"]
+groups = ["default", "docs", "magic", "sphinx-directive", "test"]
 dependencies = [
     "typing-extensions!=4.7.0,>=4.6.0",
 ]
@@ -2231,7 +2231,7 @@ name = "pydantic-extra-types"
 version = "2.4.1"
 requires_python = ">=3.8"
 summary = "Extra Pydantic types."
-groups = ["all", "default", "docs", "magic", "sphinx-directive", "test"]
+groups = ["default", "docs", "magic", "sphinx-directive", "test"]
 dependencies = [
     "pydantic>=2.5.2",
 ]
@@ -2244,7 +2244,7 @@ files = [
 name = "pydub"
 version = "0.25.1"
 summary = "Manipulate audio with an simple and easy high level interface"
-groups = ["all", "docs", "magic", "manim", "manimgl", "sphinx-directive", "test"]
+groups = ["docs", "magic", "manim", "manimgl", "sphinx-directive", "test"]
 files = [
     {file = "pydub-0.25.1-py2.py3-none-any.whl", hash = "sha256:65617e33033874b59d87db603aa1ed450633288aefead953b30bded59cb599a6"},
     {file = "pydub-0.25.1.tar.gz", hash = "sha256:980a33ce9949cab2a569606b65674d748ecbca4f0796887fd6f46173a7b0d30f"},
@@ -2254,7 +2254,7 @@ files = [
 name = "pyglet"
 version = "2.0.10"
 summary = "Cross-platform windowing and multimedia library"
-groups = ["all", "docs", "magic", "manim", "manimgl", "sphinx-directive", "test"]
+groups = ["docs", "magic", "manim", "manimgl", "sphinx-directive", "test"]
 files = [
     {file = "pyglet-2.0.10-py3-none-any.whl", hash = "sha256:e10a1f1a6a2dcfbf23155913746ff6fbf8ea18c5ee813b6d0e79d273bb2b3c18"},
     {file = "pyglet-2.0.10.zip", hash = "sha256:242beb1b3bd67c5bebdfe5ba11ec56b696ad86b50c6e7f2a317f8d783256b9c9"},
@@ -2265,7 +2265,7 @@ name = "pygments"
 version = "2.17.2"
 requires_python = ">=3.7"
 summary = "Pygments is a syntax highlighting package written in Python."
-groups = ["all", "default", "docs", "magic", "manim", "manimgl", "sphinx-directive", "test"]
+groups = ["default", "docs", "magic", "manim", "manimgl", "sphinx-directive", "test"]
 files = [
     {file = "pygments-2.17.2-py3-none-any.whl", hash = "sha256:b27c2826c47d0f3219f29554824c30c5e8945175d888647acd804ddd04af846c"},
     {file = "pygments-2.17.2.tar.gz", hash = "sha256:da46cec9fd2de5be3a8a784f434e4c4ab670b4ff54d605c4c2717e9d49c4c367"},
@@ -2276,7 +2276,7 @@ name = "pyobjc-core"
 version = "10.1"
 requires_python = ">=3.8"
 summary = "Python<->ObjC Interoperability Module"
-groups = ["all", "docs", "magic", "manim", "manimgl", "sphinx-directive", "test"]
+groups = ["docs", "magic", "manim", "manimgl", "sphinx-directive", "test"]
 marker = "sys_platform == \"darwin\""
 files = [
     {file = "pyobjc-core-10.1.tar.gz", hash = "sha256:1844f1c8e282839e6fdcb9a9722396c1c12fb1e9331eb68828a26f28a3b2b2b1"},
@@ -2291,7 +2291,7 @@ name = "pyobjc-framework-cocoa"
 version = "10.1"
 requires_python = ">=3.8"
 summary = "Wrappers for the Cocoa frameworks on macOS"
-groups = ["all", "docs", "magic", "manim", "manimgl", "sphinx-directive", "test"]
+groups = ["docs", "magic", "manim", "manimgl", "sphinx-directive", "test"]
 marker = "sys_platform == \"darwin\""
 dependencies = [
     "pyobjc-core>=10.1",
@@ -2308,7 +2308,7 @@ files = [
 name = "pyopengl"
 version = "3.1.7"
 summary = "Standard OpenGL bindings for Python"
-groups = ["all", "manimgl", "test"]
+groups = ["manimgl", "test"]
 files = [
     {file = "PyOpenGL-3.1.7-py3-none-any.whl", hash = "sha256:a6ab19cf290df6101aaf7470843a9c46207789855746399d0af92521a0a92b7a"},
     {file = "PyOpenGL-3.1.7.tar.gz", hash = "sha256:eef31a3888e6984fd4d8e6c9961b184c9813ca82604d37fe3da80eb000a76c86"},
@@ -2319,7 +2319,7 @@ name = "pyparsing"
 version = "3.1.1"
 requires_python = ">=3.6.8"
 summary = "pyparsing module - Classes and methods to define and execute parsing grammars"
-groups = ["all", "manimgl", "test"]
+groups = ["manimgl", "test"]
 files = [
     {file = "pyparsing-3.1.1-py3-none-any.whl", hash = "sha256:32c7c0b711493c72ff18a981d24f28aaf9c1fb7ed5e9667c9e84e3db623bdbfb"},
     {file = "pyparsing-3.1.1.tar.gz", hash = "sha256:ede28a1a32462f5a9705e07aea48001a08f7cf81a021585011deba701581a0db"},
@@ -2384,7 +2384,7 @@ files = [
 name = "pyrr"
 version = "0.10.3"
 summary = "3D mathematical functions using NumPy"
-groups = ["all", "docs", "magic", "manim", "manimgl", "sphinx-directive", "test"]
+groups = ["docs", "magic", "manim", "manimgl", "sphinx-directive", "test"]
 dependencies = [
     "multipledispatch",
     "numpy",
@@ -2537,7 +2537,7 @@ name = "python-dateutil"
 version = "2.8.2"
 requires_python = "!=3.0.*,!=3.1.*,!=3.2.*,>=2.7"
 summary = "Extensions to the standard Python datetime module"
-groups = ["all", "docs", "manimgl", "test"]
+groups = ["docs", "manimgl", "test"]
 dependencies = [
     "six>=1.5",
 ]
@@ -2550,7 +2550,7 @@ files = [
 name = "python-pptx"
 version = "0.6.23"
 summary = "Generate and manipulate Open XML PowerPoint (.pptx) files"
-groups = ["all", "default", "docs", "magic", "sphinx-directive", "test"]
+groups = ["default", "docs", "magic", "sphinx-directive", "test"]
 dependencies = [
     "Pillow>=3.3.2",
     "XlsxWriter>=0.5.7",
@@ -2585,7 +2585,7 @@ name = "pyyaml"
 version = "6.0.1"
 requires_python = ">=3.6"
 summary = "YAML parser and emitter for Python"
-groups = ["all", "dev", "docs", "manimgl", "test"]
+groups = ["dev", "docs", "manimgl", "test"]
 files = [
     {file = "PyYAML-6.0.1-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:d858aa552c999bc8a8d57426ed01e40bef403cd8ccdd0fc5f6f04a00414cac2a"},
     {file = "PyYAML-6.0.1-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:fd66fc5d0da6d9815ba2cebeb4205f95818ff4b79c3ebe268e75d961704af52f"},
@@ -2703,7 +2703,7 @@ name = "qtpy"
 version = "2.4.1"
 requires_python = ">=3.7"
 summary = "Provides an abstraction layer on top of the various Qt bindings (PyQt5/6 and PySide2/6)."
-groups = ["all", "default", "docs", "magic", "sphinx-directive", "test"]
+groups = ["default", "docs", "magic", "sphinx-directive", "test"]
 dependencies = [
     "packaging",
 ]
@@ -2732,7 +2732,7 @@ name = "requests"
 version = "2.31.0"
 requires_python = ">=3.7"
 summary = "Python HTTP for Humans."
-groups = ["all", "default", "docs", "magic", "manim", "sphinx-directive", "test"]
+groups = ["default", "docs", "magic", "manim", "sphinx-directive", "test"]
 dependencies = [
     "certifi>=2017.4.17",
     "charset-normalizer<4,>=2",
@@ -2749,7 +2749,7 @@ name = "rich"
 version = "13.7.0"
 requires_python = ">=3.7.0"
 summary = "Render rich text, tables, progress bars, syntax highlighting, markdown and more to the terminal"
-groups = ["all", "default", "docs", "magic", "manim", "manimgl", "sphinx-directive", "test"]
+groups = ["default", "docs", "magic", "manim", "manimgl", "sphinx-directive", "test"]
 dependencies = [
     "markdown-it-py>=2.2.0",
     "pygments<3.0.0,>=2.13.0",
@@ -2859,7 +2859,7 @@ name = "rtoml"
 version = "0.10.0"
 requires_python = ">=3.8"
 summary = ""
-groups = ["all", "default", "docs", "magic", "sphinx-directive", "test"]
+groups = ["default", "docs", "magic", "sphinx-directive", "test"]
 files = [
     {file = "rtoml-0.10.0-cp310-cp310-macosx_10_12_x86_64.whl", hash = "sha256:048ac6fd6eaec5f645ed5505492120c29af44607277bd32d7547a624cb5acbd7"},
     {file = "rtoml-0.10.0-cp310-cp310-macosx_10_7_x86_64.whl", hash = "sha256:9b34db6248473e818e6dfd43cf9c07f93089ce67e2488242e23a617f9dbf3930"},
@@ -2917,7 +2917,7 @@ name = "scipy"
 version = "1.11.4"
 requires_python = ">=3.9"
 summary = "Fundamental algorithms for scientific computing in Python"
-groups = ["all", "docs", "magic", "manim", "manimgl", "sphinx-directive", "test"]
+groups = ["docs", "magic", "manim", "manimgl", "sphinx-directive", "test"]
 dependencies = [
     "numpy<1.28.0,>=1.21.6",
 ]
@@ -2954,7 +2954,7 @@ name = "screeninfo"
 version = "0.8.1"
 requires_python = ">=3.6.2,<4.0.0"
 summary = "Fetch location and size of physical screens."
-groups = ["all", "docs", "magic", "manim", "manimgl", "sphinx-directive", "test"]
+groups = ["docs", "magic", "manim", "manimgl", "sphinx-directive", "test"]
 dependencies = [
     "Cython; sys_platform == \"darwin\"",
     "pyobjc-framework-Cocoa; sys_platform == \"darwin\"",
@@ -2996,7 +2996,7 @@ name = "six"
 version = "1.16.0"
 requires_python = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*"
 summary = "Python 2 and 3 compatibility utilities"
-groups = ["all", "docs", "magic", "manimgl", "test"]
+groups = ["docs", "magic", "manimgl", "test"]
 files = [
     {file = "six-1.16.0-py2.py3-none-any.whl", hash = "sha256:8abb2f1d86890a2dfb989f9a77cfcfd3e47c2a354b01111771326f8aa26e0254"},
     {file = "six-1.16.0.tar.gz", hash = "sha256:1e61c37477a1626458e36f7b1d82aa5c9b094fa4802892072e49de9c60c4c926"},
@@ -3007,7 +3007,7 @@ name = "skia-pathops"
 version = "0.8.0.post1"
 requires_python = ">=3.8"
 summary = "Python access to operations on paths using the Skia library"
-groups = ["all", "docs", "magic", "manim", "manimgl", "sphinx-directive", "test"]
+groups = ["docs", "magic", "manim", "manimgl", "sphinx-directive", "test"]
 files = [
     {file = "skia-pathops-0.8.0.post1.zip", hash = "sha256:a056249de2f61fa55116b9ee55513c6a36b878aee00c91450e404d1606485cbb"},
     {file = "skia_pathops-0.8.0.post1-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:952a03a19e687caa341ce6966eac03b167de8faea48574d3cf4bb758c2cefcfb"},
@@ -3223,7 +3223,7 @@ name = "srt"
 version = "3.5.3"
 requires_python = ">=2.7"
 summary = "A tiny library for parsing, modifying, and composing SRT files."
-groups = ["all", "docs", "magic", "manim", "sphinx-directive", "test"]
+groups = ["docs", "magic", "manim", "sphinx-directive", "test"]
 files = [
     {file = "srt-3.5.3.tar.gz", hash = "sha256:4884315043a4f0740fd1f878ed6caa376ac06d70e135f306a6dc44632eed0cc0"},
 ]
@@ -3232,7 +3232,7 @@ files = [
 name = "stack-data"
 version = "0.6.3"
 summary = "Extract data from python stack frames and tracebacks for informative displays"
-groups = ["all", "docs", "magic", "manimgl", "test"]
+groups = ["docs", "magic", "manimgl", "test"]
 dependencies = [
     "asttokens>=2.1.0",
     "executing>=1.2.0",
@@ -3247,7 +3247,7 @@ files = [
 name = "svgelements"
 version = "1.9.6"
 summary = "Svg Elements Parsing"
-groups = ["all", "docs", "magic", "manim", "manimgl", "sphinx-directive", "test"]
+groups = ["docs", "magic", "manim", "manimgl", "sphinx-directive", "test"]
 files = [
     {file = "svgelements-1.9.6-py2.py3-none-any.whl", hash = "sha256:8a5cf2cc066d98e713d5b875b1d6e5eeb9b92e855e835ebd7caab2713ae1dcad"},
     {file = "svgelements-1.9.6.tar.gz", hash = "sha256:7c02ad6404cd3d1771fd50e40fbfc0550b0893933466f86a6eb815f3ba3f37f7"},
@@ -3258,7 +3258,7 @@ name = "sympy"
 version = "1.12"
 requires_python = ">=3.8"
 summary = "Computer algebra system (CAS) in Python"
-groups = ["all", "manimgl", "test"]
+groups = ["manimgl", "test"]
 dependencies = [
     "mpmath>=0.19",
 ]
@@ -3318,7 +3318,7 @@ name = "tqdm"
 version = "4.66.1"
 requires_python = ">=3.7"
 summary = "Fast, Extensible Progress Meter"
-groups = ["all", "default", "docs", "magic", "manim", "manimgl", "sphinx-directive", "test"]
+groups = ["default", "docs", "magic", "manim", "manimgl", "sphinx-directive", "test"]
 dependencies = [
     "colorama; platform_system == \"Windows\"",
 ]
@@ -3332,7 +3332,7 @@ name = "traitlets"
 version = "5.14.1"
 requires_python = ">=3.8"
 summary = "Traitlets Python configuration system"
-groups = ["all", "docs", "magic", "manimgl", "test"]
+groups = ["docs", "magic", "manimgl", "test"]
 files = [
     {file = "traitlets-5.14.1-py3-none-any.whl", hash = "sha256:2e5a030e6eff91737c643231bfcf04a65b0132078dad75e4936700b213652e74"},
     {file = "traitlets-5.14.1.tar.gz", hash = "sha256:8585105b371a04b8316a43d5ce29c098575c2e477850b62b848b964f1444527e"},
@@ -3343,7 +3343,7 @@ name = "typing-extensions"
 version = "4.9.0"
 requires_python = ">=3.8"
 summary = "Backported and Experimental Type Hints for Python 3.8+"
-groups = ["all", "default", "docs", "magic", "manim", "manimgl", "sphinx-directive", "test"]
+groups = ["default", "docs", "magic", "manim", "manimgl", "sphinx-directive", "test"]
 files = [
     {file = "typing_extensions-4.9.0-py3-none-any.whl", hash = "sha256:af72aea155e91adfc61c3ae9e0e342dbc0cba726d6cba4b6c72c1f34e47291cd"},
     {file = "typing_extensions-4.9.0.tar.gz", hash = "sha256:23478f88c37f27d76ac8aee6c905017a143b0b1b886c3c9f66bc2fd94f9f5783"},
@@ -3354,7 +3354,7 @@ name = "urllib3"
 version = "2.1.0"
 requires_python = ">=3.8"
 summary = "HTTP library with thread-safe connection pooling, file post, and more."
-groups = ["all", "default", "docs", "magic", "manim", "sphinx-directive", "test"]
+groups = ["default", "docs", "magic", "manim", "sphinx-directive", "test"]
 files = [
     {file = "urllib3-2.1.0-py3-none-any.whl", hash = "sha256:55901e917a5896a349ff771be919f8bd99aff50b79fe58fec595eb37bbc56bb3"},
     {file = "urllib3-2.1.0.tar.gz", hash = "sha256:df7aa8afb0148fa78488e7899b2c59b5f4ffcfa82e6c54ccb9dd37c1d7b52d54"},
@@ -3365,7 +3365,7 @@ name = "validators"
 version = "0.22.0"
 requires_python = ">=3.8"
 summary = "Python Data Validation for Humans™"
-groups = ["all", "manimgl", "test"]
+groups = ["manimgl", "test"]
 files = [
     {file = "validators-0.22.0-py3-none-any.whl", hash = "sha256:61cf7d4a62bbae559f2e54aed3b000cea9ff3e2fdbe463f51179b92c58c9585a"},
     {file = "validators-0.22.0.tar.gz", hash = "sha256:77b2689b172eeeb600d9605ab86194641670cdb73b60afd577142a9397873370"},
@@ -3392,7 +3392,7 @@ name = "watchdog"
 version = "3.0.0"
 requires_python = ">=3.7"
 summary = "Filesystem events monitoring"
-groups = ["all", "docs", "magic", "manim", "sphinx-directive", "test"]
+groups = ["docs", "magic", "manim", "sphinx-directive", "test"]
 files = [
     {file = "watchdog-3.0.0-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:336adfc6f5cc4e037d52db31194f7581ff744b67382eb6021c868322e32eef41"},
     {file = "watchdog-3.0.0-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:a70a8dcde91be523c35b2bf96196edc5730edb347e374c7de7cd20c43ed95397"},
@@ -3423,7 +3423,7 @@ files = [
 name = "wcwidth"
 version = "0.2.13"
 summary = "Measures the displayed width of unicode strings in a terminal"
-groups = ["all", "docs", "magic", "manimgl", "test"]
+groups = ["docs", "magic", "manimgl", "test"]
 files = [
     {file = "wcwidth-0.2.13-py2.py3-none-any.whl", hash = "sha256:3da69048e4540d84af32131829ff948f1e022c1c6bdb8d6102117aac784f6859"},
     {file = "wcwidth-0.2.13.tar.gz", hash = "sha256:72ea0c06399eb286d978fdedb6923a9eb47e1c486ce63e9b4e64fc18303972b5"},
@@ -3444,7 +3444,7 @@ name = "xlsxwriter"
 version = "3.1.9"
 requires_python = ">=3.6"
 summary = "A Python module for creating Excel XLSX files."
-groups = ["all", "default", "docs", "magic", "sphinx-directive", "test"]
+groups = ["default", "docs", "magic", "sphinx-directive", "test"]
 files = [
     {file = "XlsxWriter-3.1.9-py3-none-any.whl", hash = "sha256:b61c1a0c786f82644936c0936ec96ee96cd3afb9440094232f7faef9b38689f0"},
     {file = "XlsxWriter-3.1.9.tar.gz", hash = "sha256:de810bf328c6a4550f4ffd6b0b34972aeb7ffcf40f3d285a0413734f9b63a929"},
@@ -3455,7 +3455,7 @@ name = "zipp"
 version = "3.17.0"
 requires_python = ">=3.8"
 summary = "Backport of pathlib-compatible object wrapper for zip files"
-groups = ["all", "docs", "manimgl", "test"]
+groups = ["docs", "manimgl", "test"]
 marker = "python_version < \"3.10\""
 files = [
     {file = "zipp-3.17.0-py3-none-any.whl", hash = "sha256:0e923e726174922dce09c53c59ad483ff7bbb8e572e00c7f7c46b88556409f31"},
