@@ -107,7 +107,6 @@ test = [
 ]
 
 [tool.pdm.resolution.overrides]  # ManimGL issue #2053
-
 manimpango = "<1.0.0,>=0.5.0"  # This conflicts with ManimGL, hopefully not an issue
 numpy = ">=1.19"
 skia-pathops = "0.8.0.post1"  # From manim 0.18.0 (Python 3.12 support)
