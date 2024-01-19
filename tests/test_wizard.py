@@ -11,7 +11,8 @@ from qtpy.QtWidgets import (
 
 from manim_slides.config import Config, Key
 from manim_slides.defaults import CONFIG_PATH
-from manim_slides.wizard import KeyInput, Wizard, init, wizard
+from manim_slides.wizard import init, wizard
+from manim_slides.wizard.wizard import KeyInput, Wizard
 
 
 class TestKeyInput:

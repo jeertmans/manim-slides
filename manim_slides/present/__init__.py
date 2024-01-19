@@ -6,18 +6,10 @@ from typing import List, Optional, Tuple
 import click
 from click import Context, Parameter
 from pydantic import ValidationError
-from qtpy.QtCore import Qt
 
 from ..commons import config_path_option, folder_path_option, verbosity_option
 from ..config import Config, PresentationConfig
 from ..logger import logger
-from ..qt_utils import qapp
-from .player import Player
-
-ASPECT_RATIO_MODES = {
-    "keep": Qt.KeepAspectRatio,
-    "ignore": Qt.IgnoreAspectRatio,
-}
 
 
 @click.command()
@@ -283,6 +275,8 @@ def present(
     if start_at[1]:
         start_at_slide_number = start_at[1]
 
+    from ..qt_utils import qapp
+
     app = qapp()
     app.setApplicationName("Manim Slides")
 
@@ -298,6 +292,15 @@ def present(
     else:
         screen = None
 
+    from qtpy.QtCore import Qt
+
+    aspect_ratio_modes = {
+        "keep": Qt.KeepAspectRatio,
+        "ignore": Qt.IgnoreAspectRatio,
+    }
+
+    from .player import Player
+
     player = Player(
         config,
         presentation_configs,
@@ -306,7 +309,7 @@ def present(
         skip_all=skip_all,
         exit_after_last_slide=exit_after_last_slide,
         hide_mouse=hide_mouse,
-        aspect_ratio_mode=ASPECT_RATIO_MODES[aspect_ratio],
+        aspect_ratio_mode=aspect_ratio_modes[aspect_ratio],
         presentation_index=start_at_scene_number,
         slide_index=start_at_slide_number,
         screen=screen,

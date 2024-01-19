@@ -17,7 +17,6 @@ from pydantic import (
     model_validator,
 )
 from pydantic_extra_types.color import Color
-from qtpy.QtCore import Qt
 
 from .logger import logger
 
@@ -36,6 +35,13 @@ class Signal(BaseModel):  # type: ignore[misc]
     def emit(self, *args: Any) -> None:
         for receiver in self.__receivers:
             receiver(*args)
+
+
+def key_id(name: str) -> PositiveInt:
+    """Avoid importing Qt too early."""
+    from qtpy.QtCore import Qt
+
+    return getattr(Qt, f"Key_{name}")
 
 
 class Key(BaseModel):  # type: ignore[misc]
@@ -73,14 +79,22 @@ class Key(BaseModel):  # type: ignore[misc]
 
 
 class Keys(BaseModel):  # type: ignore[misc]
-    QUIT: Key = Key(ids=[Qt.Key_Q], name="QUIT")
-    PLAY_PAUSE: Key = Key(ids=[Qt.Key_Space], name="PLAY / PAUSE")
-    NEXT: Key = Key(ids=[Qt.Key_Right], name="NEXT")
-    PREVIOUS: Key = Key(ids=[Qt.Key_Left], name="PREVIOUS")
-    REVERSE: Key = Key(ids=[Qt.Key_V], name="REVERSE")
-    REPLAY: Key = Key(ids=[Qt.Key_R], name="REPLAY")
-    FULL_SCREEN: Key = Key(ids=[Qt.Key_F], name="TOGGLE FULL SCREEN")
-    HIDE_MOUSE: Key = Key(ids=[Qt.Key_H], name="HIDE / SHOW MOUSE")
+    QUIT: Key = Field(default_factory=lambda: Key(ids=[key_id("Q")], name="QUIT"))
+    PLAY_PAUSE: Key = Field(
+        default_factory=lambda: Key(ids=[key_id("Space")], name="PLAY / PAUSE")
+    )
+    NEXT: Key = Field(default_factory=lambda: Key(ids=[key_id("Right")], name="NEXT"))
+    PREVIOUS: Key = Field(
+        default_factory=lambda: Key(ids=[key_id("Left")], name="PREVIOUS")
+    )
+    REVERSE: Key = Field(default_factory=lambda: Key(ids=[key_id("V")], name="REVERSE"))
+    REPLAY: Key = Field(default_factory=lambda: Key(ids=[key_id("R")], name="REPLAY"))
+    FULL_SCREEN: Key = Field(
+        default_factory=lambda: Key(ids=[key_id("F")], name="TOGGLE FULL SCREEN")
+    )
+    HIDE_MOUSE: Key = Field(
+        default_factory=lambda: Key(ids=[key_id("H")], name="HIDE / SHOW MOUSE")
+    )
 
     @model_validator(mode="before")
     @classmethod
@@ -121,7 +135,7 @@ class Keys(BaseModel):  # type: ignore[misc]
 class Config(BaseModel):  # type: ignore[misc]
     """General Manim Slides config."""
 
-    keys: Keys = Keys()
+    keys: Keys = Field(default_factory=Keys)
 
     @classmethod
     def from_file(cls, path: Path) -> "Config":
@@ -326,6 +340,3 @@ class PresentationConfig(BaseModel):  # type: ignore[misc]
                 shutil.copy(rev_file, rev_dest)
 
         return self
-
-
-DEFAULT_CONFIG = Config()
