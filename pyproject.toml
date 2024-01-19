@@ -98,7 +98,7 @@ docs = [
 ]
 github-action = ["setuptools"]
 test = [
-  "manim-slides[manim,manimgl,pyside6]",
+  "manim-slides[manim,manimgl,pyqt6]",
   "pytest>=7.4.0",
   "pytest-cov>=4.1.0",
   "pytest-env>=0.8.2",

@@ -5,7 +5,7 @@
 groups = ["default", "all", "dev", "docs", "github-action", "magic", "manim", "manimgl", "pyside6", "sphinx-directive", "test", "pyqt6"]
 strategy = ["cross_platform", "inherit_metadata"]
 lock_version = "4.4.1"
-content_hash = "sha256:ed83d30a6acef5c3fe239c133693c6b6307b0110dd696a638cab52125daf30f1"
+content_hash = "sha256:45559659d233440ae7f31dcbe7bc7e73647fe2a8b5206d263e1a2af0db5e95b0"
 
 [[package]]
 name = "alabaster"
@@ -2560,7 +2560,7 @@ name = "pyqt6"
 version = "6.6.1"
 requires_python = ">=3.6.1"
 summary = "Python bindings for the Qt cross platform application toolkit"
-groups = ["pyqt6"]
+groups = ["pyqt6", "test"]
 dependencies = [
     "PyQt6-Qt6>=6.6.0",
     "PyQt6-sip<14,>=13.6",
@@ -2576,7 +2576,7 @@ files = [
 name = "pyqt6-qt6"
 version = "6.6.1"
 summary = "The subset of a Qt installation needed by PyQt6."
-groups = ["pyqt6"]
+groups = ["pyqt6", "test"]
 files = [
     {file = "PyQt6_Qt6-6.6.1-py3-none-macosx_10_14_x86_64.whl", hash = "sha256:0409aa09b8dae90d5f00ba2d9761e671dfbc54ab169cff8f4cdfecd7f664fd0f"},
     {file = "PyQt6_Qt6-6.6.1-py3-none-macosx_11_0_arm64.whl", hash = "sha256:8dcac0bd9df13d63deafb6a61969b832c34467da4a28d2b7abf78066bfce22e6"},
@@ -2589,7 +2589,7 @@ name = "pyqt6-sip"
 version = "13.6.0"
 requires_python = ">=3.7"
 summary = "The sip module support for PyQt6"
-groups = ["pyqt6"]
+groups = ["pyqt6", "test"]
 files = [
     {file = "PyQt6_sip-13.6.0-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:d6b5f699aaed0ac1fcd23e8fbca70d8a77965831b7c1ce474b81b1678817a49d"},
     {file = "PyQt6_sip-13.6.0-cp310-cp310-manylinux_2_5_x86_64.manylinux1_x86_64.whl", hash = "sha256:8c282062125eea5baf830c6998587d98c50be7c3a817a057fb95fef647184012"},
@@ -2633,7 +2633,7 @@ name = "pyside6"
 version = "6.5.2"
 requires_python = "<3.12,>=3.7"
 summary = "Python bindings for the Qt cross-platform application and UI framework"
-groups = ["pyside6", "test"]
+groups = ["pyside6"]
 marker = "python_version < \"3.12\""
 dependencies = [
     "PySide6-Addons==6.5.2",
@@ -2654,7 +2654,7 @@ name = "pyside6-addons"
 version = "6.5.2"
 requires_python = "<3.12,>=3.7"
 summary = "Python bindings for the Qt cross-platform application and UI framework (Addons)"
-groups = ["pyside6", "test"]
+groups = ["pyside6"]
 marker = "python_version < \"3.12\""
 dependencies = [
     "PySide6-Essentials==6.5.2",
@@ -2674,7 +2674,7 @@ name = "pyside6-essentials"
 version = "6.5.2"
 requires_python = "<3.12,>=3.7"
 summary = "Python bindings for the Qt cross-platform application and UI framework (Essentials)"
-groups = ["pyside6", "test"]
+groups = ["pyside6"]
 marker = "python_version < \"3.12\""
 dependencies = [
     "shiboken6==6.5.2",
@@ -3270,7 +3270,7 @@ name = "shiboken6"
 version = "6.5.2"
 requires_python = "<3.12,>=3.7"
 summary = "Python/C++ bindings helper module"
-groups = ["pyside6", "test"]
+groups = ["pyside6"]
 marker = "python_version < \"3.12\""
 files = [
     {file = "shiboken6-6.5.2-cp37-abi3-macosx_10_9_universal2.whl", hash = "sha256:ba7af130d34ea03e329baebd80982d2635aee7e58dbb07a07085509a501ed03f"},
