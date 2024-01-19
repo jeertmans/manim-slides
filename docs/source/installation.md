@@ -40,13 +40,13 @@ only `numpy<1.25` will work, see
 [#2053](https://github.com/3b1b/manim/issues/2053).
 :::
 
-## Full Installation
+## Full install
 
 The recommended way to install the latest release
 with all features is to use pipx:
 
 ```bash
-pipx install -U "manim-slides[full]"
+pipx install -U "manim-slides[pyside6-full]"
 ```
 
 :::{tip}
@@ -66,7 +66,7 @@ You can check that Manim Slides was correctly installed with:
 manim-slides --version
 ```
 
-## Custom Installation
+## Custom install
 
 If you want more control on what dependencies are installed,
 you can always install the bare minimal dependencies with:
@@ -96,7 +96,7 @@ either `manim` or `manimgl`.
 [^1]: You still need to have Manim or ManimGL platform-specific dependencies
   installed on your computer.
 
-## Optional Dependencies
+## Optional dependencies
 
 Along with the optional dependencies for Manim and ManimGL,
 Manim Slides offers additional *extras*, that can be activated
@@ -112,7 +112,7 @@ using optional dependencies:
 - `pyqt6` to include PyQt6 Qt bindings. Those bindings are available
   on most platforms and Python version, but produce a weird black
   screen between slide with `manim-slides present`,
-  see [#QTBUG-118501](qt-bug-url);
+  see [#QTBUG-118501](https://bugreports.qt.io/browse/QTBUG-118501);
 - `pyqt6-full` to include `full` and `pyqt6`;
 - `pyside6` to include PySide6 Qt bindings. Those bindings are available
   on most platforms and Python version, except on Python 3.12[^2]; 
@@ -127,14 +127,27 @@ Installing those extras can be done with the following syntax:
 pipx install -U "manim-slides[extra1,extra2]"
 ```
 
-[qt-bug-url]: https://bugreports.qt.io/browse/QTBUG-118501
-
 [^2]: Actually, PySide6 can be installed on Python 3.12, but you will then
   observe the same visual bug as with PyQt6.
 
-## Install From Repository
+## When you need a Qt backend
+
+Before `v5.1`, Manim Slides automatically included PySide6 as
+a Qt backend. As only `manim-slides present` and `manim-slides wizard`
+command need a graphical library, and installing PySide6 on all platforms
+and Python version can be sometimes complicated, Manim Slides chooses
+**not to include** any Qt backend.
+
+The use can choose between PySide6 (best) and PyQt6, depending on their
+availability and licensing rules.
+
+As of `v5.1`, you **need** to have Qt bindings installed to use
+`manim-slides present` or `manim-slides wizard`. The recommended way to
+install those is via optional dependencies, as explained above.
+
+## Install from source
 
 An alternative way to install Manim Slides is to clone the git repository,
-and install from there: read the
+and build the package from source. Read the
 [contributing guide](./contributing/workflow)
 to know how to process.
