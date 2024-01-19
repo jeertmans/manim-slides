@@ -143,7 +143,7 @@ availability and licensing rules.
 
 As of `v5.1`, you **need** to have Qt bindings installed to use
 `manim-slides present` or `manim-slides wizard`. The recommended way to
-install those is via optional dependencies, as explained above.
+install those are via optional dependencies, as explained above.
 
 ## Install from source
 
