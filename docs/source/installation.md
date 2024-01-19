@@ -115,7 +115,7 @@ using optional dependencies:
   see [#QTBUG-118501](https://bugreports.qt.io/browse/QTBUG-118501);
 - `pyqt6-full` to include `full` and `pyqt6`;
 - `pyside6` to include PySide6 Qt bindings. Those bindings are available
-  on most platforms and Python version, except on Python 3.12[^2]; 
+  on most platforms and Python version, except on Python 3.12[^2];
 - `pyside6-full` to include `full` and `pyside6`;
 - `sphinx-directive`, to generate presentation inside your Sphinx
   documentation. This automatically installs `manim`,
