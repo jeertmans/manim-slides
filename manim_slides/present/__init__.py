@@ -122,7 +122,8 @@ def start_at_callback(
         return tuple(map(str_to_int_or_none, values_tuple))
 
     raise click.BadParameter(
-        f"exactly 2 arguments are expected but you gave {n_values}, please use commas to separate them",
+        f"exactly 2 arguments are expected but you gave {n_values}, "
+        "please use commas to separate them",
         ctx=ctx,
         param=param,
     )
