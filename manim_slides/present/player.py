@@ -271,7 +271,7 @@ class Player(QMainWindow):  # type: ignore[misc]
 
             def media_status_changed(status: QMediaPlayer.MediaStatus) -> None:
                 self.media_player.setLoops(1)  # Otherwise looping slides never end
-                if status == QMediaPlayer.EndOfMedia:
+                if status == QMediaPlayer.MediaStatus.EndOfMedia:
                     self.load_next_slide()
 
             self.media_player.mediaStatusChanged.connect(media_status_changed)
@@ -280,7 +280,7 @@ class Player(QMainWindow):  # type: ignore[misc]
 
             def media_status_changed(status: QMediaPlayer.MediaStatus) -> None:
                 if (
-                    status == QMediaPlayer.EndOfMedia
+                    status == QMediaPlayer.MediaStatus.EndOfMedia
                     and self.current_slide_config.auto_next
                 ):
                     self.load_next_slide()
@@ -390,7 +390,7 @@ class Player(QMainWindow):  # type: ignore[misc]
     """
 
     def load_current_media(self, start_paused: bool = False) -> None:
-        url = QUrl.fromLocalFile(self.current_file)
+        url = QUrl.fromLocalFile(str(self.current_file))
         self.media_player.setSource(url)
 
         if self.playing_reversed_slide:
@@ -475,7 +475,7 @@ class Player(QMainWindow):  # type: ignore[misc]
 
     def preview_next_slide(self) -> None:
         if slide_config := self.next_slide_config:
-            url = QUrl.fromLocalFile(slide_config.file)
+            url = QUrl.fromLocalFile(str(slide_config.file))
             self.info.next_media_player.setSource(url)
             self.info.next_media_player.play()
 
@@ -493,7 +493,7 @@ class Player(QMainWindow):  # type: ignore[misc]
 
     @Slot()
     def next(self) -> None:
-        if self.media_player.playbackState() == QMediaPlayer.PausedState:
+        if self.media_player.playbackState() == QMediaPlayer.PlaybackState.PausedState:
             self.media_player.play()
         elif self.next_terminates_loop and self.media_player.loops() != 1:
             position = self.media_player.position()
@@ -521,9 +521,9 @@ class Player(QMainWindow):  # type: ignore[misc]
     @Slot()
     def play_pause(self) -> None:
         state = self.media_player.playbackState()
-        if state == QMediaPlayer.PausedState:
+        if state == QMediaPlayer.PlaybackState.PausedState:
             self.media_player.play()
-        elif state == QMediaPlayer.PlayingState:
+        elif state == QMediaPlayer.PlaybackState.PlayingState:
             self.media_player.pause()
 
     @Slot()
@@ -540,11 +540,9 @@ class Player(QMainWindow):  # type: ignore[misc]
         else:
             self.setCursor(Qt.BlankCursor)
 
-    @Slot()
     def closeEvent(self, event: QCloseEvent) -> None:  # noqa: N802
         self.close()
 
-    @Slot()
     def keyPressEvent(self, event: QKeyEvent) -> None:  # noqa: N802
         key = event.key()
         self.dispatch(key)
