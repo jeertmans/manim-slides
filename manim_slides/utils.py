@@ -88,7 +88,7 @@ def reverse_video_file(src: Path, dest: Path) -> None:
 
     for _ in range(frames_count):
         frame = graph.pull()
-        frame.pict_type = 1  # Otherwise we get a warning saying it is changed
+        frame.pict_type = 5  # Otherwise we get a warning saying it is changed
         output.mux(output_stream.encode(frame))
 
     for packet in output_stream.encode():
