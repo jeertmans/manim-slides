@@ -69,7 +69,7 @@ jobs:
 
     - name: Install Manim Slides
       run: |
-        pdm install -Ggithub-action -Gtest
+        pdm sync -Ggithub-action -Gtest
 
     - name: Run pytest
       if: matrix.os != 'ubuntu-latest' || matrix.pyversion != '3.11'

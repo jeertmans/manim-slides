@@ -106,9 +106,10 @@ test = [
   "pytest-xdist>=3.3.1",
 ]
 
-[tool.pdm.resolution.overrides]
-manimpango = "<1.0.0,>=0.5.0"  # This conflicts with manimgl, hopefully not an issue
-numpy = ">=1.26,<2"  # From manim 0.18.0
+[tool.pdm.resolution.overrides]  # ManimGL issue #2053
+
+manimpango = "<1.0.0,>=0.5.0"  # This conflicts with ManimGL, hopefully not an issue
+numpy = ">=1.19"
 skia-pathops = "0.8.0.post1"  # From manim 0.18.0 (Python 3.12 support)
 
 [tool.pdm.version]
