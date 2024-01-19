@@ -6,7 +6,6 @@ requires = ["pdm-backend", "setuptools"]
 authors = [{name = "Jérome Eertmans", email = "jeertmans@icloud.com"}]
 classifiers = [
   "Programming Language :: Python :: 3",
-  "Programming Language :: Python :: 3.8",
   "Programming Language :: Python :: 3.9",
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
@@ -41,7 +40,7 @@ keywords = ["manim", "slides", "plugin", "manimgl"]
 license = {text = "MIT"}
 name = "manim-slides"
 readme = "README.md"
-requires-python = ">=3.8,<3.13"
+requires-python = ">=3.9,<3.13"
 
 [project.optional-dependencies]
 all = [
@@ -106,9 +105,8 @@ test = [
   "pytest-xdist>=3.3.1",
 ]
 
-[tool.pdm.resolution.overrides]  # ManimGL issue #2053
+[tool.pdm.resolution.overrides]
 manimpango = "<1.0.0,>=0.5.0"  # This conflicts with ManimGL, hopefully not an issue
-numpy = ">=1.19"
 skia-pathops = "0.8.0.post1"  # From manim 0.18.0 (Python 3.12 support)
 
 [tool.pdm.version]
