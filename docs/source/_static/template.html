@@ -343,14 +343,14 @@
     <script>
       document.addEventListener('DOMContentLoaded', function () {
         var revealContainer = document.querySelector('.reveal');
-        
+
         // Append dynamic content to each section
         var sections = revealContainer.querySelectorAll('.slides > section');
         sections.forEach(function (section) {
           // Create a new clock container
           var clockContainer = document.createElement('div');
           clockContainer.className = 'clock';
-          
+
           // Append the new clock container to the section
           section.appendChild(clockContainer);
         });
@@ -389,11 +389,11 @@
         updateClock();
       });
     </script>
-    
+
     <!-- define the style of the clock -->
     <style>
       .clock {
-        position: fixed;  
+        position: fixed;
         bottom: 10px;
         left: 10px;
         font-size: 24px;
