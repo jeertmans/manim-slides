@@ -18,6 +18,8 @@ if you are working in a virtual environment or else.
 
 ## Dependencies
 
+<!-- start deps -->
+
 Manim Slides requires either Manim or ManimGL to be installed, along
 with their dependencies.
 Having both packages installed is fine too.
@@ -33,6 +35,8 @@ make sure to first check out a supported version (e.g., `git checkout tags/v1.6.
 for ManimGL), otherwise it might install an unsupported version of Manim!
 See [#314](https://github.com/jeertmans/manim-slides/issues/314).
 :::
+
+<!-- end deps -->
 
 ## Pip Install
 

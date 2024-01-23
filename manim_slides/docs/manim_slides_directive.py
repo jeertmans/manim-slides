@@ -117,12 +117,70 @@ directive:
         A list of methods, separated by spaces,
         that is rendered in a reference block after the source code.
 
+    template
+        A path to the template file to use.
+
+    config_options
+        An unprocessed string of options to pass to ``manim-slides convert``.
+        Options must be separated with a space, and each option must be
+        a key, value pair using an equal sign as a separator.
+
+        Unlike for the CLI version, you don't need to prepend each option with
+        ``-c``.
+
+        E.g., pass ``slide_number=true controls=false``.
+
+        By default, ``controls=true`` is set.
+
+Examples
+--------
+The following code::
+
+    .. manim-slides:: MySlide
+        :hide_source:
+        :config_options: slide_number=true controls=false
+
+        from manim import *
+        from manim_slides import Slide
+
+        class MySlide(Slide):
+            def construct(self):
+                text = Text("Hello")
+                self.wipe([], text)
+
+                self.next_slide()
+                self.play(text.animate.scale(2))
+
+                self.next_slide()
+                self.zoom(text)
+
+Renders as follows:
+
+.. manim-slides:: MySlide
+    :hide_source:
+    :config_options: slide_number=true controls=false
+
+    from manim import *
+    from manim_slides import Slide
+
+    class MySlide(Slide):
+        def construct(self):
+            text = Text("Hello")
+            self.wipe([], text)
+
+            self.next_slide()
+            self.play(text.animate.scale(2))
+
+            self.next_slide()
+            self.zoom(text)
+
 """  # noqa: D400, D415
 from __future__ import annotations
 
 import csv
 import itertools as it
 import re
+import shlex
 import sys
 from pathlib import Path
 from timeit import timeit
@@ -198,6 +256,10 @@ class ManimSlidesDirective(Directive):
         "ref_classes": lambda arg: process_name_list(arg, "class"),
         "ref_functions": lambda arg: process_name_list(arg, "func"),
         "ref_methods": lambda arg: process_name_list(arg, "meth"),
+        "template": lambda arg: Path(arg),
+        "config_options": lambda arg: dict(
+            option.split("=") for option in shlex.split(arg)
+        ),
     }
     final_argument_whitespace = True
 
@@ -336,9 +398,20 @@ class ManimSlidesDirective(Directive):
         presentation_configs = get_scenes_presentation_config(
             [clsname], Path("./slides")
         )
-        RevealJS(presentation_configs=presentation_configs, controls="true").convert_to(
-            destfile
-        )
+
+        template = self.options.get("template", None)
+
+        if template:
+            template = source_file_name.parents[0].joinpath(template)
+
+        config_options = self.options.get("config_options", {})
+        config_options.setdefault("controls", "true")
+
+        RevealJS(
+            presentation_configs=presentation_configs,
+            template=template,
+            **config_options,
+        ).convert_to(destfile)
 
         rendered_template = jinja2.Template(TEMPLATE).render(
             clsname=clsname,

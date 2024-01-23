@@ -4,7 +4,7 @@ This document is there to help you recreate a working environment for Manim Slid
 
 ## Dependencies
 
-```{include} ../quickstart.md
+```{include} ../installation.md
 :start-after: <!-- start deps -->
 :end-before: <!-- end deps -->
 ```

@@ -7,6 +7,7 @@ Automatically generated reference for Manim Slides.
 
 api
 cli
+customize_html
 examples
 gui
 html
