@@ -32,6 +32,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   [#331](https://github.com/jeertmans/manim-slides/pull/331)
 - Created a Docker image, published on GitHub.
   [#355](https://github.com/jeertmans/manim-slides/pull/355)
+- Added `:template:` and `:config_options` options to
+  the Sphinx directive.
+  [#357](https://github.com/jeertmans/manim-slides/pull/357)
 
 (v5.1-modified)=
 ### Modified
@@ -49,6 +52,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   [#335](https://github.com/jeertmans/manim-slides/pull/335)
 - Changed build backend to PDM and reflected on docs.
   [#354](https://github.com/jeertmans/manim-slides/pull/354)
+- Documentated how to create and use a custom HTML template.
+  [#357](https://github.com/jeertmans/manim-slides/pull/357)
 
 ## [v5](https://github.com/jeertmans/manim-slides/compare/v4.16.0...v5.0.0)
 
