@@ -6,10 +6,10 @@ requires = ["pdm-backend", "setuptools"]
 authors = [{name = "Jérome Eertmans", email = "jeertmans@icloud.com"}]
 classifiers = [
   "Programming Language :: Python :: 3",
-  "Programming Language :: Python :: 3.8",
   "Programming Language :: Python :: 3.9",
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
   "License :: OSI Approved :: MIT License",
   "Operating System :: OS Independent",
   "Topic :: Multimedia :: Video",
@@ -27,8 +27,8 @@ dependencies = [
   "pillow>=9.5.0",
   "pydantic>=2.0.1",
   "pydantic-extra-types>=2.0.0",
-  "pyside6==6.5.2",
   "python-pptx>=0.6.21",
+  "qtpy>=2.4.1",
   "requests>=2.28.1",
   "rich>=13.3.2",
   "rtoml>=0.9.0",
@@ -40,15 +40,19 @@ keywords = ["manim", "slides", "plugin", "manimgl"]
 license = {text = "MIT"}
 name = "manim-slides"
 readme = "README.md"
-requires-python = ">=3.8,<3.12"
+requires-python = ">=3.9,<3.13"
 
 [project.optional-dependencies]
-all = [
+full = [
   "manim-slides[magic,manim,manimgl,sphinx-directive]",
 ]
 magic = ["manim-slides[manim]", "ipython>=8.12.2"]
 manim = ["manim>=0.17.3"]
 manimgl = ["manimgl>=1.6.1"]
+pyqt6 = ["pyqt6>=6.6.1"]
+pyqt6-full = ["manim-slides[full,pyqt6]"]
+pyside6 = ["pyside6>=6.5.1,<6.5.3;python_version<'3.12'"]
+pyside6-full = ["manim-slides[full,pyside6]"]
 sphinx-directive = ["docutils>=0.20.1", "manim-slides[manim]"]
 
 [project.scripts]
@@ -63,10 +67,10 @@ Repository = "https://github.com/jeertmans/manim-slides"
 
 [tool.coverage.report]
 exclude_lines = [
-  'pragma: no cover',
-  'raise NotImplementedError',
-  'if TYPE_CHECKING:',
-  'if typing.TYPE_CHECKING:',
+  "pragma: no cover",
+  "raise NotImplementedError",
+  "if TYPE_CHECKING:",
+  "if typing.TYPE_CHECKING:",
 ]
 precision = 2
 
@@ -95,13 +99,17 @@ docs = [
 ]
 github-action = ["setuptools"]
 test = [
-  "manim-slides[manim,manimgl]",
+  "manim-slides[manim,manimgl,pyqt6]",
   "pytest>=7.4.0",
   "pytest-cov>=4.1.0",
   "pytest-env>=0.8.2",
   "pytest-qt>=4.2.0",
   "pytest-xdist>=3.3.1",
 ]
+
+[tool.pdm.resolution.overrides]
+manimpango = "<1.0.0,>=0.5.0"  # This conflicts with ManimGL, hopefully not an issue
+skia-pathops = "0.8.0.post1"  # From manim 0.18.0 (Python 3.12 support)
 
 [tool.pdm.version]
 path = "manim_slides/__version__.py"
@@ -134,6 +142,6 @@ extend-ignore = [
 ]
 extend-include = ["*.ipynb"]
 extend-select = ["B", "C90", "D", "I", "N", "RUF", "UP", "T"]
-isort = {known-first-party = ['manim_slides', 'tests']}
+isort = {known-first-party = ["manim_slides", "tests"]}
 line-length = 88
 target-version = "py38"

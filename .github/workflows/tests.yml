@@ -13,7 +13,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [macos-latest, ubuntu-latest, windows-latest]
-        pyversion: ['3.8', '3.9', '3.10', '3.11']
+        pyversion: ['3.9', '3.10', '3.11', '3.12']
     runs-on: ${{ matrix.os }}
     env:
       QT_QPA_PLATFORM: offscreen
@@ -69,7 +69,7 @@ jobs:
 
     - name: Install Manim Slides
       run: |
-        pdm install -dGgithub-action -dGtest
+        pdm sync -Ggithub-action -Gtest
 
     - name: Run pytest
       if: matrix.os != 'ubuntu-latest' || matrix.pyversion != '3.11'

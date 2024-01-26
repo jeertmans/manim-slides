@@ -52,6 +52,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   [#335](https://github.com/jeertmans/manim-slides/pull/335)
 - Changed build backend to PDM and reflected on docs.
   [#354](https://github.com/jeertmans/manim-slides/pull/354)
+- Dropped Python 3.8 support.
+  [#350](https://github.com/jeertmans/manim-slides/pull/350)
+- Made Qt backend optional and support PyQt6 too.
+  [#350](https://github.com/jeertmans/manim-slides/pull/350)
 - Documentated how to create and use a custom HTML template.
   [#357](https://github.com/jeertmans/manim-slides/pull/357)
 

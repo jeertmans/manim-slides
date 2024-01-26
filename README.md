@@ -88,11 +88,15 @@ manim-slides render example.py BasicExample
 # or use ManimGL
 manim-slides render --GL example.py BasicExample
 ```
+<!-- end usage -->
 
 > [!NOTE]
-> Using `manim-slides render` makes sure the use the `manim`
-> (or `manimlib`) library that was installed in the Python same environment.
-> Put simply, this is a wrapper of `manim render [ARGS]...` (or `manimgl [ARGS]...`).
+> Using `manim-slides render` makes sure to use the `manim`
+> (or `manimlib`) library that was installed in the same Python environment.
+> Put simply, this is a wrapper around
+> `manim render [ARGS]...` (or `manimgl [ARGS]...`).
+
+<!-- start more-usage -->
 
 To start the presentation using `Scene1`, `Scene2` and so on, run:
 
@@ -106,7 +110,7 @@ In our example:
 manim-slides BasicExample
 ```
 
-<!-- end usage -->
+<!-- end more-usage -->
 
 <p align="center">
   <img alt="Example GIF" src="https://raw.githubusercontent.com/jeertmans/manim-slides/main/static/example.gif">

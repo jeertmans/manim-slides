@@ -1,17 +1,18 @@
 from pathlib import Path
 
 from click.testing import CliRunner
-from PySide6.QtCore import Qt
-from PySide6.QtWidgets import (
+from pytest import MonkeyPatch
+from pytestqt.qtbot import QtBot
+from qtpy.QtCore import Qt
+from qtpy.QtWidgets import (
     QApplication,
     QMessageBox,
 )
-from pytest import MonkeyPatch
-from pytestqt.qtbot import QtBot
 
 from manim_slides.config import Config, Key
 from manim_slides.defaults import CONFIG_PATH
-from manim_slides.wizard import KeyInput, Wizard, init, wizard
+from manim_slides.wizard import init, wizard
+from manim_slides.wizard.wizard import KeyInput, Wizard
 
 
 class TestKeyInput:

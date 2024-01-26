@@ -48,11 +48,11 @@ pdm install -Gmanimgl # For ManimGL
 Additionnally, Manim Slides comes with groups of dependencies for development purposes:
 
 ```bash
-pdm install -dGdev  # For linters and formatters
+pdm install -Gdev  # For linters and formatters
 # or
-pdm install --dGdocs # To build the documentation locally
+pdm install -Gdocs # To build the documentation locally
 # or
-pdm install --dGtests # To run tests
+pdm install -Gtest # To run tests
 ```
 
 :::{note}

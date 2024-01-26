@@ -648,14 +648,16 @@ def show_template_option(function: Callable[..., Any]) -> Callable[..., Any]:
     "config_options",
     multiple=True,
     callback=validate_config_option,
-    help="Configuration options passed to the converter. E.g., pass `-cslide_number=true` to display slide numbers.",
+    help="Configuration options passed to the converter. "
+    "E.g., pass ``-cslide_number=true`` to display slide numbers.",
 )
 @click.option(
     "--use-template",
     "template",
     metavar="FILE",
     type=click.Path(exists=True, dir_okay=False, path_type=Path),
-    help="Use the template given by FILE instead of default one. To echo the default template, use `--show-template`.",
+    help="Use the template given by FILE instead of default one. "
+    "To echo the default template, use ``--show-template``.",
 )
 @show_template_option
 @show_config_options

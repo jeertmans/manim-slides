@@ -2,6 +2,7 @@ import random
 import shutil
 from pathlib import Path
 
+import numpy as np
 import pytest
 from click.testing import CliRunner
 from manim import (
@@ -17,6 +18,7 @@ from manim import (
     GrowFromCenter,
     Text,
 )
+from packaging import version
 from pydantic import ValidationError
 
 from manim_slides.config import PresentationConfig
@@ -29,7 +31,13 @@ from manim_slides.slide.manim import Slide
     "renderer",
     [
         "--CE",
-        "--GL",
+        pytest.param(
+            "--GL",
+            marks=pytest.mark.skipif(
+                version.parse(np.__version__) >= version.parse("1.25"),
+                reason="ManimGL requires numpy<1.25, which is outdate",
+            ),
+        ),
     ],
 )
 def test_render_basic_slide(
