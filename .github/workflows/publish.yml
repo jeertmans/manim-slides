@@ -67,5 +67,5 @@ jobs:
         file: docker/Dockerfile
         push: true
         tags: |
-          jeertmans/manim-slides:latest
-          jeertmans/manim-slides:${{ steps.create_release.outputs.tag_name }}
+          ghcr.io/jeertmans/manim-slides:latest
+          ghcr.io/jeertmans/manim-slides:${{ steps.create_release.outputs.tag_name }}
