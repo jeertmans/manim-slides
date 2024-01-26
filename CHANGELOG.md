@@ -7,8 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <!-- start changelog -->
 
+(unreleased)=
+## [Unreleased](https://github.com/jeertmans/manim-slides/compare/v5.1.0...HEAD)
+
 (v5.1)=
-## [v5.1 (Unreleased)](https://github.com/jeertmans/manim-slides/compare/v5.0.0...HEAD)
+## [v5.1](https://github.com/jeertmans/manim-slides/compare/v5.0.0...v5.1.0)
 
 (v5.1-added)=
 ### Added
