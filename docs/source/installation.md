@@ -18,6 +18,8 @@ if you are working in a virtual environment or else.
 
 ## Dependencies
 
+<!-- start deps -->
+
 Manim Slides requires either Manim or ManimGL to be installed, along
 with their dependencies.
 Having both packages installed is fine too.
@@ -40,7 +42,9 @@ only `numpy<1.25` will work, see
 [#2053](https://github.com/3b1b/manim/issues/2053).
 :::
 
-## Full install
+<!-- end deps -->
+
+## Pip Install
 
 The recommended way to install the latest release
 with all features is to use pipx:

@@ -1,0 +1,101 @@
+<!doctype html>
+<html>
+  <head>
+    <!-- Head stuff -->
+  </head>
+
+  <body>
+    <!-- Slides stuff -->
+
+    <script>
+      <!-- RevealJS stuff -->
+    </script>
+
+    <!-- Add a clock to each section dynamically using JavaScript -->
+    <script>
+      document.addEventListener('DOMContentLoaded', function () {
+        var revealContainer = document.querySelector('.reveal');
+
+        // Append dynamic content to each section
+        var sections = revealContainer.querySelectorAll('.slides > section');
+        sections.forEach(function (section) {
+          // Create a new clock container
+          var clockContainer = document.createElement('div');
+          clockContainer.className = 'clock';
+
+          // Append the new clock container to the section
+          section.appendChild(clockContainer);
+        });
+
+        // Function to update the clock content
+        function updateClock() {
+          var now = new Date();
+          var hours = now.getHours();
+          var minutes = now.getMinutes();
+          var seconds = now.getSeconds();
+
+          // Format the time as HH:MM:SS
+          var timeString = pad(hours) + ":" + pad(minutes) + ":" + pad(seconds);
+
+          // Update the content of all clock containers
+          var clockContainers = document.querySelectorAll('.clock');
+          clockContainers.forEach(function (container) {
+            container.innerText = timeString;
+          });
+        }
+
+        // Function to pad zero for single-digit numbers
+        function pad(number) {
+          return String(number).padStart(2, "0");
+        }
+
+        // Update the clock every second
+        setInterval(updateClock, 1000);
+
+        // Register a reveal.js event to update the clock on each slide change
+        Reveal.addEventListener('slidechanged', function (event) {
+          updateClock();
+        });
+
+        // Initial update
+        updateClock();
+      });
+    </script>
+
+    <!-- define the style of the clock -->
+    <style>
+      .clock {
+        position: fixed;
+        bottom: 10px;
+        left: 10px;
+        font-size: 24px;
+        font-family: "Arial", sans-serif;
+        color: #333;
+      }
+
+      /* control the relative position of the clock to the slides */
+      .reveal .slides > section.present, .reveal .slides > section > section.present {
+        min-height: 100% !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: center !important;
+        position: absolute !important;
+        top: 0 !important;
+      }
+      section > h1 {
+        position: absolute !important;
+        top: 0 !important;
+        margin-left: auto !important;
+        margin-right: auto !important;
+        left: 0 !important;
+        right: 0 !important;
+      }
+
+      .print-pdf .reveal .slides > section.present, .print-pdf .reveal .slides > section > section.present {
+        min-height: 770px !important;
+        position: relative !important;
+      }
+    </style>
+
+  </body>
+</html>
