@@ -11,12 +11,12 @@ from manim_slides.present import present
 @pytest.fixture(autouse=True)
 def auto_shutdown_qapp() -> Iterator[None]:
     if app := QApplication.instance():
-        app.shutdown()
+        app.quit()
 
     yield
 
     if app := QApplication.instance():
-        app.shutdown()
+        app.quit()
 
 
 @pytest.fixture(scope="session")
