@@ -11,6 +11,7 @@
 [![DOI][doi-badge]][doi-url]
 [![JOSE Paper][jose-badge]][jose-url]
 [![codecov][codecov-badge]][codecov-url]
+[![Binder][binder-badge]][binder-url]
 
 # Manim Slides
 
@@ -230,6 +231,7 @@ you can do so at: [jeertmans@icloud.com](mailto:jeertmans@icloud.com).
 [doi-url]: https://doi.org/10.5281/zenodo.8215167
 [jose-badge]: https://jose.theoj.org/papers/10.21105/jose.00206/status.svg
 [jose-url]: https://doi.org/10.21105/jose.00206
-
 [codecov-badge]: https://codecov.io/gh/jeertmans/manim-slides/branch/main/graph/badge.svg?token=8P4DY9JCE4
 [codecov-url]: https://codecov.io/gh/jeertmans/manim-slides
+[binder-badge]: https://mybinder.org/badge_logo.svg
+[binder-url]: https://mybinder.org/v2/gh/jeertmans/manim-slides-binder/HEAD?filepath=getting_started.ipynb
