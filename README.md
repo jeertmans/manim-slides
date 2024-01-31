@@ -225,8 +225,8 @@ you can do so at: [jeertmans@icloud.com](mailto:jeertmans@icloud.com).
 [pypi-version-url]: https://pypi.org/project/manim-slides/
 [pypi-python-version-badge]: https://img.shields.io/pypi/pyversions/manim-slides
 [pypi-download-badge]: https://img.shields.io/pypi/dm/manim-slides
-[documentation-badge]: https://img.shields.io/website?down_color=lightgrey&down_message=offline&label=documentation&up_color=green&up_message=online&url=https%3A%2F%2Feertmans.be%2Fmanim-slides%2F
-[documentation-url]: https://eertmans.be/manim-slides/
+[documentation-badge]: https://readthedocs.org/projects/manim-slides/badge/?version=latest
+[documentation-url]: https://manim-slides.readthedocs.io/en/latest/?badge=latest
 [doi-badge]: https://zenodo.org/badge/DOI/10.5281/zenodo.8215167.svg
 [doi-url]: https://doi.org/10.5281/zenodo.8215167
 [jose-badge]: https://jose.theoj.org/papers/10.21105/jose.00206/status.svg
