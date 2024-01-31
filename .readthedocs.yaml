@@ -10,7 +10,9 @@ build:
     post_install:
     - ipython kernel install --name "manim-slides" --user
 sphinx:
+  builder: dirhtml
   configuration: docs/source/conf.py
+  fail_on_warning: true
 python:
   install:
   - method: pip
