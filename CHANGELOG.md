@@ -10,6 +10,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 (unreleased)=
 ## [Unreleased](https://github.com/jeertmans/manim-slides/compare/v5.1.0...HEAD)
 
+(v5.1.1)=
+## [v5.1.1](https://github.com/jeertmans/manim-slides/compare/v5.1.0...v5.1.1)
+
+(v5.1.1-chore)=
+### Chore
+
+- Move documentation to ReadTheDocs for better versioning.
+  [#365](https://github.com/jeertmans/manim-slides/pull/365)
+
 (v5.1)=
 ## [v5.1](https://github.com/jeertmans/manim-slides/compare/v5.0.0...v5.1.0)
 
