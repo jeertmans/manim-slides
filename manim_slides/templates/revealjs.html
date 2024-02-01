@@ -316,28 +316,36 @@
         hideCursorTime: {{ hide_cursor_time }}
       });
 
-      {% if data_uri %}
-        // Fix found by @t-fritsch on GitHub
-        // see: https://github.com/hakimel/reveal.js/discussions/3362#discussioncomment-6651475.
-        function fixBase64VideoBackground(event) {
-          // event.previousSlide, event.currentSlide, event.indexh, event.indexv
-          if (event.currentSlide.getAttribute('data-background-video')) {
-            const background = Reveal.getSlideBackground(event.indexh, event.indexv),
-              video = background.querySelector('video'),
-              sources = video.querySelectorAll('source');
+      {% if data_uri -%}
+      // Fix found by @t-fritsch on GitHub
+      // see: https://github.com/hakimel/reveal.js/discussions/3362#discussioncomment-6651475.
+      function fixBase64VideoBackground(event) {
+        // event.previousSlide, event.currentSlide, event.indexh, event.indexv
+        if (event.currentSlide.getAttribute('data-background-video')) {
+          const background = Reveal.getSlideBackground(event.indexh, event.indexv),
+            video = background.querySelector('video'),
+            sources = video.querySelectorAll('source');
 
-            sources.forEach((source, i) => {
-              const src = source.getAttribute('src');
-              if(src.match(/^data:video.*;base64$/)) {
-                const nextSrc = sources[i+1]?.getAttribute('src');
-                video.setAttribute('src', `${src},${nextSrc}`);
-              }
-            });
-          }
+          sources.forEach((source, i) => {
+            const src = source.getAttribute('src');
+            if(src.match(/^data:video.*;base64$/)) {
+              const nextSrc = sources[i+1]?.getAttribute('src');
+              video.setAttribute('src', `${src},${nextSrc}`);
+            }
+          });
         }
-        Reveal.on( 'ready', fixBase64VideoBackground );
-        Reveal.on( 'slidechanged', fixBase64VideoBackground );
-      {% endif %}
+      }
+      Reveal.on( 'ready', fixBase64VideoBackground );
+      Reveal.on( 'slidechanged', fixBase64VideoBackground );
+      {%- endif %}
     </script>
+
+    {% if env['READTHEDOCS'] -%}
+    <style>
+      .readthedocs-flyout {
+        display: none;
+      }
+    </style>
+    {%- endif %}
   </body>
 </html>
