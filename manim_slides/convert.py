@@ -416,6 +416,7 @@ class RevealJS(Converter):
                 file_to_data_uri=file_to_data_uri,
                 get_duration_ms=get_duration_ms,
                 has_notes=has_notes,
+                env=os.environ,
                 **options,
             )
 
