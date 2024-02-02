@@ -39,7 +39,7 @@ Manim Slides will *automatically* detect the one you are using!
 
 Manim Slides requires either Manim or ManimGL to be installed, along
 with their dependencies. Please checkout the
-[documentation](https://eertmans.be/manim-slides/installation.html)
+[documentation](https://eertmans.be/manim-slides/latest/installation.html)
 for detailed install instructions.
 
 ## Usage
