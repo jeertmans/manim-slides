@@ -156,6 +156,7 @@ class BaseSlide:
 
                     self.remove_from_canvas("title", "slide_number")
                     self.wipe(self.mobjects_without_canvas, [])
+
         """
         return self._canvas
 
@@ -248,6 +249,7 @@ class BaseSlide:
                     self.next_slide()
 
                     self.play(FadeOut(circle))
+
         """
         return self._wait_time_between_slides
 
@@ -410,6 +412,7 @@ class BaseSlide:
                     self.next_slide(notes="Bye bye")
 
                     self.zoom(square)
+
         """
         if self._current_animation > self._start_animation:
             if self.wait_time_between_slides > 0.0:
@@ -564,6 +567,7 @@ class BaseSlide:
                         return_animation=True
                     )
                     self.play(anim)
+
         """
         from .animation import Wipe
 
@@ -628,6 +632,7 @@ class BaseSlide:
                         return_animation=True
                     )
                     self.play(anim)
+
         """
         from .animation import Zoom
 

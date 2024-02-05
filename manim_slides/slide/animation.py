@@ -58,6 +58,7 @@ class Wipe(AnimationGroup):  # type: ignore[misc]
                 self.next_slide()
 
                 self.play(Wipe(circle, square, shift=3 * LEFT))
+
     """
 
     def __init__(
@@ -122,6 +123,7 @@ class Zoom(AnimationGroup):  # type: ignore[misc]
                 for i in range(2):
                     self.play(Zoom(circles[i], circles[i+1]))
                     self.next_slide()
+
     """
 
     def __init__(

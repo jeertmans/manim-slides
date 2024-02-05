@@ -144,6 +144,7 @@ class ThreeDSlide(Slide, ThreeDScene):  # type: ignore[misc]
                 self.next_slide()
 
                 self.play(*[FadeOut(mobject) for mobject in self.mobjects])
+
     """
 
     pass

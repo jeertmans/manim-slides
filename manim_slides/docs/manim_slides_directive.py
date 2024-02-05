@@ -174,6 +174,7 @@ Renders as follows:
             self.next_slide()
             self.zoom(text)
 
+
 """  # noqa: D400, D415
 from __future__ import annotations
 
