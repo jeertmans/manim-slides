@@ -144,6 +144,7 @@ class ManimSlidesMagic(Magics):  # type: ignore
             In case you want to hide the red box containing the output progress bar, the ``progress_bar`` config
             option should be set to ``None``. This can also be done by passing ``--progress_bar None`` as a
             CLI flag.
+
         """
         if local_ns is None:
             local_ns = {}
