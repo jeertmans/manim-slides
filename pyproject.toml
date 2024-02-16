@@ -126,6 +126,11 @@ filterwarnings = [
 
 [tool.ruff]
 extend-exclude = ["manim_slides/resources.py"]
+extend-include = ["*.ipynb"]
+line-length = 88
+target-version = "py38"
+
+[tool.ruff.lint]
 extend-ignore = [
   "D100",
   "D101",
@@ -140,8 +145,5 @@ extend-ignore = [
   "D212",
   "E501",
 ]
-extend-include = ["*.ipynb"]
 extend-select = ["B", "C90", "D", "I", "N", "RUF", "UP", "T"]
 isort = {known-first-party = ["manim_slides", "tests"]}
-line-length = 88
-target-version = "py38"
