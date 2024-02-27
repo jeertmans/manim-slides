@@ -217,7 +217,9 @@ class Player(QMainWindow):  # type: ignore[misc]
             self.setWindowState(Qt.WindowFullScreen)
         else:
             w, h = self.current_presentation_config.resolution
-            logger.debug(f"Setting window size accordingly to first presentation resolution: {w}-by-{h}.")
+            logger.debug(
+                f"Setting window size accordingly to first presentation resolution: {w}-by-{h}."
+            )
             geometry = self.geometry()
             geometry.setWidth(w)
             geometry.setHeight(h)
@@ -290,7 +292,9 @@ class Player(QMainWindow):  # type: ignore[misc]
             self.media_player.mediaStatusChanged.connect(media_status_changed)
 
         else:
-            logger.debug("Adding a custom signal handler to skip slide if `--auto-next` is used.")
+            logger.debug(
+                "Adding a custom signal handler to skip slide if `--auto-next` is used."
+            )
 
             def media_status_changed(status: QMediaPlayer.MediaStatus) -> None:
                 if (
