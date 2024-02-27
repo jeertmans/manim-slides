@@ -186,6 +186,8 @@ class Player(QMainWindow):  # type: ignore[misc]
     ):
         super().__init__()
 
+        logger.debug("Instantiating Player instance.")
+
         # Wizard's config
 
         self.config = config
@@ -206,20 +208,26 @@ class Player(QMainWindow):  # type: ignore[misc]
         # Widgets
 
         if screen:
+            logger.debug(f"Moving window to specific {screen =}.")
             self.setScreen(screen)
             self.move(screen.geometry().topLeft())
 
         if full_screen:
+            logger.debug("Toggling window full screen.")
             self.setWindowState(Qt.WindowFullScreen)
         else:
             w, h = self.current_presentation_config.resolution
+            logger.debug(f"Setting window size accordingly to first presentation resolution: {w}-by-{h}.")
             geometry = self.geometry()
             geometry.setWidth(w)
             geometry.setHeight(h)
             self.setGeometry(geometry)
 
         if hide_mouse:
+            logger.debug("Hiding mouse cursor.")
             self.setCursor(Qt.BlankCursor)
+
+        logger.debug("Creating main window.")
 
         self.setWindowTitle(WINDOW_NAME)
         self.icon = QIcon(":/icon.png")
@@ -237,6 +245,8 @@ class Player(QMainWindow):  # type: ignore[misc]
         self.presentation_changed.connect(self.presentation_changed_callback)
         self.slide_changed.connect(self.slide_changed_callback)
 
+        logger.debug("Creating (secondary) info window.")
+
         self.info = Info(
             full_screen=full_screen, aspect_ratio_mode=aspect_ratio_mode, screen=screen
         )
@@ -248,6 +258,8 @@ class Player(QMainWindow):  # type: ignore[misc]
         self.hide_info_window = hide_info_window
 
         # Connecting key callbacks
+
+        logger.debug("Attaching callbacks")
 
         self.config.keys.QUIT.connect(self.close)
         self.config.keys.PLAY_PAUSE.connect(self.play_pause)
@@ -268,6 +280,7 @@ class Player(QMainWindow):  # type: ignore[misc]
         # Setting-up everything
 
         if skip_all:
+            logger.debug("All slides will be skipped after being played.")
 
             def media_status_changed(status: QMediaPlayer.MediaStatus) -> None:
                 self.media_player.setLoops(1)  # Otherwise looping slides never end
@@ -277,6 +290,7 @@ class Player(QMainWindow):  # type: ignore[misc]
             self.media_player.mediaStatusChanged.connect(media_status_changed)
 
         else:
+            logger.debug("Adding a custom signal handler to skip slide if `--auto-next` is used.")
 
             def media_status_changed(status: QMediaPlayer.MediaStatus) -> None:
                 if (
@@ -288,6 +302,7 @@ class Player(QMainWindow):  # type: ignore[misc]
             self.media_player.mediaStatusChanged.connect(media_status_changed)
 
         if self.current_slide_config.loop:
+            logger.debug("First slide is a loop.")
             self.media_player.setLoops(-1)
 
         self.load_current_media(start_paused=start_paused)
@@ -391,6 +406,7 @@ class Player(QMainWindow):  # type: ignore[misc]
 
     def load_current_media(self, start_paused: bool = False) -> None:
         url = QUrl.fromLocalFile(str(self.current_file))
+        logger.debug(f"Loading media from {url = }.")
         self.media_player.setSource(url)
 
         if self.playing_reversed_slide:
@@ -403,11 +419,14 @@ class Player(QMainWindow):  # type: ignore[misc]
             )
 
         if start_paused:
+            logger.debug("Media is not playing, starting paused.")
             self.media_player.pause()
         else:
+            logger.debug("Playing the media...")
             self.media_player.play()
 
     def load_current_slide(self) -> None:
+        logger.debug("Loading (current) slide.")
         slide_config = self.current_slide_config
         self.current_file = slide_config.file
 
@@ -419,6 +438,7 @@ class Player(QMainWindow):  # type: ignore[misc]
         self.load_current_media()
 
     def load_previous_slide(self) -> None:
+        logger.debug("Loading previous slide.")
         self.playing_reversed_slide = False
 
         if self.current_slide_index > 0:
@@ -433,6 +453,7 @@ class Player(QMainWindow):  # type: ignore[misc]
         self.load_current_slide()
 
     def load_next_slide(self) -> None:
+        logger.debug("Loading next slide.")
         if self.playing_reversed_slide:
             self.playing_reversed_slide = False
             self.preview_next_slide()  # Slide number did not change, but next did
@@ -451,6 +472,7 @@ class Player(QMainWindow):  # type: ignore[misc]
         self.load_current_slide()
 
     def load_reversed_slide(self) -> None:
+        logger.debug("Loading reversed slide.")
         self.playing_reversed_slide = True
         self.current_file = self.current_slide_config.rev_file
         self.load_current_media()
@@ -461,12 +483,14 @@ class Player(QMainWindow):  # type: ignore[misc]
 
     @Slot()
     def presentation_changed_callback(self) -> None:
+        logger.debug("Signal that presentation changed.")
         index = self.current_presentation_index
         count = self.presentations_count
         self.info.scene_label.setText(f"{index+1:4d}/{count:4<d}")
 
     @Slot()
     def slide_changed_callback(self) -> None:
+        logger.debug("Signal that slide changed.")
         index = self.current_slide_index
         count = self.current_slides_count
         self.info.slide_label.setText(f"{index+1:4d}/{count:4<d}")
@@ -474,6 +498,7 @@ class Player(QMainWindow):  # type: ignore[misc]
         self.preview_next_slide()
 
     def preview_next_slide(self) -> None:
+        logger.debug("Previewing next slide (if any).")
         if slide_config := self.next_slide_config:
             url = QUrl.fromLocalFile(str(slide_config.file))
             self.info.next_media_player.setSource(url)
@@ -493,6 +518,7 @@ class Player(QMainWindow):  # type: ignore[misc]
 
     @Slot()
     def next(self) -> None:
+        logger.debug("[USER] Calling next slide.")
         if self.media_player.playbackState() == QMediaPlayer.PlaybackState.PausedState:
             self.media_player.play()
         elif self.next_terminates_loop and self.media_player.loops() != 1:
@@ -506,15 +532,18 @@ class Player(QMainWindow):  # type: ignore[misc]
 
     @Slot()
     def previous(self) -> None:
+        logger.debug("[USER] Calling previous slide.")
         self.load_previous_slide()
 
     @Slot()
     def reverse(self) -> None:
+        logger.debug("[USER] Reversing current slide.")
         self.load_reversed_slide()
         self.preview_next_slide()
 
     @Slot()
     def replay(self) -> None:
+        logger.debug("[USER] Starting the current slide from the beginning.")
         self.media_player.setPosition(0)
         self.media_player.play()
 
@@ -522,28 +551,36 @@ class Player(QMainWindow):  # type: ignore[misc]
     def play_pause(self) -> None:
         state = self.media_player.playbackState()
         if state == QMediaPlayer.PlaybackState.PausedState:
+            logger.debug("[USER] Playing the slide.")
             self.media_player.play()
         elif state == QMediaPlayer.PlaybackState.PlayingState:
+            logger.debug("[USER] Pausing the slide.")
             self.media_player.pause()
 
     @Slot()
     def full_screen(self) -> None:
         if self.windowState() == Qt.WindowFullScreen:
+            logger.debug("[USER] Disabling full screen.")
             self.setWindowState(Qt.WindowNoState)
         else:
+            logger.debug("[USER] Toggling full screen.")
             self.setWindowState(Qt.WindowFullScreen)
 
     @Slot()
     def hide_mouse(self) -> None:
         if self.cursor().shape() == Qt.BlankCursor:
+            logger.debug("[USER] Showing the mouse cursor.")
             self.setCursor(Qt.ArrowCursor)
         else:
+            logger.debug("[USER] Hiding the mouse cursor.")
             self.setCursor(Qt.BlankCursor)
 
     def closeEvent(self, event: QCloseEvent) -> None:  # noqa: N802
+        logger.debug("[USER] Close event.")
         self.close()
 
     def keyPressEvent(self, event: QKeyEvent) -> None:  # noqa: N802
+        logger.debug(f"[USER] Key press event {event}.")
         key = event.key()
         self.dispatch(key)
         event.accept()
