@@ -14,7 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Added audio output to `manim-slides present`.
-  [#381](https://github.com/jeertmans/manim-slides/pull/381)
+  [#382](https://github.com/jeertmans/manim-slides/pull/382)
 
 (v5.1.3)=
 ## [v5.1.3](https://github.com/jeertmans/manim-slides/compare/v5.1.2...v5.1.3)
