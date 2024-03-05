@@ -4,7 +4,7 @@ from typing import List, Optional
 
 from qtpy.QtCore import Qt, QTimer, QUrl, Signal, Slot
 from qtpy.QtGui import QCloseEvent, QIcon, QKeyEvent, QScreen
-from qtpy.QtMultimedia import QMediaPlayer
+from qtpy.QtMultimedia import QAudioOutput, QMediaPlayer
 from qtpy.QtMultimediaWidgets import QVideoWidget
 from qtpy.QtWidgets import (
     QHBoxLayout,
@@ -225,12 +225,14 @@ class Player(QMainWindow):  # type: ignore[misc]
         self.icon = QIcon(":/icon.png")
         self.setWindowIcon(self.icon)
 
+        self.audio_output = QAudioOutput()
         self.video_widget = QVideoWidget()
         self.video_sink = self.video_widget.videoSink()
         self.video_widget.setAspectRatioMode(aspect_ratio_mode)
         self.setCentralWidget(self.video_widget)
 
         self.media_player = QMediaPlayer(self)
+        self.media_player.setAudioOutput(self.audio_output)
         self.media_player.setVideoOutput(self.video_widget)
         self.playback_rate = playback_rate
 

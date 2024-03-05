@@ -8,7 +8,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <!-- start changelog -->
 
 (unreleased)=
-## [Unreleased](https://github.com/jeertmans/manim-slides/compare/v5.1.0...HEAD)
+## [Unreleased](https://github.com/jeertmans/manim-slides/compare/v5.1.3...HEAD)
+
+(unreleased-added)=
+### Added
+
+- Added audio output to `manim-slides present`.
+  [#381](https://github.com/jeertmans/manim-slides/pull/381)
+
+(v5.1.3)=
+## [v5.1.3](https://github.com/jeertmans/manim-slides/compare/v5.1.2...v5.1.3)
+
+(v5.1.3-chore)=
+### Chore
+
+- Fix link in documentation.
+  [#368](https://github.com/jeertmans/manim-slides/pull/368)
+
+- Warn users if not using recommended Qt bindings.
+  [#373](https://github.com/jeertmans/manim-slides/pull/373)
+
+(v5.1.2)=
+## [v5.1.2](https://github.com/jeertmans/manim-slides/compare/v5.1.1...v5.1.2)
+
+(v5.1.2-chore)=
+### Chore
+
+- Fix ReadTheDocs version flyout in iframes.
+  [#367](https://github.com/jeertmans/manim-slides/pull/367)
 
 (v5.1.1)=
 ## [v5.1.1](https://github.com/jeertmans/manim-slides/compare/v5.1.0...v5.1.1)
