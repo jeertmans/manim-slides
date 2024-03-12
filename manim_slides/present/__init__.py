@@ -242,6 +242,14 @@ def start_at_callback(
     is_flag=True,
     help="Hide info window.",
 )
+@click.option(
+    "--info-window-screen",
+    "info_window_screen_number",
+    metavar="NUMBER",
+    type=int,
+    default=None,
+    help="Put info window on the given screen (a.k.a. display).",
+)
 @click.help_option("-h", "--help")
 @verbosity_option
 def present(
@@ -261,6 +269,7 @@ def present(
     playback_rate: float,
     next_terminates_loop: bool,
     hide_info_window: bool,
+    info_window_screen_number: Optional[int],
 ) -> None:
     """
     Present SCENE(s), one at a time, in order.
@@ -295,31 +304,39 @@ def present(
 
     warn_if_non_desirable_pyside6_version()
 
+    from qtpy.QtCore import Qt
+    from qtpy.QtGui import QScreen
+
     from ..qt_utils import qapp
+    from .player import Player
 
     app = qapp()
     app.setApplicationName("Manim Slides")
 
-    if screen_number is not None:
+    def get_screen(number: int) -> Optional[QScreen]:
         try:
-            screen = app.screens()[screen_number]
+            return app.screens()[number]
         except IndexError:
             logger.error(
-                f"Invalid screen number {screen_number}, "
+                f"Invalid screen number {number}, "
                 f"allowed values are from 0 to {len(app.screens())-1} (incl.)"
             )
-            screen = None
+            return None
+
+    if screen_number is not None:
+        screen = get_screen(screen_number)
     else:
         screen = None
 
-    from qtpy.QtCore import Qt
+    if info_window_screen_number is not None:
+        info_window_screen = get_screen(info_window_screen_number)
+    else:
+        info_window_screen = None
 
     aspect_ratio_modes = {
         "keep": Qt.KeepAspectRatio,
         "ignore": Qt.IgnoreAspectRatio,
     }
-
-    from .player import Player
 
     player = Player(
         config,
@@ -336,6 +353,7 @@ def present(
         playback_rate=playback_rate,
         next_terminates_loop=next_terminates_loop,
         hide_info_window=hide_info_window,
+        info_window_screen=info_window_screen,
     )
 
     player.show()
