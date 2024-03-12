@@ -16,6 +16,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added audio output to `manim-slides present`.
   [#382](https://github.com/jeertmans/manim-slides/pull/382)
 
+(unreleased-changed)=
+### Changed
+
+- Added `--info-window-screen` option and change `--screen-number`
+  to not move the info window.
+  [#389](https://github.com/jeertmans/manim-slides/pull/389)
+
 (v5.1.3)=
 ## [v5.1.3](https://github.com/jeertmans/manim-slides/compare/v5.1.2...v5.1.3)
 
