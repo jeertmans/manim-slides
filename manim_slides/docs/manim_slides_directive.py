@@ -176,6 +176,7 @@ Renders as follows:
 
 
 """  # noqa: D400, D415
+
 from __future__ import annotations
 
 import csv
