@@ -183,6 +183,7 @@ class Player(QMainWindow):  # type: ignore[misc]
         playback_rate: float = 1.0,
         next_terminates_loop: bool = False,
         hide_info_window: bool = False,
+        info_window_screen: Optional[QScreen] = None,
     ):
         super().__init__()
 
@@ -240,7 +241,9 @@ class Player(QMainWindow):  # type: ignore[misc]
         self.slide_changed.connect(self.slide_changed_callback)
 
         self.info = Info(
-            full_screen=full_screen, aspect_ratio_mode=aspect_ratio_mode, screen=screen
+            full_screen=full_screen,
+            aspect_ratio_mode=aspect_ratio_mode,
+            screen=info_window_screen,
         )
         self.info.close_event.connect(self.closeEvent)
         self.info.key_press_event.connect(self.keyPressEvent)
