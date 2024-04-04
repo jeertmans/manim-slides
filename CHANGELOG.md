@@ -99,7 +99,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 (v5.1-chore)=
 ### Chore
 
-- Removed subrocess calls to FFMPEG with direct `libav` bindings using
+- Removed subrocess calls to FFmpeg with direct `libav` bindings using
   the `av` Python module. This should enhance rendering speed and security.
   [#335](https://github.com/jeertmans/manim-slides/pull/335)
 - Changed build backend to PDM and reflected on docs.
