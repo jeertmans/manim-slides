@@ -55,6 +55,7 @@ add_module_names = False
 
 html_theme = "furo"
 html_static_path = ["_static"]
+html_favicon = "_static/favicon.png"
 
 html_theme_options = {
     "light_logo": "logo_light_transparent.png",
