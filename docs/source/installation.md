@@ -134,6 +134,35 @@ pipx install -U "manim-slides[extra1,extra2]"
 [^2]: Actually, PySide6 can be installed on Python 3.12, but you will then
   observe the same visual bug as with PyQt6.
 
+## Nixpkgs installation
+
+Manim Slides is distributed under Nixpkgs >=24.05.
+If you are using Nix or NixOS, you can find Manim Slides under:
+
+ - `nixpkgs.manim-slides`, which is meant to be a stand alone application and
+   includes pyqt6 (see above);
+ - `nixpkgs.python3Packages.manim-slides`, which is meant to be used as a
+   module (for notebook magics), and includes IPython but not does not include
+   any Qt bindings.
+
+You can try out the Manim Slides package with
+```sh
+nix-shell -p manim ffmpeg manim-slides
+```
+or by adding it to your
+[configuration file](https://nixos.org/manual/nixos/stable/#sec-package-management).
+
+Alternatively, you can try Manim Slides in a Python environment with:
+```sh
+nix-shell -p manim ffmpeg "python3.withPackages(ps: with ps; [ manim-slides, ...])"
+```
+or bundle this into [your Nix environment](https://wiki.nixos.org/wiki/Python).
+
+:::{note}
+Nix current does not support `manimgl`.
+:::
+
+
 ## When you need a Qt backend
 
 Before `v5.1`, Manim Slides automatically included PySide6 as
