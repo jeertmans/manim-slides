@@ -6,6 +6,7 @@ import numpy as np
 import pytest
 from click.testing import CliRunner
 from manim import (
+    BLACK,
     BLUE,
     DOWN,
     LEFT,
@@ -107,6 +108,13 @@ class TestSlide:
             assert self._start_animation == 0
             assert len(self._canvas) == 0
             assert self._wait_time_between_slides == 0.0
+
+    @assert_constructs
+    class TestBackgroundColor(Slide):
+        def construct(self) -> None:
+            assert self._background_color == BLACK.to_hex()  # DEFAULT
+            self.camera.background_color = BLUE
+            assert self._background_color == BLUE.to_hex()
 
     @assert_renders
     class TestMultipleAnimationsInLastSlide(Slide):
