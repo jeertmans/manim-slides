@@ -23,7 +23,7 @@ class Slide(BaseSlide, Scene):  # type: ignore[misc]
 
     @property
     def _background_color(self) -> str:
-        color = config["background_color"]
+        color = self.camera.background_color
         if hex_color := getattr(color, "hex", None):
             return hex_color  # type: ignore
         else:  # manim>=0.18, see https://github.com/ManimCommunity/manim/pull/3020
