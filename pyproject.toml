@@ -23,7 +23,6 @@ dependencies = [
   "jinja2>=3.1.2",
   "lxml>=4.9.2",
   "numpy>=1.19",
-  "opencv-python>=4.6.0.66",
   "pillow>=9.5.0",
   "pydantic>=2.0.1",
   "pydantic-extra-types>=2.0.0",

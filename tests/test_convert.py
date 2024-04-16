@@ -153,11 +153,14 @@ class TestConverter:
         file_contents = Path(out_file).read_text()
         assert "manim" in file_contents.casefold()
 
+    @pytest.mark.parametrize("frame_index", ("first", "last"))
     def test_pdf_converter(
-        self, tmp_path: Path, presentation_config: PresentationConfig
+        self, frame_index: str, tmp_path: Path, presentation_config: PresentationConfig
     ) -> None:
         out_file = tmp_path / "slides.pdf"
-        PDF(presentation_configs=[presentation_config]).convert_to(out_file)
+        PDF(
+            presentation_configs=[presentation_config], frame_index=frame_index
+        ).convert_to(out_file)
         assert out_file.exists()
 
     def test_converter_no_presentation_config(self) -> None:

@@ -6,13 +6,14 @@ import sys
 import tempfile
 import webbrowser
 from base64 import b64encode
+from collections import deque
 from enum import Enum
 from importlib import resources
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional, Type, Union
 
+import av
 import click
-import cv2
 import pptx
 from click import Context, Parameter
 from jinja2 import Template
@@ -79,11 +80,23 @@ def file_to_data_uri(file: Path) -> str:
 
 def get_duration_ms(file: Path) -> float:
     """Read a video and return its duration in milliseconds."""
-    cap = cv2.VideoCapture(str(file))
-    fps: int = cap.get(cv2.CAP_PROP_FPS)
-    frame_count: int = cap.get(cv2.CAP_PROP_FRAME_COUNT)
+    with av.open(str(file)) as container:
+        video = container.streams.video[0]
 
-    return 1000 * frame_count / fps
+        return float(1000 * video.duration * video.time_base)
+
+
+def read_image_from_video_file(file: Path, frame_index: "FrameIndex") -> Image:
+    """Read a image from a video file at a given index."""
+    with av.open(str(file)) as container:
+        frames = container.decode(video=0)
+
+        if frame_index == FrameIndex.last:
+            (frame,) = deque(frames, 1)
+        else:
+            frame = next(frames)
+
+        return frame.to_image()
 
 
 class Converter(BaseModel):  # type: ignore
@@ -438,23 +451,6 @@ class PDF(Converter):
 
     def convert_to(self, dest: Path) -> None:
         """Convert this configuration into a PDF presentation, saved to DEST."""
-
-        def read_image_from_video_file(file: Path, frame_index: FrameIndex) -> Image:
-            cap = cv2.VideoCapture(str(file))
-
-            if frame_index == FrameIndex.last:
-                index = cap.get(cv2.CAP_PROP_FRAME_COUNT)
-                cap.set(cv2.CAP_PROP_POS_FRAMES, index - 1)
-
-            ret, frame = cap.read()
-            cap.release()
-
-            if ret:
-                frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-                return Image.fromarray(frame)
-            else:
-                raise ValueError("Failed to read {image_index} image from video file")
-
         images = []
 
         for i, presentation_config in enumerate(self.presentation_configs):
@@ -490,7 +486,7 @@ class PowerPoint(Converter):
     def open(self, file: Path) -> None:
         return open_with_default(file)
 
-    def convert_to(self, dest: Path) -> None:  # noqa: C901
+    def convert_to(self, dest: Path) -> None:
         """Convert this configuration into a PowerPoint presentation, saved to DEST."""
         prs = pptx.Presentation()
         prs.slide_width = self.width * 9525
@@ -519,53 +515,48 @@ class PowerPoint(Converter):
             nsmap = {"p": "http://schemas.openxmlformats.org/presentationml/2006/main"}
             return etree.ElementBase.xpath(el, query, namespaces=nsmap)
 
-        def save_first_image_from_video_file(file: Path) -> Optional[str]:
-            cap = cv2.VideoCapture(file.as_posix())
-            ret, frame = cap.read()
-            cap.release()
+        with tempfile.TemporaryDirectory() as directory_name:
+            directory = Path(directory_name)
+            frame_number = 0
+            for i, presentation_config in enumerate(self.presentation_configs):
+                for slide_config in tqdm(
+                    presentation_config.slides,
+                    desc=f"Generating video slides for config {i + 1}",
+                    leave=False,
+                ):
+                    file = slide_config.file
 
-            if ret:
-                f = tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".png")
-                cv2.imwrite(f.name, frame)
-                f.close()
-                return f.name
-            else:
-                logger.warn("Failed to read first image from video file")
-                return None
+                    mime_type = mimetypes.guess_type(file)[0]
 
-        for i, presentation_config in enumerate(self.presentation_configs):
-            for slide_config in tqdm(
-                presentation_config.slides,
-                desc=f"Generating video slides for config {i + 1}",
-                leave=False,
-            ):
-                file = slide_config.file
+                    if self.poster_frame_image is None:
+                        poster_frame_image = str(directory / f"{frame_number}.png")
+                        image = read_image_from_video_file(
+                            file, frame_index=FrameIndex.first
+                        )
+                        image.save(poster_frame_image)
 
-                mime_type = mimetypes.guess_type(file)[0]
+                        frame_number += 1
+                    else:
+                        poster_frame_image = str(self.poster_frame_image)
 
-                if self.poster_frame_image is None:
-                    poster_frame_image = save_first_image_from_video_file(file)
-                else:
-                    poster_frame_image = str(self.poster_frame_image)
+                    slide = prs.slides.add_slide(layout)
+                    movie = slide.shapes.add_movie(
+                        str(file),
+                        self.left,
+                        self.top,
+                        self.width * 9525,
+                        self.height * 9525,
+                        poster_frame_image=poster_frame_image,
+                        mime_type=mime_type,
+                    )
+                    if slide_config.notes != "":
+                        slide.notes_slide.notes_text_frame.text = slide_config.notes
 
-                slide = prs.slides.add_slide(layout)
-                movie = slide.shapes.add_movie(
-                    str(file),
-                    self.left,
-                    self.top,
-                    self.width * 9525,
-                    self.height * 9525,
-                    poster_frame_image=poster_frame_image,
-                    mime_type=mime_type,
-                )
-                if slide_config.notes != "":
-                    slide.notes_slide.notes_text_frame.text = slide_config.notes
+                    if self.auto_play_media:
+                        auto_play_media(movie, loop=slide_config.loop)
 
-                if self.auto_play_media:
-                    auto_play_media(movie, loop=slide_config.loop)
-
-        dest.parent.mkdir(parents=True, exist_ok=True)
-        prs.save(dest)
+            dest.parent.mkdir(parents=True, exist_ok=True)
+            prs.save(dest)
 
 
 def show_config_options(function: Callable[..., Any]) -> Callable[..., Any]:
