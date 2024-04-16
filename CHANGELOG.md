@@ -8,26 +8,44 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <!-- start changelog -->
 
 (unreleased)=
-## [Unreleased](https://github.com/jeertmans/manim-slides/compare/v5.1.3...HEAD)
+## [Unreleased](https://github.com/jeertmans/manim-slides/compare/v5.1.4...HEAD)
 
-(unreleased-added)=
+
+(v5.1.4)=
+## [v5.1.4](https://github.com/jeertmans/manim-slides/compare/v5.1.3...v5.1.4)
+
+(v5.1.4-added)=
 ### Added
 
 - Added audio output to `manim-slides present`.
   [#382](https://github.com/jeertmans/manim-slides/pull/382)
 
-(unreleased-changed)=
+(v5.1.4-changed)=
 ### Changed
 
 - Added `--info-window-screen` option and change `--screen-number`
   to not move the info window.
   [#389](https://github.com/jeertmans/manim-slides/pull/389)
 
-(unreleased-chore)=
+(v5.1.4-chore)=
 ### Chore
 
 - Created a favicon for the website/documentation.
   [#399](https://github.com/jeertmans/manim-slides/pull/399)
+- Documented the Nixpkg installation.
+  [#404](https://github.com/jeertmans/manim-slides/pull/404 )
+- Updated the default RevealJS version to 5.1.0.
+  [#412](https://github.com/jeertmans/manim-slides/pull/412)
+- Removed the `opencv-python` dependency.
+  [#415](https://github.com/jeertmans/manim-slides/pull/415)
+
+(v5.1.4-fixed)=
+### Fixed
+
+- Fixed the retrieval of `background_color` with ManimCE.
+  [#414](https://github.com/jeertmans/manim-slides/pull/414)
+- Fixed #390 issue caused by empty media created by ManimCE.
+  [#416](https://github.com/jeertmans/manim-slides/pull/416)
 
 (v5.1.3)=
 ## [v5.1.3](https://github.com/jeertmans/manim-slides/compare/v5.1.2...v5.1.3)
