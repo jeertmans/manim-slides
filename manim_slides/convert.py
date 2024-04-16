@@ -355,7 +355,7 @@ class RevealJS(Converter):
     hide_cursor_time: int = 5000
     # Appearance options from RevealJS
     background_color: Color = "black"
-    reveal_version: str = "4.6.1"
+    reveal_version: str = "5.1.0"
     reveal_theme: RevealTheme = RevealTheme.black
     title: str = "Manim Slides"
     # Pydantic options
