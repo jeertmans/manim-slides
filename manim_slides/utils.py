@@ -1,4 +1,5 @@
 import hashlib
+import os
 import tempfile
 from pathlib import Path
 from typing import Iterator, List
@@ -25,37 +26,39 @@ def concatenate_video_files(files: List[Path], dest: Path) -> None:
                         "https://github.com/jeertmans/manim-slides/issues/390."
                     )
 
-    with tempfile.NamedTemporaryFile(mode="w", suffix=".txt") as f:
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".txt", delete=False) as f:
         f.writelines(f"file '{file}'\n" for file in _filter(files))
-        f.flush()
+        tmp_file = f.name
 
-        with av.open(
-            f.name, format="concat", options={"safe": "0"}
-        ) as input_container, av.open(str(dest), mode="w") as output_container:
-            input_video_stream = input_container.streams.video[0]
-            output_video_stream = output_container.add_stream(
-                template=input_video_stream,
+    with av.open(
+        tmp_file, format="concat", options={"safe": "0"}
+    ) as input_container, av.open(str(dest), mode="w") as output_container:
+        input_video_stream = input_container.streams.video[0]
+        output_video_stream = output_container.add_stream(
+            template=input_video_stream,
+        )
+
+        if len(input_container.streams.audio) > 0:
+            input_audio_stream = input_container.streams.audio[0]
+            output_audio_stream = output_container.add_stream(
+                template=input_audio_stream,
             )
 
-            if len(input_container.streams.audio) > 0:
-                input_audio_stream = input_container.streams.audio[0]
-                output_audio_stream = output_container.add_stream(
-                    template=input_audio_stream,
-                )
+        for packet in input_container.demux():
+            if packet.dts is None:
+                continue
 
-            for packet in input_container.demux():
-                if packet.dts is None:
-                    continue
+            ptype = packet.stream.type
 
-                ptype = packet.stream.type
+            if ptype == "video":
+                packet.stream = output_video_stream
+            elif ptype == "audio":
+                packet.stream = output_audio_stream
+            else:
+                continue  # We don't support subtitles
+            output_container.mux(packet)
 
-                if ptype == "video":
-                    packet.stream = output_video_stream
-                elif ptype == "audio":
-                    packet.stream = output_audio_stream
-                else:
-                    continue  # We don't support subtitles
-                output_container.mux(packet)
+    os.unlink(tmp_file)  # https://stackoverflow.com/a/54768241
 
 
 def merge_basenames(files: List[Path]) -> Path:
