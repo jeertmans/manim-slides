@@ -1,7 +1,8 @@
 import hashlib
+import os
 import tempfile
 from pathlib import Path
-from typing import List
+from typing import Iterator, List
 
 import av
 
@@ -10,28 +11,54 @@ from .logger import logger
 
 def concatenate_video_files(files: List[Path], dest: Path) -> None:
     """Concatenate multiple video files into one."""
-    f = tempfile.NamedTemporaryFile(mode="w", delete=False)
-    f.writelines(f"file '{path.absolute()}'\n" for path in files)
-    f.close()
 
-    input_ = av.open(f.name, options={"safe": "0"}, format="concat")
-    input_stream = input_.streams.video[0]
-    output = av.open(str(dest), mode="w")
-    output_stream = output.add_stream(
-        template=input_stream,
-    )
+    def _filter(files: List[Path]) -> Iterator[Path]:
+        """Patch possibly empty video files."""
+        for file in files:
+            with av.open(str(file)) as container:
+                if len(container.streams.video) > 0:
+                    yield file
+                else:
+                    logger.warn(
+                        f"Skipping video file {file} because it does "
+                        "not contain any video stream. "
+                        "This is probably caused by Manim, see: "
+                        "https://github.com/jeertmans/manim-slides/issues/390."
+                    )
 
-    for packet in input_.demux(input_stream):
-        # We need to skip the "flushing" packets that `demux` generates.
-        if packet.dts is None:
-            continue
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".txt", delete=False) as f:
+        f.writelines(f"file '{file}'\n" for file in _filter(files))
+        tmp_file = f.name
 
-        # We need to assign the packet to the new stream.
-        packet.stream = output_stream
-        output.mux(packet)
+    with av.open(
+        tmp_file, format="concat", options={"safe": "0"}
+    ) as input_container, av.open(str(dest), mode="w") as output_container:
+        input_video_stream = input_container.streams.video[0]
+        output_video_stream = output_container.add_stream(
+            template=input_video_stream,
+        )
 
-    input_.close()
-    output.close()
+        if len(input_container.streams.audio) > 0:
+            input_audio_stream = input_container.streams.audio[0]
+            output_audio_stream = output_container.add_stream(
+                template=input_audio_stream,
+            )
+
+        for packet in input_container.demux():
+            if packet.dts is None:
+                continue
+
+            ptype = packet.stream.type
+
+            if ptype == "video":
+                packet.stream = output_video_stream
+            elif ptype == "audio":
+                packet.stream = output_audio_stream
+            else:
+                continue  # We don't support subtitles
+            output_container.mux(packet)
+
+    os.unlink(tmp_file)  # https://stackoverflow.com/a/54768241
 
 
 def merge_basenames(files: List[Path]) -> Path:
@@ -63,36 +90,37 @@ def link_nodes(*nodes: av.filter.context.FilterContext) -> None:
 
 def reverse_video_file(src: Path, dest: Path) -> None:
     """Reverses a video file, writting the result to `dest`."""
-    input_ = av.open(str(src))
-    input_stream = input_.streams.video[0]
-    output = av.open(str(dest), mode="w")
-    output_stream = output.add_stream(codec_name="libx264", rate=input_stream.base_rate)
-    output_stream.width = input_stream.width
-    output_stream.height = input_stream.height
-    output_stream.pix_fmt = input_stream.pix_fmt
+    with av.open(str(src)) as input_container, av.open(
+        str(dest), mode="w"
+    ) as output_container:
+        input_stream = input_container.streams.video[0]
+        output_stream = output_container.add_stream(
+            codec_name=input_stream.codec_context.name, rate=input_stream.base_rate
+        )
+        output_stream.width = input_stream.width
+        output_stream.height = input_stream.height
+        output_stream.pix_fmt = input_stream.pix_fmt
 
-    graph = av.filter.Graph()
-    link_nodes(
-        graph.add_buffer(template=input_stream),
-        graph.add("reverse"),
-        graph.add("buffersink"),
-    )
-    graph.configure()
+        graph = av.filter.Graph()
+        link_nodes(
+            graph.add_buffer(template=input_stream),
+            graph.add("reverse"),
+            graph.add("buffersink"),
+        )
+        graph.configure()
 
-    frames_count = 0
-    for frame in input_.decode(video=0):
-        graph.push(frame)
-        frames_count += 1
+        frames_count = 0
+        for frame in input_container.decode(video=0):
+            graph.push(frame)
+            frames_count += 1
 
-    graph.push(None)  # EOF: https://github.com/PyAV-Org/PyAV/issues/886.
+        graph.push(None)  # EOF: https://github.com/PyAV-Org/PyAV/issues/886.
 
-    for _ in range(frames_count):
-        frame = graph.pull()
-        frame.pict_type = 5  # Otherwise we get a warning saying it is changed
-        output.mux(output_stream.encode(frame))
+        for _ in range(frames_count):
+            frame = graph.pull()
 
-    for packet in output_stream.encode():
-        output.mux(packet)
+            for packet in output_stream.encode(frame):
+                output_container.mux(packet)
 
-    input_.close()
-    output.close()
+        for packet in output_stream.encode():
+            output_container.mux(packet)
