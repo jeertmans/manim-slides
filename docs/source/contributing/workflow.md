@@ -38,7 +38,7 @@ pdm install
 This, however, only installs the minimal set of dependencies to run the package.
 
 If you would like to install Manim or ManimGL,
-as documented in the [quickstart](/quickstart.html),
+as documented in the [quickstart](/quickstart),
 you can use the `-G|--group` option:
 
 ```bash

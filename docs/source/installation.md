@@ -185,5 +185,5 @@ install those are via optional dependencies, as explained above.
 
 An alternative way to install Manim Slides is to clone the git repository,
 and build the package from source. Read the
-[contributing guide](/contributing/workflow.html)
+[contributing guide](/contributing/workflow)
 to know how to process.

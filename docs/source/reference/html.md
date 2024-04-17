@@ -30,11 +30,11 @@ manim-slides convert --show-config
 ## Using a Custom Template
 
 The default template used for HTML conversion can be found on
-[GitHub](https://github.com/jeertmans/manim-slides/blob/main/manim_slides/templates/revealjs.html)
+[GitHub](https://github.com/jeertmans/manim-slides/blob/main/manim_slides/templates/revealjs)
 or printed with the `--show-template` option.
 If you wish to use another template, you can do so with the
 `--use-template FILE` option.
 
 ## More about HTML Slides
 
-You can read more about HTML slides in the [sharing](/reference/sharing.html) section.
+You can read more about HTML slides in the [sharing](/reference/sharing) section.

@@ -3,7 +3,7 @@
 Manim Slides' graphical user interface (GUI) is the *de facto* way to present slides.
 
 If you do not specify one of the commands listed in the
-[CLI reference](/reference/cli.html),
+[CLI reference](/reference/cli),
 Manim Slides will use **present** by default, which launches a GUI window,
 playing your scene(s) like so:
 

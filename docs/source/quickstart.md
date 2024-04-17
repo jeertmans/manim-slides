@@ -1,7 +1,7 @@
 # Quickstart
 
 If not already, install Manim Slides, along with either Manim or ManimGL,
-see [installation](/installation.html).
+see [installation](/installation).
 
 ## Creating your first slides
 
@@ -32,4 +32,4 @@ The output slides should look this this:
 ```
 
 For more advanced examples,
-see the [Examples](/reference/examples.html) section.
+see the [Examples](/reference/examples) section.
