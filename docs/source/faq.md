@@ -19,7 +19,7 @@ Everything related to installing Manim-Slides.
 Please do not forget the carefully read through
 the ... page!
 
-### 
+###
 
 ## Rendering
 
