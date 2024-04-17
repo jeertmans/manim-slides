@@ -7,7 +7,7 @@ They are organized by topic.
 
 If your question is not here, please first look through the
 [open **and closed** issues on GitHub](https://github.com/jeertmans/manim-slides/issues?q=is%3Aissue)
-or withing the [discussions](https://github.com/jeertmans/manim-slides/discussions).
+or within the [discussions](https://github.com/jeertmans/manim-slides/discussions).
 
 If you still cannot find help after that, do not hesitate to create
 your own issue or discussion on GitHub!
