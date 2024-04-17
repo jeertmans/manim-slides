@@ -23,7 +23,7 @@ og:description: Manim Slides makes creating slides with Manim super easy!
 
 Manim Slides makes creating slides with Manim super easy!
 
-In a [very few steps](./quickstart),
+In a [very few steps](/quickstart.html),
 you can create slides and present them either using the GUI, or your browser.
 
 Slide through the demo below to get a quick glimpse on what you can do with

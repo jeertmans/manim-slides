@@ -249,7 +249,11 @@ class PreSlideConfig(BaseSlideConfig):
         if pre_slide_config.start_animation >= pre_slide_config.end_animation:
             if pre_slide_config.start_animation == pre_slide_config.end_animation == 0:
                 raise ValueError(
-                    "You have to play at least one animation (e.g., `self.wait()`) before pausing. If you want to start paused, use the approriate command-line option when presenting. IMPORTANT: when using ManimGL, `self.wait()` is not considered to be an animation, so prefer to directly use `self.play(...)`."
+                    "You have to play at least one animation (e.g., `self.wait()`) "
+                    "before pausing. If you want to start paused, use the appropriate "
+                    "command-line option when presenting. "
+                    "IMPORTANT: when using ManimGL, `self.wait()` is not considered "
+                    "to be an animation, so prefer to directly use `self.play(...)`."
                 )
 
             raise ValueError(

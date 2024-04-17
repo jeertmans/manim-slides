@@ -76,6 +76,12 @@ Founding = "https://github.com/sponsors/jeertmans"
 Homepage = "https://github.com/jeertmans/manim-slides"
 Repository = "https://github.com/jeertmans/manim-slides"
 
+[tool.codespell]
+builtin = "clear,rare,informal,usage,names,en-GB_to_en-US"
+check-hidden = true
+ignore-words-list = "master"
+skip = "pdm.lock"
+
 [tool.coverage.report]
 exclude_lines = [
   "pragma: no cover",

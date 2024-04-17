@@ -56,7 +56,7 @@ class Info(QWidget):  # type: ignore[misc]
         self.video_sink = main_video_widget.videoSink()
         left_layout.addWidget(main_video_widget)
 
-        # Current slide informations
+        # Current slide information
 
         self.scene_label = QLabel()
         self.slide_label = QLabel()

@@ -1,0 +1,8 @@
+{
+  "replacementPatterns": [
+    {
+      "pattern": "^/",
+      "replacement": "https://manim-slides.readthedocs.org/latest/"
+    }
+  ]
+}
