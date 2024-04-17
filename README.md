@@ -49,7 +49,7 @@ for detailed install instructions.
 Using Manim Slides is a two-step process:
 1. Render animations using `Slide` (resp. `ThreeDSlide`) as a base class instead
    of `Scene` (resp. `ThreeDScene`), and add calls to `self.next_slide()`
-   everytime you want to create a new slide.
+   every time you want to create a new slide.
 2. Run `manim-slides` on rendered animations and display them like a
    *PowerPoint* presentation.
 
@@ -57,7 +57,7 @@ The documentation is available [online](https://eertmans.be/manim-slides/).
 
 ### Basic Example
 
-Call `self.next_slide()` everytime you want to create a pause between
+Call `self.next_slide()` every time you want to create a pause between
 animations, and `self.next_slide(loop=True)` if you want the next slide to loop
 over animations until the user presses continue:
 
@@ -118,7 +118,7 @@ manim-slides BasicExample
 </p>
 
 For detailed usage documentation, run `manim-slides --help`, or go to the
-[documentation](https://eertmans.be/manim-slides/reference/cli.html).
+[documentation](https://eertmans.be/manim-slides/latest/reference/cli.html).
 
 ## Interactive Tutorial
 
@@ -170,7 +170,7 @@ in *Settings*->*Display*.
 ## Contributing
 
 Contributions are more than welcome! Please read through
-[our contributing section](https://eertmans.be/manim-slides/contributing/index.html).
+[our contributing section](https://eertmans.be/manim-slides/latest/contributing/index.html).
 
 ### Reporting an Issue
 

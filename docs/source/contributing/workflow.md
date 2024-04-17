@@ -18,7 +18,9 @@ Useful links:
 * [GitHub's Hello World](https://docs.github.com/en/get-started/quickstart/hello-world).
 * [GitHub Pull Request in 100 Seconds](https://www.youtube.com/watch?v=8lGpZkjnkt4&ab_channel=Fireship).
 
-Once you feel comfortable with git and GitHub, [fork](https://github.com/jeertmans/manim-slides/fork) the repository, and clone it locally.
+Once you feel comfortable with git and GitHub,
+[fork](https://github.com/jeertmans/manim-slides/fork)
+the repository, and clone it locally.
 
 As for every Python project, using virtual environment is recommended to avoid
 conflicts between modules.
@@ -36,7 +38,7 @@ pdm install
 This, however, only installs the minimal set of dependencies to run the package.
 
 If you would like to install Manim or ManimGL,
-as documented in the [quickstart](../quickstart),
+as documented in the [quickstart](/quickstart),
 you can use the `-G|--group` option:
 
 ```bash
@@ -45,7 +47,7 @@ pdm install -Gmanim   # For Manim
 pdm install -Gmanimgl # For ManimGL
 ```
 
-Additionnally, Manim Slides comes with groups of dependencies for development purposes:
+Additionally, Manim Slides comes with groups of dependencies for development purposes:
 
 ```bash
 pdm install -Gdev  # For linters and formatters

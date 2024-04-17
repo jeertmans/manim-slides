@@ -126,9 +126,14 @@ to use an `iframe`:
 </div>
 ```
 
+<!-- markdown-link-check-disable -->
+<!-- see why: https://github.com/tcort/markdown-link-check/discussions/189 -->
+
 The additional code comes from
 [this article](https://faq.dailymotion.com/hc/en-us/articles/360022841393-How-to-preserve-the-player-aspect-ratio-on-a-responsive-page)
 and it there to preserve the original aspect ratio (16:9).
+
+<!-- markdown-link-check-enable -->
 
 ### Sharing ONE HTML file
 
@@ -142,8 +147,8 @@ HTML conversion makes it convenient to play your presentation on a
 remote server.
 
 This is how your are able to watch all the examples on this website. If you want
-to know how to share your slide with GitHub pages, see the
-[workflow file](https://github.com/jeertmans/manim-slides/blob/main/.github/workflows/pages.yml).
+to know how to share your slide with GitHub pages, check out the
+[Manim Slides Starter GitHub repository template](https://github.com/jeertmans/manim-slides-starter).
 
 :::{warning}
 Keep in mind that playing large video files over the internet network

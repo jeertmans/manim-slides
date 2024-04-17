@@ -631,7 +631,7 @@ def show_template_option(function: Callable[..., Any]) -> Callable[..., Any]:
     "--open",
     "open_result",
     is_flag=True,
-    help="Open the newly created file using the approriate application.",
+    help="Open the newly created file using the appropriate application.",
 )
 @click.option("-f", "--force", is_flag=True, help="Overwrite any existing file.")
 @click.option(
@@ -695,7 +695,7 @@ def convert(
         errors = e.errors()
 
         msg = [
-            f"{len(errors)} error(s) occured with configuration options for '{to}', see below."
+            f"{len(errors)} error(s) occurred with configuration options for '{to}', see below."
         ]
 
         for error in errors:

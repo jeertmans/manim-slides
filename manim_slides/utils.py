@@ -89,7 +89,7 @@ def link_nodes(*nodes: av.filter.context.FilterContext) -> None:
 
 
 def reverse_video_file(src: Path, dest: Path) -> None:
-    """Reverses a video file, writting the result to `dest`."""
+    """Reverses a video file, writing the result to `dest`."""
     with av.open(str(src)) as input_container, av.open(
         str(dest), mode="w"
     ) as output_container:

@@ -1,7 +1,7 @@
 # Quickstart
 
 If not already, install Manim Slides, along with either Manim or ManimGL,
-see [installation](./installation).
+see [installation](/installation).
 
 ## Creating your first slides
 
@@ -31,4 +31,5 @@ The output slides should look this this:
     :quality: high
 ```
 
-For more advanced examples, see the [Examples](reference/examples) section.
+For more advanced examples,
+see the [Examples](/reference/examples) section.
