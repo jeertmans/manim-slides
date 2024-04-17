@@ -25,7 +25,7 @@ Questions related to `manim-slides render [SCENES]...`,
 
 ### I cannot render with ManimGL
 
-ManimGL support is only garanteed to work
+ManimGL support is only guaranteed to work
 on a very minimal set of versions, because it differs quite a lot from ManimCE,
 and its development is not very active.
 
