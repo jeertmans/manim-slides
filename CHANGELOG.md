@@ -15,6 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Added CI for broken HTML links and fixed, plus spell checking.
   [#417](https://github.com/jeertmans/manim-slides/pull/417)
+- Create FAQ page and clear FAQ from README.md
+  [#418](https://github.com/jeertmans/manim-slides/pull/418)
 
 
 (v5.1.4)=
