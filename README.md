@@ -28,8 +28,7 @@ Manim Slides will *automatically* detect the one you are using!
 - [Installation](#installation)
 - [Usage](#usage)
 - [Comparison with Similar Tools](#comparison-with-similar-tools)
-- [F.A.Q](#faq)
-  * [How to increase quality on Windows](#how-to-increase-quality-on-windows)
+- [F.A.Q](https://eertmans.be/manim-slides/latest/faq.html)
 - [Contributing](#contributing)
   * [Reporting an Issue](#reporting-an-issue)
   * [Seeking for Help](#seeking-for-help)
@@ -150,23 +149,6 @@ Below is a comparison of the most used ones with Manim Slides:
 | Web Browser presentations | Yes | No | Yes | No |
 | Offline presentations | Yes, with Qt | Yes, with OpenCV | No | No
 
-## F.A.Q
-
-### How to increase quality on Windows
-
-On Windows platform, one may encounter a lower image resolution than expected.
-Usually, this is observed because Windows rescales every application to
-fit the screen.
-As found by [@arashash](https://github.com/arashash),
-in [#20](https://github.com/jeertmans/manim-slides/issues/20),
-the problem can be addressed by changing the scaling factor to 100%:
-
-<p align="center">
-  <img alt="Windows Fix Scaling" src="https://raw.githubusercontent.com/jeertmans/manim-slides/main/static/windows_quality_fix.png">
-</p>
-
-in *Settings*->*Display*.
-
 ## Contributing
 
 Contributions are more than welcome! Please read through
@@ -202,12 +184,10 @@ be able to help you!
 Sometimes, you may have a question about Manim Slides,
 not necessarily an issue.
 
-There are two ways you can reach us for questions:
-
-- via the `Question/Help/Support` topic when
-[choosing an issue template](https://github.com/jeertmans/manim-slides/issues/new/choose);
-- or via
-[GitHub discussions](https://github.com/jeertmans/manim-slides/discussions).
+First, make sure to read the
+[F.A.Q](https://eertmans.be/manim-slides/latest/faq.html) to see if
+your question has already been answered. If not, please follow the
+recommendation (from that page) to reach us for questions.
 
 <!-- end seeking-for-help -->
 
