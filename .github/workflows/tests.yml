@@ -86,3 +86,16 @@ jobs:
         CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
       with:
         fail_ci_if_error: true
+
+  markdown-link-check:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Check links
+      uses: gaurav-nelson/github-action-markdown-link-check@v1
+      with:
+        use-quiet-mode: yes
+        use-verbose-mode: yes
+        config-file: .mdlc.json
