@@ -12,7 +12,7 @@ The benefit of using pipx is that it will automatically create a new virtual
 environment for every package you install.
 
 :::{note}
-Everytime you read `pipx install`, you can use `pip install` instead,
+Every time you read `pipx install`, you can use `pip install` instead,
 if you are working in a virtual environment or else.
 :::
 
@@ -146,22 +146,25 @@ If you are using Nix or NixOS, you can find Manim Slides under:
    any Qt bindings.
 
 You can try out the Manim Slides package with
+
 ```sh
 nix-shell -p manim ffmpeg manim-slides
 ```
+
 or by adding it to your
 [configuration file](https://nixos.org/manual/nixos/stable/#sec-package-management).
 
 Alternatively, you can try Manim Slides in a Python environment with:
+
 ```sh
 nix-shell -p manim ffmpeg "python3.withPackages(ps: with ps; [ manim-slides, ...])"
 ```
+
 or bundle this into [your Nix environment](https://wiki.nixos.org/wiki/Python).
 
 :::{note}
 Nix current does not support `manimgl`.
 :::
-
 
 ## When you need a Qt backend
 
@@ -182,5 +185,5 @@ install those are via optional dependencies, as explained above.
 
 An alternative way to install Manim Slides is to clone the git repository,
 and build the package from source. Read the
-[contributing guide](./contributing/workflow)
+[contributing guide](/contributing/workflow.html)
 to know how to process.

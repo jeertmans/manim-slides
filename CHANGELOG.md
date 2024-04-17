@@ -10,6 +10,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 (unreleased)=
 ## [Unreleased](https://github.com/jeertmans/manim-slides/compare/v5.1.4...HEAD)
 
+(unreleased-chore)=
+### Chore
+
+- Added CI for broken HTML links and fixed, plus spell checking.
+  [#417](https://github.com/jeertmans/manim-slides/pull/417)
+
 
 (v5.1.4)=
 ## [v5.1.4](https://github.com/jeertmans/manim-slides/compare/v5.1.3...v5.1.4)
@@ -191,7 +197,7 @@ In an effort to better document changes, this CHANGELOG document is now created.
   but the new player should be much easier to maintain and more performant,
   than its predecessor.
   [#243](https://github.com/jeertmans/manim-slides/pull/243)
-- Changed the slide config format to exclude unecessary information.
+- Changed the slide config format to exclude unnecessary information.
   `StypeType` is removed in favor to one boolean `loop` field. This is
   a **breaking change** and one should re-render the slides to apply changes.
   [#243](https://github.com/jeertmans/manim-slides/pull/243)
