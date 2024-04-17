@@ -568,11 +568,14 @@ def show_config_options(function: Callable[..., Any]) -> Callable[..., Any]:
 
         to = ctx.params.get("to", "html")
 
-        converter = Converter.from_string(to)(
-            presentation_configs=[PresentationConfig()]
-        )
-        for key, value in converter.dict().items():
-            click.echo(f"{key}: {value!r}")
+        converter = Converter.from_string(to)
+
+        for key, field in converter.model_fields.items():
+            if field.is_required():
+                continue
+
+            default = field.get_default(call_default_factory=True)
+            click.echo(f"{key}: {default}")
 
         ctx.exit()
 
