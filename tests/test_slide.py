@@ -37,7 +37,8 @@ from manim_slides.slide.manim import Slide
         pytest.param(
             "--GL",
             marks=pytest.mark.skipif(
-                version.parse(np.__version__) >= version.parse("1.25") or sys.version_info >= (3, 12),
+                version.parse(np.__version__) >= version.parse("1.25")
+                or sys.version_info >= (3, 12),
                 reason="ManimGL requires numpy<1.25, which is outdated and Python < 3.12",
             ),
         ),
