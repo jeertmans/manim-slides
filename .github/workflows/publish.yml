@@ -20,7 +20,6 @@ jobs:
 
     - name: Setup Rye
       env:
-        RYE_TOOLCHAIN: '3.11'
         RYE_INSTALL_OPTION: --yes
       run: |
         curl -sSf https://rye-up.com/get | bash

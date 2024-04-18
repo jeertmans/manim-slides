@@ -45,7 +45,9 @@ jobs:
 
     - name: Configure Rye
       shell: bash
-      run: rye config --set-bool behavior.use-uv=true
+      run: |
+        rye config --set-bool behavior.use-uv=true
+        rye pin ${{ matrix.pyversion }}
 
       # Path related stuff
     - name: Append to Path on MacOS
