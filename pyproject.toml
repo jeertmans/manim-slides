@@ -55,7 +55,10 @@ docs = [
   "sphinxext-opengraph>=0.7.5",
 ]
 full = [
-  "manim-slides[magic,manim,manimgl,sphinx-directive]",
+  "manim-slides[magic,manim,sphinx-directive]",
+]
+full-gl = [
+  "manim-slides[magic,manimgl,sphinx-directive]",
 ]
 magic = ["manim-slides[manim]", "ipython>=8.12.2"]
 manim = ["manim>=0.17.3"]
