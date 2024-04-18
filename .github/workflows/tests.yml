@@ -36,6 +36,7 @@ jobs:
 
     # Stolen from https://github.com/bluss/pyproject-local-kernel/blob/2b641290694adc998fb6bceea58d3737523a68b7/.github/workflows/ci.yaml
     - name: Install Rye (Windows)
+      if: matrix.os == 'windows-latest'
       shell: bash
       run: |
         C:/msys64/usr/bin/wget.exe -q 'https://github.com/astral-sh/rye/releases/latest/download/rye-x86_64-windows.exe' -O rye-x86_64-windows.exe
@@ -43,6 +44,7 @@ jobs:
         echo "$HOME\\.rye\\shims" >> $GITHUB_PATH
 
     - name: Configure Rye
+      shell: bash
       run: rye config --set-bool behavior.use-uv=true
 
       # Path related stuff
@@ -82,9 +84,11 @@ jobs:
       uses: ssciwr/setup-mesa-dist-win@v2
 
     - name: Install Manim Slides
+      shell: bash
       run: rye sync
 
     - name: Run pytest
+      shell: bash
       if: matrix.os != 'ubuntu-latest' || matrix.pyversion != '3.11'
       run: rye run pytest
 
