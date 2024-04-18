@@ -59,7 +59,7 @@ full = [
 ]
 magic = ["manim-slides[manim]", "ipython>=8.12.2"]
 manim = ["manim>=0.17.3"]
-manimgl = ["manimgl>=1.6.1"]
+manimgl = ["manimgl>=1.6.1;python_version<'3.12'"]
 pyqt6 = ["pyqt6>=6.6.1"]
 pyqt6-full = ["manim-slides[full,pyqt6]"]
 pyside6 = ["pyside6>=6.5.1,<6.5.3;python_version<'3.12'"]
