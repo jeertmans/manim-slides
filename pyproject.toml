@@ -1,6 +1,6 @@
 [build-system]
-build-backend = "pdm.backend"
-requires = ["pdm-backend", "setuptools"]
+build-backend = "setuptools.build_meta"
+requires = ["setuptools", "setuptools-scm"]
 
 [project]
 authors = [{name = "Jérome Eertmans", email = "jeertmans@icloud.com"}]
