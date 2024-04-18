@@ -24,61 +24,25 @@ the repository, and clone it locally.
 
 As for every Python project, using virtual environment is recommended to avoid
 conflicts between modules.
-For this project, we use [PDM](https://pdm-project.org/) to easily manage project
+For this project, we use [Rye](https://rye-up.com/) to easily manage project
 and development dependencies. If not already, please install this tool.
 
 ## Installing Python modules
 
-With PDM, installation becomes straightforward:
+With Rye, installation becomes straightforward:
 
 ```bash
-pdm install
+rye sync --all-features
 ```
-
-This, however, only installs the minimal set of dependencies to run the package.
-
-If you would like to install Manim or ManimGL,
-as documented in the [quickstart](/quickstart),
-you can use the `-G|--group` option:
-
-```bash
-pdm install -Gmanim   # For Manim
-# or
-pdm install -Gmanimgl # For ManimGL
-```
-
-Additionally, Manim Slides comes with groups of dependencies for development purposes:
-
-```bash
-pdm install -Gdev  # For linters and formatters
-# or
-pdm install -Gdocs # To build the documentation locally
-# or
-pdm install -Gtest # To run tests
-```
-
-:::{note}
-You can combine any number of groups or extras when installing the package locally.
-
-You can also install everything with `pdm install -G:all`.
-:::
 
 ## Running commands
 
 Because modules are installed in a new Python environment,
 you cannot use them directly in the shell.
-Instead, you either need to prepend `pdm run` to any command, e.g.:
+Instead, you either need to prepend `rye run` to any command, e.g.:
 
 ```bash
-pdm run manim-slides wizard
-```
-
-or [enter a new shell](https://pdm-project.org/latest/usage/venv/#activate-a-virtualenv)
-that uses this new Python environment:
-
-```bash
-eval $(pdm venv activate)  # Click on the link above to see shell-specific command
-manim-slides wizard
+rye run manim-slides wizard
 ```
 
 ## Testing your code
@@ -87,7 +51,7 @@ Most of the tests are done with GitHub actions, thus not on your computer.
 The only command you should run locally is:
 
 ```bash
-pdm run pre-commit run --all-files
+rye run pre-commit run --all-files
 ```
 
 This runs a few linter and formatter to make sure the code quality and style stay
@@ -97,7 +61,7 @@ If a warning or an error is displayed, please fix it before going to next step.
 For testing your code, simply run:
 
 ```bash
-pdm run pytest
+rye run pytest
 ```
 
 ## Building the documentation
@@ -109,7 +73,7 @@ To generate the documentation, run the following:
 
 ```bash
 cd docs
-pdm run make html
+rye run make html
 ```
 
 Then, the output index file is located at `docs/build/html/index.html` and
