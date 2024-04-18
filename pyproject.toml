@@ -80,6 +80,7 @@ Repository = "https://github.com/jeertmans/manim-slides"
 builtin = "clear,rare,informal,usage,names,en-GB_to_en-US"
 check-hidden = true
 ignore-words-list = "master"
+skip = "requirements.lock,requirements-dev.lock"
 
 [tool.coverage.report]
 exclude_lines = [
@@ -133,19 +134,14 @@ extend-select = ["B", "C90", "D", "I", "N", "RUF", "UP", "T"]
 isort = {known-first-party = ["manim_slides", "tests"]}
 
 [tool.rye]
-managed = true
-
-[tool.rye.dev-dependencies]
-dev = [
+dev-dependencies = [
   "bump2version>=1.0.1",
-  "pre-commit>=3.5.0",
-]
-# github-action = ["setuptools"]
-test = [
   "manim-slides[manim,manimgl,pyqt6]",
+  "pre-commit>=3.5.0",
   "pytest>=7.4.0",
   "pytest-cov>=4.1.0",
   "pytest-env>=0.8.2",
   "pytest-qt>=4.2.0",
   "pytest-xdist>=3.3.1",
 ]
+managed = true

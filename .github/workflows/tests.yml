@@ -72,7 +72,7 @@ jobs:
     - name: Install Manim Slides
       run: |
         rye pin ${{ matrix.pyversion }}
-        rye sync --features github-action,test
+        rye sync
 
     - name: Run pytest
       if: matrix.os != 'ubuntu-latest' || matrix.pyversion != '3.11'

@@ -2,6 +2,7 @@ import random
 import shutil
 from pathlib import Path
 
+import manim
 import numpy as np
 import pytest
 from click.testing import CliRunner
@@ -109,6 +110,10 @@ class TestSlide:
             assert len(self._canvas) == 0
             assert self._wait_time_between_slides == 0.0
 
+    @pytest.mark.skipif(
+        version.parse(manim.__version__) < version.parse("0.18"),
+        reason="Manim change how color are represented in 0.18",
+    )
     @assert_constructs
     class TestBackgroundColor(Slide):
         def construct(self) -> None:

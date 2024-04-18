@@ -26,8 +26,11 @@ beautifulsoup4==4.12.3
     # via nbconvert
 bleach==6.1.0
     # via nbconvert
+bump2version==1.0.1
 certifi==2024.2.2
     # via requests
+cfgv==3.4.0
+    # via pre-commit
 charset-normalizer==3.3.2
     # via requests
 click==8.1.7
@@ -48,6 +51,8 @@ comm==0.2.2
     # via ipykernel
 contourpy==1.2.1
     # via matplotlib
+coverage==7.4.4
+    # via pytest-cov
 cycler==0.12.1
     # via matplotlib
 debugpy==1.8.1
@@ -57,6 +62,8 @@ decorator==5.1.1
     # via manim
 defusedxml==0.7.1
     # via nbconvert
+distlib==0.3.8
+    # via virtualenv
 docutils==0.20.1
     # via manim-slides
     # via myst-parser
@@ -65,16 +72,23 @@ docutils==0.20.1
     # via sphinx-click
 exceptiongroup==1.2.0
     # via ipython
+    # via pytest
+execnet==2.1.1
+    # via pytest-xdist
 executing==2.0.1
     # via stack-data
 fastjsonschema==2.19.1
     # via nbformat
+filelock==3.13.4
+    # via virtualenv
 fonttools==4.51.0
     # via matplotlib
 furo==2024.1.29
     # via manim-slides
 glcontext==2.5.0
     # via moderngl
+identify==2.5.35
+    # via pre-commit
 idna==3.7
     # via requests
 imagesize==1.4.1
@@ -85,6 +99,8 @@ importlib-metadata==7.1.0
     # via sphinx
 importlib-resources==6.4.0
     # via matplotlib
+iniconfig==2.0.0
+    # via pytest
 ipykernel==6.29.4
     # via manim-slides
 ipython==8.18.1
@@ -177,6 +193,8 @@ nest-asyncio==1.6.0
     # via ipykernel
 networkx==2.8.8
     # via manim
+nodeenv==1.8.0
+    # via pre-commit
 numpy==1.26.4
     # via contourpy
     # via isosurfaces
@@ -192,6 +210,7 @@ packaging==24.0
     # via ipykernel
     # via matplotlib
     # via nbconvert
+    # via pytest
     # via qtpy
     # via sphinx
 pandoc==2.3
@@ -211,10 +230,15 @@ pillow==9.5.0
     # via python-pptx
 platformdirs==4.2.0
     # via jupyter-core
+    # via virtualenv
+pluggy==1.4.0
+    # via pytest
+    # via pytest-qt
 plumbum==1.8.2
     # via pandoc
 ply==3.11
     # via pandoc
+pre-commit==3.7.0
 prompt-toolkit==3.0.43
     # via ipython
 psutil==5.9.8
@@ -264,6 +288,15 @@ pyside6-addons==6.5.2
 pyside6-essentials==6.5.2
     # via pyside6
     # via pyside6-addons
+pytest==8.1.1
+    # via pytest-cov
+    # via pytest-env
+    # via pytest-qt
+    # via pytest-xdist
+pytest-cov==5.0.0
+pytest-env==1.1.3
+pytest-qt==4.4.0
+pytest-xdist==3.5.0
 python-dateutil==2.9.0.post0
     # via jupyter-client
     # via matplotlib
@@ -272,6 +305,7 @@ python-pptx==0.6.23
 pyyaml==6.0.1
     # via manimgl
     # via myst-parser
+    # via pre-commit
 pyzmq==26.0.0
     # via ipykernel
     # via jupyter-client
@@ -299,6 +333,8 @@ scipy==1.13.0
 screeninfo==0.8.1
     # via manim
     # via manimgl
+setuptools==69.5.1
+    # via nodeenv
 shiboken6==6.5.2
     # via pyside6
     # via pyside6-addons
@@ -355,6 +391,9 @@ sympy==1.12
 tinycss2==1.2.1
     # via nbconvert
 tomli==2.0.1
+    # via coverage
+    # via pytest
+    # via pytest-env
     # via sphinx
 tornado==6.4
     # via ipykernel
@@ -382,6 +421,8 @@ urllib3==2.2.1
     # via requests
 validators==0.28.0
     # via manimgl
+virtualenv==20.25.3
+    # via pre-commit
 watchdog==2.3.1
     # via manim
 wcwidth==0.2.13
