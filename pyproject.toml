@@ -23,7 +23,6 @@ dependencies = [
   "jinja2>=3.1.2",
   "lxml>=4.9.2",
   "numpy>=1.19",
-  "opencv-python>=4.6.0.66",
   "pillow>=9.5.0",
   "pydantic>=2.0.1",
   "pydantic-extra-types>=2.0.0",
@@ -40,7 +39,7 @@ keywords = ["manim", "slides", "plugin", "manimgl"]
 license = {text = "MIT"}
 name = "manim-slides"
 readme = "README.md"
-requires-python = ">=3.9,<3.13"
+requires-python = ">=3.9"
 
 [project.optional-dependencies]
 docs = [
@@ -81,7 +80,6 @@ Repository = "https://github.com/jeertmans/manim-slides"
 builtin = "clear,rare,informal,usage,names,en-GB_to_en-US"
 check-hidden = true
 ignore-words-list = "master"
-skip = "pdm.lock"
 
 [tool.coverage.report]
 exclude_lines = [
@@ -98,7 +96,10 @@ install_types = true
 python_version = "3.8"
 strict = true
 
-[tool.pdm.dev-dependencies]
+[tool.rye]
+managed = true
+
+[tool.rye.dev-dependencies]
 dev = [
   "bump2version>=1.0.1",
   "pre-commit>=3.5.0",
@@ -120,6 +121,9 @@ skia-pathops = "0.8.0.post1"  # From manim 0.18.0 (Python 3.12 support)
 [tool.pdm.version]
 path = "manim_slides/__version__.py"
 source = "file"
+
+[tool.setuptools.dynamic]
+version = {attr = "manim_slides.__version__"}
 
 [tool.pytest.ini_options]
 env = [

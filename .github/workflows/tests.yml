@@ -25,11 +25,13 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
 
-    - name: Install PDM
-      uses: pdm-project/setup-pdm@v4
-      with:
-        python-version: ${{ matrix.pyversion }}
-        cache: true
+    - name: Setup Rye
+      if: matrix.os != "windows-latest"
+      uses: eifinger/setup-rye@v2
+
+    - name: Setup Rye
+      if: matrix.os == "windows-latest"
+      uses: eifinger/setup-rye@v2
 
       # Path related stuff
     - name: Append to Path on MacOS
@@ -69,15 +71,16 @@ jobs:
 
     - name: Install Manim Slides
       run: |
-        pdm sync -Ggithub-action -Gtest
+        rye pin ${{ matrix.pyversion }}
+        rye sync --features github-action,test
 
     - name: Run pytest
       if: matrix.os != 'ubuntu-latest' || matrix.pyversion != '3.11'
-      run: pdm run pytest
+      run: rye run pytest
 
     - name: Run pytest and coverage
       if: matrix.os == 'ubuntu-latest' && matrix.pyversion == '3.11'
-      run: pdm run pytest --cov-report xml --cov=manim_slides tests/
+      run: rye run pytest --cov-report xml --cov=manim_slides tests/
 
     - name: Upload to codecov.io
       if: matrix.os == 'ubuntu-latest' && matrix.pyversion == '3.11'

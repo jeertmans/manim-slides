@@ -18,15 +18,15 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
 
-    - name: Install PDM
-      uses: pdm-project/setup-pdm@v4
-      with:
-        python-version: '3.10'
-        cache: true
+    - name: Setup Rye
+      uses: eifinger/setup-rye@v2
+
+    - name: Build package
+      run: rye build
 
     - name: Publish to PyPI
       if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
-      run: pdm publish
+      run: rye publish
 
   publish-docker:
     name: Publish Docker image
