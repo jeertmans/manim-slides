@@ -8,9 +8,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <!-- start changelog -->
 
 (unreleased)=
-## [Unreleased](https://github.com/jeertmans/manim-slides/compare/v5.1.4...HEAD)
+## [Unreleased](https://github.com/jeertmans/manim-slides/compare/v5.1.5...HEAD)
 
-(unreleased-chore)=
+
+(v5.1.5)=
+## [v5.1.5](https://github.com/jeertmans/manim-slides/compare/v5.1.4...v5.1.5)
+
+(v5.1.5)=
 ### Chore
 
 - Added CI for broken HTML links and fixed, plus spell checking.
@@ -20,7 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Used Rye instead of PDM for faster development.
   [#420](https://github.com/jeertmans/manim-slides/pull/420)
 
-(unreleased-fixed)=
+(v5.1.5)=
 ### Fixed
 
 - Fixed broken `--show-config` command.
