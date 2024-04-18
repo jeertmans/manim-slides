@@ -96,24 +96,6 @@ install_types = true
 python_version = "3.8"
 strict = true
 
-[tool.rye]
-managed = true
-
-[tool.rye.dev-dependencies]
-dev = [
-  "bump2version>=1.0.1",
-  "pre-commit>=3.5.0",
-]
-github-action = ["setuptools"]
-test = [
-  "manim-slides[manim,manimgl,pyqt6]",
-  "pytest>=7.4.0",
-  "pytest-cov>=4.1.0",
-  "pytest-env>=0.8.2",
-  "pytest-qt>=4.2.0",
-  "pytest-xdist>=3.3.1",
-]
-
 [tool.pdm.resolution.overrides]
 manimpango = "<1.0.0,>=0.5.0"  # This conflicts with ManimGL, hopefully not an issue
 skia-pathops = "0.8.0.post1"  # From manim 0.18.0 (Python 3.12 support)
@@ -121,9 +103,6 @@ skia-pathops = "0.8.0.post1"  # From manim 0.18.0 (Python 3.12 support)
 [tool.pdm.version]
 path = "manim_slides/__version__.py"
 source = "file"
-
-[tool.setuptools.dynamic]
-version = {attr = "manim_slides.__version__"}
 
 [tool.pytest.ini_options]
 env = [
@@ -157,3 +136,24 @@ extend-ignore = [
 ]
 extend-select = ["B", "C90", "D", "I", "N", "RUF", "UP", "T"]
 isort = {known-first-party = ["manim_slides", "tests"]}
+
+[tool.rye]
+managed = true
+
+[tool.rye.dev-dependencies]
+dev = [
+  "bump2version>=1.0.1",
+  "pre-commit>=3.5.0",
+]
+github-action = ["setuptools"]
+test = [
+  "manim-slides[manim,manimgl,pyqt6]",
+  "pytest>=7.4.0",
+  "pytest-cov>=4.1.0",
+  "pytest-env>=0.8.2",
+  "pytest-qt>=4.2.0",
+  "pytest-xdist>=3.3.1",
+]
+
+[tool.setuptools.dynamic]
+version = {attr = "manim_slides.__version__"}
