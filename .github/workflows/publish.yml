@@ -33,7 +33,7 @@ jobs:
 
     - name: Publish to PyPI
       if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
-      run: rye publish
+      uses: pypa/gh-action-pypi-publish@release/v1
 
   publish-docker:
     name: Publish Docker image
