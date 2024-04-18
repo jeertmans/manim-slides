@@ -63,8 +63,6 @@ docutils==0.20.1
     # via nbsphinx
     # via sphinx
     # via sphinx-click
-exceptiongroup==1.2.0
-    # via ipython
 executing==2.0.1
     # via stack-data
 fastjsonschema==2.19.1
@@ -79,12 +77,6 @@ idna==3.7
     # via requests
 imagesize==1.4.1
     # via sphinx
-importlib-metadata==7.1.0
-    # via jupyter-client
-    # via nbconvert
-    # via sphinx
-importlib-resources==6.4.0
-    # via matplotlib
 ipykernel==6.29.4
     # via manim-slides
 ipython==8.18.1
@@ -354,8 +346,6 @@ sympy==1.12
     # via manimgl
 tinycss2==1.2.1
     # via nbconvert
-tomli==2.0.1
-    # via sphinx
 tornado==6.4
     # via ipykernel
     # via jupyter-client
@@ -375,7 +365,6 @@ traitlets==5.14.2
     # via nbformat
     # via nbsphinx
 typing-extensions==4.11.0
-    # via ipython
     # via pydantic
     # via pydantic-core
 urllib3==2.2.1
@@ -391,6 +380,3 @@ webencodings==0.5.1
     # via tinycss2
 xlsxwriter==3.2.0
     # via python-pptx
-zipp==3.18.1
-    # via importlib-metadata
-    # via importlib-resources

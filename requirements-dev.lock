@@ -70,9 +70,6 @@ docutils==0.20.1
     # via nbsphinx
     # via sphinx
     # via sphinx-click
-exceptiongroup==1.2.0
-    # via ipython
-    # via pytest
 execnet==2.1.1
     # via pytest-xdist
 executing==2.0.1
@@ -93,12 +90,6 @@ idna==3.7
     # via requests
 imagesize==1.4.1
     # via sphinx
-importlib-metadata==7.1.0
-    # via jupyter-client
-    # via nbconvert
-    # via sphinx
-importlib-resources==6.4.0
-    # via matplotlib
 iniconfig==2.0.0
     # via pytest
 ipykernel==6.29.4
@@ -390,11 +381,6 @@ sympy==1.12
     # via manimgl
 tinycss2==1.2.1
     # via nbconvert
-tomli==2.0.1
-    # via coverage
-    # via pytest
-    # via pytest-env
-    # via sphinx
 tornado==6.4
     # via ipykernel
     # via jupyter-client
@@ -414,7 +400,6 @@ traitlets==5.14.2
     # via nbformat
     # via nbsphinx
 typing-extensions==4.11.0
-    # via ipython
     # via pydantic
     # via pydantic-core
 urllib3==2.2.1
@@ -432,6 +417,3 @@ webencodings==0.5.1
     # via tinycss2
 xlsxwriter==3.2.0
     # via python-pptx
-zipp==3.18.1
-    # via importlib-metadata
-    # via importlib-resources
