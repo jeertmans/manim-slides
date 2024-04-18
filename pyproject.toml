@@ -1,6 +1,6 @@
 [build-system]
-build-backend = "setuptools.build_meta"
-requires = ["setuptools", "setuptools-scm"]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
 [project]
 authors = [{name = "Jérome Eertmans", email = "jeertmans@icloud.com"}]
@@ -93,16 +93,8 @@ precision = 2
 [tool.mypy]
 disallow_untyped_decorators = false
 install_types = true
-python_version = "3.8"
+python_version = "3.9"
 strict = true
-
-[tool.pdm.resolution.overrides]
-manimpango = "<1.0.0,>=0.5.0"  # This conflicts with ManimGL, hopefully not an issue
-skia-pathops = "0.8.0.post1"  # From manim 0.18.0 (Python 3.12 support)
-
-[tool.pdm.version]
-path = "manim_slides/__version__.py"
-source = "file"
 
 [tool.pytest.ini_options]
 env = [
@@ -117,7 +109,7 @@ filterwarnings = [
 extend-exclude = ["manim_slides/resources.py"]
 extend-include = ["*.ipynb"]
 line-length = 88
-target-version = "py38"
+target-version = "py39"
 
 [tool.ruff.lint]
 extend-ignore = [
@@ -145,7 +137,7 @@ dev = [
   "bump2version>=1.0.1",
   "pre-commit>=3.5.0",
 ]
-github-action = ["setuptools"]
+# github-action = ["setuptools"]
 test = [
   "manim-slides[manim,manimgl,pyqt6]",
   "pytest>=7.4.0",
@@ -155,5 +147,5 @@ test = [
   "pytest-xdist>=3.3.1",
 ]
 
-[tool.setuptools.dynamic]
-version = {attr = "manim_slides.__version__"}
+[tool.hatch.version]
+path = "manim_slides/__version__.py"
