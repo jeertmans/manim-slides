@@ -2,7 +2,6 @@ import mimetypes
 import os
 import platform
 import subprocess
-import sys
 import tempfile
 import webbrowser
 from base64 import b64encode
@@ -10,7 +9,7 @@ from collections import deque
 from enum import Enum
 from importlib import resources
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Type, Union
+from typing import Any, Callable, Optional, Union
 
 import av
 import click
@@ -53,7 +52,7 @@ def open_with_default(file: Path) -> None:
 
 def validate_config_option(
     ctx: Context, param: Parameter, value: Any
-) -> Dict[str, str]:
+) -> dict[str, str]:
     config = {}
 
     for c_option in value:
@@ -121,7 +120,7 @@ class Converter(BaseModel):  # type: ignore
         raise NotImplementedError
 
     @classmethod
-    def from_string(cls, s: str) -> Type["Converter"]:
+    def from_string(cls, s: str) -> type["Converter"]:
         """Return the appropriate converter from a string name."""
         return {
             "html": RevealJS,
@@ -329,7 +328,7 @@ class RevealJS(Converter):
     auto_animate_easing: AutoAnimateEasing = AutoAnimateEasing.ease
     auto_animate_duration: float = 1.0
     auto_animate_unmatched: JsBool = JsBool.true
-    auto_animate_styles: List[str] = Field(
+    auto_animate_styles: list[str] = Field(
         default_factory=lambda: [
             "opacity",
             "color",
@@ -379,8 +378,6 @@ class RevealJS(Converter):
         if isinstance(self.template, Path):
             return self.template.read_text()
 
-        if sys.version_info < (3, 9):
-            return resources.read_text(templates, "revealjs.html")
 
         return resources.files(templates).joinpath("revealjs.html").read_text()
 
@@ -658,13 +655,13 @@ def show_template_option(function: Callable[..., Any]) -> Callable[..., Any]:
 @show_config_options
 @verbosity_option
 def convert(
-    scenes: List[str],
+    scenes: list[str],
     folder: Path,
     dest: Path,
     to: str,
     open_result: bool,
     force: bool,
-    config_options: Dict[str, str],
+    config_options: dict[str, str],
     template: Optional[Path],
 ) -> None:
     """Convert SCENE(s) into a given format and writes the result in DEST."""

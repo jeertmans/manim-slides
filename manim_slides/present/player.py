@@ -1,6 +1,6 @@
 from datetime import datetime
 from pathlib import Path
-from typing import List, Optional
+from typing import Optional
 
 from qtpy.QtCore import Qt, QTimer, QUrl, Signal, Slot
 from qtpy.QtGui import QCloseEvent, QIcon, QKeyEvent, QScreen
@@ -169,7 +169,7 @@ class Player(QMainWindow):  # type: ignore[misc]
     def __init__(
         self,
         config: Config,
-        presentation_configs: List[PresentationConfig],
+        presentation_configs: list[PresentationConfig],
         *,
         start_paused: bool = False,
         full_screen: bool = False,

@@ -12,7 +12,6 @@ This is especially useful for two reasons:
 
 import subprocess
 import sys
-from typing import Tuple
 
 import click
 
@@ -39,7 +38,7 @@ import click
     help="If set, use ManimGL renderer.",
 )
 @click.argument("args", metavar="[RENDERER_ARGS]...", nargs=-1, type=click.UNPROCESSED)
-def render(ce: bool, gl: bool, args: Tuple[str, ...]) -> None:
+def render(ce: bool, gl: bool, args: tuple[str, ...]) -> None:
     """
     Render SCENE(s) from the input FILE, using the specified renderer.
 

@@ -39,7 +39,7 @@ def list_scenes(folder: Path) -> None:
         click.secho(f"{i}: {scene}", fg="green")
 
 
-def _list_scenes(folder: Path) -> List[str]:
+def _list_scenes(folder: Path) -> list[str]:
     """List available scenes in given directory."""
     scenes = []
 
@@ -59,7 +59,7 @@ def _list_scenes(folder: Path) -> List[str]:
     return scenes
 
 
-def prompt_for_scenes(folder: Path) -> List[str]:
+def prompt_for_scenes(folder: Path) -> list[str]:
     """Prompt the user to select scenes within a given folder."""
     scene_choices = dict(enumerate(_list_scenes(folder), start=1))
 
@@ -71,7 +71,7 @@ def prompt_for_scenes(folder: Path) -> List[str]:
     click.echo("Choose number corresponding to desired scene/arguments.")
     click.echo("(Use comma separated list for multiple entries)")
 
-    def value_proc(value: Optional[str]) -> List[str]:
+    def value_proc(value: Optional[str]) -> list[str]:
         indices = list(map(int, (value or "").strip().replace(" ", "").split(",")))
 
         if not all(0 < i <= len(scene_choices) for i in indices):
@@ -93,8 +93,8 @@ def prompt_for_scenes(folder: Path) -> List[str]:
 
 
 def get_scenes_presentation_config(
-    scenes: List[str], folder: Path
-) -> List[PresentationConfig]:
+    scenes: list[str], folder: Path
+) -> list[PresentationConfig]:
     """Return a list of presentation configurations based on the user input."""
     if len(scenes) == 0:
         scenes = prompt_for_scenes(folder)
@@ -116,7 +116,7 @@ def get_scenes_presentation_config(
 
 def start_at_callback(
     ctx: Context, param: Parameter, values: str
-) -> Tuple[Optional[int], ...]:
+) -> tuple[Optional[int], ...]:
     if values == "(None, None)":
         return (None, None)
 
@@ -253,7 +253,7 @@ def start_at_callback(
 @click.help_option("-h", "--help")
 @verbosity_option
 def present(
-    scenes: List[str],
+    scenes: list[str],
     config_path: Path,
     folder: Path,
     start_paused: bool,
@@ -262,7 +262,7 @@ def present(
     exit_after_last_slide: bool,
     hide_mouse: bool,
     aspect_ratio: str,
-    start_at: Tuple[Optional[int], Optional[int], Optional[int]],
+    start_at: tuple[Optional[int], Optional[int], Optional[int]],
     start_at_scene_number: int,
     start_at_slide_number: int,
     screen_number: Optional[int],

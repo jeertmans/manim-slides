@@ -3,17 +3,16 @@ import os
 import tempfile
 from collections.abc import Iterator
 from pathlib import Path
-from typing import List
 
 import av
 
 from .logger import logger
 
 
-def concatenate_video_files(files: List[Path], dest: Path) -> None:
+def concatenate_video_files(files: list[Path], dest: Path) -> None:
     """Concatenate multiple video files into one."""
 
-    def _filter(files: List[Path]) -> Iterator[Path]:
+    def _filter(files: list[Path]) -> Iterator[Path]:
         """Patch possibly empty video files."""
         for file in files:
             with av.open(str(file)) as container:
@@ -63,7 +62,7 @@ def concatenate_video_files(files: List[Path], dest: Path) -> None:
     os.unlink(tmp_file)  # https://stackoverflow.com/a/54768241
 
 
-def merge_basenames(files: List[Path]) -> Path:
+def merge_basenames(files: list[Path]) -> Path:
     """Merge multiple filenames by concatenating basenames."""
     if len(files) == 0:
         raise ValueError("Cannot merge an empty list of files!")

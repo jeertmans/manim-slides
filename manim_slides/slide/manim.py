@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Any, List, Optional, Tuple
+from typing import Any, Optional
 
 from manim import Scene, ThreeDScene, config
 
@@ -30,11 +30,11 @@ class Slide(BaseSlide, Scene):  # type: ignore[misc]
             return color.to_hex()  # type: ignore
 
     @property
-    def _resolution(self) -> Tuple[int, int]:
+    def _resolution(self) -> tuple[int, int]:
         return config["pixel_width"], config["pixel_height"]
 
     @property
-    def _partial_movie_files(self) -> List[Path]:
+    def _partial_movie_files(self) -> list[Path]:
         # When rendering with -na,b (manim only)
         # the animations not in [a,b] will be skipped,
         # but animation before a will have a None source file.
