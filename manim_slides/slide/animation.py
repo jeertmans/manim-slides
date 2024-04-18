@@ -11,7 +11,8 @@ that directly calls ``self.play(Animation(...))``, see
 
 __all__ = ["Wipe", "Zoom"]
 
-from typing import Any, Mapping, Optional, Sequence
+from collections.abc import Mapping, Sequence
+from typing import Any, Optional
 
 import numpy as np
 

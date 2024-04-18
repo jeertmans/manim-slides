@@ -1,6 +1,6 @@
 [build-system]
-build-backend = "pdm.backend"
-requires = ["pdm-backend", "setuptools"]
+build-backend = "hatchling.build"
+requires = ["hatchling"]
 
 [project]
 authors = [{name = "Jérome Eertmans", email = "jeertmans@icloud.com"}]
@@ -39,7 +39,7 @@ keywords = ["manim", "slides", "plugin", "manimgl"]
 license = {text = "MIT"}
 name = "manim-slides"
 readme = "README.md"
-requires-python = ">=3.9,<3.13"
+requires-python = ">=3.9"
 
 [project.optional-dependencies]
 docs = [
@@ -55,11 +55,14 @@ docs = [
   "sphinxext-opengraph>=0.7.5",
 ]
 full = [
-  "manim-slides[magic,manim,manimgl,sphinx-directive]",
+  "manim-slides[magic,manim,sphinx-directive]",
+]
+full-gl = [
+  "manim-slides[magic,manimgl,sphinx-directive]",
 ]
 magic = ["manim-slides[manim]", "ipython>=8.12.2"]
 manim = ["manim>=0.17.3"]
-manimgl = ["manimgl>=1.6.1"]
+manimgl = ["manimgl>=1.6.1;python_version<'3.12'"]
 pyqt6 = ["pyqt6>=6.6.1"]
 pyqt6-full = ["manim-slides[full,pyqt6]"]
 pyside6 = ["pyside6>=6.5.1,<6.5.3;python_version<'3.12'"]
@@ -80,7 +83,7 @@ Repository = "https://github.com/jeertmans/manim-slides"
 builtin = "clear,rare,informal,usage,names,en-GB_to_en-US"
 check-hidden = true
 ignore-words-list = "master"
-skip = "pdm.lock"
+skip = "requirements.lock,requirements-dev.lock"
 
 [tool.coverage.report]
 exclude_lines = [
@@ -91,34 +94,14 @@ exclude_lines = [
 ]
 precision = 2
 
+[tool.hatch.version]
+path = "manim_slides/__version__.py"
+
 [tool.mypy]
 disallow_untyped_decorators = false
 install_types = true
-python_version = "3.8"
+python_version = "3.9"
 strict = true
-
-[tool.pdm.dev-dependencies]
-dev = [
-  "bump2version>=1.0.1",
-  "pre-commit>=3.5.0",
-]
-github-action = ["setuptools"]
-test = [
-  "manim-slides[manim,manimgl,pyqt6]",
-  "pytest>=7.4.0",
-  "pytest-cov>=4.1.0",
-  "pytest-env>=0.8.2",
-  "pytest-qt>=4.2.0",
-  "pytest-xdist>=3.3.1",
-]
-
-[tool.pdm.resolution.overrides]
-manimpango = "<1.0.0,>=0.5.0"  # This conflicts with ManimGL, hopefully not an issue
-skia-pathops = "0.8.0.post1"  # From manim 0.18.0 (Python 3.12 support)
-
-[tool.pdm.version]
-path = "manim_slides/__version__.py"
-source = "file"
 
 [tool.pytest.ini_options]
 env = [
@@ -133,7 +116,7 @@ filterwarnings = [
 extend-exclude = ["manim_slides/resources.py"]
 extend-include = ["*.ipynb"]
 line-length = 88
-target-version = "py38"
+target-version = "py39"
 
 [tool.ruff.lint]
 extend-ignore = [
@@ -152,3 +135,16 @@ extend-ignore = [
 ]
 extend-select = ["B", "C90", "D", "I", "N", "RUF", "UP", "T"]
 isort = {known-first-party = ["manim_slides", "tests"]}
+
+[tool.rye]
+dev-dependencies = [
+  "bump2version>=1.0.1",
+  "manim-slides[manim,manimgl,pyqt6]",
+  "pre-commit>=3.5.0",
+  "pytest>=7.4.0",
+  "pytest-cov>=4.1.0",
+  "pytest-env>=0.8.2",
+  "pytest-qt>=4.2.0",
+  "pytest-xdist>=3.3.1",
+]
+managed = true

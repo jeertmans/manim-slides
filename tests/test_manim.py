@@ -21,6 +21,7 @@ def assert_import(
 
 
 def test_force_api() -> None:
+    pytest.importorskip("manimlib")
     import manim  # noqa: F401
 
     if "manimlib" in sys.modules:
@@ -54,6 +55,7 @@ def test_invalid_api() -> None:
 
 @pytest.mark.filterwarnings("ignore:assert_import")
 def test_manim_and_manimgl_imported() -> None:
+    pytest.importorskip("manimlib")
     import manim  # noqa: F401
     import manimlib  # noqa: F401
 
@@ -78,6 +80,7 @@ def test_manim_imported() -> None:
 
 
 def test_manimgl_imported() -> None:
+    pytest.importorskip("manimlib")
     import manimlib  # noqa: F401
 
     if "manim" in sys.modules:

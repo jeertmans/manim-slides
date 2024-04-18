@@ -15,7 +15,6 @@ the slides.
 If both modules are present in {py:data}`sys.modules`, then Manim Slides will
 prefer using `manim`.
 
-
 ### Usage
 
 The simplest way to use Manim Slides with the correct Manim API is to:

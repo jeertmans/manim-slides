@@ -1,18 +1,18 @@
 import hashlib
 import os
 import tempfile
+from collections.abc import Iterator
 from pathlib import Path
-from typing import Iterator, List
 
 import av
 
 from .logger import logger
 
 
-def concatenate_video_files(files: List[Path], dest: Path) -> None:
+def concatenate_video_files(files: list[Path], dest: Path) -> None:
     """Concatenate multiple video files into one."""
 
-    def _filter(files: List[Path]) -> Iterator[Path]:
+    def _filter(files: list[Path]) -> Iterator[Path]:
         """Patch possibly empty video files."""
         for file in files:
             with av.open(str(file)) as container:
@@ -30,9 +30,10 @@ def concatenate_video_files(files: List[Path], dest: Path) -> None:
         f.writelines(f"file '{file}'\n" for file in _filter(files))
         tmp_file = f.name
 
-    with av.open(
-        tmp_file, format="concat", options={"safe": "0"}
-    ) as input_container, av.open(str(dest), mode="w") as output_container:
+    with (
+        av.open(tmp_file, format="concat", options={"safe": "0"}) as input_container,
+        av.open(str(dest), mode="w") as output_container,
+    ):
         input_video_stream = input_container.streams.video[0]
         output_video_stream = output_container.add_stream(
             template=input_video_stream,
@@ -61,7 +62,7 @@ def concatenate_video_files(files: List[Path], dest: Path) -> None:
     os.unlink(tmp_file)  # https://stackoverflow.com/a/54768241
 
 
-def merge_basenames(files: List[Path]) -> Path:
+def merge_basenames(files: list[Path]) -> Path:
     """Merge multiple filenames by concatenating basenames."""
     if len(files) == 0:
         raise ValueError("Cannot merge an empty list of files!")
@@ -90,9 +91,10 @@ def link_nodes(*nodes: av.filter.context.FilterContext) -> None:
 
 def reverse_video_file(src: Path, dest: Path) -> None:
     """Reverses a video file, writing the result to `dest`."""
-    with av.open(str(src)) as input_container, av.open(
-        str(dest), mode="w"
-    ) as output_container:
+    with (
+        av.open(str(src)) as input_container,
+        av.open(str(dest), mode="w") as output_container,
+    ):
         input_stream = input_container.streams.video[0]
         output_stream = output_container.add_stream(
             codec_name="libx264", rate=input_stream.base_rate

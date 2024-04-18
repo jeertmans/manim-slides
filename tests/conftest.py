@@ -1,7 +1,7 @@
 import random
 import string
+from collections.abc import Generator, Iterator
 from pathlib import Path
-from typing import Generator, Iterator, List
 
 import pytest
 
@@ -65,7 +65,7 @@ def random_path(
 
 
 @pytest.fixture
-def paths() -> Generator[List[Path], None, None]:
+def paths() -> Generator[list[Path], None, None]:
     random.seed(1234)
 
     yield [random_path() for _ in range(20)]

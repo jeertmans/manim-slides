@@ -4,13 +4,11 @@ __all__ = ["BaseSlide"]
 
 import platform
 from abc import abstractmethod
+from collections.abc import MutableMapping, Sequence, ValuesView
 from pathlib import Path
 from typing import (
     TYPE_CHECKING,
     Any,
-    MutableMapping,
-    Sequence,
-    ValuesView,
 )
 
 import numpy as np

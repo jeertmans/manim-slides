@@ -1,17 +1,16 @@
 from pathlib import Path
-from typing import List
 
 from manim_slides.utils import merge_basenames
 
 
-def test_merge_basenames(paths: List[Path]) -> None:
+def test_merge_basenames(paths: list[Path]) -> None:
     path = merge_basenames(paths)
     assert path.suffix == paths[0].suffix
     assert path.parent == paths[0].parent
 
 
 def test_merge_basenames_same_with_different_parent_directories(
-    paths: List[Path],
+    paths: list[Path],
 ) -> None:
     d1 = Path("a/b/c")
     d2 = Path("d/e/f")

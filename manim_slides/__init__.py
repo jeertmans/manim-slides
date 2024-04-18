@@ -29,7 +29,7 @@ class Module(ModuleType):
 
         return ModuleType.__getattribute__(self, name)
 
-    def __dir__(self) -> List[str]:
+    def __dir__(self) -> list[str]:
         result = list(new_module.__all__)
         result.extend(
             (

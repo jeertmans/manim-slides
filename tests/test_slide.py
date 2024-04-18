@@ -1,7 +1,9 @@
 import random
 import shutil
+import sys
 from pathlib import Path
 
+import manim
 import numpy as np
 import pytest
 from click.testing import CliRunner
@@ -35,8 +37,9 @@ from manim_slides.slide.manim import Slide
         pytest.param(
             "--GL",
             marks=pytest.mark.skipif(
-                version.parse(np.__version__) >= version.parse("1.25"),
-                reason="ManimGL requires numpy<1.25, which is outdate",
+                version.parse(np.__version__) >= version.parse("1.25")
+                or sys.version_info >= (3, 12),
+                reason="ManimGL requires numpy<1.25, which is outdated and Python < 3.12",
             ),
         ),
     ],
@@ -109,6 +112,10 @@ class TestSlide:
             assert len(self._canvas) == 0
             assert self._wait_time_between_slides == 0.0
 
+    @pytest.mark.skipif(
+        version.parse(manim.__version__) < version.parse("0.18"),
+        reason="Manim change how color are represented in 0.18",
+    )
     @assert_constructs
     class TestBackgroundColor(Slide):
         def construct(self) -> None:

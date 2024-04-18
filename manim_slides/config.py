@@ -4,7 +4,7 @@ from functools import wraps
 from inspect import Parameter, signature
 from pathlib import Path
 from textwrap import dedent
-from typing import Any, Callable, Dict, List, Optional, Set, Tuple
+from typing import Any, Callable, Optional
 
 import rtoml
 from pydantic import (
@@ -24,7 +24,7 @@ Receiver = Callable[..., Any]
 
 
 class Signal(BaseModel):  # type: ignore[misc]
-    __receivers: List[Receiver] = PrivateAttr(default_factory=list)
+    __receivers: list[Receiver] = PrivateAttr(default_factory=list)
 
     def connect(self, receiver: Receiver) -> None:
         self.__receivers.append(receiver)
@@ -47,14 +47,14 @@ def key_id(name: str) -> PositiveInt:
 class Key(BaseModel):  # type: ignore[misc]
     """Represents a list of key codes, with optionally a name."""
 
-    ids: List[PositiveInt] = Field(unique=True)
+    ids: list[PositiveInt] = Field(unique=True)
     name: Optional[str] = None
 
     __signal: Signal = PrivateAttr(default_factory=Signal)
 
     @field_validator("ids")
     @classmethod
-    def ids_is_non_empty_set(cls, ids: Set[Any]) -> Set[Any]:
+    def ids_is_non_empty_set(cls, ids: set[Any]) -> set[Any]:
         if len(ids) <= 0:
             raise ValueError("Key's ids must be a non-empty set")
         return ids
@@ -98,8 +98,8 @@ class Keys(BaseModel):  # type: ignore[misc]
 
     @model_validator(mode="before")
     @classmethod
-    def ids_are_unique_across_keys(cls, values: Dict[str, Key]) -> Dict[str, Key]:
-        ids: Set[int] = set()
+    def ids_are_unique_across_keys(cls, values: dict[str, Key]) -> dict[str, Key]:
+        ids: set[int] = set()
 
         for key in values.values():
             if len(ids.intersection(key["ids"])) != 0:
@@ -296,8 +296,8 @@ class SlideConfig(BaseSlideConfig):
 
 
 class PresentationConfig(BaseModel):  # type: ignore[misc]
-    slides: List[SlideConfig] = Field(min_length=1)
-    resolution: Tuple[PositiveInt, PositiveInt] = (1920, 1080)
+    slides: list[SlideConfig] = Field(min_length=1)
+    resolution: tuple[PositiveInt, PositiveInt] = (1920, 1080)
     background_color: Color = "black"
 
     @classmethod

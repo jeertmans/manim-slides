@@ -106,7 +106,9 @@ Along with the optional dependencies for Manim and ManimGL,
 Manim Slides offers additional *extras*, that can be activated
 using optional dependencies:
 
-- `full`, to include `magic`, `manim`, `manimgl`, and
+- `full`, to include `magic`, `manim`, and
+  `sphinx-directive` extras (see below);
+- `full-gl`, to include `magic`, `manimgl`, and
   `sphinx-directive` extras (see below);
 - `magic`, to include a Jupyter magic to render
   animations inside notebooks. This automatically installs `manim`,
