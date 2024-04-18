@@ -24,7 +24,9 @@ jobs:
       run: |
         curl -sSf https://rye-up.com/get | bash
         echo "$HOME/.rye/shims" >> $GITHUB_PATH
-        rye config --set-bool behavior.use-uv=true
+
+    - name: Configure Rye
+      run: rye config --set-bool behavior.use-uv=true
 
     - name: Build package
       run: rye build

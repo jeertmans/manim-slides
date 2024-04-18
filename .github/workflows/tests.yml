@@ -49,22 +49,6 @@ jobs:
         rye config --set-bool behavior.use-uv=true
         rye pin ${{ matrix.pyversion }}
 
-      # Path related stuff
-    - name: Append to Path on MacOS
-      if: matrix.os == 'macos-latest'
-      run: |
-        echo "${HOME}/.local/bin" >> $GITHUB_PATH
-        echo "/Users/runner/Library/Python/${{ matrix.pyversion }}/bin" >> $GITHUB_PATH
-
-    - name: Append to Path on Ubuntu
-      if: matrix.os == 'ubuntu-latest'
-      run: echo "${HOME}/.local/bin" >> $GITHUB_PATH
-
-    - name: Append to Path on Windows
-      if: matrix.os == 'windows-latest'
-      run: echo "${HOME}/.local/bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
-
-      # OS dependencies
     - name: Install manim dependencies on MacOS
       if: matrix.os == 'macos-latest'
       run: brew install ffmpeg py3cairo
