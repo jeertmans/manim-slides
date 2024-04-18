@@ -1,6 +1,6 @@
 [build-system]
-requires = ["hatchling"]
 build-backend = "hatchling.build"
+requires = ["hatchling"]
 
 [project]
 authors = [{name = "Jérome Eertmans", email = "jeertmans@icloud.com"}]
@@ -90,6 +90,9 @@ exclude_lines = [
 ]
 precision = 2
 
+[tool.hatch.version]
+path = "manim_slides/__version__.py"
+
 [tool.mypy]
 disallow_untyped_decorators = false
 install_types = true
@@ -146,6 +149,3 @@ test = [
   "pytest-qt>=4.2.0",
   "pytest-xdist>=3.3.1",
 ]
-
-[tool.hatch.version]
-path = "manim_slides/__version__.py"

@@ -1,7 +1,8 @@
 import random
 import string
+from collections.abc import Generator, Iterator
 from pathlib import Path
-from typing import Generator, Iterator, List
+from typing import List
 
 import pytest
 

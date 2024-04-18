@@ -1,5 +1,6 @@
+from collections.abc import Iterator
 from pathlib import Path
-from typing import Iterator, Tuple
+from typing import Tuple
 
 import pytest
 from click.testing import CliRunner
