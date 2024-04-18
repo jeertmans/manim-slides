@@ -29,7 +29,7 @@ jobs:
       if: matrix.os != 'windows-latest'
       env:
         RYE_TOOLCHAIN: ${{ matrix.pyversion}}
-        RYE_INSTALL_OPTION: '--yes'
+        RYE_INSTALL_OPTION: --yes
       run: |
         curl -sSf https://rye-up.com/get | bash
         echo "$HOME/.rye/shims" >> $GITHUB_PATH

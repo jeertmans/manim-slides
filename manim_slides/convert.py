@@ -378,7 +378,6 @@ class RevealJS(Converter):
         if isinstance(self.template, Path):
             return self.template.read_text()
 
-
         return resources.files(templates).joinpath("revealjs.html").read_text()
 
     def open(self, file: Path) -> bool:
