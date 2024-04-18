@@ -19,7 +19,13 @@ jobs:
       uses: actions/checkout@v4
 
     - name: Setup Rye
-      uses: eifinger/setup-rye@v2
+      env:
+        RYE_TOOLCHAIN: '3.11'
+        RYE_INSTALL_OPTION: '--yes'
+      run: |
+        curl -sSf https://rye-up.com/get | bash
+        echo "$HOME/.rye/shims" >> $GITHUB_PATH
+        rye config --set-bool behavior.use-uv=true
 
     - name: Build package
       run: rye build
