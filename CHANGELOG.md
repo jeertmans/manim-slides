@@ -14,7 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 (v5.1.5)=
 ## [v5.1.5](https://github.com/jeertmans/manim-slides/compare/v5.1.4...v5.1.5)
 
-(v5.1.5)=
+(v5.1.5-chore)=
 ### Chore
 
 - Added CI for broken HTML links and fixed, plus spell checking.
@@ -24,7 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Used Rye instead of PDM for faster development.
   [#420](https://github.com/jeertmans/manim-slides/pull/420)
 
-(v5.1.5)=
+(v5.1.5-fixed)=
 ### Fixed
 
 - Fixed broken `--show-config` command.
