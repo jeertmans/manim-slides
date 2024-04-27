@@ -86,6 +86,19 @@ A third application is to render scenes from another specific file::
     you should probably not include examples that rely on external files, since
     relative paths risk to be broken.
 
+.. note::
+
+    If you want to skip rendering the slides (e.g., for testing)
+    you can either set the ``SKIP_MANIM_SLIDES`` environ
+    variable (to any value) or pass  the ``skip-manim-slides``
+    tag to ``sphinx``:
+
+    .. code-block:: bash
+
+        sphinx-build -t skip-manim-slides <OTHER_SPHINX_OPTIONS>
+        # or if you use a Makefile
+        make html O=-tskip-manim-slides
+
 Options
 -------
 
@@ -181,6 +194,7 @@ from __future__ import annotations
 
 import csv
 import itertools as it
+import os
 import re
 import shlex
 import sys
@@ -272,6 +286,7 @@ class ManimSlidesDirective(Directive):
             "skip-manim-slides"
             in self.state.document.settings.env.app.builder.tags.tags
             or self.state.document.settings.env.app.builder.name == "gettext"
+            or "SKIP_MANIM_SLIDES" in os.environ
         )
         if should_skip:
             node = SkipManimNode()
