@@ -1,7 +1,7 @@
 import signal
 import sys
 from pathlib import Path
-from typing import List, Optional, Tuple
+from typing import Optional
 
 import click
 from click import Context, Parameter

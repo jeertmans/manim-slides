@@ -1,6 +1,6 @@
 import sys
 from types import ModuleType
-from typing import Any, List
+from typing import Any
 
 from .__version__ import __version__
 
