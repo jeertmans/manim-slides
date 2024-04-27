@@ -10,6 +10,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 (unreleased)=
 ## [Unreleased](https://github.com/jeertmans/manim-slides/compare/v5.1.5...HEAD)
 
+(unreleased-added)=
+### Added
+
+- Added options to skip the Manim Slides Sphinx directive.
+  [#423](https://github.com/jeertmans/manim-slides/pull/423)
+
 (unreleased-chore)=
 ### Chore
 
@@ -34,7 +40,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Fixed broken `--show-config` command.
   [#419](https://github.com/jeertmans/manim-slides/pull/419)
-
 
 (v5.1.4)=
 ## [v5.1.4](https://github.com/jeertmans/manim-slides/compare/v5.1.3...v5.1.4)
