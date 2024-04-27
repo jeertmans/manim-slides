@@ -43,6 +43,7 @@ installation
 reference/index
 features_table
 manim_or_manimgl
+gallery
 faq
 ```
 
