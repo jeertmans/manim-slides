@@ -8,15 +8,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <!-- start changelog -->
 
 (unreleased)=
-## [Unreleased](https://github.com/jeertmans/manim-slides/compare/v5.1.5...HEAD)
+## [Unreleased](https://github.com/jeertmans/manim-slides/compare/v5.1.6...HEAD)
 
-(unreleased-added)=
+(v5.1.6)=
+## [v5.1.6](https://github.com/jeertmans/manim-slides/compare/v5.1.5...v5.1.6)
+
+(v5.1.6-added)=
 ### Added
 
 - Added options to skip the Manim Slides Sphinx directive.
   [#423](https://github.com/jeertmans/manim-slides/pull/423)
 
-(unreleased-chore)=
+(v5.1.6-chore)=
 ### Chore
 
 - Added an examples gallery.
