@@ -498,7 +498,7 @@ class PowerPoint(Converter):
             el_id = xpath(media.element, ".//p:cNvPr")[0].attrib["id"]
             el_cnt = xpath(
                 media.element.getparent().getparent().getparent(),
-                './/p:timing//p:video//p:spTgt[@spid="%s"]' % el_id,
+                f'.//p:timing//p:video//p:spTgt[@spid="{el_id}"]',
             )[0]
             cond = xpath(el_cnt.getparent().getparent(), ".//p:cond")[0]
             cond.set("delay", "0")
