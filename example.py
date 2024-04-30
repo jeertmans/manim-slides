@@ -40,7 +40,7 @@ class ConvertExample(Slide):
         step_2 = Text("2. Replace Scene with Slide")
         step_3 = Text("3. In construct, add pauses where you need")
         step_4 = Text("4. You can also create loops")
-        step_5 = Text("5. Render you scene with Manim")
+        step_5 = Text("5. Render your scene with Manim")
         step_6 = Text("6. Open your presentation with Manim Slides")
 
         for step in [step_1, step_2, step_3, step_4, step_5, step_6]:
@@ -148,7 +148,7 @@ class Example(Slide):
         )
 
         code_step_5 = Code(
-            code="manim example.py Example",
+            code="manim-slide render example.py Example",
             language="console",
         )
 
@@ -191,7 +191,7 @@ class Example(Slide):
         self.play(Transform(code, code_step_6))
         self.play(code.animate.shift(UP), FadeIn(code_step_7), FadeIn(or_text))
 
-        watch_text = Text("Watch result on next slides!").shift(2 * DOWN).scale(0.5)
+        watch_text = Text("Watch results on next slides!").shift(2 * DOWN).scale(0.5)
 
         self.next_slide(loop=True)
         self.play(FadeIn(watch_text))
