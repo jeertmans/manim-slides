@@ -8,9 +8,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <!-- start changelog -->
 
 (unreleased)=
-## [Unreleased](https://github.com/jeertmans/manim-slides/compare/v5.1.6...HEAD)
+## [Unreleased](https://github.com/jeertmans/manim-slides/compare/5.1.7...HEAD)
 
-(unreleased-chore)=
+(v5.1.7)=
+## [v5.1.7](https://github.com/jeertmans/manim-slides/compare/v5.1.6...v5.1.7)
+
+(v5.1.7-chore)=
 ### Chore
 
 - Improved the CI for bumping the version and README rendering on PyPI.
