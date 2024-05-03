@@ -15,9 +15,4 @@ sphinx:
   fail_on_warning: true
 python:
   install:
-  - method: pip
-    path: .
-    extra_requirements:
-    - docs
-    - magic
-    - sphinx-directive
+  - requirements: requirements-dev.lock
