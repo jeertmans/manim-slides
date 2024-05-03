@@ -90,7 +90,7 @@ search = '__version__ = "{current_version}"'
 
 [[tool.bumpversion.files]]
 filename = "CITATION.cff"
-replace = "version: v{current_version}"
+replace = "version: v{new_version}"
 search = "version: v{current_version}"
 
 [[tool.bumpversion.files]]
