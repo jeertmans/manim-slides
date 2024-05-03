@@ -4,6 +4,8 @@
   <img alt="Manim Slides Logo" src="https://raw.githubusercontent.com/jeertmans/manim-slides/main/static/logo.png">
 </picture>
 
+<!-- start pypi -->
+
 [![Latest Release][pypi-version-badge]][pypi-version-url]
 [![Python version][pypi-python-version-badge]][pypi-version-url]
 [![PyPI - Downloads][pypi-download-badge]][pypi-version-url]
