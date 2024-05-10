@@ -409,7 +409,8 @@ class RevealJS(Converter):
             if num_presentation_configs > 1:
                 # Prevent possible name collision, see:
                 # https://github.com/jeertmans/manim-slides/issues/428
-                # With ManimCE, this should not happen (but happens...)
+                # With ManimCE, this can happen when caching is disabled as filenames are
+                #   'uncached_000x.mp4'
                 # With ManimGL, this can easily occur since filenames are just basic integers...
                 num_digits = len(str(num_presentation_configs - 1))
 
