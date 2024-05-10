@@ -153,6 +153,28 @@ class TestConverter:
         file_contents = Path(out_file).read_text()
         assert "manim" in file_contents.casefold()
 
+    @pytest.mark.parametrize("num_presentation_configs", (1, 2))
+    def test_revealjs__multiple_scenes_converter(
+        self,
+        tmp_path: Path,
+        presentation_config: PresentationConfig,
+        num_presentation_configs: int,
+    ) -> None:
+        out_file = tmp_path / "slides.html"
+        RevealJS(
+            presentation_configs=[
+                presentation_config for _ in range(num_presentation_configs)
+            ]
+        ).convert_to(out_file)
+        assert out_file.exists()
+        assets_dir = Path(tmp_path / "slides_assets")
+        assert assets_dir.is_dir()
+
+        got = sum(1 for _ in assets_dir.iterdir())
+        expected = num_presentation_configs * len(presentation_config.slides)
+
+        assert got == expected
+
     @pytest.mark.parametrize("frame_index", ("first", "last"))
     def test_pdf_converter(
         self, frame_index: str, tmp_path: Path, presentation_config: PresentationConfig
