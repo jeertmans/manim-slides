@@ -154,7 +154,7 @@ class TestConverter:
         assert "manim" in file_contents.casefold()
 
     @pytest.mark.parametrize("num_presentation_configs", (1, 2))
-    def test_revealjs__multiple_scenes_converter(
+    def test_revealjs_multiple_scenes_converter(
         self,
         tmp_path: Path,
         presentation_config: PresentationConfig,
