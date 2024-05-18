@@ -404,8 +404,28 @@ class RevealJS(Converter):
 
             full_assets_dir.mkdir(parents=True, exist_ok=True)
 
-            for presentation_config in self.presentation_configs:
-                presentation_config.copy_to(full_assets_dir, include_reversed=False)
+            num_presentation_configs = len(self.presentation_configs)
+
+            if num_presentation_configs > 1:
+                # Prevent possible name collision, see:
+                # https://github.com/jeertmans/manim-slides/issues/428
+                # With ManimCE, this can happen when caching is disabled as filenames are
+                #   'uncached_000x.mp4'
+                # With ManimGL, this can easily occur since filenames are just basic integers...
+                num_digits = len(str(num_presentation_configs - 1))
+
+                def prefix(i: int) -> str:
+                    return f"s{i:0{num_digits}d}_"
+
+            else:
+
+                def prefix(i: int) -> str:
+                    return ""
+
+            for i, presentation_config in enumerate(self.presentation_configs):
+                presentation_config.copy_to(
+                    full_assets_dir, include_reversed=False, prefix=prefix(i)
+                )
 
         dest.parent.mkdir(parents=True, exist_ok=True)
 

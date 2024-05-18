@@ -10,6 +10,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 (unreleased)=
 ## [Unreleased](https://github.com/jeertmans/manim-slides/compare/5.1.7...HEAD)
 
+(unreleased-fixed)=
+### Fixed
+
+- Fix combining assets from multiple scenes to avoid filename collision.
+  [#429](https://github.com/jeertmans/manim-slides/pull/429)
+
 (v5.1.7)=
 ## [v5.1.7](https://github.com/jeertmans/manim-slides/compare/v5.1.6...v5.1.7)
 

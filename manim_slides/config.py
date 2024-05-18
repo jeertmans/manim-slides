@@ -324,15 +324,19 @@ class PresentationConfig(BaseModel):  # type: ignore[misc]
             f.write(self.model_dump_json(indent=2))
 
     def copy_to(
-        self, folder: Path, use_cached: bool = True, include_reversed: bool = True
+        self,
+        folder: Path,
+        use_cached: bool = True,
+        include_reversed: bool = True,
+        prefix: str = "",
     ) -> "PresentationConfig":
         """Copy the files to a given directory."""
         for slide_config in self.slides:
             file = slide_config.file
             rev_file = slide_config.rev_file
 
-            dest = folder / file.name
-            rev_dest = folder / rev_file.name
+            dest = folder / f"{prefix}{file.name}"
+            rev_dest = folder / f"{prefix}{rev_file.name}"
 
             slide_config.file = dest
             slide_config.rev_file = rev_dest
