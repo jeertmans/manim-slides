@@ -134,7 +134,7 @@ def reverse_video_file_in_one_chunk(src_and_dest: tuple[Path, Path]) -> None:
 def reverse_video_file(
     src: Path,
     dest: Path,
-    max_segment_duration: float = 1,
+    max_segment_duration: float = 4,
     processes: Optional[int] = None,
     **tqdm_kwargs: Any,
 ) -> None:
