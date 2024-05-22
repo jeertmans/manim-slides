@@ -289,7 +289,7 @@ class RevealTheme(str, StrEnum):
 
 
 class RevealJS(Converter):
-    # Export option: use data-uri
+    # Export option:
     data_uri: bool = False
     offline: bool = Field(False, description="Download remote assets for offline presentation.")
     # Presentation size options from RevealJS
@@ -400,15 +400,18 @@ class RevealJS(Converter):
             basename = dest.stem
             ext = dest.suffix
 
-            assets_dir = Path(
-                self.assets_dir.format(dirname=dirname, basename=basename, ext=ext)
-            )
-            full_assets_dir = dirname / assets_dir
+        assets_dir = Path(
+            self.assets_dir.format(dirname=dirname, basename=basename, ext=ext)
+        )
+        full_assets_dir = dirname / assets_dir
 
+        needs_assets = (not self.data_uri) or self.offline
+
+        if needs_assets:
             logger.debug(f"Assets will be saved to: {full_assets_dir}")
-
             full_assets_dir.mkdir(parents=True, exist_ok=True)
 
+        if not self.data_uri:
             num_presentation_configs = len(self.presentation_configs)
 
             if num_presentation_configs > 1:
