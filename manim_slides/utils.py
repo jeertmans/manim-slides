@@ -2,9 +2,12 @@ import hashlib
 import os
 import tempfile
 from collections.abc import Iterator
+from multiprocessing import Pool
 from pathlib import Path
+from typing import Any, Optional
 
 import av
+from tqdm import tqdm
 
 from .logger import logger
 
@@ -89,8 +92,9 @@ def link_nodes(*nodes: av.filter.context.FilterContext) -> None:
         c.link_to(n)
 
 
-def reverse_video_file(src: Path, dest: Path) -> None:
+def reverse_video_file_in_one_chunk(src_and_dest: tuple[Path, Path]) -> None:
     """Reverses a video file, writing the result to `dest`."""
+    src, dest = src_and_dest
     with (
         av.open(str(src)) as input_container,
         av.open(str(dest), mode="w") as output_container,
@@ -120,8 +124,68 @@ def reverse_video_file(src: Path, dest: Path) -> None:
 
         for _ in range(frames_count):
             frame = graph.pull()
-            frame.pict_type = 5  # Otherwise we get a warning saying it is changed
+            frame.pict_type = "NONE"  # Otherwise we get a warning saying it is changed
             output_container.mux(output_stream.encode(frame))
 
         for packet in output_stream.encode():
             output_container.mux(packet)
+
+
+def reverse_video_file(
+    src: Path,
+    dest: Path,
+    max_segment_duration: float = 1,
+    processes: Optional[int] = None,
+    **tqdm_kwargs: Any,
+) -> None:
+    """Reverses a video file, writing the result to `dest`."""
+    with av.open(str(src)) as input_container:  # Fast path if file is short enough
+        input_stream = input_container.streams.video[0]
+        if input_stream.duration:
+            if (
+                float(input_stream.duration * input_stream.time_base)
+                <= max_segment_duration
+            ):
+                return reverse_video_file_in_one_chunk((src, dest))
+        else:
+            logger.debug(
+                f"Could not determine duration of {src}, falling back to segmentation."
+            )
+
+        with tempfile.TemporaryDirectory() as tmpdirname:
+            tmpdir = Path(tmpdirname)
+            with av.open(
+                str(tmpdir / "%04d.mp4"),
+                "w",
+                format="segment",
+                options={"segment_time": str(max_segment_duration)},
+            ) as output_container:
+                output_stream = output_container.add_stream(
+                    template=input_stream,
+                )
+
+                for packet in input_container.demux(input_stream):
+                    if packet.dts is None:
+                        continue
+
+                    packet.stream = output_stream
+                    output_container.mux(packet)
+
+            src_files = list(tmpdir.iterdir())
+            rev_files = [
+                src_file.with_stem("rev_" + src_file.stem) for src_file in src_files
+            ]
+
+            with Pool(processes, maxtasksperchild=1) as pool:
+                for _ in tqdm(
+                    pool.imap_unordered(
+                        reverse_video_file_in_one_chunk, zip(src_files, rev_files)
+                    ),
+                    desc="Reversing large file by cutting it in segments",
+                    total=len(src_files),
+                    unit=" files",
+                    **tqdm_kwargs,
+                ):
+                    pass  # We just consume the iterator
+
+            concatenate_video_files(rev_files[::-1], dest)

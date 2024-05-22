@@ -475,10 +475,11 @@ class BaseSlide:
 
         for pre_slide_config in tqdm(
             self._slides,
-            desc=f"Concatenating animation files to '{scene_files_folder}' and generating reversed animations",
+            desc=f"Concatenating animations to '{scene_files_folder}' and generating reversed animations",
             leave=self._leave_progress_bar,
             ascii=True if platform.system() == "Windows" else None,
             disable=not self._show_progress_bar,
+            unit=" slides",
         ):
             slide_files = files[pre_slide_config.slides_slice]
 
@@ -492,7 +493,13 @@ class BaseSlide:
 
             # We only reverse video if it was not present
             if not use_cache or not rev_file.exists():
-                reverse_video_file(dst_file, rev_file)
+                reverse_video_file(
+                    dst_file,
+                    rev_file,
+                    leave=self._leave_progress_bar,
+                    ascii=True if platform.system() == "Windows" else None,
+                    disable=not self._show_progress_bar,
+                )
 
             slides.append(
                 SlideConfig.from_pre_slide_config_and_files(
