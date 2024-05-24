@@ -22,7 +22,7 @@ jobs:
       env:
         RYE_INSTALL_OPTION: --yes
       run: |
-        curl -sSf https://rye-up.com/get | bash
+        curl -sSf https://rye.astral.sh/get | bash
         echo "$HOME/.rye/shims" >> $GITHUB_PATH
 
     - name: Configure Rye

@@ -24,7 +24,7 @@ the repository, and clone it locally.
 
 As for every Python project, using virtual environment is recommended to avoid
 conflicts between modules.
-For this project, we use [Rye](https://rye-up.com/) to easily manage project
+For this project, we use [Rye](https://rye.astral.sh/) to easily manage project
 and development dependencies. If not already, please install this tool.
 
 ## Installing Python modules
