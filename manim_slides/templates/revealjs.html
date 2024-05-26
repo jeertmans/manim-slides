@@ -19,7 +19,7 @@
   <body>
     <div class="reveal">
       <div class="slides">
-        {%- for presentation_config in presentation_configs -%}
+        {% for presentation_config in presentation_configs -%}
           {% set outer_loop = loop %}
           {%- for slide_config in presentation_config.slides -%}
             {%- if data_uri -%}
@@ -27,23 +27,24 @@
             {%- else -%}
               {% set file = assets_dir / slide_config.file.name %}
             {%- endif -%}
-            <section
-              data-background-size={{ background_size }}
-              data-background-color="{{ presentation_config.background_color }}"
-              data-background-video="{{ file }}"
-              {% if loop.index == 1 and outer_loop.index == 1 -%}
-                data-background-video-muted
-              {%- endif -%}
-              {% if slide_config.loop -%}
-                data-background-video-loop
-              {%- endif -%}
-              {% if slide_config.auto_next -%}
-                data-autoslide="{{ get_duration_ms(slide_config.file) }}"
-              {%- endif -%}>
-              {% if slide_config.notes != "" -%}
-                <aside class="notes" data-markdown>{{ slide_config.notes }}</aside>
-              {%- endif %}
-            </section>
+        <section
+          data-background-size={{ background_size }}
+          data-background-color="{{ presentation_config.background_color }}"
+          data-background-video="{{ file }}"
+          {% if loop.index == 1 and outer_loop.index == 1 -%}
+            data-background-video-muted
+          {%- endif -%}
+          {% if slide_config.loop -%}
+            data-background-video-loop
+          {%- endif -%}
+          {% if slide_config.auto_next -%}
+            data-autoslide="{{ get_duration_ms(slide_config.file) }}"
+          {%- endif %}
+          >
+          {%- if slide_config.notes != "" -%}
+            <aside class="notes" data-markdown>{{ slide_config.notes }}</aside>
+          {%- endif %}
+        </section>
           {%- endfor -%}
         {%- endfor -%}
       </div>

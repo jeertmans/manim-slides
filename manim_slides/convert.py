@@ -1,6 +1,7 @@
 import mimetypes
 import os
 import platform
+import re
 import subprocess
 import tempfile
 import webbrowser
@@ -14,6 +15,7 @@ from typing import Any, Callable, Optional, Union
 import av
 import click
 import pptx
+import requests
 from click import Context, Parameter
 from jinja2 import Template
 from lxml import etree
@@ -285,8 +287,9 @@ class RevealTheme(str, StrEnum):
 
 
 class RevealJS(Converter):
-    # Export option: use data-uri
+    # Export option:
     data_uri: bool = False
+    offline: bool = False
     # Presentation size options from RevealJS
     width: Union[Str, int] = Str("100%")
     height: Union[Str, int] = Str("100%")
@@ -388,22 +391,22 @@ class RevealJS(Converter):
         Convert this configuration into a RevealJS HTML presentation, saved to
         DEST.
         """
-        if self.data_uri:
-            assets_dir = Path("")  # Actually we won't care.
-        else:
-            dirname = dest.parent
-            basename = dest.stem
-            ext = dest.suffix
+        dirname = dest.parent
+        basename = dest.stem
+        ext = dest.suffix
 
-            assets_dir = Path(
-                self.assets_dir.format(dirname=dirname, basename=basename, ext=ext)
-            )
-            full_assets_dir = dirname / assets_dir
+        assets_dir = Path(
+            self.assets_dir.format(dirname=dirname, basename=basename, ext=ext)
+        )
+        full_assets_dir = dirname / assets_dir
 
+        needs_assets = (not self.data_uri) or self.offline
+
+        if needs_assets:
             logger.debug(f"Assets will be saved to: {full_assets_dir}")
-
             full_assets_dir.mkdir(parents=True, exist_ok=True)
 
+        if not self.data_uri:
             num_presentation_configs = len(self.presentation_configs)
 
             if num_presentation_configs > 1:
@@ -448,6 +451,26 @@ class RevealJS(Converter):
                 env=os.environ,
                 **options,
             )
+
+            if self.offline:
+
+                def repl(matchobj: re.Match[str]) -> str:
+                    src_or_ref = matchobj.group(1)
+                    url = matchobj.group(2)
+                    name = url[url.rfind("/") + 1 :]
+                    rel_name = assets_dir / name
+                    abs_name = full_assets_dir / name
+
+                    if not abs_name.exists():
+                        with open(abs_name, "wb") as f:
+                            r = requests.get(url, allow_redirects=True)
+                            f.write(r.content)
+
+                    return f'{src_or_ref}="{rel_name}"'
+
+                content = re.sub(r'(src|href)="(https://[^"]+)"', repl, content)
+
+                # Put downloaded assets in assets folder.
 
             f.write(content)
 
