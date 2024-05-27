@@ -15,6 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Fix combining assets from multiple scenes to avoid filename collision.
   [#429](https://github.com/jeertmans/manim-slides/pull/429)
+- Fixed whitespace issue in default RevealJS template.
+  [#442](https://github.com/jeertmans/manim-slides/pull/442)
 
 (v5.1.7)=
 ## [v5.1.7](https://github.com/jeertmans/manim-slides/compare/v5.1.6...v5.1.7)
