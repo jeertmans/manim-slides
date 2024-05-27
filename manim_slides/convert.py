@@ -430,7 +430,9 @@ class RevealJS(Converter):
         dest.parent.mkdir(parents=True, exist_ok=True)
 
         with open(dest, "w") as f:
-            revealjs_template = Template(self.load_template(), trim_blocks=True, lstrip_blocks=True)
+            revealjs_template = Template(
+                self.load_template(), trim_blocks=True, lstrip_blocks=True
+            )
 
             options = self.dict()
             options["assets_dir"] = assets_dir
