@@ -262,21 +262,6 @@ class PreSlideConfig(BaseSlideConfig):
 
         return pre_slide_config
 
-    @model_validator(mode="after")
-    @classmethod
-    def loop_and_auto_next_disallowed(
-        cls, pre_slide_config: "PreSlideConfig"
-    ) -> "PreSlideConfig":
-        if pre_slide_config.loop and pre_slide_config.auto_next:
-            raise ValueError(
-                "You cannot have both `loop=True` and `auto_next=True`, "
-                "because a looping slide has no ending. "
-                "This may be supported in the future if "
-                "https://github.com/jeertmans/manim-slides/pull/299 gets merged."
-            )
-
-        return pre_slide_config
-
     @property
     def slides_slice(self) -> slice:
         return slice(self.start_animation, self.end_animation)
