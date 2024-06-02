@@ -22,7 +22,6 @@ from manim import (
     Text,
 )
 from packaging import version
-from pydantic import ValidationError
 
 from manim_slides.config import PresentationConfig
 from manim_slides.defaults import FOLDER_PATH
