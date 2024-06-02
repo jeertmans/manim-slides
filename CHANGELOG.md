@@ -18,6 +18,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed whitespace issue in default RevealJS template.
   [#442](https://github.com/jeertmans/manim-slides/pull/442)
 
+(unreleased-chore)=
+### Chore
+
+- Removed an old validation check that prevented setting `loop=True` with
+  `auto_next=True` on `next_slide()`
+  [#445](https://github.com/jeertmans/manim-slides/pull/445)
+
 (v5.1.7)=
 ## [v5.1.7](https://github.com/jeertmans/manim-slides/compare/v5.1.6...v5.1.7)
 
