@@ -2,7 +2,7 @@ from pathlib import Path
 from typing import Any, Optional
 
 from manim import Scene, ThreeDScene, config
-from manim.renderer.opengl_renderer import OpenGLRenderer, OpenGLCamera
+from manim.renderer.opengl_renderer import OpenGLRenderer
 from manim.utils.color import rgba_to_color
 
 from ..config import BaseSlideConfig
@@ -18,9 +18,12 @@ class Slide(BaseSlide, Scene):  # type: ignore[misc]
     @property
     def _frame_shape(self) -> tuple[float, float]:
         if isinstance(self.renderer, OpenGLRenderer):
-            return self.renderer.camera.frame_shape
+            return self.renderer.camera.frame_shape  # type: ignore
         else:
-            return self.renderer.camera.frame_height, self.renderer.camera.frame_width
+            return (
+                self.renderer.camera.frame_height,
+                self.renderer.camera.frame_width,
+            )
 
     @property
     def _frame_height(self) -> float:
@@ -33,16 +36,19 @@ class Slide(BaseSlide, Scene):  # type: ignore[misc]
     @property
     def _background_color(self) -> str:
         if isinstance(self.renderer, OpenGLRenderer):
-            return rgba_to_color(self.renderer.background_color).to_hex()
+            return rgba_to_color(self.renderer.background_color).to_hex()  # type: ignore
         else:
-            return self.renderer.camera.background_color.to_hex()
+            return self.renderer.camera.background_color.to_hex()  # type: ignore
 
     @property
     def _resolution(self) -> tuple[int, int]:
         if isinstance(self.renderer, OpenGLRenderer):
-            return self.renderer.camera.get_pixel_shape()
+            return self.renderer.get_pixel_shape()  # type: ignore
         else:
-            return self.renderer.camera.pixel_width, self.renderer.camera.pixel_height
+            return (
+                self.renderer.camera.pixel_width,
+                self.renderer.camera.pixel_height,
+            )
 
     @property
     def _partial_movie_files(self) -> list[Path]:

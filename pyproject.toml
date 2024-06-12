@@ -50,7 +50,7 @@ full-gl = [
 ]
 magic = ["manim-slides[manim]", "ipython>=8.12.2"]
 manim = ["manim>=0.18.0"]
-manimgl = ["manimgl>=1.6.1;python_version<'3.12'"]
+manimgl = ["numpy<=1.24", "manimgl>=1.6.1"]
 pyqt6 = ["pyqt6>=6.6.1"]
 pyqt6-full = ["manim-slides[full,pyqt6]"]
 pyside6 = ["pyside6>=6.5.1,<6.5.3;python_version<'3.12'"]
@@ -66,11 +66,6 @@ Documentation = "https://eertmans.be/manim-slides"
 Founding = "https://github.com/sponsors/jeertmans"
 Homepage = "https://github.com/jeertmans/manim-slides"
 Repository = "https://github.com/jeertmans/manim-slides"
-
-[tool.uv]
-override-dependencies = [
-  "manimpango>=0.5.0,<1.0.0"
-]
 
 [tool.bumpversion]
 allow_dirty = false
@@ -198,6 +193,9 @@ extend-ignore = [
 extend-select = ["B", "C90", "D", "I", "N", "RUF", "UP", "T"]
 isort = {known-first-party = ["manim_slides", "tests"]}
 
+[tool.ruff.lint.per-file-ignores]
+"tests/test_slide.py" = ["N801"]
+
 [tool.rye]
 dev-dependencies = [
   "manim-slides[magic,manim,manimgl,pyqt6,sphinx-directive]",
@@ -222,3 +220,10 @@ dev-dependencies = [
   "pytest-xdist>=3.3.1",
 ]
 managed = true
+
+[tool.uv]
+override-dependencies = [
+  # Bypass constraints from ManimGL
+  "manimpango>=0.5.0,<1.0.0",
+  "numpy>=0.19;python_version >= '3.12'",
+]

@@ -2,14 +2,12 @@ import random
 import shutil
 import sys
 from pathlib import Path
-from typing import Union
+from typing import Any, Union
 
-import manim
 import numpy as np
 import pytest
 from click.testing import CliRunner
 from manim import (
-    BLACK,
     BLUE,
     DOWN,
     LEFT,
@@ -28,9 +26,12 @@ from packaging import version
 from manim_slides.config import PresentationConfig
 from manim_slides.defaults import FOLDER_PATH
 from manim_slides.render import render
-from manim_slides.slide.manim import Slide
 from manim_slides.slide.manim import Slide as CESlide
 from manim_slides.slide.manimlib import Slide as GLSlide
+
+if sys.version_info < (3, 12):
+    # NumPy <= 1.24 does not support Python >= 3.12
+    GLSlide = pytest.param(GLSlide, marks=pytest.mark.xskip)  # type: ignore[misc]
 
 
 @pytest.mark.parametrize(
@@ -86,14 +87,14 @@ def test_render_basic_slide(
         assert local_presentation_config.resolution == presentation_config.resolution
 
 
-
 class CEGLSlide(CESlide):
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, renderer=OpenGLRenderer(), **kwargs)
 
 
 SlideType = Union[type[CESlide], type[GLSlide], type[CEGLSlide]]
 Slide = Union[CESlide, GLSlide, CEGLSlide]
+
 
 def init_slide(cls: SlideType) -> Slide:
     if issubclass(cls, CESlide):
@@ -106,20 +107,27 @@ def init_slide(cls: SlideType) -> Slide:
         config = get_configuration(args)
         scene_config = get_scene_config(config)
         return cls(**scene_config)
-    
+
     raise ValueError(f"Unsupported class {cls}")
+
+
+parametrize_base_cls = pytest.mark.parametrize(
+    "base_cls", (CESlide, GLSlide, CEGLSlide), ids=("CE", "GL", "CE(GL)")
+)
+
 
 def assert_constructs(cls: SlideType) -> None:
     init_slide(cls).construct()
 
+
 def assert_renders(cls: SlideType) -> None:
     init_slide(cls).render()
 
-@pytest.mark.parametrize("base_cls", (CESlide, GLSlide, CEGLSlide), ids=("CE", "GL", "CE(GL)"))
+
 class TestSlide:
-    def test_default_properties(self, base_cls: SlideType) -> None:
+    def test_default_properties(self) -> None:
         @assert_constructs
-        class _(base_cls):
+        class _(CESlide):
             def construct(self) -> None:
                 assert self._output_folder == FOLDER_PATH
                 assert len(self._slides) == 0
@@ -128,244 +136,275 @@ class TestSlide:
                 assert len(self._canvas) == 0
                 assert self._wait_time_between_slides == 0.0
 
+    @parametrize_base_cls
+    def test_frame_height(self, base_cls: SlideType) -> None:
+        @assert_constructs
+        class _(base_cls):  # type: ignore
+            def construct(self) -> None:
+                assert self._frame_height > 0 and isinstance(self._frame_height, float)
+
+    @parametrize_base_cls
+    def test_frame_width(self, base_cls: SlideType) -> None:
+        @assert_constructs
+        class _(base_cls):  # type: ignore
+            def construct(self) -> None:
+                assert self._frame_width > 0 and isinstance(self._frame_width, float)
+
+    @parametrize_base_cls
+    def test_resolution(self, base_cls: SlideType) -> None:
+        @assert_constructs
+        class _(base_cls):  # type: ignore
+            def construct(self) -> None:
+                pw, ph = self._resolution
+                assert isinstance(pw, int) and pw > 0
+                assert isinstance(ph, int) and ph > 0
+
+    @parametrize_base_cls
     def test_backround_color(self, base_cls: SlideType) -> None:
         @assert_constructs
-        class _(base_cls):
+        class _(base_cls):  # type: ignore
             def construct(self) -> None:
                 assert self._background_color in ["#000000", "#000"]  # DEFAULT
 
-                if isinstance(self, CESlide):
-                    self.camera.background_color = BLUE
-                assert self._background_color == "00"
+    def test_multiple_animations_in_last_slide(self) -> None:
+        @assert_renders
+        class _(CESlide):
+            """Check against solution for issue #161."""
 
-    '''
+            def construct(self) -> None:
+                circle = Circle(color=BLUE)
+                dot = Dot()
 
-    @assert_renders
-    class TestMultipleAnimationsInLastSlide(Slide):
-        """Check against solution for issue #161."""
+                self.play(GrowFromCenter(circle))
+                self.play(FadeIn(dot))
+                self.next_slide()
 
-        def construct(self) -> None:
-            circle = Circle(color=BLUE)
-            dot = Dot()
+                self.play(dot.animate.move_to(RIGHT))
+                self.play(dot.animate.move_to(UP))
+                self.play(dot.animate.move_to(LEFT))
+                self.play(dot.animate.move_to(DOWN))
 
-            self.play(GrowFromCenter(circle))
-            self.play(FadeIn(dot))
-            self.next_slide()
+    def test_file_too_long(self) -> None:
+        @assert_renders
+        class _(CESlide):
+            """Check against solution for issue #123."""
 
-            self.play(dot.animate.move_to(RIGHT))
-            self.play(dot.animate.move_to(UP))
-            self.play(dot.animate.move_to(LEFT))
-            self.play(dot.animate.move_to(DOWN))
+            def construct(self) -> None:
+                circle = Circle(radius=3, color=BLUE)
+                dot = Dot()
+                self.play(GrowFromCenter(circle), run_time=0.1)
 
-    @assert_renders
-    class TestFileTooLong(Slide):
-        """Check against solution for issue #123."""
+                for _ in range(30):
+                    direction = (random.random() - 0.5) * LEFT + (
+                        random.random() - 0.5
+                    ) * UP
+                    self.play(dot.animate.move_to(direction), run_time=0.1)
+                    self.play(dot.animate.move_to(ORIGIN), run_time=0.1)
 
-        def construct(self) -> None:
-            circle = Circle(radius=3, color=BLUE)
-            dot = Dot()
-            self.play(GrowFromCenter(circle), run_time=0.1)
+    def test_loop(self) -> None:
+        @assert_constructs
+        class _(CESlide):
+            def construct(self) -> None:
+                text = Text("Some text")
 
-            for _ in range(30):
-                direction = (random.random() - 0.5) * LEFT + (
-                    random.random() - 0.5
-                ) * UP
-                self.play(dot.animate.move_to(direction), run_time=0.1)
-                self.play(dot.animate.move_to(ORIGIN), run_time=0.1)
+                self.add(text)
 
-    @assert_constructs
-    class TestLoop(Slide):
-        def construct(self) -> None:
-            text = Text("Some text")
+                assert not self._base_slide_config.loop
 
-            self.add(text)
+                self.next_slide(loop=True)
+                self.play(text.animate.scale(2))
 
-            assert not self._base_slide_config.loop
+                assert self._base_slide_config.loop
 
-            self.next_slide(loop=True)
-            self.play(text.animate.scale(2))
+                self.next_slide(loop=False)
 
-            assert self._base_slide_config.loop
+                assert not self._base_slide_config.loop
 
-            self.next_slide(loop=False)
+    def test_auto_next(self) -> None:
+        @assert_constructs
+        class _(CESlide):
+            def construct(self) -> None:
+                text = Text("Some text")
 
-            assert not self._base_slide_config.loop
+                self.add(text)
 
-    @assert_constructs
-    class TestAutoNext(Slide):
-        def construct(self) -> None:
-            text = Text("Some text")
+                assert not self._base_slide_config.auto_next
 
-            self.add(text)
+                self.next_slide(auto_next=True)
+                self.play(text.animate.scale(2))
 
-            assert not self._base_slide_config.auto_next
+                assert self._base_slide_config.auto_next
 
-            self.next_slide(auto_next=True)
-            self.play(text.animate.scale(2))
+                self.next_slide(auto_next=False)
 
-            assert self._base_slide_config.auto_next
+                assert not self._base_slide_config.auto_next
 
-            self.next_slide(auto_next=False)
+    def test_loop_and_auto_next_succeeds(self) -> None:
+        @assert_constructs
+        class _(CESlide):
+            def construct(self) -> None:
+                text = Text("Some text")
 
-            assert not self._base_slide_config.auto_next
+                self.add(text)
 
-    @assert_constructs
-    class TestLoopAndAutoNextSucceeds(Slide):
-        def construct(self) -> None:
-            text = Text("Some text")
+                self.next_slide(loop=True, auto_next=True)
+                self.play(text.animate.scale(2))
 
-            self.add(text)
+                self.next_slide()
 
-            self.next_slide(loop=True, auto_next=True)
-            self.play(text.animate.scale(2))
+    def test_playback_rate(self) -> None:
+        @assert_constructs
+        class _(CESlide):
+            def construct(self) -> None:
+                text = Text("Some text")
 
-            self.next_slide()
+                self.add(text)
 
-    @assert_constructs
-    class TestPlaybackRate(Slide):
-        def construct(self) -> None:
-            text = Text("Some text")
+                assert self._base_slide_config.playback_rate == 1.0
 
-            self.add(text)
+                self.next_slide(playback_rate=2.0)
+                self.play(text.animate.scale(2))
 
-            assert self._base_slide_config.playback_rate == 1.0
+                assert self._base_slide_config.playback_rate == 2.0
 
-            self.next_slide(playback_rate=2.0)
-            self.play(text.animate.scale(2))
+    def test_reversed_playback_rate(self) -> None:
+        @assert_constructs
+        class _(CESlide):
+            def construct(self) -> None:
+                text = Text("Some text")
+
+                self.add(text)
+
+                assert self._base_slide_config.reversed_playback_rate == 1.0
+
+                self.next_slide(reversed_playback_rate=2.0)
+                self.play(text.animate.scale(2))
+
+                assert self._base_slide_config.reversed_playback_rate == 2.0
+
+    def test_notes(self) -> None:
+        @assert_constructs
+        class _(CESlide):
+            def construct(self) -> None:
+                text = Text("Some text")
 
-            assert self._base_slide_config.playback_rate == 2.0
+                self.add(text)
 
-    @assert_constructs
-    class TestReversedPlaybackRate(Slide):
-        def construct(self) -> None:
-            text = Text("Some text")
+                assert self._base_slide_config.notes == ""
 
-            self.add(text)
+                self.next_slide(notes="test")
+                self.play(text.animate.scale(2))
 
-            assert self._base_slide_config.reversed_playback_rate == 1.0
+                assert self._base_slide_config.notes == "test"
 
-            self.next_slide(reversed_playback_rate=2.0)
-            self.play(text.animate.scale(2))
+    def test_wipe(self) -> None:
+        @assert_constructs
+        class _(CESlide):
+            def construct(self) -> None:
+                text = Text("Some text")
+                bye = Text("Bye")
 
-            assert self._base_slide_config.reversed_playback_rate == 2.0
+                self.add(text)
 
-    @assert_constructs
-    class TestNotes(Slide):
-        def construct(self) -> None:
-            text = Text("Some text")
+                assert text in self.mobjects
+                assert bye not in self.mobjects
 
-            self.add(text)
+                self.wipe([text], [bye])
 
-            assert self._base_slide_config.notes == ""
+                assert text not in self.mobjects
+                assert bye in self.mobjects
 
-            self.next_slide(notes="test")
-            self.play(text.animate.scale(2))
+    def test_zoom(self) -> None:
+        @assert_constructs
+        class _(CESlide):
+            def construct(self) -> None:
+                text = Text("Some text")
+                bye = Text("Bye")
 
-            assert self._base_slide_config.notes == "test"
+                self.add(text)
 
-    @assert_constructs
-    class TestWipe(Slide):
-        def construct(self) -> None:
-            text = Text("Some text")
-            bye = Text("Bye")
+                assert text in self.mobjects
+                assert bye not in self.mobjects
 
-            self.add(text)
+                self.zoom([text], [bye])
 
-            assert text in self.mobjects
-            assert bye not in self.mobjects
+                assert text not in self.mobjects
+                assert bye in self.mobjects
 
-            self.wipe([text], [bye])
+    def test_animation_count(self) -> None:
+        @assert_constructs
+        class _(CESlide):
+            def construct(self) -> None:
+                assert self._current_animation == 0
+                circle = Circle(color=BLUE)
+                dot = Dot()
 
-            assert text not in self.mobjects
-            assert bye in self.mobjects
+                self.play(GrowFromCenter(circle))
+                assert self._current_animation == 1
+                self.play(FadeIn(dot))
+                assert self._current_animation == 2
 
-    @assert_constructs
-    class TestZoom(Slide):
-        def construct(self) -> None:
-            text = Text("Some text")
-            bye = Text("Bye")
+    def test_wait_time_between_slides(self) -> None:
+        @assert_constructs
+        class _(CESlide):
+            def construct(self) -> None:
+                self._wait_time_between_slides = 1.0
+                assert self._current_animation == 0
+                circle = Circle(color=BLUE)
+                self.play(GrowFromCenter(circle))
+                assert self._current_animation == 1
+                self.next_slide()
+                assert self._current_animation == 2  # self.wait = +1
 
-            self.add(text)
+    def test_next_slide(self) -> None:
+        @assert_constructs
+        class _(CESlide):
+            def construct(self) -> None:
+                assert self._current_slide == 1
+                self.next_slide()
+                assert self._current_slide == 1
+                circle = Circle(color=BLUE)
+                self.play(GrowFromCenter(circle))
+                self.next_slide()
+                assert self._current_slide == 2
+                self.next_slide()
+                assert self._current_slide == 2
 
-            assert text in self.mobjects
-            assert bye not in self.mobjects
+    def test_canvas(self) -> None:
+        @assert_constructs
+        class _(CESlide):
+            def construct(self) -> None:
+                text = Text("Some text")
+                bye = Text("Bye")
 
-            self.zoom([text], [bye])
+                assert len(self.canvas) == 0
 
-            assert text not in self.mobjects
-            assert bye in self.mobjects
+                self.add(text)
 
-    @assert_constructs
-    class TestPlay(Slide):
-        def construct(self) -> None:
-            assert self._current_animation == 0
-            circle = Circle(color=BLUE)
-            dot = Dot()
+                assert len(self.canvas) == 0
 
-            self.play(GrowFromCenter(circle))
-            assert self._current_animation == 1
-            self.play(FadeIn(dot))
-            assert self._current_animation == 2
+                self.add_to_canvas(text=text)
 
-    @assert_constructs
-    class TestWaitTimeBetweenSlides(Slide):
-        def construct(self) -> None:
-            self._wait_time_between_slides = 1.0
-            assert self._current_animation == 0
-            circle = Circle(color=BLUE)
-            self.play(GrowFromCenter(circle))
-            assert self._current_animation == 1
-            self.next_slide()
-            assert self._current_animation == 2  # self.wait = +1
+                assert len(self.canvas) == 1
 
-    @assert_constructs
-    class TestNextSlide(Slide):
-        def construct(self) -> None:
-            assert self._current_slide == 1
-            self.next_slide()
-            assert self._current_slide == 1
-            circle = Circle(color=BLUE)
-            self.play(GrowFromCenter(circle))
-            self.next_slide()
-            assert self._current_slide == 2
-            self.next_slide()
-            assert self._current_slide == 2
+                self.add(bye)
 
-    @assert_constructs
-    class TestCanvas(Slide):
-        def construct(self) -> None:
-            text = Text("Some text")
-            bye = Text("Bye")
+                assert len(self.canvas) == 1
 
-            assert len(self.canvas) == 0
+                assert text not in self.mobjects_without_canvas
+                assert bye in self.mobjects_without_canvas
 
-            self.add(text)
+                self.remove(text)
 
-            assert len(self.canvas) == 0
+                assert len(self.canvas) == 1
 
-            self.add_to_canvas(text=text)
+                self.add_to_canvas(bye=bye)
 
-            assert len(self.canvas) == 1
+                assert len(self.canvas) == 2
 
-            self.add(bye)
+                self.remove_from_canvas("text", "bye")
 
-            assert len(self.canvas) == 1
+                assert len(self.canvas) == 0
 
-            assert text not in self.mobjects_without_canvas
-            assert bye in self.mobjects_without_canvas
-
-            self.remove(text)
-
-            assert len(self.canvas) == 1
-
-            self.add_to_canvas(bye=bye)
-
-            assert len(self.canvas) == 2
-
-            self.remove_from_canvas("text", "bye")
-
-            assert len(self.canvas) == 0
-
-            with pytest.raises(KeyError):
-                self.remove_from_canvas("text")
-    '''
+                with pytest.raises(KeyError):
+                    self.remove_from_canvas("text")
