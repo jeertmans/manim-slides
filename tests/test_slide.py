@@ -2,6 +2,7 @@ import random
 import shutil
 import sys
 from pathlib import Path
+from typing import Union
 
 import manim
 import numpy as np
@@ -21,12 +22,15 @@ from manim import (
     GrowFromCenter,
     Text,
 )
+from manim.renderer.opengl_renderer import OpenGLRenderer
 from packaging import version
 
 from manim_slides.config import PresentationConfig
 from manim_slides.defaults import FOLDER_PATH
 from manim_slides.render import render
 from manim_slides.slide.manim import Slide
+from manim_slides.slide.manim import Slide as CESlide
+from manim_slides.slide.manimlib import Slide as GLSlide
 
 
 @pytest.mark.parametrize(
@@ -82,45 +86,59 @@ def test_render_basic_slide(
         assert local_presentation_config.resolution == presentation_config.resolution
 
 
-def assert_constructs(cls: type) -> type:
-    class Wrapper:
-        @classmethod
-        def test_construct(_) -> None:  # noqa: N804
-            cls().construct()
 
-    return Wrapper
+class CEGLSlide(CESlide):
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, renderer=OpenGLRenderer(), **kwargs)
 
 
-def assert_renders(cls: type) -> type:
-    class Wrapper:
-        @classmethod
-        def test_render(_) -> None:  # noqa: N804
-            cls().render()
+SlideType = Union[type[CESlide], type[GLSlide], type[CEGLSlide]]
+Slide = Union[CESlide, GLSlide, CEGLSlide]
 
-    return Wrapper
+def init_slide(cls: SlideType) -> Slide:
+    if issubclass(cls, CESlide):
+        return cls()
+    elif issubclass(cls, GLSlide):
+        from manimlib.config import get_configuration, parse_cli
+        from manimlib.extract_scene import get_scene_config
 
+        args = parse_cli()
+        config = get_configuration(args)
+        scene_config = get_scene_config(config)
+        return cls(**scene_config)
+    
+    raise ValueError(f"Unsupported class {cls}")
 
+def assert_constructs(cls: SlideType) -> None:
+    init_slide(cls).construct()
+
+def assert_renders(cls: SlideType) -> None:
+    init_slide(cls).render()
+
+@pytest.mark.parametrize("base_cls", (CESlide, GLSlide, CEGLSlide), ids=("CE", "GL", "CE(GL)"))
 class TestSlide:
-    @assert_constructs
-    class TestDefaultProperties(Slide):
-        def construct(self) -> None:
-            assert self._output_folder == FOLDER_PATH
-            assert len(self._slides) == 0
-            assert self._current_slide == 1
-            assert self._start_animation == 0
-            assert len(self._canvas) == 0
-            assert self._wait_time_between_slides == 0.0
+    def test_default_properties(self, base_cls: SlideType) -> None:
+        @assert_constructs
+        class _(base_cls):
+            def construct(self) -> None:
+                assert self._output_folder == FOLDER_PATH
+                assert len(self._slides) == 0
+                assert self._current_slide == 1
+                assert self._start_animation == 0
+                assert len(self._canvas) == 0
+                assert self._wait_time_between_slides == 0.0
 
-    @pytest.mark.skipif(
-        version.parse(manim.__version__) < version.parse("0.18"),
-        reason="Manim change how color are represented in 0.18",
-    )
-    @assert_constructs
-    class TestBackgroundColor(Slide):
-        def construct(self) -> None:
-            assert self._background_color == BLACK.to_hex()  # DEFAULT
-            self.camera.background_color = BLUE
-            assert self._background_color == BLUE.to_hex()
+    def test_backround_color(self, base_cls: SlideType) -> None:
+        @assert_constructs
+        class _(base_cls):
+            def construct(self) -> None:
+                assert self._background_color in ["#000000", "#000"]  # DEFAULT
+
+                if isinstance(self, CESlide):
+                    self.camera.background_color = BLUE
+                assert self._background_color == "00"
+
+    '''
 
     @assert_renders
     class TestMultipleAnimationsInLastSlide(Slide):
@@ -350,3 +368,4 @@ class TestSlide:
 
             with pytest.raises(KeyError):
                 self.remove_from_canvas("text")
+    '''

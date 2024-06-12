@@ -49,7 +49,7 @@ full-gl = [
   "manim-slides[magic,manimgl,sphinx-directive]",
 ]
 magic = ["manim-slides[manim]", "ipython>=8.12.2"]
-manim = ["manim>=0.17.3"]
+manim = ["manim>=0.18.0"]
 manimgl = ["manimgl>=1.6.1;python_version<'3.12'"]
 pyqt6 = ["pyqt6>=6.6.1"]
 pyqt6-full = ["manim-slides[full,pyqt6]"]
@@ -66,6 +66,11 @@ Documentation = "https://eertmans.be/manim-slides"
 Founding = "https://github.com/sponsors/jeertmans"
 Homepage = "https://github.com/jeertmans/manim-slides"
 Repository = "https://github.com/jeertmans/manim-slides"
+
+[tool.uv]
+override-dependencies = [
+  "manimpango>=0.5.0,<1.0.0"
+]
 
 [tool.bumpversion]
 allow_dirty = false
