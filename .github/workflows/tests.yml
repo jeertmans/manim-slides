@@ -31,7 +31,7 @@ jobs:
         RYE_TOOLCHAIN_VERSION: ${{ matrix.pyversion}}
         RYE_INSTALL_OPTION: --yes
       run: |
-        curl -sSf https://rye-up.com/get | bash
+        curl -sSf https://rye.astral.sh/get | bash
         echo "$HOME/.rye/shims" >> $GITHUB_PATH
 
     # Stolen from https://github.com/bluss/pyproject-local-kernel/blob/2b641290694adc998fb6bceea58d3737523a68b7/.github/workflows/ci.yaml
@@ -51,14 +51,13 @@ jobs:
 
     - name: Install manim dependencies on MacOS
       if: matrix.os == 'macos-latest'
-      run: brew install ffmpeg py3cairo
+      run: brew install ffmpeg py3cairo pango pkg-config scipy
 
     - name: Install manim dependencies on Ubuntu
       if: matrix.os == 'ubuntu-latest'
       run: |
         sudo apt-get update
-        sudo apt-get install libcairo2-dev libpango1.0-dev ffmpeg freeglut3-dev
-        sudo apt-get install xvfb
+        sudo apt-get install build-essential python3-dev libcairo2-dev libpango1.0-dev ffmpeg freeglut3-dev xvfb
         nohup Xvfb $DISPLAY &
 
     - name: Install Windows dependencies

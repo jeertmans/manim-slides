@@ -10,11 +10,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 (unreleased)=
 ## [Unreleased](https://github.com/jeertmans/manim-slides/compare/5.1.7...HEAD)
 
+(unreleased-chore)=
+### Chore
+
+- Pin `rtoml==0.9.0` on Windows platforms,
+  see [#398](https://github.com/jeertmans/manim-slides/pull/398),
+  until
+  [samuelcolvin/rtoml#74](https://github.com/samuelcolvin/rtoml/issues/74)
+  is solved.
+  [#432](https://github.com/jeertmans/manim-slides/pull/432)
+
 (unreleased-fixed)=
 ### Fixed
 
 - Fix combining assets from multiple scenes to avoid filename collision.
   [#429](https://github.com/jeertmans/manim-slides/pull/429)
+- Fixed whitespace issue in default RevealJS template.
+  [#442](https://github.com/jeertmans/manim-slides/pull/442)
+
+(unreleased-chore)=
+### Chore
+
+- Removed an old validation check that prevented setting `loop=True` with
+  `auto_next=True` on `next_slide()`
+  [#445](https://github.com/jeertmans/manim-slides/pull/445)
 
 (v5.1.7)=
 ## [v5.1.7](https://github.com/jeertmans/manim-slides/compare/v5.1.6...v5.1.7)

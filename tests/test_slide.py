@@ -22,7 +22,6 @@ from manim import (
     Text,
 )
 from packaging import version
-from pydantic import ValidationError
 
 from manim_slides.config import PresentationConfig
 from manim_slides.defaults import FOLDER_PATH
@@ -193,7 +192,7 @@ class TestSlide:
             assert not self._base_slide_config.auto_next
 
     @assert_constructs
-    class TestLoopAndAutoNextFails(Slide):
+    class TestLoopAndAutoNextSucceeds(Slide):
         def construct(self) -> None:
             text = Text("Some text")
 
@@ -202,8 +201,7 @@ class TestSlide:
             self.next_slide(loop=True, auto_next=True)
             self.play(text.animate.scale(2))
 
-            with pytest.raises(ValidationError):
-                self.next_slide()
+            self.next_slide()
 
     @assert_constructs
     class TestPlaybackRate(Slide):
