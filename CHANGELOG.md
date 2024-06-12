@@ -10,6 +10,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 (unreleased)=
 ## [Unreleased](https://github.com/jeertmans/manim-slides/compare/5.1.7...HEAD)
 
+(unreleased-chore)=
+### Chore
+
+- Pin `rtoml==0.9.0` on Windows platforms,
+  see [#398](https://github.com/jeertmans/manim-slides/pull/398),
+  until
+  [samuelcolvin/rtoml#74](https://github.com/samuelcolvin/rtoml/issues/74)
+  is solved.
+  [#432](https://github.com/jeertmans/manim-slides/pull/432)
+
 (unreleased-fixed)=
 ### Fixed
 
