@@ -161,6 +161,10 @@ python_version = "3.9"
 strict = true
 
 [tool.pytest.ini_options]
+addopts = [
+  "--cov-report=xml",
+  "--cov=manim_slides",
+]
 env = [
   "QT_QPA_PLATFORM=offscreen",
 ]
@@ -217,7 +221,6 @@ dev-dependencies = [
   "pytest-cov>=4.1.0",
   "pytest-env>=0.8.2",
   "pytest-qt>=4.2.0",
-  "pytest-xdist>=3.3.1",
 ]
 managed = true
 
