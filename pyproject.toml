@@ -114,7 +114,7 @@ filename = "CHANGELOG.md"
 replace = '''<!-- start changelog -->
 
 (unreleased)=
-## [Unreleased](https://github.com/jeertmans/manim-slides/compare/{new_version}...HEAD)'''
+## [Unreleased](https://github.com/jeertmans/manim-slides/compare/v{new_version}...HEAD)'''
 search = "<!-- start changelog -->"
 
 [tool.codespell]
