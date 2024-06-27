@@ -21,17 +21,15 @@ from manim import (
     Text,
 )
 from manim.renderer.opengl_renderer import OpenGLRenderer
+from manimlib import __version__ as manimlib_version
 from packaging import version
+from pkg_resources import parse_version
 
 from manim_slides.config import PresentationConfig
 from manim_slides.defaults import FOLDER_PATH
 from manim_slides.render import render
 from manim_slides.slide.manim import Slide as CESlide
 from manim_slides.slide.manimlib import Slide as GLSlide
-
-if sys.version_info < (3, 12):
-    # NumPy <= 1.24 does not support Python >= 3.12
-    GLSlide = pytest.param(GLSlide, marks=pytest.mark.xskip)  # type: ignore[misc]
 
 
 @pytest.mark.parametrize(
@@ -94,6 +92,15 @@ class CEGLSlide(CESlide):
 
 SlideType = Union[type[CESlide], type[GLSlide], type[CEGLSlide]]
 Slide = Union[CESlide, GLSlide, CEGLSlide]
+
+GLSlide = pytest.param(  # type: ignore[misc]
+    GLSlide,
+    marks=pytest.mark.skipif(
+        parse_version(manimlib_version) <= parse_version("1.6.1")
+        and sys.version_info >= (3, 12),
+        reason="manimlib <= 1.6.1 requires NumPy <= 1.24, but this NumPy version does not support Python >= 3.12",
+    ),
+)
 
 
 def init_slide(cls: SlideType) -> Slide:
