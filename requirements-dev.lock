@@ -6,6 +6,7 @@
 #   features: []
 #   all-features: true
 #   with-sources: false
+#   generate-hashes: false
 
 -e file:.
 alabaster==0.7.16
@@ -44,12 +45,10 @@ click==8.1.7
     # via rich-click
     # via sphinx-click
 click-default-group==1.2.4
-    # via manim
     # via manim-slides
-cloup==0.13.1
+cloup==3.0.5
     # via manim
 colour==0.1.5
-    # via manim
     # via manimgl
 comm==0.2.2
     # via ipykernel
@@ -74,6 +73,9 @@ docutils==0.20.1
     # via nbsphinx
     # via sphinx
     # via sphinx-click
+exceptiongroup==1.2.1
+    # via ipython
+    # via pytest
 execnet==2.1.1
     # via pytest-xdist
 executing==2.0.1
@@ -131,11 +133,12 @@ kiwisolver==1.4.5
 lxml==5.2.1
     # via manim-slides
     # via python-pptx
-manim==0.17.3
+manim==0.18.1
     # via manim-slides
 manimgl==1.6.1
     # via manim-slides
-manimpango==0.4.4
+manimpango==0.5.0
+    # via --override (workspace)
     # via manim
     # via manimgl
 mapbox-earcut==1.0.1
@@ -186,8 +189,10 @@ networkx==2.8.8
     # via manim
 nodeenv==1.8.0
     # via pre-commit
-numpy==1.26.4
+numpy==1.24.0
+    # via --override (workspace)
     # via contourpy
+    # via ipython
     # via isosurfaces
     # via manim
     # via manim-slides
@@ -195,6 +200,7 @@ numpy==1.26.4
     # via mapbox-earcut
     # via matplotlib
     # via moderngl-window
+    # via networkx
     # via pyrr
     # via scipy
 packaging==24.0
@@ -314,7 +320,6 @@ referencing==0.34.0
     # via jsonschema
     # via jsonschema-specifications
 requests==2.31.0
-    # via manim
     # via manim-slides
     # via sphinx
 rich==13.7.1
@@ -389,6 +394,11 @@ sympy==1.12
     # via manimgl
 tinycss2==1.2.1
     # via nbconvert
+tomli==2.0.1
+    # via coverage
+    # via pytest
+    # via pytest-env
+    # via sphinx
 tomlkit==0.12.4
     # via bump-my-version
 tornado==6.4
@@ -410,6 +420,7 @@ traitlets==5.14.2
     # via nbformat
     # via nbsphinx
 typing-extensions==4.11.0
+    # via manim
     # via pydantic
     # via pydantic-core
     # via rich-click
