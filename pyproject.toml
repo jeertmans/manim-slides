@@ -57,9 +57,6 @@ docs = [
 full = [
   "manim-slides[magic,manim,sphinx-directive]",
 ]
-full-gl = [
-  "manim-slides[magic,manimgl,sphinx-directive]",
-]
 magic = ["manim-slides[manim]", "ipython>=8.12.2"]
 manim = ["manim>=0.18.0"]
 manimgl = ["manimgl>=1.6.1;python_version<'3.12'"]

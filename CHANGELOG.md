@@ -10,6 +10,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 (unreleased)=
 ## [Unreleased](https://github.com/jeertmans/manim-slides/compare/5.1.7...HEAD)
 
+(unreleased-removed)=
+### Removed
+
+- Removed `full-gl` extra, because it does not make sens to ship both
+  `manimgl` and `manim` together.
+  [#447](https://github.com/jeertmans/manim-slides/pull/447)
+
 (unreleased-chore)=
 ### Chore
 
