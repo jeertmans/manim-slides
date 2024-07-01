@@ -111,7 +111,9 @@ class Slide(BaseSlide, Scene):  # type: ignore[misc]
 
         config["max_files_cached"] = max_files_cached
 
-        self._save_slides()
+        self._save_slides(
+            use_cache=not config["disable_caching"], flush_cache=config["flush_cache"]
+        )
 
 
 class ThreeDSlide(Slide, ThreeDScene):  # type: ignore[misc]
