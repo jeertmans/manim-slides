@@ -26,11 +26,12 @@ jobs:
     - name: Install Python
       uses: actions/setup-python@v5
       with:
-        python-version: {{matrix.pyversion: null}: null}
+        python-version: ${{ matrix.pyversion }}
         cache: pip
 
     - name: Install package
-      run: pip install '.[{{ matrix.extras }}]'
+      env: extras: ${{ matrix.extras }}
+      run: pip install '.[$extras]'
   pytest:
     strategy:
       fail-fast: false
