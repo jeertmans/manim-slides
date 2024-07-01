@@ -29,7 +29,23 @@ jobs:
         python-version: ${{ matrix.pyversion }}
         cache: pip
 
+    - name: Install manim dependencies on MacOS
+      if: matrix.os == 'macos-latest'
+      run: brew install ffmpeg py3cairo pango pkg-config scipy
+
+    - name: Install manim dependencies on Ubuntu
+      if: matrix.os == 'ubuntu-latest'
+      run: |
+        sudo apt-get update
+        sudo apt-get install build-essential python3-dev libcairo2-dev libpango1.0-dev ffmpeg freeglut3-dev xvfb
+        nohup Xvfb $DISPLAY &
+
+    - name: Install Windows dependencies
+      if: matrix.os == 'windows-latest'
+      run: choco install ffmpeg
+
     - name: Install package
+      shell: bash
       env:
         extras: ${{ matrix.extras }}
       run: pip install ".[$extras]"
