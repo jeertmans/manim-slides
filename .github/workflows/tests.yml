@@ -32,7 +32,7 @@ jobs:
     - name: Install package
       env: 
         extras: ${{ matrix.extras }}
-      run: pip install '.[$extras]'
+      run: pip install ".[$extras]"
   pytest:
     strategy:
       fail-fast: false
