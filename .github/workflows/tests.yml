@@ -14,10 +14,10 @@ jobs:
       matrix:
         os: [macos-latest, ubuntu-latest, windows-latest]
         pyversion: ['3.9', '3.10', '3.11', '3.12']
-        extras: ['pyside6-full', 'full-gl']
+        extras: [pyside6-full, full-gl]
         exclude:
         - pyversion: '3.12'
-          extras: 'full-gl'
+          extras: full-gl
     runs-on: ${{ matrix.os }}
     steps:
     - name: Checkout repository
@@ -26,8 +26,8 @@ jobs:
     - name: Install Python
       uses: actions/setup-python@v5
       with:
-        python-version: {{ matrix.pyversion }}
-        cache: 'pip'
+        python-version: {{matrix.pyversion: null}: null}
+        cache: pip
 
     - name: Install package
       run: pip install '.[{{ matrix.extras }}]'
