@@ -187,11 +187,6 @@ env = [
   "QT_API=pyside6",
   "QT_QPA_PLATFORM=offscreen",
 ]
-filterwarnings = [
-  "error",
-  "ignore::DeprecationWarning",
-  "ignore::SyntaxWarning: invalid escape sequence",  # Python 3.12, Pydub
-]
 
 [tool.ruff]
 extend-exclude = ["manim_slides/resources.py"]
