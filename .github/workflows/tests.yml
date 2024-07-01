@@ -30,7 +30,8 @@ jobs:
         cache: pip
 
     - name: Install package
-      env: extras: ${{ matrix.extras }}
+      env: 
+        extras: ${{ matrix.extras }}
       run: pip install '.[$extras]'
   pytest:
     strategy:
