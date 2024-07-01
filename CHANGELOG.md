@@ -37,7 +37,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 (unreleased-removed)=
 ### Removed
 
-- Removed `full-gl` extra, because it does not make sens to ship both
+- Removed `full-gl` extra, because it does not make sense to ship both
   `manimgl` and `manim` together.
   [#447](https://github.com/jeertmans/manim-slides/pull/447)
 
