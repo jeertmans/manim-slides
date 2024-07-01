@@ -2,6 +2,8 @@ from pathlib import Path
 from typing import Any, Optional
 
 from manim import Scene, ThreeDScene, config
+from manim.renderer.opengl_renderer import OpenGLRenderer
+from manim.utils.color import rgba_to_color
 
 from ..config import BaseSlideConfig
 from .base import BaseSlide
@@ -14,24 +16,39 @@ class Slide(BaseSlide, Scene):  # type: ignore[misc]
     """
 
     @property
+    def _frame_shape(self) -> tuple[float, float]:
+        if isinstance(self.renderer, OpenGLRenderer):
+            return self.renderer.camera.frame_shape  # type: ignore
+        else:
+            return (
+                self.renderer.camera.frame_height,
+                self.renderer.camera.frame_width,
+            )
+
+    @property
     def _frame_height(self) -> float:
-        return config["frame_height"]  # type: ignore
+        return self._frame_shape[0]
 
     @property
     def _frame_width(self) -> float:
-        return config["frame_width"]  # type: ignore
+        return self._frame_shape[1]
 
     @property
     def _background_color(self) -> str:
-        color = self.camera.background_color
-        if hex_color := getattr(color, "hex", None):
-            return hex_color  # type: ignore
-        else:  # manim>=0.18, see https://github.com/ManimCommunity/manim/pull/3020
-            return color.to_hex()  # type: ignore
+        if isinstance(self.renderer, OpenGLRenderer):
+            return rgba_to_color(self.renderer.background_color).to_hex()  # type: ignore
+        else:
+            return self.renderer.camera.background_color.to_hex()  # type: ignore
 
     @property
     def _resolution(self) -> tuple[int, int]:
-        return config["pixel_width"], config["pixel_height"]
+        if isinstance(self.renderer, OpenGLRenderer):
+            return self.renderer.get_pixel_shape()  # type: ignore
+        else:
+            return (
+                self.renderer.camera.pixel_width,
+                self.renderer.camera.pixel_height,
+            )
 
     @property
     def _partial_movie_files(self) -> list[Path]:

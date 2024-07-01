@@ -108,8 +108,6 @@ using optional dependencies:
 
 - `full`, to include `magic`, `manim`, and
   `sphinx-directive` extras (see below);
-- `full-gl`, to include `magic`, `manimgl`, and
-  `sphinx-directive` extras (see below);
 - `magic`, to include a Jupyter magic to render
   animations inside notebooks. This automatically installs `manim`,
   and does not work with ManimGL;

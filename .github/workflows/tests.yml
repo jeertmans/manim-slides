@@ -7,7 +7,52 @@ on:
 
 name: Tests
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
+  pip-install:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, ubuntu-latest, windows-latest]
+        pyversion: ['3.9', '3.10', '3.11', '3.12']
+        extras: [pyside6-full, manimgl]
+        exclude:
+        - pyversion: '3.12'
+          extras: manimgl
+    runs-on: ${{ matrix.os }}
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Install Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.pyversion }}
+        cache: pip
+
+    - name: Install manim dependencies on MacOS
+      if: matrix.os == 'macos-latest'
+      run: brew install ffmpeg py3cairo pango pkg-config scipy
+
+    - name: Install manim dependencies on Ubuntu
+      if: matrix.os == 'ubuntu-latest'
+      run: |
+        sudo apt-get update
+        sudo apt-get install build-essential python3-dev libcairo2-dev libpango1.0-dev ffmpeg freeglut3-dev xvfb
+        nohup Xvfb $DISPLAY &
+
+    - name: Install Windows dependencies
+      if: matrix.os == 'windows-latest'
+      run: choco install ffmpeg
+
+    - name: Install package
+      shell: bash
+      env:
+        extras: ${{ matrix.extras }}
+      run: pip install ".[$extras]"
   pytest:
     strategy:
       fail-fast: false
@@ -74,15 +119,9 @@ jobs:
 
     - name: Run pytest
       shell: bash
-      if: matrix.os != 'ubuntu-latest' || matrix.pyversion != '3.11'
       run: rye run pytest
 
-    - name: Run pytest and coverage
-      if: matrix.os == 'ubuntu-latest' && matrix.pyversion == '3.11'
-      run: rye run pytest --cov-report xml --cov=manim_slides tests/
-
     - name: Upload to codecov.io
-      if: matrix.os == 'ubuntu-latest' && matrix.pyversion == '3.11'
       uses: codecov/codecov-action@v4
       env:
         CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
