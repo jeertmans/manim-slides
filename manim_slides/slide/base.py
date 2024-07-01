@@ -3,6 +3,7 @@ from __future__ import annotations
 __all__ = ["BaseSlide"]
 
 import platform
+import shutil
 from abc import abstractmethod
 from collections.abc import MutableMapping, Sequence, ValuesView
 from pathlib import Path
@@ -445,7 +446,12 @@ class BaseSlide:
             )
         )
 
-    def _save_slides(self, use_cache: bool = True) -> None:
+    def _save_slides(
+        self,
+        use_cache: bool = True,
+        flush_cache: bool = False,
+        skip_reversing: bool = False,
+    ) -> None:
         """
         Save slides, optionally using cached files.
 
@@ -457,6 +463,9 @@ class BaseSlide:
 
         scene_name = str(self)
         scene_files_folder = files_folder / scene_name
+
+        if flush_cache and scene_files_folder.exists():
+            shutil.rmtree(scene_files_folder)
 
         scene_files_folder.mkdir(parents=True, exist_ok=True)
 
@@ -492,7 +501,10 @@ class BaseSlide:
 
             # We only reverse video if it was not present
             if not use_cache or not rev_file.exists():
-                reverse_video_file(dst_file, rev_file)
+                if skip_reversing:
+                    rev_file.symlink_to(dst_file)
+                else:
+                    reverse_video_file(dst_file, rev_file)
 
             slides.append(
                 SlideConfig.from_pre_slide_config_and_files(
