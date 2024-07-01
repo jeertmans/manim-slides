@@ -19,6 +19,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   [samuelcolvin/rtoml#74](https://github.com/samuelcolvin/rtoml/issues/74)
   is solved.
   [#432](https://github.com/jeertmans/manim-slides/pull/432)
+- Improved (and fixed) tests for Manim(GL), bumped minimal ManimCE version,
+  improved coverage, and override dependency conflicts.
+  [#447](https://github.com/jeertmans/manim-slides/pull/447)
 
 (unreleased-fixed)=
 ### Fixed
