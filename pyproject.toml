@@ -190,7 +190,7 @@ env = [
 filterwarnings = [
   "error",
   "ignore::DeprecationWarning",
-  "ignore::SyntaxWarning: invalid escape sequence '\\('",  # Python 3.12, Pydub
+  "ignore::SyntaxWarning: invalid escape sequence",  # Python 3.12, Pydub
 ]
 
 [tool.ruff]
