@@ -48,6 +48,7 @@ body:
     description: |
       Enter the command that failed.
       This will be automatically formatted into code, so no need for backticks.
+    placeholder: manim-slides render mwe.py MWE
   validations:
     required: true
 
@@ -85,7 +86,6 @@ body:
       Please copy and paste the output of `pip freeze`.
       Make sure to activate your virtual environment first (if any).
       This will be automatically formatted into code, so no need for backticks.
-    placeholder: manim-slides render mwe.py MWE
     render: shell
   validations:
     required: false
