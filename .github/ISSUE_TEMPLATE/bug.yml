@@ -1,40 +1,177 @@
 name: Bug
 description: Report an issue to help improve the project.
+title: '[BUG] <short-description-here>'
 labels: bug
-title: '[BUG] <description>'
+
 body:
+- type: markdown
+  id: preamble
+  attributes:
+    value: |
+      **Thank you for reporting a problem about Manim Slides!**
+
+      If you know how to solve your problem, feel free to submit a PR too!
+
+      > ![WARNING]
+      > Before reporting your bug, please make sure to:
+      >
+      > 1. create and activate virtual environment (venv);
+      > 2. install `manim-slides` and the necessary dependencies;
+      > 3. and reduce your Python to a minimal working example (MWE).
+      >
+      > You can skip the last step if your issue occurs during installation.
+
+- type: checkboxes
+  id: terms
+  attributes:
+    label: Terms
+    description: 'By submitting this issue, I have:'
+    options:
+    - label: Checked the [existing issues](https://github.com/jeertmans/manim-slides/issues?q=is%3Aissue+label%3Adocumentation+) and [discussions](https://github.com/jeertmans/manim-slides/discussions) to see if my issue had not already been reported;
+      required: true
+    - label: Read the [installation instructions](https://manim-slides.eertmans.be/latest/installation.html);
+      required: true
+    - label: Created a virtual environment in which I can reproduce my bug;
+
 - type: textarea
   id: description
   attributes:
-    label: Description
-    description: A brief description of the question or issue, also include what you tried and what didn't work
+    label: Describe the issue
+    description: A description of the issue, also include what you tried and what didn't work.
   validations:
     required: true
+
 - type: textarea
-  id: version
+  id: command
   attributes:
-    label: Version
-    description: Which version of Manim Slides are you using? You can use `manim-slides --version` to get that information.
+    label: Command
+    description: |
+      Enter the command that failed.
+      This will be automatically formatted into code, so no need for backticks.
+    render: shell
   validations:
     required: true
+
+- type: dropdown
+  id: issue-type
+  attributes:
+    label: Issue Type
+    description: >
+      Please select the option in the drop-down.
+    options:
+    - Installation issue
+    - Visual bug when presenting (`manim-slides present`)
+    - Bug when presenting with HTML/PowerPoint/... format (`manim-slides convert`)
+    - Other
+  validations:
+    required: true
+
 - type: textarea
+  id: py-version
+  attributes:
+    label: Python version
+    description: |
+      Please copy and paste the output of `python --version`.
+      Make sure to activate your virtual environment first (if any).
+      This will be automatically formatted into code, so no need for backticks.
+    placeholder: Python 3.11.8
+    render: shell
+  validations:
+    required: false
+
+- type: textarea
+  id: venv
+  attributes:
+    label: Python environment
+    description: |
+      Please copy and paste the output of `pip freeze`.
+      Make sure to activate your virtual environment first (if any).
+      This will be automatically formatted into code, so no need for backticks.
+    placeholder: manim-slides render mwe.py MWE
+    render: shell
+  validations:
+    required: false
+
+- type: dropdown
   id: platform
   attributes:
-    label: Platform
-    description: What is your platform. Linux, macOS, or Windows?
+    label: What is your platform?
+    multiple: true
+    options:
+    - Linux
+    - macOS
+    - Windows
+    - Other (please precises below)
   validations:
     required: true
+
+- type: textarea
+  id: platform-other
+  attributes:
+    label: Other platform
+    description: Please answer if you have replied *Other* above.
+  validations:
+    required: false
+
+- type: textarea
+  id: code
+  attributes:
+    label: Manim Slides Python code
+    description: |
+      Please copy and paste a minimal working example (MWE) of your Python code that can reproduce your bug.
+      This will be automatically formatted into code, so no need for backticks.
+    placeholder: |
+      from manim import *
+      from manim_slides.slide import Slide
+
+
+      class MWE(Slide):
+          def construct(self):
+              circle = Circle(radius=2, color=RED)
+              dot = Dot()
+
+              self.play(GrowFromCenter(circle))
+
+              self.next_slide(loop=True)
+              self.play(MoveAlongPath(dot, circle), run_time=0.5)
+              self.next_slide()
+
+              self.play(dot.animate.move_to(ORIGIN))
+    render: python
+  validations:
+    required: false
+
+- type: textarea
+  id: logs
+  attributes:
+    label: Relevant log output
+    description: |
+      Please copy and paste any relevant log output.
+      This will be automatically formatted into code, so no need for backticks.
+    render: shell
+  validations:
+    required: false
+
 - type: textarea
   id: screenshots
   attributes:
     label: Screenshots
-    description: Please add screenshots if applicable
+    description: Please add screenshots if applicable.
   validations:
     required: false
+
 - type: textarea
-  id: extrainfo
+  id: extra-info
   attributes:
     label: Additional information
     description: Is there anything else we should know about this bug?
+  validations:
+    required: false
+
+- type: textarea
+  id: suggested-fix
+  attributes:
+    label: Recommended fix or suggestions
+    description: A clear and concise description of how you want to update it.
   validations:
     required: false
