@@ -7,7 +7,7 @@ body:
 - type: markdown
   id: preamble
   attributes:
-    value: >
+    value: |
       **Thank you for suggesting a new feature!**
 
       If you know how to implement it, feel free to submit a PR too!
