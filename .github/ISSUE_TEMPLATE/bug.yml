@@ -99,7 +99,7 @@ body:
     - Linux
     - macOS
     - Windows
-    - Other (please precises below)
+    - Other (please precise below)
   validations:
     required: true
 
