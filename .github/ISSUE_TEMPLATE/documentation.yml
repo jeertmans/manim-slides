@@ -1,7 +1,7 @@
 name: Documentation
 description: Ask / Report an issue related to the documentation.
 title: '[DOC] <short-description-here>'
-labels: [docs]
+labels: [documentation]
 
 body:
 - type: markdown
