@@ -37,7 +37,7 @@ body:
   id: description
   attributes:
     label: Describe the issue
-    description: A description of the question or issue, also include what you tried and what didn't work.
+    description: A description of the issue, also include what you tried and what didn't work.
   validations:
     required: true
 

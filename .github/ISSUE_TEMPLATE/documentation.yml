@@ -49,7 +49,7 @@ body:
     options:
     - Typo, spelling mistake, broken link, etc.
     - Something is missing
-    - Documentation Enhancement
+    - Documentation enhancement
     - Other
   validations:
     required: true
