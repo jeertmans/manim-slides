@@ -1,7 +1,7 @@
 name: Bug
 description: Report an issue to help improve the project.
 title: '[BUG] <short-description-here>'
-labels: bug
+labels: [bug]
 
 body:
 - type: markdown
@@ -12,7 +12,7 @@ body:
 
       If you know how to solve your problem, feel free to submit a PR too!
 
-      > ![WARNING]
+      > [!WARNING]
       > Before reporting your bug, please make sure to:
       >
       > 1. create and activate virtual environment (venv);
@@ -41,14 +41,13 @@ body:
   validations:
     required: true
 
-- type: textarea
+- type: input
   id: command
   attributes:
     label: Command
     description: |
       Enter the command that failed.
       This will be automatically formatted into code, so no need for backticks.
-    render: shell
   validations:
     required: true
 
@@ -66,7 +65,7 @@ body:
   validations:
     required: true
 
-- type: textarea
+- type: input
   id: py-version
   attributes:
     label: Python version
@@ -75,7 +74,6 @@ body:
       Make sure to activate your virtual environment first (if any).
       This will be automatically formatted into code, so no need for backticks.
     placeholder: Python 3.11.8
-    render: shell
   validations:
     required: false
 
@@ -105,7 +103,7 @@ body:
   validations:
     required: true
 
-- type: textarea
+- type: input
   id: platform-other
   attributes:
     label: Other platform

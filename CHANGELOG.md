@@ -25,6 +25,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved (and fixed) tests for Manim(GL), bumped minimal ManimCE version,
   improved coverage, and override dependency conflicts.
   [#447](https://github.com/jeertmans/manim-slides/pull/447)
+- Improved issue templates.
+  [#456](https://github.com/jeertmans/manim-slides/pull/456)
 
 (unreleased-fixed)=
 ### Fixed
