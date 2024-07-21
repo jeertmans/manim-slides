@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <!-- start changelog -->
 
 (unreleased)=
-## [Unreleased](https://github.com/jeertmans/manim-slides/compare/5.1.7...HEAD)
+## [Unreleased](https://github.com/jeertmans/manim-slides/compare/v5.1.7...HEAD)
 
 (unreleased-chore)=
 ### Chore
@@ -19,6 +19,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   [samuelcolvin/rtoml#74](https://github.com/samuelcolvin/rtoml/issues/74)
   is solved.
   [#432](https://github.com/jeertmans/manim-slides/pull/432)
+- Removed an old validation check that prevented setting `loop=True` with
+  `auto_next=True` on `next_slide()`
+  [#445](https://github.com/jeertmans/manim-slides/pull/445)
+- Improved (and fixed) tests for Manim(GL), bumped minimal ManimCE version,
+  improved coverage, and override dependency conflicts.
+  [#447](https://github.com/jeertmans/manim-slides/pull/447)
+- Improved issue templates.
+  [#456](https://github.com/jeertmans/manim-slides/pull/456)
 
 (unreleased-fixed)=
 ### Fixed
@@ -28,12 +36,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed whitespace issue in default RevealJS template.
   [#442](https://github.com/jeertmans/manim-slides/pull/442)
 
-(unreleased-chore)=
-### Chore
+(unreleased-removed)=
+### Removed
 
-- Removed an old validation check that prevented setting `loop=True` with
-  `auto_next=True` on `next_slide()`
-  [#445](https://github.com/jeertmans/manim-slides/pull/445)
+- Removed `full-gl` extra, because it does not make sense to ship both
+  `manimgl` and `manim` together.
+  [#447](https://github.com/jeertmans/manim-slides/pull/447)
 
 (v5.1.7)=
 ## [v5.1.7](https://github.com/jeertmans/manim-slides/compare/v5.1.6...v5.1.7)

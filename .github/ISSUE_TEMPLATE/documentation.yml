@@ -1,57 +1,61 @@
 name: Documentation
 description: Ask / Report an issue related to the documentation.
-title: 'DOC: <description>'
-labels: [bug, docs]
+title: '[DOC] <short-description-here>'
+labels: [documentation]
 
 body:
 - type: markdown
+  id: preamble
   attributes:
-    value: >
-      **Thank you for wanting to report a problem with manim-slides docs!**
+    value: |
+      **Thank you for reporting a problem about Manim Slides' documentation!**
 
+      If you know how to solve your problem, feel free to submit a PR too!
 
-      If the problem seems straightforward, feel free to submit a PR instead!
-
-
-      ⚠
-      Verify first that your issue is not already reported on GitHub [Issues].
-
-
-      [Issues]:
-      https://github.com/jeertmans/manim-slides/issues
+- type: checkboxes
+  id: terms
+  attributes:
+    label: Terms
+    description: 'By submitting this issue, I have:'
+    options:
+    - label: Checked the [existing issues](https://github.com/jeertmans/manim-slides/issues?q=is%3Aissue+label%3Adocumentation+) and [discussions](https://github.com/jeertmans/manim-slides/discussions) to see if my issue had not already been reported;
+      required: true
 
 - type: textarea
+  id: description
   attributes:
-    label: Describe the Issue
+    label: Describe the issue
     description: A clear and concise description of the issue you encountered.
   validations:
     required: true
 
-- type: input
+- type: textarea
+  id: pages
   attributes:
-    label: Affected Page
-    description: Add a link to page with the problem.
+    label: Affected page(s)
+    description: Link to page(s) with the problem.
+    placeholder: |
+      + https://manim-slides.eertmans.be/latest/installation.html
+      + https://manim-slides.eertmans.be/latest/features_table.html
   validations:
     required: true
 
 - type: dropdown
+  id: issue-type
   attributes:
-    label: Issue Type
+    label: Issue type
     description: >
       Please select the option in the drop-down.
-
-      <details>
-        <summary>
-          <em>Issue?</em>
-        </summary>
-      </details>
     options:
-    - Documentation Enhancement
-    - Documentation Report
+    - Typo, spelling mistake, broken link, etc.
+    - Something is missing
+    - Documentation enhancement
+    - Other
   validations:
     required: true
 
 - type: textarea
+  id: suggested-fix
   attributes:
     label: Recommended fix or suggestions
     description: A clear and concise description of how you want to update it.

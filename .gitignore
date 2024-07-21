@@ -45,6 +45,7 @@ paper/paper.pdf
 paper/media/
 
 # Others
+.coverage
 coverage.xml
 
 rendering_times.csv
