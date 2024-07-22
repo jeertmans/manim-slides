@@ -5,8 +5,8 @@ import requests
 from click_default_group import DefaultGroup
 
 from .__version__ import __version__
-from .convert import convert
 from .checkhealth import checkhealth
+from .convert import convert
 from .logger import logger
 from .present import list_scenes, present
 from .render import render
