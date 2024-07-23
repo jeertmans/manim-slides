@@ -23,7 +23,7 @@ using Manim Slides presentations.
 
 Daniel publishes his presentations on *Cosmology, String Theory and related*
 topics on his
-[personal website](https://panopepino.github.io/Web_Page/main_page/slides.html).
+[personal website](https://panopepino.github.io/Web_Page/main_page/slides.html). https://panopepino.github.io/Web_Page/main_page/slides.html
 
 For example, below are the slides of a seminar he gave titled
 [Our Universe on a (Dark) Bubble](https://panopepino.github.io/Web_Page/main_page/presentations/2023_11_long/LS.html).
@@ -37,7 +37,7 @@ For example, below are the slides of a seminar he gave titled
         height="100%"
         allowfullscreen
         allow="autoplay"
-        src="https://panopepino.github.io/web_page/main_page/presentations/2023_11_long/LS.html">
+        src="https://panopepino.github.io/Web_Page/main_page/presentations/2023_11_long/LS.html">
     </iframe>
 </div>
 
