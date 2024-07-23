@@ -31,6 +31,7 @@ Manim Slides will *automatically* detect the one you are using!
 - [Usage](#usage)
 - [Comparison with Similar Tools](#comparison-with-similar-tools)
 - [F.A.Q](https://eertmans.be/manim-slides/latest/faq.html)
+- [Citing](#citing)
 - [Contributing](#contributing)
   * [Reporting an Issue](#reporting-an-issue)
   * [Seeking for Help](#seeking-for-help)
@@ -150,6 +151,24 @@ Below is a comparison of the most used ones with Manim Slides:
 | Support for ManimGL | Yes | No | No | No |
 | Web Browser presentations | Yes | No | Yes | No |
 | Offline presentations | Yes, with Qt | Yes, with OpenCV | No | No
+
+## Citing
+
+If you use this project, please cite it using the following reference:
+
+```bibtex
+@article{Jerome_Eertmans_Manim_Slides_A_2023,
+	title        = {{Manim Slides: A Python package for presenting Manim content anywhere}},
+	author       = {{Jérome Eertmans}},
+	year         = 2023,
+	month        = aug,
+	journal      = {Journal of Open Source Education},
+	volume       = 6,
+	doi          = {10.21105/jose.00206}
+}
+```
+
+or by linking this GitHub repository at the end of the presentation.
 
 ## Contributing
 
