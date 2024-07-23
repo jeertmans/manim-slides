@@ -1,14 +1,4 @@
-"""
-Alias command to either
-``manim render [OPTIONS] [ARGS]...`` or
-``manimgl [OPTIONS] [ARGS]...``.
-
-This is especially useful for two reasons:
-
-1. You can are sure to execute the rendering command with the same Python environment
-   as for ``manim-slides``.
-2. You can pass options to the config.
-"""
+"""Manim Slides' rendering commands."""
 
 import subprocess
 import sys
@@ -44,10 +34,22 @@ def render(ce: bool, gl: bool, args: tuple[str, ...]) -> None:
 
     Use ``manim-slides render --help`` to see help information for
     a specific renderer.
+
+    Alias command to either
+    ``manim render [OPTIONS] [ARGS]...`` or
+    ``manimgl [OPTIONS] [ARGS]...``.
+
+    This is especially useful for two reasons:
+
+    1. You can are sure to execute the rendering command with the same Python environment
+       as for ``manim-slides``.
+    2. You can pass options to the config.
     """
     if ce and gl:
         raise click.UsageError("You cannot specify both --CE and --GL renderers.")
     if gl:
         subprocess.run([sys.executable, "-m", "manimlib", *args])
     else:
-        subprocess.run([sys.executable, "-m", "manim", "render", *args])
+        from manim.cli.render.commands import render as render_ce
+
+        render_ce(args, standalone_mode=False)

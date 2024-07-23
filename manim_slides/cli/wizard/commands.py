@@ -3,10 +3,9 @@ from pathlib import Path
 
 import click
 
+from ...core.config import Config
+from ...core.logger import logger
 from ..commons import config_options, verbosity_option
-from ..config import Config
-from ..defaults import CONFIG_PATH
-from ..logger import logger
 
 
 @click.command()
@@ -37,7 +36,7 @@ def _init(
     mode.
     """
     if config_path.exists():
-        click.secho(f"The `{CONFIG_PATH}` configuration file exists")
+        logger.debug(f"The `{config_path}` configuration file exists")
 
         if not force and not merge:
             choice = click.prompt(
@@ -57,7 +56,7 @@ def _init(
     if force:
         logger.debug(f"Overwriting `{config_path}` if exists")
     elif merge:
-        logger.debug("Merging new config into `{config_path}`")
+        logger.debug(f"Merging new config into `{config_path}`")
 
     if not skip_interactive:
         if config_path.exists():
@@ -82,4 +81,4 @@ def _init(
 
     config.to_file(config_path)
 
-    click.secho(f"Configuration file successfully saved to `{config_path}`")
+    logger.debug(f"Configuration file successfully saved to `{config_path}`")

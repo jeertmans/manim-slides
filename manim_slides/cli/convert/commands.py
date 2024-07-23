@@ -33,14 +33,18 @@ from pydantic_core import CoreSchema, core_schema
 from pydantic_extra_types.color import Color
 from tqdm import tqdm
 
+from ...core.config import PresentationConfig
+from ...core.logger import logger
+from ..commons import folder_path_option, scenes_argument, verbosity_option
 from . import templates
-from .commons import folder_path_option, verbosity_option
-from .config import PresentationConfig
-from .logger import logger
-from .present import get_scenes_presentation_config
 
 
 def open_with_default(file: Path) -> None:
+    """
+    Open a file with the default application.
+
+    :param file: The file to open.
+    """
     system = platform.system()
     if system == "Darwin":
         subprocess.call(("open", str(file)))
@@ -134,6 +138,7 @@ class Str(str):
 
     # This fixes pickling issue on Python 3.8
     __reduce_ex__ = str.__reduce_ex__
+    # TODO: do we still need this?
 
     @classmethod
     def __get_pydantic_core_schema__(
@@ -381,6 +386,11 @@ class RevealJS(Converter):
         return resources.files(templates).joinpath("revealjs.html").read_text()
 
     def open(self, file: Path) -> bool:
+        """
+        Open the HTML file inside a web browser.
+
+        :param path: The path to the HTML file.
+        """
         return webbrowser.open(file.absolute().as_uri())
 
     def convert_to(self, dest: Path) -> None:
@@ -635,7 +645,7 @@ def show_template_option(function: Callable[..., Any]) -> Callable[..., Any]:
 
 
 @click.command()
-@click.argument("scenes", nargs=-1)
+@scenes_argument
 @folder_path_option
 @click.argument("dest", type=click.Path(dir_okay=False, path_type=Path))
 @click.option(
@@ -674,7 +684,7 @@ def show_template_option(function: Callable[..., Any]) -> Callable[..., Any]:
 @show_config_options
 @verbosity_option
 def convert(
-    scenes: list[str],
+    scenes: list[Path],
     folder: Path,
     dest: Path,
     to: str,
@@ -684,7 +694,7 @@ def convert(
     template: Optional[Path],
 ) -> None:
     """Convert SCENE(s) into a given format and writes the result in DEST."""
-    presentation_configs = get_scenes_presentation_config(scenes, folder)
+    presentation_configs = [PresentationConfig.from_file(scene) for scene in scenes]
 
     try:
         if to == "auto":

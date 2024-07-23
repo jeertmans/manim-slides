@@ -73,7 +73,7 @@ tests = [
 ]
 
 [project.scripts]
-manim-slides = "manim_slides.__main__:cli"
+manim-slides = "manim_slides.cli.commands:main"
 
 [project.urls]
 Changelog = "https://github.com/jeertmans/manim-slides/releases"
