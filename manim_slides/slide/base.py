@@ -1,6 +1,8 @@
+"""Base class for the Slide class."""
+
 from __future__ import annotations
 
-__all__ = ["BaseSlide"]
+__all__ = ("BaseSlide",)
 
 import platform
 from abc import abstractmethod
@@ -14,10 +16,15 @@ from typing import (
 import numpy as np
 from tqdm import tqdm
 
-from ..config import BaseSlideConfig, PresentationConfig, PreSlideConfig, SlideConfig
-from ..defaults import FOLDER_PATH
-from ..logger import logger
-from ..utils import concatenate_video_files, merge_basenames, reverse_video_file
+from ..core.config import (
+    BaseSlideConfig,
+    PresentationConfig,
+    PreSlideConfig,
+    SlideConfig,
+)
+from ..core.defaults import FOLDER_PATH
+from ..core.logger import logger
+from ..core.utils import concatenate_video_files, merge_basenames, reverse_video_file
 from . import MANIM
 
 if TYPE_CHECKING:
