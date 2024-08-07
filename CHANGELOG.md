@@ -27,6 +27,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   [#447](https://github.com/jeertmans/manim-slides/pull/447)
 - Improved issue templates.
   [#456](https://github.com/jeertmans/manim-slides/pull/456)
+- Enhancer the error message when the slides folder does not exist.
+  [#462](https://github.com/jeertmans/manim-slides/pull/462)
 
 (unreleased-fixed)=
 ### Fixed

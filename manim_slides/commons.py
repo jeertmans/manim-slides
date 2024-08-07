@@ -70,11 +70,22 @@ def verbosity_option(function: F) -> F:
 
 def folder_path_option(function: F) -> F:
     """Wrap a function to add folder path option."""
+
+    def callback(ctx: Context, param: Parameter, value: Path) -> Path:
+        if not value.exists():
+            raise click.UsageError(
+                f"Invalid value for '--folder': Directory '{value}' does not exist. "
+                "Did you render the animations first?",
+                ctx=ctx,
+            )
+        return value
+
     wrapper: Wrapper = click.option(
         "--folder",
         metavar="DIRECTORY",
         default=FOLDER_PATH,
-        type=click.Path(exists=True, file_okay=False, path_type=Path),
+        type=click.Path(file_okay=False, path_type=Path),
+        callback=callback,
         help="Set slides folder.",
         show_default=True,
     )
