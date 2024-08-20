@@ -210,6 +210,7 @@ extend-select = ["B", "C90", "D", "I", "N", "RUF", "UP", "T"]
 isort = {known-first-party = ["manim_slides", "tests"]}
 
 [tool.ruff.lint.per-file-ignores]
+"docs/source/reference/magic_example.ipynb" = ["F403", "F405"]
 "tests/test_slide.py" = ["N801"]
 
 [tool.rye]
