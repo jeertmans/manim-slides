@@ -259,9 +259,7 @@ class Player(QMainWindow):  # type: ignore[misc]
         )
         self.info.close_event.connect(self.closeEvent)
         self.info.key_press_event.connect(self.keyPressEvent)
-        self.video_sink.videoFrameChanged.connect(
-            frame_changed
-        )
+        self.video_sink.videoFrameChanged.connect(frame_changed)
         self.hide_info_window = hide_info_window
 
         # Connecting key callbacks
