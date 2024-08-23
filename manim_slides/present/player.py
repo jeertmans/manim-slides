@@ -4,7 +4,7 @@ from typing import Optional
 
 from qtpy.QtCore import Qt, QTimer, QUrl, Signal, Slot
 from qtpy.QtGui import QCloseEvent, QIcon, QKeyEvent, QScreen
-from qtpy.QtMultimedia import QAudioOutput, QMediaPlayer
+from qtpy.QtMultimedia import QAudioOutput, QMediaPlayer, QVideoFrame
 from qtpy.QtMultimediaWidgets import QVideoWidget
 from qtpy.QtWidgets import (
     QHBoxLayout,
@@ -240,6 +240,18 @@ class Player(QMainWindow):  # type: ignore[misc]
         self.presentation_changed.connect(self.presentation_changed_callback)
         self.slide_changed.connect(self.slide_changed_callback)
 
+        old_frame = None
+
+        def frame_changed(frame: QVideoFrame) -> None:
+            nonlocal old_frame
+
+            if old_frame and (frame.size() != old_frame.size()):
+                self.video_sink.setVideoFrame(old_frame)
+                frame = old_frame
+
+            self.info.video_sink.setVideoFrame(frame)
+            old_frame = frame
+
         self.info = Info(
             full_screen=full_screen,
             aspect_ratio_mode=aspect_ratio_mode,
@@ -248,7 +260,7 @@ class Player(QMainWindow):  # type: ignore[misc]
         self.info.close_event.connect(self.closeEvent)
         self.info.key_press_event.connect(self.keyPressEvent)
         self.video_sink.videoFrameChanged.connect(
-            lambda frame: self.info.video_sink.setVideoFrame(frame)
+            frame_changed
         )
         self.hide_info_window = hide_info_window
 
