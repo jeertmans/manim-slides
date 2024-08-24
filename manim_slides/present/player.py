@@ -245,12 +245,11 @@ class Player(QMainWindow):  # type: ignore[misc]
         def frame_changed(frame: QVideoFrame) -> None:
             nonlocal old_frame
 
-            if old_frame and (frame.size() != old_frame.size()):
+            if frame.pixelFormat().value == frame.pixelFormat().Format_Invalid.value:
                 self.video_sink.setVideoFrame(old_frame)
-                frame = old_frame
-
-            self.info.video_sink.setVideoFrame(frame)
-            old_frame = frame
+            else:
+                self.info.video_sink.setVideoFrame(frame)
+                old_frame = frame
 
         self.info = Info(
             full_screen=full_screen,
