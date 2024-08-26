@@ -560,11 +560,11 @@ class Player(QMainWindow):  # type: ignore[misc]
 
         References
         ----------
-
         1. https://github.com/jeertmans/manim-slides/issues/293
         2. https://github.com/jeertmans/manim-slides/pull/464
 
         :param frame: The most recent frame.
+
         """
         if frame.isValid():
             self.frame = frame
