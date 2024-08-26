@@ -226,6 +226,8 @@ class Player(QMainWindow):  # type: ignore[misc]
         self.icon = QIcon(":/icon.png")
         self.setWindowIcon(self.icon)
 
+        self.frame = QVideoFrame()
+
         self.audio_output = QAudioOutput()
         self.video_widget = QVideoWidget()
         self.video_sink = self.video_widget.videoSink()
@@ -240,17 +242,6 @@ class Player(QMainWindow):  # type: ignore[misc]
         self.presentation_changed.connect(self.presentation_changed_callback)
         self.slide_changed.connect(self.slide_changed_callback)
 
-        old_frame = None
-
-        def frame_changed(frame: QVideoFrame) -> None:
-            nonlocal old_frame
-
-            if frame.pixelFormat().value == frame.pixelFormat().Format_Invalid.value:
-                self.video_sink.setVideoFrame(old_frame)
-            else:
-                self.info.video_sink.setVideoFrame(frame)
-                old_frame = frame
-
         self.info = Info(
             full_screen=full_screen,
             aspect_ratio_mode=aspect_ratio_mode,
@@ -258,7 +249,7 @@ class Player(QMainWindow):  # type: ignore[misc]
         )
         self.info.close_event.connect(self.closeEvent)
         self.info.key_press_event.connect(self.keyPressEvent)
-        self.video_sink.videoFrameChanged.connect(frame_changed)
+        self.video_sink.videoFrameChanged.connect(self.frame_changed)
         self.hide_info_window = hide_info_window
 
         # Connecting key callbacks
@@ -553,6 +544,34 @@ class Player(QMainWindow):  # type: ignore[misc]
             self.setCursor(Qt.ArrowCursor)
         else:
             self.setCursor(Qt.BlankCursor)
+
+    def frame_changed(self, frame: QVideoFrame) -> None:
+        """
+        Slot to handle possibly invalid frames.
+
+        This slot cannot be decorated with ``@Slot`` as
+        the video sinks are handled in different threads.
+
+        As of Qt>=6.5.3, the last frame of every video is "flushed",
+        resulting in a short black screen between each slide.
+
+        To avoid this issue, we check every frame, and avoid playing
+        invalid ones.
+
+        References
+        ----------
+
+        1. https://github.com/jeertmans/manim-slides/issues/293
+        2. https://github.com/jeertmans/manim-slides/pull/464
+
+        :param frame: The most recent frame.
+        """
+        if frame.isValid():
+            self.frame = frame
+        else:
+            self.video_sink.setVideoFrame(self.frame)  # Reuse previous frame
+
+        self.info.video_sink.setVideoFrame(self.frame)
 
     def closeEvent(self, event: QCloseEvent) -> None:  # noqa: N802
         self.close()
