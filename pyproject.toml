@@ -186,10 +186,9 @@ env = [
 ]
 
 [tool.ruff]
-extend-exclude = ["manim_slides/resources.py"]
+extend-exclude = ["manim_slides/cli/resources.py"]
 extend-include = ["*.ipynb"]
 line-length = 88
-target-version = "py39"
 
 [tool.ruff.lint]
 extend-ignore = [

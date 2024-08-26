@@ -92,9 +92,7 @@ class Key(BaseModel):  # type: ignore[misc]
         self.ids = list(set(ids))
 
     def match(self, key_id: int) -> bool:
-        """
-        Return whether a given key id matches this key.
-        """
+        """Return whether a given key id matches this key."""
         m = key_id in self.ids
 
         if m:
