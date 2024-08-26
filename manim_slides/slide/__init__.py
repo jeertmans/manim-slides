@@ -1,10 +1,12 @@
-__all__ = [
+"""Slides module with logic to either import ManimCE or ManimGL."""
+
+__all__ = (
     "MANIM",
     "MANIMGL",
     "API_NAME",
     "Slide",
     "ThreeDSlide",
-]
+)
 
 
 import os
@@ -14,10 +16,10 @@ import sys
 class ManimApiNotFoundError(ImportError):
     """Error raised if specified manim API could be imported."""
 
-    _msg = "Could not import the specified manim API"
+    _msg = "Could not import the specified manim API: `{api}`."
 
-    def __init__(self) -> None:
-        super().__init__(self._msg)
+    def __init__(self, api: str) -> None:
+        super().__init__(self._msg.format(api=api))
 
 
 API_NAMES = {
@@ -26,9 +28,12 @@ API_NAMES = {
     "manimlib": "manimlib",
     "manimgl": "manimlib",
 }
+"""Allowed values for API."""
 
 MANIM_API: str = "MANIM_API"
+"""API environ variable name."""
 FORCE_MANIM_API: str = "FORCE_" + MANIM_API
+"""FORCE API environ variable name."""
 
 API: str = os.environ.get(MANIM_API, "manim").lower()
 
@@ -53,11 +58,14 @@ if MANIM:
     try:
         from .manim import Slide, ThreeDSlide
     except ImportError as e:
-        raise ManimApiNotFoundError from e
+        raise ManimApiNotFoundError("manim") from e
 elif MANIMGL:
     try:
         from .manimlib import Slide, ThreeDSlide
     except ImportError as e:
-        raise ManimApiNotFoundError from e
+        raise ManimApiNotFoundError("manimlib") from e
 else:
-    raise ManimApiNotFoundError
+    raise ValueError(
+        "This error should never occur. "
+        "Please report an issue on GitHub if you encounter it."
+    )

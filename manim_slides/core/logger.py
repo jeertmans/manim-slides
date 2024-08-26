@@ -31,7 +31,11 @@ HIGHLIGHTED_KEYWORDS = [  # these keywords are highlighted specially
 
 
 def make_logger() -> logging.Logger:
-    """Make a logger similar to the one used by Manim."""
+    """
+    Make a logger similar to the one used by Manim.
+
+    :return: The logger instance.
+    """
     RichHandler.KEYWORDS = HIGHLIGHTED_KEYWORDS
     rich_handler = RichHandler(
         show_time=True,
@@ -47,6 +51,5 @@ def make_logger() -> logging.Logger:
     return logger
 
 
-make_logger()
-
-logger = logging.getLogger("manim-slides")
+logger = make_logger()
+"""The logger instance used across this project."""

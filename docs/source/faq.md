@@ -94,7 +94,7 @@ This will also show the default value for each option.
 If you want to create your own template, the best is to start from the default one.
 
 You can either download it from the
-[template folder](https://github.com/jeertmans/manim-slides/tree/main/manim_slides/templates)
+[template folder](https://github.com/jeertmans/manim-slides/tree/main/manim_slides/cli/convert/templates)
 or use the `manim-slides convert --to=FORMAT --show-template` command,
 where `FORMAT` is one of the supported formats.
 

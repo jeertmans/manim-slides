@@ -7,9 +7,14 @@ import click
 from click import Context, Parameter
 from pydantic import ValidationError
 
-from ..commons import config_path_option, folder_path_option, verbosity_option
-from ..config import Config, PresentationConfig
-from ..logger import logger
+from ...core.config import Config, PresentationConfig, list_presentation_configs
+from ...core.logger import logger
+from ..commons import (
+    config_path_option,
+    folder_path_option,
+    scenes_argument,
+    verbosity_option,
+)
 
 PREFERRED_QT_VERSIONS = ("6.5.1", "6.5.2")
 
@@ -35,83 +40,10 @@ def warn_if_non_desirable_pyside6_version() -> None:
 @verbosity_option
 def list_scenes(folder: Path) -> None:
     """List available scenes."""
-    for i, scene in enumerate(_list_scenes(folder), start=1):
-        click.secho(f"{i}: {scene}", fg="green")
-
-
-def _list_scenes(folder: Path) -> list[str]:
-    """List available scenes in given directory."""
-    scenes = []
-
-    for filepath in folder.glob("*.json"):
-        try:
-            _ = PresentationConfig.from_file(filepath)
-            scenes.append(filepath.stem)
-        except (
-            Exception
-        ) as e:  # Could not parse this file as a proper presentation config
-            logger.warn(
-                f"Something went wrong with parsing presentation config `{filepath}`: {e}"
-            )
-
-    logger.debug(f"Found {len(scenes)} valid scene configuration files in `{folder}`.")
-
-    return scenes
-
-
-def prompt_for_scenes(folder: Path) -> list[str]:
-    """Prompt the user to select scenes within a given folder."""
-    scene_choices = dict(enumerate(_list_scenes(folder), start=1))
-
-    for i, scene in scene_choices.items():
-        click.secho(f"{i}: {scene}", fg="green")
-
-    click.echo()
-
-    click.echo("Choose number corresponding to desired scene/arguments.")
-    click.echo("(Use comma separated list for multiple entries)")
-
-    def value_proc(value: Optional[str]) -> list[str]:
-        indices = list(map(int, (value or "").strip().replace(" ", "").split(",")))
-
-        if not all(0 < i <= len(scene_choices) for i in indices):
-            raise click.UsageError("Please only enter numbers displayed on the screen.")
-
-        return [scene_choices[i] for i in indices]
-
-    if len(scene_choices) == 0:
-        raise click.UsageError(
-            "No scenes were found, are you in the correct directory?"
-        )
-
-    while True:
-        try:
-            scenes = click.prompt("Choice(s)", value_proc=value_proc)
-            return scenes  # type: ignore
-        except ValueError as e:
-            raise click.UsageError(str(e)) from None
-
-
-def get_scenes_presentation_config(
-    scenes: list[str], folder: Path
-) -> list[PresentationConfig]:
-    """Return a list of presentation configurations based on the user input."""
-    if len(scenes) == 0:
-        scenes = prompt_for_scenes(folder)
-
-    presentation_configs = []
-    for scene in scenes:
-        config_file = folder / f"{scene}.json"
-        if not config_file.exists():
-            raise click.UsageError(
-                f"File {config_file} does not exist, check the scene name and make sure to use Slide as your scene base class"
-            )
-        try:
-            presentation_configs.append(PresentationConfig.from_file(config_file))
-        except ValidationError as e:
-            raise click.UsageError(str(e)) from None
-
-    return presentation_configs
+    scene_names = [path.stem for path in list_presentation_configs(folder)]
+    num_digits = len(str(len(scene_names)))
+    for i, scene_name in enumerate(scene_names, start=1):
+        click.secho(f"{i:{num_digits}d}: {scene_name}", fg="green")
 
 
 def start_at_callback(
@@ -147,7 +79,7 @@ def start_at_callback(
 
 
 @click.command()
-@click.argument("scenes", nargs=-1)
+@scenes_argument
 @config_path_option
 @folder_path_option
 @click.option("--start-paused", is_flag=True, help="Start paused.")
@@ -253,7 +185,7 @@ def start_at_callback(
 @click.help_option("-h", "--help")
 @verbosity_option
 def present(
-    scenes: list[str],
+    scenes: list[Path],
     config_path: Path,
     folder: Path,
     start_paused: bool,
@@ -285,7 +217,7 @@ def present(
     if skip_all:
         exit_after_last_slide = True
 
-    presentation_configs = get_scenes_presentation_config(scenes, folder)
+    presentation_configs = [PresentationConfig.from_file(path) for path in scenes]
 
     if config_path.exists():
         try:
