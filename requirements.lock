@@ -260,11 +260,11 @@ pyqt6-sip==13.6.0
     # via pyqt6
 pyrr==0.10.3
     # via moderngl-window
-pyside6==6.5.2
+pyside6==6.7.2
     # via manim-slides
-pyside6-addons==6.5.2
+pyside6-addons==6.7.2
     # via pyside6
-pyside6-essentials==6.5.2
+pyside6-essentials==6.7.2
     # via pyside6
     # via pyside6-addons
 pytest==8.2.2
@@ -312,7 +312,7 @@ scipy==1.13.0
 screeninfo==0.8.1
     # via manim
     # via manimgl
-shiboken6==6.5.2
+shiboken6==6.7.2
     # via pyside6
     # via pyside6-addons
     # via pyside6-essentials
