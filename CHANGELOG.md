@@ -38,7 +38,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed whitespace issue in default RevealJS template.
   [#442](https://github.com/jeertmans/manim-slides/pull/442)
 - Fixed black screen issue on recent Qt versions and device loss detected,
-  thanks for [@PeculiarProgrammer](https://github.com/PeculiarProgrammer)!
+  thanks to [@PeculiarProgrammer](https://github.com/PeculiarProgrammer)!
   [#465](https://github.com/jeertmans/manim-slides/pull/465)
 
 (unreleased-removed)=
