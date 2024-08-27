@@ -63,7 +63,7 @@ class Wizard(QWidget):  # type: ignore
 
         self.layout = QGridLayout()
 
-        for i, (key, value) in enumerate(self.config.keys.dict().items()):
+        for i, (key, value) in enumerate(self.config.keys.model_dump().items()):
             # Create label for key name information
             label = QLabel()
             key_info = value["name"] or key
@@ -97,7 +97,7 @@ class Wizard(QWidget):  # type: ignore
 
     def save_config(self) -> None:
         try:
-            Config.model_validate(self.config.dict())
+            Config.model_validate(self.config.model_dump())
         except ValueError:
             msg = QMessageBox()
             msg.setIcon(QMessageBox.Critical)

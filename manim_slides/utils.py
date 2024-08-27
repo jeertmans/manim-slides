@@ -19,7 +19,7 @@ def concatenate_video_files(files: list[Path], dest: Path) -> None:
                 if len(container.streams.video) > 0:
                     yield file
                 else:
-                    logger.warn(
+                    logger.warning(
                         f"Skipping video file {file} because it does "
                         "not contain any video stream. "
                         "This is probably caused by Manim, see: "

@@ -33,7 +33,7 @@ def _list_scenes(folder: Path) -> list[str]:
         except (
             Exception
         ) as e:  # Could not parse this file as a proper presentation config
-            logger.warn(
+            logger.warning(
                 f"Something went wrong with parsing presentation config `{filepath}`: {e}"
             )
 

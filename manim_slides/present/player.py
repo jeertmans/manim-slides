@@ -319,7 +319,7 @@ class Player(QMainWindow):  # type: ignore[misc]
         elif -self.presentations_count <= index < 0:
             self.__current_presentation_index = index + self.presentations_count
         else:
-            logger.warn(f"Could not set presentation index to {index}.")
+            logger.warning(f"Could not set presentation index to {index}.")
             return
 
         self.presentation_changed.emit()
@@ -343,7 +343,7 @@ class Player(QMainWindow):  # type: ignore[misc]
         elif -self.current_slides_count <= index < 0:
             self.__current_slide_index = index + self.current_slides_count
         else:
-            logger.warn(f"Could not set slide index to {index}.")
+            logger.warning(f"Could not set slide index to {index}.")
             return
 
         self.slide_changed.emit()

@@ -13,6 +13,8 @@ from pydantic import (
     FilePath,
     PositiveInt,
     PrivateAttr,
+    conset,
+    field_serializer,
     field_validator,
     model_validator,
 )
@@ -47,20 +49,13 @@ def key_id(name: str) -> PositiveInt:
 class Key(BaseModel):  # type: ignore[misc]
     """Represents a list of key codes, with optionally a name."""
 
-    ids: list[PositiveInt] = Field(unique=True)
+    ids: conset(PositiveInt, min_length=1)
     name: Optional[str] = None
 
     __signal: Signal = PrivateAttr(default_factory=Signal)
 
-    @field_validator("ids")
-    @classmethod
-    def ids_is_non_empty_set(cls, ids: set[Any]) -> set[Any]:
-        if len(ids) <= 0:
-            raise ValueError("Key's ids must be a non-empty set")
-        return ids
-
     def set_ids(self, *ids: int) -> None:
-        self.ids = list(set(ids))
+        self.ids = set(ids)
 
     def match(self, key_id: int) -> bool:
         m = key_id in self.ids
@@ -76,6 +71,10 @@ class Key(BaseModel):  # type: ignore[misc]
 
     def connect(self, function: Receiver) -> None:
         self.__signal.connect(function)
+
+    @field_serializer("ids")
+    def serialize_dt(self, ids: set[int]) -> list[int]:
+        return list(self.ids)
 
 
 class Keys(BaseModel):  # type: ignore[misc]
@@ -180,7 +179,7 @@ class BaseSlideConfig(BaseModel):  # type: ignore
                 fun_kwargs = {
                     key: value
                     for key, value in kwargs.items()
-                    if key not in cls.__fields__
+                    if key not in cls.model_fields
                 }
                 fun_kwargs[arg_name] = cls(**kwargs)
                 return fun(*args, **fun_kwargs)
@@ -194,7 +193,7 @@ class BaseSlideConfig(BaseModel):  # type: ignore
                     default=field_info.default,
                     annotation=field_info.annotation,
                 )
-                for field_name, field_info in cls.__fields__.items()
+                for field_name, field_info in cls.model_fields.items()
             ]
 
             sig = sig.replace(parameters=parameters)
@@ -231,7 +230,7 @@ class PreSlideConfig(BaseSlideConfig):
         return cls(
             start_animation=start_animation,
             end_animation=end_animation,
-            **base_slide_config.dict(),
+            **base_slide_config.model_dump(),
         )
 
     @field_validator("start_animation", "end_animation")
@@ -277,7 +276,7 @@ class SlideConfig(BaseSlideConfig):
     def from_pre_slide_config_and_files(
         cls, pre_slide_config: PreSlideConfig, file: Path, rev_file: Path
     ) -> "SlideConfig":
-        return cls(file=file, rev_file=rev_file, **pre_slide_config.dict())
+        return cls(file=file, rev_file=rev_file, **pre_slide_config.model_dump())
 
 
 class PresentationConfig(BaseModel):  # type: ignore[misc]
