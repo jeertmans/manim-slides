@@ -63,7 +63,6 @@ jobs:
     env:
       QT_QPA_PLATFORM: offscreen
       MANIM_SLIDES_VERBOSITY: error
-      PYTHONFAULTHANDLER: 1
       DISPLAY: :99
       GITHUB_WORKFLOWS: 1
     steps:

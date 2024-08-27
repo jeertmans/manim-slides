@@ -228,7 +228,7 @@ class ManimSlidesMagic(Magics):  # type: ignore
             # TODO: FIXME
             # Seems like files are blocked so date-uri is the only working option...
             if kwargs.get("data_uri", "false").lower().strip() == "false":
-                logger.warn(
+                logger.warning(
                     "data_uri option is currently automatically enabled, "
                     "because using local video files does not seem to work properly."
                 )
