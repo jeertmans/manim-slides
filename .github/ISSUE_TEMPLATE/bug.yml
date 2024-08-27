@@ -73,22 +73,22 @@ body:
     description: |
       Please copy and paste the output of `python --version`.
       Make sure to activate your virtual environment first (if any).
-      This will be automatically formatted into code, so no need for backticks.
     placeholder: Python 3.11.8
   validations:
-    required: false
+    required: true
 
 - type: textarea
   id: venv
   attributes:
     label: Python environment
     description: |
-      Please copy and paste the output of `pip freeze`.
+      Please copy and paste the output of `manim-slides checkhealth`.
       Make sure to activate your virtual environment first (if any).
       This will be automatically formatted into code, so no need for backticks.
+      If Manim Slides installation failed, enter 'N/A' instead.
     render: shell
   validations:
-    required: false
+    required: true
 
 - type: dropdown
   id: platform
