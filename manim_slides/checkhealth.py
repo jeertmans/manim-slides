@@ -12,8 +12,6 @@ def checkhealth() -> None:
     click.echo(f"Python executable: {sys.executable}")
     click.echo("Manim bindings:")
 
-    click.echo(f"Modules: {sys.modules.keys()}")
-
     try:
         from manim import __version__ as manimce_version
 
