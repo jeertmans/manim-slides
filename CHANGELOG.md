@@ -10,6 +10,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 (unreleased)=
 ## [Unreleased](https://github.com/jeertmans/manim-slides/compare/v5.1.7...HEAD)
 
+(unreleased-added)=
+### Added
+
+- Added `manim-slides checkhealth` command to easily obtain important information
+  for debug purposes.
+  [#458](https://github.com/jeertmans/manim-slides/pull/458)
+
 (unreleased-chore)=
 ### Chore
 
