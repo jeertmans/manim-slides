@@ -5,6 +5,7 @@ import requests
 from click_default_group import DefaultGroup
 
 from .__version__ import __version__
+from .checkhealth import checkhealth
 from .convert import convert
 from .logger import logger
 from .present import list_scenes, present
@@ -63,6 +64,7 @@ def cli(notify_outdated_version: bool) -> None:
 
 
 cli.add_command(convert)
+cli.add_command(checkhealth)
 cli.add_command(init)
 cli.add_command(list_scenes)
 cli.add_command(present)

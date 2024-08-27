@@ -33,6 +33,7 @@ dependencies = [
   "rtoml==0.9.0;sys_platform=='win32' and python_version<'3.13'",
   "rtoml>=0.9.0;sys_platform!='win32' or python_version>='3.13'",
   "tqdm>=4.64.1",
+  "pytest-missing-modules>=0.1.0",
 ]
 description = "Tool for live presentations using manim"
 dynamic = ["readme", "version"]
@@ -217,6 +218,7 @@ isort = {known-first-party = ["manim_slides", "tests"]}
 dev-dependencies = [
   "bump-my-version>=0.20.3",
   "pre-commit>=3.5.0",
+  "setuptools>=73.0.1",
 ]
 managed = true
 
