@@ -49,7 +49,7 @@ def key_id(name: str) -> PositiveInt:
 class Key(BaseModel):  # type: ignore[misc]
     """Represents a list of key codes, with optionally a name."""
 
-    ids: conset(PositiveInt, min_length=1)
+    ids: conset(PositiveInt, min_length=1)  # type: ignore[valid-type]
     name: Optional[str] = None
 
     __signal: Signal = PrivateAttr(default_factory=Signal)
