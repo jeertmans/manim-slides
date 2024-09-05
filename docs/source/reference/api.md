@@ -11,6 +11,9 @@ use, not the methods used internally when rendering.
 ```{eval-rst}
 .. autoclass:: manim_slides.slide.Slide
     :members:
+        disable_caching,
+        flush_cache,
+        skip_reversing,
         add_to_canvas,
         canvas,
         canvas_mobjects,
