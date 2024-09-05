@@ -38,3 +38,7 @@ class BasicSlide(Slide):
 
         self.next_slide()
         self.zoom(other_text, [])
+
+
+class BasicSlideSkipReversing(BasicSlide):
+    skip_reversing = True

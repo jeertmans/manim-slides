@@ -62,7 +62,11 @@ class Slide(BaseSlide, Scene):  # type: ignore[misc]
     def run(self, *args: Any, **kwargs: Any) -> None:
         """MANIMGL renderer."""
         super().run(*args, **kwargs)
-        self._save_slides(use_cache=False)
+        self._save_slides(
+            use_cache=False,
+            flush_cache=self.flush_cache,
+            skip_reversing=self.skip_reversing,
+        )
 
 
 class ThreeDSlide(Slide):

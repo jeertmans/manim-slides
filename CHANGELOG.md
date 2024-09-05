@@ -16,6 +16,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added `manim-slides checkhealth` command to easily obtain important information
   for debug purposes.
   [#458](https://github.com/jeertmans/manim-slides/pull/458)
+- Added support for `disable_caching` and `flush_cache` options from Manim, and
+  also the possibility to configure them through class options.
+  [#452](https://github.com/jeertmans/manim-slides/pull/452)
 
 (unreleased-chore)=
 ### Chore
