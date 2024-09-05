@@ -33,6 +33,15 @@ LEFT: np.ndarray = np.array([-1.0, 0.0, 0.0])
 
 
 class BaseSlide:
+    disable_caching = False
+    """Whether to disable the use of cached animation files."""
+    flush_cache = False
+    """Whether to flush the cache.
+
+    Unlike with Manim, flushing is performed before rendering."""
+    skip_reversing: bool = False
+    """Whether to generate reversed animations."""
+
     def __init__(
         self, *args: Any, output_folder: Path = FOLDER_PATH, **kwargs: Any
     ) -> None:
@@ -502,7 +511,7 @@ class BaseSlide:
             # We only reverse video if it was not present
             if not use_cache or not rev_file.exists():
                 if skip_reversing:
-                    rev_file.symlink_to(dst_file)
+                    rev_file = dst_file
                 else:
                     reverse_video_file(dst_file, rev_file)
 

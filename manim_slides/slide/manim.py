@@ -102,18 +102,29 @@ class Slide(BaseSlide, Scene):  # type: ignore[misc]
         )
 
     def render(self, *args: Any, **kwargs: Any) -> None:
-        """MANIM render."""
+        """MANIM renderer."""
         # We need to disable the caching limit since we rely on intermediate files
         max_files_cached = config["max_files_cached"]
         config["max_files_cached"] = float("inf")
+
+        flush_manim_cache = config["flush_cache"]
+
+        if flush_manim_cache:
+            # We need to postpone flushing *after* we saved slides
+            config["flush_cache"] = False
 
         super().render(*args, **kwargs)
 
         config["max_files_cached"] = max_files_cached
 
         self._save_slides(
-            use_cache=not config["disable_caching"], flush_cache=config["flush_cache"]
+            use_cache=not (config["disable_caching"] or self.disable_caching),
+            flush_cache=(config["flush_cache"] or self.flush_cache),
+            skip_reversing=self.skip_reversing,
         )
+
+        if flush_manim_cache:
+            self.renderer.file_writer.flush_cache_directory()
 
 
 class ThreeDSlide(Slide, ThreeDScene):  # type: ignore[misc]
