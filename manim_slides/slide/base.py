@@ -294,23 +294,34 @@ class BaseSlide:
             If set, next slide will play immediately play the next slide
             upon terminating.
 
-            Note that this is only supported by ``manim-slides present``
-            and ``manim-slides convert --to=html``.
+            .. attention::
+
+                Only supported by ``manim-slides present``
+                and ``manim-slides convert --to=html``.
         :param playback_rate:
             Playback rate at which the video is played.
 
-            Note that this is only supported by ``manim-slides present``.
+            .. attention::
+
+                Only supported by ``manim-slides present``.
         :param reversed_playback_rate:
             Playback rate at which the reversed video is played.
 
-            Note that this is only supported by ``manim-slides present``.
+            .. attention::
+
+                Only supported by ``manim-slides present``.
         :param notes:
             Presenter notes, in Markdown format.
 
-            Note that PowerPoint does not support Markdown.
+            .. note::
+                PowerPoint does not support Markdown formatting,
+                so the text will be displayed as is.
 
-            Note that this is only supported by ``manim-slides present``
-            and ``manim-slides convert --to=html/pptx``.
+            .. attention::
+
+                Only supported by ``manim-slides present``,
+                ``manim-slides convert --to=html`` and
+                ``manim-slides convert --to=pptx``.
         :param dedent_notes:
             If set, apply :func:`textwrap.dedent` to notes.
         :param kwargs:
@@ -464,7 +475,8 @@ class BaseSlide:
         """
         Save slides, optionally using cached files.
 
-        Note that cached files only work with Manim.
+        .. attention:
+            Caching files only work with Manim.
         """
         self._add_last_slide()
 
