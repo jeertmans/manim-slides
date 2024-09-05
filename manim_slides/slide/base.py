@@ -3,6 +3,7 @@ from __future__ import annotations
 __all__ = ["BaseSlide"]
 
 import platform
+import shutil
 from abc import abstractmethod
 from collections.abc import MutableMapping, Sequence, ValuesView
 from pathlib import Path
@@ -32,6 +33,10 @@ LEFT: np.ndarray = np.array([-1.0, 0.0, 0.0])
 
 
 class BaseSlide:
+    disable_caching: bool = False
+    flush_cache: bool = False
+    skip_reversing: bool = False
+
     def __init__(
         self, *args: Any, output_folder: Path = FOLDER_PATH, **kwargs: Any
     ) -> None:
@@ -170,11 +175,23 @@ class BaseSlide:
             animations. You must still call :code:`self.add` or
             play some animation that introduces each Mobject for
             it to appear. The same applies when removing objects.
+
+        .. seealso::
+
+            :attr:`canvas` for usage examples.
         """
         self._canvas.update(objects)
 
     def remove_from_canvas(self, *names: str) -> None:
-        """Remove objects from the canvas."""
+        """
+        Remove objects from the canvas.
+
+        :param names: The names of objects to remove.
+
+        .. seealso::
+
+            :attr:`canvas` for usage examples.
+        """
         for name in names:
             self._canvas.pop(name)
 
@@ -186,8 +203,12 @@ class BaseSlide:
     @property
     def mobjects_without_canvas(self) -> Sequence[Mobject]:
         """
-        Return the list of objects contained in the scene, minus those present in
+        Return the list of Mobjects contained in the scene, minus those present in
         the canvas.
+
+        .. seealso::
+
+            :attr:`canvas` for usage examples.
         """
         return [
             mobject
@@ -275,7 +296,7 @@ class BaseSlide:
         next slide is played. By default, this is the right arrow key.
 
         :param args:
-            Positional arguments to be passed to
+            Positional arguments passed to
             :meth:`Scene.next_section<manim.scene.scene.Scene.next_section>`,
             or ignored if `manimlib` API is used.
         :param loop:
@@ -284,27 +305,38 @@ class BaseSlide:
             If set, next slide will play immediately play the next slide
             upon terminating.
 
-            Note that this is only supported by ``manim-slides present``
-            and ``manim-slides convert --to=html``.
+            .. warning::
+
+                Only supported by ``manim-slides present``
+                and ``manim-slides convert --to=html``.
         :param playback_rate:
             Playback rate at which the video is played.
 
-            Note that this is only supported by ``manim-slides present``.
+            .. warning::
+
+                Only supported by ``manim-slides present``.
         :param reversed_playback_rate:
             Playback rate at which the reversed video is played.
 
-            Note that this is only supported by ``manim-slides present``.
+            .. warning::
+
+                Only supported by ``manim-slides present``.
         :param notes:
             Presenter notes, in Markdown format.
 
-            Note that PowerPoint does not support Markdown.
+            .. note::
+                PowerPoint does not support Markdown formatting,
+                so the text will be displayed as is.
 
-            Note that this is only supported by ``manim-slides present``
-            and ``manim-slides convert --to=html/pptx``.
+            .. warning::
+
+                Only supported by ``manim-slides present``,
+                ``manim-slides convert --to=html`` and
+                ``manim-slides convert --to=pptx``.
         :param dedent_notes:
             If set, apply :func:`textwrap.dedent` to notes.
         :param kwargs:
-            Keyword arguments to be passed to
+            Keyword arguments passed to
             :meth:`Scene.next_section<manim.scene.scene.Scene.next_section>`,
             or ignored if `manimlib` API is used.
 
@@ -445,11 +477,17 @@ class BaseSlide:
             )
         )
 
-    def _save_slides(self, use_cache: bool = True) -> None:
+    def _save_slides(
+        self,
+        use_cache: bool = True,
+        flush_cache: bool = False,
+        skip_reversing: bool = False,
+    ) -> None:
         """
         Save slides, optionally using cached files.
 
-        Note that cached files only work with Manim.
+        .. warning:
+            Caching files only work with Manim.
         """
         self._add_last_slide()
 
@@ -457,6 +495,9 @@ class BaseSlide:
 
         scene_name = str(self)
         scene_files_folder = files_folder / scene_name
+
+        if flush_cache and scene_files_folder.exists():
+            shutil.rmtree(scene_files_folder)
 
         scene_files_folder.mkdir(parents=True, exist_ok=True)
 
@@ -493,13 +534,16 @@ class BaseSlide:
 
             # We only reverse video if it was not present
             if not use_cache or not rev_file.exists():
-                reverse_video_file(
-                    dst_file,
-                    rev_file,
-                    leave=self._leave_progress_bar,
-                    ascii=True if platform.system() == "Windows" else None,
-                    disable=not self._show_progress_bar,
-                )
+                if skip_reversing:
+                    rev_file = dst_file
+                else:
+                    reverse_video_file(
+                        dst_file,
+                        rev_file,
+                        leave=self._leave_progress_bar,
+                        ascii=True if platform.system() == "Windows" else None,
+                        disable=not self._show_progress_bar,
+                    )
 
             slides.append(
                 SlideConfig.from_pre_slide_config_and_files(

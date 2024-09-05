@@ -10,6 +10,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 (unreleased)=
 ## [Unreleased](https://github.com/jeertmans/manim-slides/compare/v5.1.7...HEAD)
 
+(unreleased-added)=
+### Added
+
+- Added `manim-slides checkhealth` command to easily obtain important information
+  for debug purposes.
+  [#458](https://github.com/jeertmans/manim-slides/pull/458)
+- Added support for `disable_caching` and `flush_cache` options from Manim, and
+  also the possibility to configure them through class options.
+  [#452](https://github.com/jeertmans/manim-slides/pull/452)
+
 (unreleased-chore)=
 ### Chore
 
@@ -27,6 +37,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   [#447](https://github.com/jeertmans/manim-slides/pull/447)
 - Improved issue templates.
   [#456](https://github.com/jeertmans/manim-slides/pull/456)
+- Enhanced the error message when the slides folder does not exist.
+  [#462](https://github.com/jeertmans/manim-slides/pull/462)
+- Fixed deprecation warnings.
+  [#467](https://github.com/jeertmans/manim-slides/pull/467)
 
 (unreleased-fixed)=
 ### Fixed
@@ -35,6 +49,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   [#429](https://github.com/jeertmans/manim-slides/pull/429)
 - Fixed whitespace issue in default RevealJS template.
   [#442](https://github.com/jeertmans/manim-slides/pull/442)
+- Fixed black screen issue on recent Qt versions and device loss detected,
+  thanks to [@PeculiarProgrammer](https://github.com/PeculiarProgrammer)!
+  [#465](https://github.com/jeertmans/manim-slides/pull/465)
 
 (unreleased-removed)=
 ### Removed

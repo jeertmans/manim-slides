@@ -11,23 +11,6 @@ from ..commons import config_path_option, folder_path_option, verbosity_option
 from ..config import Config, PresentationConfig
 from ..logger import logger
 
-PREFERRED_QT_VERSIONS = ("6.5.1", "6.5.2")
-
-
-def warn_if_non_desirable_pyside6_version() -> None:
-    from qtpy import API, QT_VERSION
-
-    if sys.version_info < (3, 12) and (
-        API != "pyside6" or QT_VERSION not in PREFERRED_QT_VERSIONS
-    ):
-        logger.warn(
-            f"You are using {API = }, {QT_VERSION = }, "
-            "but we recommend installing 'PySide6==6.5.2', mainly to avoid "
-            "flashing screens between slides, "
-            "see issue https://github.com/jeertmans/manim-slides/issues/293. "
-            "You can do so with `pip install 'manim-slides[pyside6]'`."
-        )
-
 
 @click.command()
 @folder_path_option
@@ -50,7 +33,7 @@ def _list_scenes(folder: Path) -> list[str]:
         except (
             Exception
         ) as e:  # Could not parse this file as a proper presentation config
-            logger.warn(
+            logger.warning(
                 f"Something went wrong with parsing presentation config `{filepath}`: {e}"
             )
 
@@ -301,8 +284,6 @@ def present(
 
     if start_at[1]:
         start_at_slide_number = start_at[1]
-
-    warn_if_non_desirable_pyside6_version()
 
     from qtpy.QtCore import Qt
     from qtpy.QtGui import QScreen

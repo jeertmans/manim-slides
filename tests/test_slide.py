@@ -97,6 +97,108 @@ def test_render_basic_slide(
         assert local_presentation_config.resolution == presentation_config.resolution
 
 
+def test_clear_cache(
+    slides_file: Path,
+) -> None:
+    runner = CliRunner()
+
+    with runner.isolated_filesystem() as tmp_dir:
+        local_media_folder = (
+            Path(tmp_dir)
+            / "media"
+            / "videos"
+            / slides_file.stem
+            / "480p15"
+            / "partial_movie_files"
+            / "BasicSlide"
+        )
+        local_slides_folder = Path(tmp_dir) / "slides"
+
+        assert not local_media_folder.exists()
+        assert not local_slides_folder.exists()
+        results = runner.invoke(render, [str(slides_file), "BasicSlide", "-ql"])
+
+        assert results.exit_code == 0, results
+        assert local_media_folder.is_dir() and list(local_media_folder.iterdir())
+        assert local_slides_folder.exists()
+
+        results = runner.invoke(
+            render, [str(slides_file), "BasicSlide", "-ql", "--flush_cache"]
+        )
+
+        assert results.exit_code == 0, results
+        assert local_media_folder.is_dir() and not list(local_media_folder.iterdir())
+        assert local_slides_folder.exists()
+
+        results = runner.invoke(
+            render, [str(slides_file), "BasicSlide", "-ql", "--disable_caching"]
+        )
+
+        assert results.exit_code == 0, results
+        assert local_media_folder.is_dir() and list(local_media_folder.iterdir())
+        assert local_slides_folder.exists()
+
+        results = runner.invoke(
+            render,
+            [
+                str(slides_file),
+                "BasicSlide",
+                "-ql",
+                "--disable_caching",
+                "--flush_cache",
+            ],
+        )
+
+        assert results.exit_code == 0, results
+        assert local_media_folder.is_dir() and not list(local_media_folder.iterdir())
+        assert local_slides_folder.exists()
+
+
+@pytest.mark.parametrize(
+    "renderer",
+    [
+        "--CE",
+        pytest.param(
+            "--GL",
+            marks=pytest.mark.skipif(
+                sys.version_info >= (3, 12),
+                reason="ManimGL requires numpy<1.25, which is outdated and Python < 3.12",
+            ),
+        ),
+    ],
+)
+@pytest.mark.parametrize(
+    ("klass", "skip_reversing"),
+    [("BasicSlide", False), ("BasicSlideSkipReversing", True)],
+)
+def test_skip_reversing(
+    renderer: str,
+    slides_file: Path,
+    manimgl_config: Path,
+    klass: str,
+    skip_reversing: bool,
+) -> None:
+    runner = CliRunner()
+
+    with runner.isolated_filesystem() as tmp_dir:
+        shutil.copy(manimgl_config, tmp_dir)
+        results = runner.invoke(render, [renderer, str(slides_file), klass, "-ql"])
+
+        assert results.exit_code == 0, results
+
+        local_slides_folder = (Path(tmp_dir) / "slides").resolve(strict=True)
+
+        local_config_file = (local_slides_folder / f"{klass}.json").resolve(strict=True)
+
+        local_presentation_config = PresentationConfig.from_file(local_config_file)
+
+        for slide in local_presentation_config.slides:
+            if skip_reversing:
+                assert slide.file == slide.rev_file
+            else:
+                assert slide.file != slide.rev_file
+
+
 def init_slide(cls: SlideType) -> Slide:
     if issubclass(cls, CESlide):
         return cls()

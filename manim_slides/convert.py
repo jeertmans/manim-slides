@@ -432,7 +432,7 @@ class RevealJS(Converter):
         with open(dest, "w") as f:
             revealjs_template = Template(self.load_template())
 
-            options = self.dict()
+            options = self.model_dump()
             options["assets_dir"] = assets_dir
 
             has_notes = any(
@@ -692,7 +692,7 @@ def convert(
             try:
                 cls = Converter.from_string(fmt)
             except KeyError:
-                logger.warn(
+                logger.warning(
                     f"Could not guess conversion format from {dest!s}, defaulting to HTML."
                 )
                 cls = RevealJS

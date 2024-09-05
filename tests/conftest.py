@@ -76,3 +76,15 @@ def presentation_config(
     slides_folder: Path,
 ) -> Generator[PresentationConfig, None, None]:
     yield PresentationConfig.from_file(slides_folder / "BasicSlide.json")
+
+
+def pytest_collection_modifyitems(items: list[pytest.Item]) -> None:
+    """Make sure missing modules run at the very end."""
+
+    def uses_missing_modules_fixtures(item: pytest.Item) -> int:
+        if "missing_modules" in getattr(item, "fixturenames", []):
+            return 1
+
+        return 0
+
+    items.sort(key=uses_missing_modules_fixtures)

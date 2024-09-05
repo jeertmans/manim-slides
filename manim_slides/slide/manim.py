@@ -13,6 +13,22 @@ class Slide(BaseSlide, Scene):  # type: ignore[misc]
     """
     Inherits from :class:`Scene<manim.scene.scene.Scene>` and provide necessary tools
     for slides rendering.
+
+    :param args: Positional arguments passed to scene object.
+    :param output_folder: Where the slide animation files should be written.
+    :param kwargs: Keyword arguments passed to scene object.
+    :cvar bool disable_caching: :data:`False`: Whether to disable the use of
+        cached animation files.
+    :cvar bool flush_cache: :data:`False`: Whether to flush the cache.
+
+        Unlike with Manim, flushing is performed before rendering.
+    :cvar bool skip_reversing: :data:`False`: Whether to generate reversed animations.
+
+        If set to :data:`False`, and no cached reversed animation
+        exists (or caching is disabled) for a given slide,
+        then the reversed animation will be simply the same
+        as the original one, i.e., ``rev_file = file``,
+        for the current slide config.
     """
 
     @property
@@ -102,16 +118,29 @@ class Slide(BaseSlide, Scene):  # type: ignore[misc]
         )
 
     def render(self, *args: Any, **kwargs: Any) -> None:
-        """MANIM render."""
+        """MANIM renderer."""
         # We need to disable the caching limit since we rely on intermediate files
         max_files_cached = config["max_files_cached"]
         config["max_files_cached"] = float("inf")
+
+        flush_manim_cache = config["flush_cache"]
+
+        if flush_manim_cache:
+            # We need to postpone flushing *after* we saved slides
+            config["flush_cache"] = False
 
         super().render(*args, **kwargs)
 
         config["max_files_cached"] = max_files_cached
 
-        self._save_slides()
+        self._save_slides(
+            use_cache=not (config["disable_caching"] or self.disable_caching),
+            flush_cache=(config["flush_cache"] or self.flush_cache),
+            skip_reversing=self.skip_reversing,
+        )
+
+        if flush_manim_cache:
+            self.renderer.file_writer.flush_cache_directory()
 
 
 class ThreeDSlide(Slide, ThreeDScene):  # type: ignore[misc]
