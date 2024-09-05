@@ -155,7 +155,7 @@ def reverse_video_file(
         with tempfile.TemporaryDirectory() as tmpdirname:
             tmpdir = Path(tmpdirname)
             with av.open(
-                str(tmpdir / "%04d.mp4"),
+                str(tmpdir / f"%04d.{src.suffix}"),
                 "w",
                 format="segment",
                 options={"segment_time": str(max_segment_duration)},
