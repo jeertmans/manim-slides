@@ -37,6 +37,7 @@ extensions = [
     "manim_slides.docs.manim_slides_directive",
 ]
 
+autodoc_member_order = "groupwise"
 autodoc_typehints = "both"
 
 myst_enable_extensions = [
