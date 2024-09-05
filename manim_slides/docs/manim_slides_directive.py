@@ -283,8 +283,7 @@ class ManimSlidesDirective(Directive):
         # Rendering is skipped if the tag skip-manim is present,
         # or if we are making the pot-files
         should_skip = (
-            "skip-manim-slides"
-            in self.state.document.settings.env.app.builder.tags.tags
+            self.state.document.settings.env.app.builder.tags.has("skip-manim-slides")
             or self.state.document.settings.env.app.builder.name == "gettext"
             or "SKIP_MANIM_SLIDES" in os.environ
         )

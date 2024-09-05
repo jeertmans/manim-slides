@@ -13,6 +13,22 @@ class Slide(BaseSlide, Scene):  # type: ignore[misc]
     """
     Inherits from :class:`Scene<manim.scene.scene.Scene>` and provide necessary tools
     for slides rendering.
+
+    :param args: Positional arguments passed to scene object.
+    :param output_folder: Where the slide animation files should be written.
+    :param kwargs: Keyword arguments passed to scene object.
+    :cvar bool disable_caching: :data:`False`: Whether to disable the use of
+        cached animation files.
+    :cvar bool flush_cache: :data:`False`: Whether to flush the cache.
+
+        Unlike with Manim, flushing is performed before rendering.
+    :cvar bool skip_reversing: :data:`False`: Whether to generate reversed animations.
+
+        If set to :data:`False`, and no cached reversed animation
+        exists (or caching is disabled) for a given slide,
+        then the reversed animation will be simply the same
+        as the original one, i.e., ``rev_file = file``,
+        for the current slide config.
     """
 
     @property
