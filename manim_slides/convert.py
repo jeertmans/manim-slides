@@ -654,7 +654,7 @@ def show_template_option(function: Callable[..., Any]) -> Callable[..., Any]:
 @click.argument("dest", type=click.Path(dir_okay=False, path_type=Path))
 @click.option(
     "--to",
-    type=click.Choice(["auto", "html", "zip", "pdf", "pptx"], case_sensitive=False),
+    type=click.Choice(["auto", "html", "pdf", "pptx", "zip"], case_sensitive=False),
     metavar="FORMAT",
     default="auto",
     show_default=True,
