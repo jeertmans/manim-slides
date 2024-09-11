@@ -19,6 +19,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added support for `disable_caching` and `flush_cache` options from Manim, and
   also the possibility to configure them through class options.
   [#452](https://github.com/jeertmans/manim-slides/pull/452)
+- Added `--to=zip` convert format to generate an archive with HTML output
+  and asset files.
+  [#470](https://github.com/jeertmans/manim-slides/pull/470)
 
 (unreleased-chore)=
 ### Chore
