@@ -1,6 +1,7 @@
 import mimetypes
 import os
 import platform
+import shutil
 import subprocess
 import tempfile
 import webbrowser
@@ -115,9 +116,9 @@ class Converter(BaseModel):  # type: ignore
         """
         return ""
 
-    def open(self, file: Path) -> Any:
+    def open(self, file: Path) -> None:
         """Open a file, generated with converter, using appropriate application."""
-        raise NotImplementedError
+        open_with_default(file)
 
     @classmethod
     def from_string(cls, s: str) -> type["Converter"]:
@@ -126,6 +127,7 @@ class Converter(BaseModel):  # type: ignore
             "html": RevealJS,
             "pdf": PDF,
             "pptx": PowerPoint,
+            "zip": HtmlZip,
         }[s]
 
 
@@ -380,8 +382,8 @@ class RevealJS(Converter):
 
         return resources.files(templates).joinpath("revealjs.html").read_text()
 
-    def open(self, file: Path) -> bool:
-        return webbrowser.open(file.absolute().as_uri())
+    def open(self, file: Path) -> None:
+        webbrowser.open(file.absolute().as_uri())
 
     def convert_to(self, dest: Path) -> None:
         """
@@ -452,6 +454,24 @@ class RevealJS(Converter):
             f.write(content)
 
 
+class HtmlZip(RevealJS):
+    def open(self, file: Path) -> None:
+        super(RevealJS, self).open(file)  # Override opening with web browser
+
+    def convert_to(self, dest: Path) -> None:
+        """
+        Convert this configuration into a zipped RevealJS HTML presentation, saved to
+        DEST.
+        """
+        with tempfile.TemporaryDirectory() as directory_name:
+            directory = Path(directory_name)
+
+            html_file = directory / dest.with_suffix(".html").name
+
+            super().convert_to(html_file)
+            shutil.make_archive(str(dest.with_suffix("")), "zip", directory_name)
+
+
 class FrameIndex(str, Enum):
     first = "first"
     last = "last"
@@ -461,9 +481,6 @@ class PDF(Converter):
     frame_index: FrameIndex = FrameIndex.last
     resolution: PositiveFloat = 100.0
     model_config = ConfigDict(use_enum_values=True, extra="forbid")
-
-    def open(self, file: Path) -> None:
-        return open_with_default(file)
 
     def convert_to(self, dest: Path) -> None:
         """Convert this configuration into a PDF presentation, saved to DEST."""
@@ -498,9 +515,6 @@ class PowerPoint(Converter):
     auto_play_media: bool = True
     poster_frame_image: Optional[FilePath] = None
     model_config = ConfigDict(use_enum_values=True, extra="forbid")
-
-    def open(self, file: Path) -> None:
-        return open_with_default(file)
 
     def convert_to(self, dest: Path) -> None:
         """Convert this configuration into a PowerPoint presentation, saved to DEST."""
@@ -640,7 +654,7 @@ def show_template_option(function: Callable[..., Any]) -> Callable[..., Any]:
 @click.argument("dest", type=click.Path(dir_okay=False, path_type=Path))
 @click.option(
     "--to",
-    type=click.Choice(["auto", "html", "pdf", "pptx"], case_sensitive=False),
+    type=click.Choice(["auto", "html", "zip", "pdf", "pptx"], case_sensitive=False),
     metavar="FORMAT",
     default="auto",
     show_default=True,
