@@ -27,7 +27,7 @@ body:
     label: Terms
     description: 'By submitting this issue, I have:'
     options:
-    - label: Checked the [existing issues](https://github.com/jeertmans/manim-slides/issues?q=is%3Aissue+label%3Adocumentation+) and [discussions](https://github.com/jeertmans/manim-slides/discussions) to see if my issue had not already been reported;
+    - label: Checked the [existing issues](https://github.com/jeertmans/manim-slides/issues?q=is%3Aissue+label%3Abug+) and [discussions](https://github.com/jeertmans/manim-slides/discussions) to see if my issue had not already been reported;
       required: true
     - label: Read the [installation instructions](https://manim-slides.eertmans.be/latest/installation.html);
       required: true
