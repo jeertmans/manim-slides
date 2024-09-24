@@ -190,7 +190,7 @@ filterwarnings = [
   '''ignore:'audioop' is deprecated:DeprecationWarning''',
   'ignore:pkg_resources is deprecated as an API:DeprecationWarning',
   'ignore::DeprecationWarning:pkg_resources.*:',
-  'ignore::SyntaxWarning:pydub.*:',
+  'ignore::DeprecationWarning:pydub.*:',
 ]
 
 [tool.ruff]

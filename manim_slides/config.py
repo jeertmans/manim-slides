@@ -313,7 +313,7 @@ class PresentationConfig(BaseModel):  # type: ignore[misc]
         use_cached: bool = True,
         include_reversed: bool = True,
         prefix: str = "",
-    ) -> "PresentationConfig":
+    ) -> None:
         """Copy the files to a given directory."""
         for slide_config in self.slides:
             file = slide_config.file
@@ -322,13 +322,8 @@ class PresentationConfig(BaseModel):  # type: ignore[misc]
             dest = folder / f"{prefix}{file.name}"
             rev_dest = folder / f"{prefix}{rev_file.name}"
 
-            slide_config.file = dest
-            slide_config.rev_file = rev_dest
-
             if not use_cached or not dest.exists():
                 shutil.copy(file, dest)
 
             if include_reversed and (not use_cached or not rev_dest.exists()):
                 shutil.copy(rev_file, rev_dest)
-
-        return self
