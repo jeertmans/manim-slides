@@ -44,6 +44,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   [#462](https://github.com/jeertmans/manim-slides/pull/462)
 - Fixed deprecation warnings.
   [#467](https://github.com/jeertmans/manim-slides/pull/467)
+- Documented potential fix for PPTX issue.
+  [#475](https://github.com/jeertmans/manim-slides/pull/475)
 
 (unreleased-fixed)=
 ### Fixed
