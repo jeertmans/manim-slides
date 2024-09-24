@@ -166,12 +166,15 @@ class TestConverter:
         HtmlZip(presentation_configs=[presentation_config]).convert_to(archive)
         RevealJS(presentation_configs=[presentation_config]).convert_to(expected)
 
-        shutil.unpack_archive(str(archive))
+        shutil.unpack_archive(str(archive), extract_dir=tmp_path)
 
+        assert archive.exists()
         assert got.exists()
         assert expected.exists()
 
-        assert got.read_text() == expected.read_text()
+        assert got.read_text() == expected.read_text().replace(
+            "expected_assets", "got_assets"
+        )
 
     @pytest.mark.parametrize("num_presentation_configs", (1, 2))
     def test_revealjs_multiple_scenes_converter(

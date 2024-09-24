@@ -71,7 +71,7 @@ def paths() -> Generator[list[Path], None, None]:
     yield [random_path() for _ in range(20)]
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture
 def presentation_config(
     slides_folder: Path,
 ) -> Generator[PresentationConfig, None, None]:
