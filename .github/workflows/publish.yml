@@ -18,18 +18,13 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
 
-    - name: Setup Rye
-      env:
-        RYE_INSTALL_OPTION: --yes
-      run: |
-        curl -sSf https://rye.astral.sh/get | bash
-        echo "$HOME/.rye/shims" >> $GITHUB_PATH
-
-    - name: Configure Rye
-      run: rye config --set-bool behavior.use-uv=true
+    - name: Setup uv
+      uses: astral-sh/setup-uv@v2
+      with:
+        enable-cache: true
 
     - name: Build package
-      run: rye build
+      run: uv build
 
     - name: Publish to PyPI
       if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')

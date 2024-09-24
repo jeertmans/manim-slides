@@ -69,29 +69,13 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
 
-    - name: Setup Rye
-      if: matrix.os != 'windows-latest'
-      env:
-        RYE_TOOLCHAIN_VERSION: ${{ matrix.pyversion}}
-        RYE_INSTALL_OPTION: --yes
-      run: |
-        curl -sSf https://rye.astral.sh/get | bash
-        echo "$HOME/.rye/shims" >> $GITHUB_PATH
+    - name: Setup uv
+      uses: astral-sh/setup-uv@v2
+      with:
+        enable-cache: true
 
-    # Stolen from https://github.com/bluss/pyproject-local-kernel/blob/2b641290694adc998fb6bceea58d3737523a68b7/.github/workflows/ci.yaml
-    - name: Install Rye (Windows)
-      if: matrix.os == 'windows-latest'
-      shell: bash
-      run: |
-        C:/msys64/usr/bin/wget.exe -q 'https://github.com/astral-sh/rye/releases/latest/download/rye-x86_64-windows.exe' -O rye-x86_64-windows.exe
-        ./rye-x86_64-windows.exe self install --toolchain-version ${{ matrix.pyversion }} --modify-path -y
-        echo "$HOME\\.rye\\shims" >> $GITHUB_PATH
-
-    - name: Configure Rye
-      shell: bash
-      run: |
-        rye config --set-bool behavior.use-uv=true
-        rye pin ${{ matrix.pyversion }}
+    - name: Setup Python ${{ matrix.pyversion }}
+      run: uv python install ${{ matrix.pyversion }}
 
     - name: Install manim dependencies on MacOS
       if: matrix.os == 'macos-latest'
@@ -113,12 +97,10 @@ jobs:
       uses: ssciwr/setup-mesa-dist-win@v2
 
     - name: Install Manim Slides
-      shell: bash
-      run: rye sync
+      run: uv sync
 
     - name: Run pytest
-      shell: bash
-      run: rye run pytest
+      run: uv run pytest
 
     - name: Upload to codecov.io
       uses: codecov/codecov-action@v4

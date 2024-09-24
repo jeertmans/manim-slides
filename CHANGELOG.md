@@ -46,6 +46,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   [#467](https://github.com/jeertmans/manim-slides/pull/467)
 - Documented potential fix for PPTX issue.
   [#475](https://github.com/jeertmans/manim-slides/pull/475)
+- Changed project manager from Rye to uv.
+  [#476](https://github.com/jeertmans/manim-slides/pull/476)
 
 (unreleased-fixed)=
 ### Fixed

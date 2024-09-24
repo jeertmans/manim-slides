@@ -136,7 +136,7 @@ search = "<!-- start changelog -->"
 builtin = "clear,rare,informal,usage,names,en-GB_to_en-US"
 check-hidden = true
 ignore-words-list = "master"
-skip = "requirements.lock,requirements-dev.lock"
+skip = "uv.lock"
 
 [tool.coverage.report]
 exclude_lines = [
@@ -220,15 +220,12 @@ isort = {known-first-party = ["manim_slides", "tests"]}
 "docs/source/reference/magic_example.ipynb" = ["F403", "F405"]
 "tests/test_slide.py" = ["N801"]
 
-[tool.rye]
+[tool.uv]
 dev-dependencies = [
   "bump-my-version>=0.20.3",
   "pre-commit>=3.5.0",
   "setuptools>=73.0.1",
 ]
-managed = true
-
-[tool.uv]
 override-dependencies = [
   # Bypass constraints from ManimGL
   "manimpango>=0.5.0,<1.0.0",
