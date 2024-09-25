@@ -70,7 +70,7 @@ jobs:
       uses: actions/checkout@v4
 
     - name: Setup uv
-      uses: astral-sh/setup-uv@v2
+      uses: astral-sh/setup-uv@v3
       with:
         enable-cache: true
 
