@@ -21,7 +21,7 @@ repos:
     exclude: poetry.lock
     args: [--autofix, --trailing-commas]
 - repo: https://github.com/astral-sh/ruff-pre-commit
-  rev: v0.6.7
+  rev: v0.6.8
   hooks:
   - id: ruff
     args: [--fix]
