@@ -8,9 +8,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <!-- start changelog -->
 
 (unreleased)=
-## [Unreleased](https://github.com/jeertmans/manim-slides/compare/v5.1.7...HEAD)
+## [Unreleased](https://github.com/jeertmans/manim-slides/compare/v5.1.8...HEAD)
 
-(unreleased-added)=
+(v5.1.8)=
+## [v5.1.8](https://github.com/jeertmans/manim-slides/compare/v5.1.7...v5.1.8)
+
+(v5.1.8-added)=
 ### Added
 
 - Added `manim-slides checkhealth` command to easily obtain important information
@@ -23,7 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   and asset files.
   [#470](https://github.com/jeertmans/manim-slides/pull/470)
 
-(unreleased-chore)=
+(v5.1.8-chore)=
 ### Chore
 
 - Pin `rtoml==0.9.0` on Windows platforms,
@@ -49,7 +52,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Changed project manager from Rye to uv.
   [#476](https://github.com/jeertmans/manim-slides/pull/476)
 
-(unreleased-fixed)=
+(v5.1.8-fixed)=
 ### Fixed
 
 - Fix combining assets from multiple scenes to avoid filename collision.
@@ -60,7 +63,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   thanks to [@PeculiarProgrammer](https://github.com/PeculiarProgrammer)!
   [#465](https://github.com/jeertmans/manim-slides/pull/465)
 
-(unreleased-removed)=
+(v5.1.8-removed)=
 ### Removed
 
 - Removed `full-gl` extra, because it does not make sense to ship both
