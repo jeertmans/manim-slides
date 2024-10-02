@@ -1,23 +1,15 @@
 import signal
 import sys
 from pathlib import Path
-from typing import List, Optional, Tuple
+from typing import Optional
 
 import click
 from click import Context, Parameter
 from pydantic import ValidationError
-from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QApplication
 
 from ..commons import config_path_option, folder_path_option, verbosity_option
 from ..config import Config, PresentationConfig
 from ..logger import logger
-from .player import Player
-
-ASPECT_RATIO_MODES = {
-    "keep": Qt.KeepAspectRatio,
-    "ignore": Qt.IgnoreAspectRatio,
-}
 
 
 @click.command()
@@ -26,13 +18,12 @@ ASPECT_RATIO_MODES = {
 @verbosity_option
 def list_scenes(folder: Path) -> None:
     """List available scenes."""
-
     for i, scene in enumerate(_list_scenes(folder), start=1):
         click.secho(f"{i}: {scene}", fg="green")
 
 
-def _list_scenes(folder: Path) -> List[str]:
-    """Lists available scenes in given directory."""
+def _list_scenes(folder: Path) -> list[str]:
+    """List available scenes in given directory."""
     scenes = []
 
     for filepath in folder.glob("*.json"):
@@ -42,7 +33,7 @@ def _list_scenes(folder: Path) -> List[str]:
         except (
             Exception
         ) as e:  # Could not parse this file as a proper presentation config
-            logger.warn(
+            logger.warning(
                 f"Something went wrong with parsing presentation config `{filepath}`: {e}"
             )
 
@@ -51,9 +42,8 @@ def _list_scenes(folder: Path) -> List[str]:
     return scenes
 
 
-def prompt_for_scenes(folder: Path) -> List[str]:
-    """Prompts the user to select scenes within a given folder."""
-
+def prompt_for_scenes(folder: Path) -> list[str]:
+    """Prompt the user to select scenes within a given folder."""
     scene_choices = dict(enumerate(_list_scenes(folder), start=1))
 
     for i, scene in scene_choices.items():
@@ -64,7 +54,7 @@ def prompt_for_scenes(folder: Path) -> List[str]:
     click.echo("Choose number corresponding to desired scene/arguments.")
     click.echo("(Use comma separated list for multiple entries)")
 
-    def value_proc(value: Optional[str]) -> List[str]:
+    def value_proc(value: Optional[str]) -> list[str]:
         indices = list(map(int, (value or "").strip().replace(" ", "").split(",")))
 
         if not all(0 < i <= len(scene_choices) for i in indices):
@@ -82,14 +72,13 @@ def prompt_for_scenes(folder: Path) -> List[str]:
             scenes = click.prompt("Choice(s)", value_proc=value_proc)
             return scenes  # type: ignore
         except ValueError as e:
-            raise click.UsageError(str(e))
+            raise click.UsageError(str(e)) from None
 
 
 def get_scenes_presentation_config(
-    scenes: List[str], folder: Path
-) -> List[PresentationConfig]:
-    """Returns a list of presentation configurations based on the user input."""
-
+    scenes: list[str], folder: Path
+) -> list[PresentationConfig]:
+    """Return a list of presentation configurations based on the user input."""
     if len(scenes) == 0:
         scenes = prompt_for_scenes(folder)
 
@@ -103,14 +92,14 @@ def get_scenes_presentation_config(
         try:
             presentation_configs.append(PresentationConfig.from_file(config_file))
         except ValidationError as e:
-            raise click.UsageError(str(e))
+            raise click.UsageError(str(e)) from None
 
     return presentation_configs
 
 
 def start_at_callback(
     ctx: Context, param: Parameter, values: str
-) -> Tuple[Optional[int], ...]:
+) -> tuple[Optional[int], ...]:
     if values == "(None, None)":
         return (None, None)
 
@@ -125,7 +114,7 @@ def start_at_callback(
                     f"start index can only be an integer or an empty string, not `{value}`",
                     ctx=ctx,
                     param=param,
-                )
+                ) from None
 
     values_tuple = values.split(",")
     n_values = len(values_tuple)
@@ -133,7 +122,8 @@ def start_at_callback(
         return tuple(map(str_to_int_or_none, values_tuple))
 
     raise click.BadParameter(
-        f"exactly 2 arguments are expected but you gave {n_values}, please use commas to separate them",
+        f"exactly 2 arguments are expected but you gave {n_values}, "
+        "please use commas to separate them",
         ctx=ctx,
         param=param,
     )
@@ -157,7 +147,7 @@ def start_at_callback(
     "--skip-all",
     is_flag=True,
     help="Skip all slides, useful the test if slides are working. "
-    "Automatically sets `--exit-after-last-slide` to True.",
+    "Automatically sets ``--exit-after-last-slide`` to True.",
 )
 @click.option(
     "--exit-after-last-slide",
@@ -185,7 +175,7 @@ def start_at_callback(
     type=str,
     callback=start_at_callback,
     default=(None, None),
-    help="Start presenting at (x, y), equivalent to --sacn x --sasn y, "
+    help="Start presenting at (x, y), equivalent to ``--sacn x --sasn y``, "
     "and overrides values if not None.",
 )
 @click.option(
@@ -213,12 +203,40 @@ def start_at_callback(
     metavar="NUMBER",
     type=int,
     default=None,
-    help="Presents content on the given screen (a.k.a. display).",
+    help="Present content on the given screen (a.k.a. display).",
+)
+@click.option(
+    "--playback-rate",
+    metavar="RATE",
+    type=float,
+    default=1.0,
+    help="Playback rate of the video slides, see PySide6 docs for details. "
+    " The playback rate of each slide is defined as the product of its default "
+    " playback rate and the provided value.",
+)
+@click.option(
+    "--next-terminates-loop",
+    "next_terminates_loop",
+    is_flag=True,
+    help="If set, pressing next will turn any looping slide into a play slide.",
+)
+@click.option(
+    "--hide-info-window",
+    is_flag=True,
+    help="Hide info window.",
+)
+@click.option(
+    "--info-window-screen",
+    "info_window_screen_number",
+    metavar="NUMBER",
+    type=int,
+    default=None,
+    help="Put info window on the given screen (a.k.a. display).",
 )
 @click.help_option("-h", "--help")
 @verbosity_option
 def present(
-    scenes: List[str],
+    scenes: list[str],
     config_path: Path,
     folder: Path,
     start_paused: bool,
@@ -227,10 +245,14 @@ def present(
     exit_after_last_slide: bool,
     hide_mouse: bool,
     aspect_ratio: str,
-    start_at: Tuple[Optional[int], Optional[int], Optional[int]],
+    start_at: tuple[Optional[int], Optional[int], Optional[int]],
     start_at_scene_number: int,
     start_at_slide_number: int,
-    screen_number: Optional[int] = None,
+    screen_number: Optional[int],
+    playback_rate: float,
+    next_terminates_loop: bool,
+    hide_info_window: bool,
+    info_window_screen_number: Optional[int],
 ) -> None:
     """
     Present SCENE(s), one at a time, in order.
@@ -243,7 +265,6 @@ def present(
     Use ``manim-slide list-scenes`` to list all available
     scenes in a given folder.
     """
-
     if skip_all:
         exit_after_last_slide = True
 
@@ -253,7 +274,7 @@ def present(
         try:
             config = Config.from_file(config_path)
         except ValidationError as e:
-            raise click.UsageError(str(e))
+            raise click.UsageError(str(e)) from None
     else:
         logger.debug("No configuration file found, using default configuration.")
         config = Config()
@@ -262,26 +283,41 @@ def present(
         start_at_scene_number = start_at[0]
 
     if start_at[1]:
-        start_at_scene_number = start_at[1]
+        start_at_slide_number = start_at[1]
 
-    if maybe_app := QApplication.instance():
-        app = maybe_app
-    else:
-        app = QApplication(sys.argv)
+    from qtpy.QtCore import Qt
+    from qtpy.QtGui import QScreen
 
+    from ..qt_utils import qapp
+    from .player import Player
+
+    app = qapp()
     app.setApplicationName("Manim Slides")
 
-    if screen_number is not None:
+    def get_screen(number: int) -> Optional[QScreen]:
         try:
-            screen = app.screens()[screen_number]
+            return app.screens()[number]
         except IndexError:
             logger.error(
-                f"Invalid screen number {screen_number}, "
+                f"Invalid screen number {number}, "
                 f"allowed values are from 0 to {len(app.screens())-1} (incl.)"
             )
-            screen = None
+            return None
+
+    if screen_number is not None:
+        screen = get_screen(screen_number)
     else:
         screen = None
+
+    if info_window_screen_number is not None:
+        info_window_screen = get_screen(info_window_screen_number)
+    else:
+        info_window_screen = None
+
+    aspect_ratio_modes = {
+        "keep": Qt.KeepAspectRatio,
+        "ignore": Qt.IgnoreAspectRatio,
+    }
 
     player = Player(
         config,
@@ -291,13 +327,17 @@ def present(
         skip_all=skip_all,
         exit_after_last_slide=exit_after_last_slide,
         hide_mouse=hide_mouse,
-        aspect_ratio_mode=ASPECT_RATIO_MODES[aspect_ratio],
+        aspect_ratio_mode=aspect_ratio_modes[aspect_ratio],
         presentation_index=start_at_scene_number,
         slide_index=start_at_slide_number,
         screen=screen,
+        playback_rate=playback_rate,
+        next_terminates_loop=next_terminates_loop,
+        hide_info_window=hide_info_window,
+        info_window_screen=info_window_screen,
     )
 
     player.show()
 
     signal.signal(signal.SIGINT, signal.SIG_DFL)
-    sys.exit(app.exec_())
+    sys.exit(app.exec())

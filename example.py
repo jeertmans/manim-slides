@@ -1,17 +1,13 @@
 # flake8: noqa: F403, F405
 # type: ignore
-import sys
-
-if "manimlib" in sys.modules:
-    from manimlib import *
-
-    MANIMGL = True
-else:
-    from manim import *
-
-    MANIMGL = False
 
 from manim_slides import Slide, ThreeDSlide
+from manim_slides.slide import MANIM, MANIMGL
+
+if MANIM:
+    from manim import *
+elif MANIMGL:
+    from manimlib import *
 
 
 class BasicExample(Slide):
@@ -20,51 +16,12 @@ class BasicExample(Slide):
         dot = Dot()
 
         self.play(GrowFromCenter(circle))
-        self.next_slide()  # Waits user to press continue to go to the next slide
 
-        self.start_loop()  # Start loop
+        self.next_slide(loop=True)
         self.play(MoveAlongPath(dot, circle), run_time=2, rate_func=linear)
-        self.end_loop()  # This will loop until user inputs a key
+        self.next_slide()
 
         self.play(dot.animate.move_to(ORIGIN))
-        self.next_slide()  # Waits user to press continue to go to the next slide
-
-
-class MultipleAnimationsInLastSlide(Slide):
-    """This is used to check against solution for issue #161."""
-
-    def construct(self):
-        circle = Circle(color=BLUE)
-        dot = Dot()
-
-        self.play(GrowFromCenter(circle))
-        self.play(FadeIn(dot))
-        self.next_slide()
-
-        self.play(dot.animate.move_to(RIGHT))
-        self.play(dot.animate.move_to(UP))
-        self.play(dot.animate.move_to(LEFT))
-        self.play(dot.animate.move_to(DOWN))
-
-        self.next_slide()
-
-
-class TestFileTooLong(Slide):
-    """This is used to check against solution for issue #123."""
-
-    def construct(self):
-        import random
-
-        circle = Circle(radius=3, color=BLUE)
-        dot = Dot()
-        self.play(GrowFromCenter(circle), run_time=0.1)
-
-        for _ in range(30):
-            direction = (random.random() - 0.5) * LEFT + (random.random() - 0.5) * UP
-            self.play(dot.animate.move_to(direction), run_time=0.1)
-            self.play(dot.animate.move_to(ORIGIN), run_time=0.1)
-
-        self.next_slide()
 
 
 class ConvertExample(Slide):
@@ -83,7 +40,7 @@ class ConvertExample(Slide):
         step_2 = Text("2. Replace Scene with Slide")
         step_3 = Text("3. In construct, add pauses where you need")
         step_4 = Text("4. You can also create loops")
-        step_5 = Text("5. Render you scene with Manim")
+        step_5 = Text("5. Render your scene with Manim")
         step_6 = Text("6. Open your presentation with Manim Slides")
 
         for step in [step_1, step_2, step_3, step_4, step_5, step_6]:
@@ -179,9 +136,9 @@ class Example(Slide):
     def construct(self):
         dot = Dot()
         self.add(dot)
-        self.start_loop()
+        self.next_slide(loop=True)
         self.play(Indicate(dot, scale_factor=2))
-        self.end_loop()
+        self.next_slide()
         square = Square()
         self.play(Transform(dot, square))
         self.next_slide()
@@ -191,7 +148,7 @@ class Example(Slide):
         )
 
         code_step_5 = Code(
-            code="manim example.py Example",
+            code="manim-slide render example.py Example",
             language="console",
         )
 
@@ -207,7 +164,7 @@ class Example(Slide):
             language="console",
         ).shift(DOWN)
 
-        self.play(self.wipe(title, code))
+        self.wipe(title, code)
         self.next_slide()
 
         self.play(FadeIn(step, shift=RIGHT))
@@ -228,26 +185,25 @@ class Example(Slide):
 
         self.play(Transform(step, step_5))
         self.play(Transform(code, code_step_5))
-        self.next_slide()
+        self.next_slide(auto_next=True)
 
         self.play(Transform(step, step_6))
         self.play(Transform(code, code_step_6))
         self.play(code.animate.shift(UP), FadeIn(code_step_7), FadeIn(or_text))
-        self.next_slide()
 
-        watch_text = Text("Watch result on next slides!").shift(2 * DOWN).scale(0.5)
+        watch_text = Text("Watch results on next slides!").shift(2 * DOWN).scale(0.5)
 
-        self.start_loop()
+        self.next_slide(loop=True)
         self.play(FadeIn(watch_text))
         self.play(FadeOut(watch_text))
-        self.end_loop()
+        self.next_slide()
         self.clear()
 
         dot = Dot()
         self.add(dot)
-        self.start_loop()
+        self.next_slide(loop=True)
         self.play(Indicate(dot, scale_factor=2))
-        self.end_loop()
+        self.next_slide()
         square = Square()
         self.play(Transform(dot, square))
         self.remove(dot)
@@ -287,9 +243,9 @@ if not MANIMGL:
 
             self.next_slide()
 
-            self.start_loop()
+            self.next_slide(loop=True)
             self.play(MoveAlongPath(dot, circle), run_time=4, rate_func=linear)
-            self.end_loop()
+            self.next_slide()
 
             self.stop_ambient_camera_rotation()
             self.move_camera(phi=75 * DEGREES, theta=30 * DEGREES)
@@ -300,9 +256,9 @@ if not MANIMGL:
             self.play(dot.animate.move_to(RIGHT * 3))
             self.next_slide()
 
-            self.start_loop()
+            self.next_slide(loop=True)
             self.play(MoveAlongPath(dot, circle), run_time=2, rate_func=linear)
-            self.end_loop()
+            self.next_slide()
 
             self.play(dot.animate.move_to(ORIGIN))
 
@@ -311,11 +267,7 @@ else:
     # [manimgl-3d]
     # WARNING: 3b1b's manim change how ThreeDScene work,
     # this is why things have to be managed differently.
-    class ThreeDExample(Slide):
-        CONFIG = {
-            "camera_class": ThreeDCamera,
-        }
-
+    class ThreeDExample(ThreeDSlide):
         def construct(self):
             axes = ThreeDAxes()
             circle = Circle(radius=3, color=BLUE)
@@ -327,7 +279,6 @@ else:
             frame.set_euler_angles(
                 theta=30 * DEGREES,
                 phi=75 * DEGREES,
-                gamma=0,
             )
 
             self.play(GrowFromCenter(circle))
@@ -339,9 +290,9 @@ else:
 
             self.next_slide()
 
-            self.start_loop()
+            self.next_slide(loop=True)
             self.play(MoveAlongPath(dot, circle), run_time=4, rate_func=linear)
-            self.end_loop()
+            self.next_slide()
 
             frame.remove_updater(updater)
             self.play(frame.animate.set_theta(30 * DEGREES))
@@ -351,9 +302,9 @@ else:
             self.play(dot.animate.move_to(RIGHT * 3))
             self.next_slide()
 
-            self.start_loop()
+            self.next_slide(loop=True)
             self.play(MoveAlongPath(dot, circle), run_time=2, rate_func=linear)
-            self.end_loop()
+            self.next_slide()
 
             self.play(dot.animate.move_to(ORIGIN))
 

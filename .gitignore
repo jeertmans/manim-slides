@@ -8,6 +8,7 @@ __pycache__/
 # Manim files
 images/
 /media
+tests/data/media/
 docs/source/media/
 
 # ManimGL files
@@ -43,4 +44,7 @@ paper/paper.pdf
 paper/media/
 
 # Others
+.coverage*
 coverage.xml
+
+rendering_times.csv

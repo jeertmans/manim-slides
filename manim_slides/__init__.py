@@ -1,12 +1,11 @@
-# flake8: noqa: F401
 import sys
 from types import ModuleType
-from typing import Any, List
+from typing import Any
 
 from .__version__ import __version__
 
 
-class module(ModuleType):
+class Module(ModuleType):
     def __getattr__(self, name: str) -> Any:
         if name == "Slide" or name == "ThreeDSlide":
             module = __import__(
@@ -30,7 +29,7 @@ class module(ModuleType):
 
         return ModuleType.__getattribute__(self, name)
 
-    def __dir__(self) -> List[str]:
+    def __dir__(self) -> list[str]:
         result = list(new_module.__all__)
         result.extend(
             (
@@ -48,7 +47,7 @@ class module(ModuleType):
 
 
 old_module = sys.modules["manim_slides"]
-new_module = sys.modules["manim_slides"] = module("manim_slides")
+new_module = sys.modules["manim_slides"] = Module("manim_slides")
 
 new_module.__dict__.update(
     {

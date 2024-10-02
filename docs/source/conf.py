@@ -4,12 +4,20 @@
 # For the full list of built-in configuration values, see the documentation:
 # https://www.sphinx-doc.org/en/master/usage/configuration.html
 
+import sys
+from datetime import date
+
+from manim_slides import __version__
+
+assert sys.version_info >= (3, 10), "Building docs requires Python 3.10"
+
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 project = "Manim Slides"
-copyright = "2023, Jérome Eertmans"
+copyright = f"2024-{date.today().year}, Jérome Eertmans"
 author = "Jérome Eertmans"
+version = __version__
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
@@ -29,9 +37,7 @@ extensions = [
     "manim_slides.docs.manim_slides_directive",
 ]
 
-typehints_defaults = "comma"
-typehints_use_signature = True
-typehints_use_signature_return = True
+autodoc_typehints = "both"
 
 myst_enable_extensions = [
     "colon_fence",
@@ -41,12 +47,15 @@ myst_enable_extensions = [
 templates_path = ["_templates"]
 exclude_patterns = []
 
+# Removes the 'package.module' part from package.module.Class
+add_module_names = False
 
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
 html_theme = "furo"
 html_static_path = ["_static"]
+html_favicon = "_static/favicon.png"
 
 html_theme_options = {
     "light_logo": "logo_light_transparent.png",
@@ -74,6 +83,7 @@ intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),
     "manim": ("https://docs.manim.community/en/stable/", None),
     "manimlib": ("https://3b1b.github.io/manim/", None),
+    "numpy": ("https://numpy.org/doc/stable/", None),
 }
 
 # -- OpenGraph settings

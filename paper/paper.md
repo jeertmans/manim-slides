@@ -66,7 +66,7 @@ provide new features on a regular basis.
 
 # Easy to Use Commitment
 
-Manim Slides is commited to be an easy-to-use tool, with minimal installation
+Manim Slides is committed to be an easy-to-use tool, with minimal installation
 procedure and few modifications required. It can either be used locally with its
 graphical user interface (GUI), or shared via one of the two formats it can
 convert to:
@@ -96,13 +96,13 @@ and posted it on YouTube.
 
 # Stability and releases
 
-Manim Slides is continously tested on most recent Python versions, both ManimCE
+Manim Slides is continuously tested on most recent Python versions, both ManimCE
 and ManimGL, and on all major platforms: **Ubuntu**, **macOS** and **Windows**. Due to Manim
 Slide's exposed API being very minimal, and the variety of tests that are
 performed, this tool can be considered stable over time.
 
 New releases are very frequent, as they mostly introduce enhancements or small
-documention fixes, and the command-line tool automatically notifies for new
+documentation fixes, and the command-line tool automatically notifies for new
 available updates. Therefore, regularly updating Manim Slides is highly
 recommended.
 
@@ -160,7 +160,7 @@ For new feature requests, we highly encourage users to
 [create an issue](https://github.com/jeertmans/manim-slides/issues/new/choose)
 with the appropriate template.
 
-# Acknowledgements
+# Acknowledgments
 
 We acknowledge the work of @manim-presentation that paved the initial structure
 of Manim Slides with the manim-presentation Python package.

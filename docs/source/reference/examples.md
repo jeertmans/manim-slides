@@ -29,9 +29,11 @@ where `-ccontrols=true` indicates that we want to display the blue navigation ar
 
 Basic example from quickstart.
 
-<div style="position:relative;padding-bottom:56.25%;"> <iframe style="width:100%;height:100%;position:absolute;left:0px;top:0px;" frameborder="0" width="100%" height="100%" allowfullscreen allow="autoplay" src="../_static/basic_example.html"></iframe></div>
-
 ```{eval-rst}
+.. manim-slides:: ../../../example.py:BasicExample
+    :hide_source:
+    :quality: high
+
 .. literalinclude:: ../../../example.py
    :language: python
    :linenos:
@@ -40,13 +42,16 @@ Basic example from quickstart.
 
 ## 3D Example
 
-Example using 3D camera. As Manim and ManimGL handle 3D differently, definitions are slightly different.
-
-<div style="position:relative;padding-bottom:56.25%;"> <iframe style="width:100%;height:100%;position:absolute;left:0px;top:0px;" frameborder="0" width="100%" height="100%" allowfullscreen allow="autoplay" src="../_static/three_d_example.html"></iframe></div>
+Example using 3D camera. As Manim and ManimGL handle 3D differently,
+definitions are slightly different.
 
 ### With Manim
 
 ```{eval-rst}
+.. manim-slides:: ../../../example.py:ThreeDExample
+    :hide_source:
+    :quality: high
+
 .. literalinclude:: ../../../example.py
    :language: python
    :linenos:
@@ -95,19 +100,23 @@ And later use this class anywhere in your code:
 :linenos:
 
 class SubclassExample(MovingCameraSlide):
+    """Example taken from ManimCE's docs."""
+
     def construct(self):
-        eq1 = MathTex("x", "=", "1")
-        eq2 = MathTex("x", "=", "2")
+        self.camera.frame.save_state()
 
-        self.play(Write(eq1))
+        ax = Axes(x_range=[-1, 10], y_range=[-1, 10])
+        graph = ax.plot(lambda x: np.sin(x), color=WHITE, x_range=[0, 3 * PI])
 
+        dot_1 = Dot(ax.i2gp(graph.t_min, graph))
+        dot_2 = Dot(ax.i2gp(graph.t_max, graph))
+        self.add(ax, graph, dot_1, dot_2)
+
+        self.play(self.camera.frame.animate.scale(0.5).move_to(dot_1))
         self.next_slide()
-
-        self.play(
-            TransformMatchingTex(eq1, eq2),
-            self.camera.frame.animate.scale(0.5)
-        )
-
+        self.play(self.camera.frame.animate.move_to(dot_2))
+        self.next_slide()
+        self.play(Restore(self.camera.frame))
         self.wait()
 ```
 
@@ -116,13 +125,46 @@ If you do not plan to reuse `MovingCameraSlide` more than once, then you can
 directly write the `construct` method in the body of `MovingCameraSlide`.
 :::
 
+```{eval-rst}
+.. manim-slides:: SubclassExample
+    :hide_source:
+    :quality: high
+
+    from manim import *
+    from manim_slides import Slide
+
+
+    class MovingCameraSlide(Slide, MovingCameraScene):
+        pass
+
+    class SubclassExample(MovingCameraSlide):
+        def construct(self):
+            self.camera.frame.save_state()
+
+            ax = Axes(x_range=[-1, 10], y_range=[-1, 10])
+            graph = ax.plot(lambda x: np.sin(x), color=WHITE, x_range=[0, 3 * PI])
+
+            dot_1 = Dot(ax.i2gp(graph.t_min, graph))
+            dot_2 = Dot(ax.i2gp(graph.t_max, graph))
+            self.add(ax, graph, dot_1, dot_2)
+
+            self.play(self.camera.frame.animate.scale(0.5).move_to(dot_1))
+            self.next_slide()
+            self.play(self.camera.frame.animate.move_to(dot_2))
+            self.next_slide()
+            self.play(Restore(self.camera.frame))
+            self.wait()
+```
+
 ## Advanced Example
 
 A more advanced example is `ConvertExample`, which is used as demo slide and tutorial.
 
-<div style="position:relative;padding-bottom:56.25%;"> <iframe style="width:100%;height:100%;position:absolute;left:0px;top:0px;" frameborder="0" width="100%" height="100%" allowfullscreen allow="autoplay" src="../_static/slides.html"></iframe></div>
-
 ```{eval-rst}
+.. manim-slides:: ../../../example.py:ConvertExample
+    :hide_source:
+    :quality: high
+
 .. literalinclude:: ../../../example.py
    :language: python
    :linenos:

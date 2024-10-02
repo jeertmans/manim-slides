@@ -4,6 +4,8 @@
   <img alt="Manim Slides Logo" src="https://raw.githubusercontent.com/jeertmans/manim-slides/main/static/logo.png">
 </picture>
 
+<!-- start pypi -->
+
 [![Latest Release][pypi-version-badge]][pypi-version-url]
 [![Python version][pypi-python-version-badge]][pypi-version-url]
 [![PyPI - Downloads][pypi-download-badge]][pypi-version-url]
@@ -11,25 +13,25 @@
 [![DOI][doi-badge]][doi-url]
 [![JOSE Paper][jose-badge]][jose-url]
 [![codecov][codecov-badge]][codecov-url]
+[![Binder][binder-badge]][binder-url]
 
 # Manim Slides
 
-Tool for live presentations using either [Manim (community edition)](https://www.manim.community/) or [ManimGL](https://3b1b.github.io/manim/). Manim Slides will *automatically* detect the one you are using!
+Tool for live presentations using either
+[Manim (community edition)](https://www.manim.community/)
+or [ManimGL](https://3b1b.github.io/manim/).
+Manim Slides will *automatically* detect the one you are using!
 
-> **NOTE:** this project extends the work of [`manim-presentation`](https://github.com/galatolofederico/manim-presentation), with a lot more features!
+> [!NOTE]
+> This project extends the work of
+> [`manim-presentation`](https://github.com/galatolofederico/manim-presentation),
+> with a lot more features!
 
 - [Installation](#installation)
-  * [Dependencies](#dependencies)
-  * [Pip install](#pip-install)
-  * [Install From Repository](#install-from-repository)
 - [Usage](#usage)
-  * [Basic Example](#basic-example)
-  * [Key Bindings](#key-bindings)
-  * [Interactive Tutorial](#interactive-tutorial)
-  * [Other Examples](#other-examples)
 - [Comparison with Similar Tools](#comparison-with-similar-tools)
-- [F.A.Q](#faq)
-  * [How to increase quality on Windows](#how-to-increase-quality-on-windows)
+- [F.A.Q](https://eertmans.be/manim-slides/latest/faq.html)
+- [Citing](#citing)
 - [Contributing](#contributing)
   * [Reporting an Issue](#reporting-an-issue)
   * [Seeking for Help](#seeking-for-help)
@@ -37,66 +39,35 @@ Tool for live presentations using either [Manim (community edition)](https://www
 
 ## Installation
 
-<!-- start install -->
-
-While installing Manim Slides and its dependencies on your global Python is fine, I recommend using a virtual environment (e.g., [venv](https://docs.python.org/3/tutorial/venv.html)) for a local installation.
-
-### Dependencies
-
-<!-- start deps -->
-
-Manim Slides requires either Manim or ManimGL to be installed. Having both packages installed is fine too.
-
-If none of those packages are installed, please refer to their specific installation guidelines:
-- [Manim](https://docs.manim.community/en/stable/installation.html)
-- [ManimGL](https://3b1b.github.io/manim/getting_started/installation.html)
-
-<!-- end deps -->
-
-### Pip Install
-
-The recommended way to install the latest release is to use pip:
-
-```bash
-pip install manim-slides
-```
-
-Optionally, you can also install Manim or ManimGL using extras[^1]:
-
-```bash
-pip install manim-slides[manim]   # For Manim
-# or
-pip install manim-slides[manimgl] # For ManimGL
-```
-
-[^1]: NOTE: you still need to have Manim or ManimGL platform-specific dependencies installed on your computer.
-
-### Install From Repository
-
-An alternative way to install Manim Slides is to clone the git repository, and install from there: read the [contributing guide](https://eertmans.be/manim-slides/contributing/workflow.html) to know how.
-
-<!-- end install -->
+Manim Slides requires either Manim or ManimGL to be installed, along
+with their dependencies. Please checkout the
+[documentation](https://eertmans.be/manim-slides/latest/installation.html)
+for detailed install instructions.
 
 ## Usage
 
 <!-- start usage -->
 
 Using Manim Slides is a two-step process:
-1. Render animations using `Slide` (resp. `ThreeDSlide`) as a base class instead of `Scene` (resp. `ThreeDScene`), and add calls to `self.next_slide()` everytime you want to create a new slide.
-2. Run `manim-slides` on rendered animations and display them like a *Power Point* presentation.
+1. Render animations using `Slide` (resp. `ThreeDSlide`) as a base class instead
+   of `Scene` (resp. `ThreeDScene`), and add calls to `self.next_slide()`
+   every time you want to create a new slide.
+2. Run `manim-slides` on rendered animations and display them like a
+   *PowerPoint* presentation.
 
 The documentation is available [online](https://eertmans.be/manim-slides/).
 
 ### Basic Example
 
-Wrap a series of animations between `self.start_loop()` and `self.stop_loop()` when you want to loop them (until input to continue):
+Call `self.next_slide()` every time you want to create a pause between
+animations, and `self.next_slide(loop=True)` if you want the next slide to loop
+over animations until the user presses continue:
 
 ```python
-# example.py
+from manim import *  # or: from manimlib import *
 
-from manim import *
-# or: from manimlib import *
 from manim_slides import Slide
+
 
 class BasicExample(Slide):
     def construct(self):
@@ -106,79 +77,68 @@ class BasicExample(Slide):
         self.play(GrowFromCenter(circle))
         self.next_slide()  # Waits user to press continue to go to the next slide
 
-        self.start_loop()  # Start loop
+        self.next_slide(loop=True)  # Start loop
         self.play(MoveAlongPath(dot, circle), run_time=2, rate_func=linear)
-        self.end_loop()  # This will loop until user inputs a key
+        self.next_slide()  # This will start a new non-looping slide
 
         self.play(dot.animate.move_to(ORIGIN))
-        self.next_slide()  # Waits user to press continue to go to the next slide
 ```
 
 First, render the animation files:
 
 ```bash
-manim example.py BasicExample
-# or
-manimgl example.py BasicExample
+manim-slides render example.py BasicExample
+# or use ManimGL
+manim-slides render --GL example.py BasicExample
 ```
+<!-- end usage -->
 
-To start the presentation using `Scene1`, `Scene2` and so on simply run:
+> [!NOTE]
+> Using `manim-slides render` makes sure to use the `manim`
+> (or `manimlib`) library that was installed in the same Python environment.
+> Put simply, this is a wrapper around
+> `manim render [ARGS]...` (or `manimgl [ARGS]...`).
+
+<!-- start more-usage -->
+
+To start the presentation using `Scene1`, `Scene2` and so on, run:
 
 ```bash
 manim-slides [OPTIONS] Scene1 Scene2...
 ```
 
-Or in this example:
+In our example:
 
 ```bash
 manim-slides BasicExample
 ```
 
-<!-- end usage -->
+<!-- end more-usage -->
 
-##  Key Bindings
+<p align="center">
+  <img alt="Example GIF" src="https://raw.githubusercontent.com/jeertmans/manim-slides/main/static/example.gif">
+</p>
 
-The default key bindings to control the presentation are:
-
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/jeertmans/manim-slides/main/static/wizard_dark.png">
-  <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/jeertmans/manim-slides/main/static/wizard_light.png">
-  <img alt="Manim Slides Wizard" src="https://raw.githubusercontent.com/jeertmans/manim-slides/main/static/wizard_light.png">
-</picture>
-
-
-You can run the **configuration wizard** to change those key bindings:
-
-```bash
-manim-slides wizard
-```
-
-A default file can be created with:
-
-```bash
-manim-slides init
-```
-
-> **_NOTE:_**  `manim-slides` uses key codes, which are platform dependent. Using the configuration wizard is therefore highly recommended.
+For detailed usage documentation, run `manim-slides --help`, or go to the
+[documentation](https://eertmans.be/manim-slides/latest/reference/cli.html).
 
 ## Interactive Tutorial
 
-Click on the image to watch a slides presentation that explains you how to use Manim Slides.
+Click on the image to watch a slides presentation that explains to you how
+to use Manim Slides.
 
 [![Manim Slides Docs](https://raw.githubusercontent.com/jeertmans/manim-slides/main/static/docs.png)](https://eertmans.be/manim-slides/)
 
-## Other Examples
+## More Examples
 
-Other examples are available in the [`example.py`](https://github.com/jeertmans/manim-slides/blob/main/example.py) file, if you downloaded the git repository.
-
-Below is a small recording of me playing with the slides back and forth.
-
-![](https://raw.githubusercontent.com/jeertmans/manim-slides/main/static/example.gif)
-
+More examples are available in the
+[`example.py`](https://github.com/jeertmans/manim-slides/blob/main/example.py)
+file, if you downloaded the git repository.
 
 ## Comparison with Similar Tools
 
-There exists are variety of tools that allows to create slides presentations containing Manim animations.
+There exists a variety of tools that allows to create slides presentations
+containing Manim animations.
 
 Below is a comparison of the most used ones with Manim Slides:
 
@@ -192,20 +152,28 @@ Below is a comparison of the most used ones with Manim Slides:
 | Web Browser presentations | Yes | No | Yes | No |
 | Offline presentations | Yes, with Qt | Yes, with OpenCV | No | No
 
-## F.A.Q
+## Citing
 
-### How to increase quality on Windows
+If you use this project, please cite it using the following reference:
 
-On Windows platform, one may encounter a lower image resolution than expected. Usually, this is observed because Windows rescales every application to fit the screen.
-As found by [@arashash](https://github.com/arashash), in [#20](https://github.com/jeertmans/manim-slides/issues/20), the problem can be addressed by changing the scaling factor to 100%:
+```bibtex
+@article{Jerome_Eertmans_Manim_Slides_A_2023,
+	title        = {{Manim Slides: A Python package for presenting Manim content anywhere}},
+	author       = {{Jérome Eertmans}},
+	year         = 2023,
+	month        = aug,
+	journal      = {Journal of Open Source Education},
+	volume       = 6,
+	doi          = {10.21105/jose.00206}
+}
+```
 
-![Windows Fix Scaling](static/windows_quality_fix.png)
-
-in *Settings*->*Display*.
+or by linking this GitHub repository at the end of the presentation.
 
 ## Contributing
 
-Contributions are more than welcome! Please read through [our contributing section](https://eertmans.be/manim-slides/contributing/index.html).
+Contributions are more than welcome! Please read through
+[our contributing section](https://eertmans.be/manim-slides/latest/contributing/index.html).
 
 ### Reporting an Issue
 
@@ -237,12 +205,10 @@ be able to help you!
 Sometimes, you may have a question about Manim Slides,
 not necessarily an issue.
 
-There are two ways you can reach us for questions:
-
-- via the `Question/Help/Support` topic when
-[choosing an issue template](https://github.com/jeertmans/manim-slides/issues/new/choose);
-- or via
-[GitHub discussions](https://github.com/jeertmans/manim-slides/discussions).
+First, make sure to read the
+[F.A.Q](https://eertmans.be/manim-slides/latest/faq.html) to see if
+your question has already been answered. If not, please follow the
+recommendation (from that page) to reach us for questions.
 
 <!-- end seeking-for-help -->
 
@@ -260,12 +226,13 @@ you can do so at: [jeertmans@icloud.com](mailto:jeertmans@icloud.com).
 [pypi-version-url]: https://pypi.org/project/manim-slides/
 [pypi-python-version-badge]: https://img.shields.io/pypi/pyversions/manim-slides
 [pypi-download-badge]: https://img.shields.io/pypi/dm/manim-slides
-[documentation-badge]: https://img.shields.io/website?down_color=lightgrey&down_message=offline&label=documentation&up_color=green&up_message=online&url=https%3A%2F%2Feertmans.be%2Fmanim-slides%2F
-[documentation-url]: https://eertmans.be/manim-slides/
+[documentation-badge]: https://readthedocs.org/projects/manim-slides/badge/?version=latest
+[documentation-url]: https://manim-slides.readthedocs.io/
 [doi-badge]: https://zenodo.org/badge/DOI/10.5281/zenodo.8215167.svg
 [doi-url]: https://doi.org/10.5281/zenodo.8215167
 [jose-badge]: https://jose.theoj.org/papers/10.21105/jose.00206/status.svg
 [jose-url]: https://doi.org/10.21105/jose.00206
-
 [codecov-badge]: https://codecov.io/gh/jeertmans/manim-slides/branch/main/graph/badge.svg?token=8P4DY9JCE4
 [codecov-url]: https://codecov.io/gh/jeertmans/manim-slides
+[binder-badge]: https://mybinder.org/badge_logo.svg
+[binder-url]: https://mybinder.org/v2/gh/jeertmans/manim-slides-binder/HEAD?filepath=getting_started.ipynb

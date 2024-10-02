@@ -2,7 +2,8 @@
 
 Manim Slides' graphical user interface (GUI) is the *de facto* way to present slides.
 
-If you do not specify one of the commands listed in the [CLI reference](./cli),
+If you do not specify one of the commands listed in the
+[CLI reference](/reference/cli),
 Manim Slides will use **present** by default, which launches a GUI window,
 playing your scene(s) like so:
 
@@ -25,7 +26,7 @@ directory, you should not worry about that :-)
 ## Configuration File
 
 It is possible to configure Manim Slides via a configuration file, even though
-this feature is currently limited. You may initiliaze the default configuration
+this feature is currently limited. You may initialize the default configuration
 file with:
 
 ```bash

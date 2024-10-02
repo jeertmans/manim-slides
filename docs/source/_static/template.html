@@ -1,0 +1,429 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <title>{{ title }}</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/{{ reveal_version }}/reveal.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/{{ reveal_version }}/theme/{{ reveal_theme }}.min.css">
+
+    <!-- Theme used for syntax highlighting of code -->
+    <!-- <link rel="stylesheet" href="lib/css/zenburn.css"> -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/styles/zenburn.min.css">
+    <!-- <link rel="stylesheet" href="index.css"> -->
+  </head>
+
+  <body>
+    <div class="reveal">
+      <div class="slides">
+        {%- for presentation_config in presentation_configs -%}
+          {% set outer_loop = loop %}
+          {%- for slide_config in presentation_config.slides -%}
+            {%- if data_uri -%}
+              {% set file = file_to_data_uri(slide_config.file) %}
+            {%- else -%}
+              {% set file = assets_dir / slide_config.file.name %}
+            {%- endif -%}
+            <section
+              data-background-size={{ background_size }}
+              data-background-color="{{ presentation_config.background_color }}"
+              data-background-video="{{ file }}"
+              {% if loop.index == 1 and outer_loop.index == 1 -%}
+                data-background-video-muted
+              {%- endif %}
+              {% if slide_config.loop -%}
+                data-background-video-loop
+              {%- endif -%}
+              {% if slide_config.auto_next -%}
+                data-autoslide="{{ get_duration_ms(slide_config.file) }}"
+              {%- endif -%}>
+              {% if slide_config.notes != "" -%}
+                <aside class="notes" data-markdown>{{ slide_config.notes }}</aside>
+              {%- endif %}
+            </section>
+          {%- endfor -%}
+        {%- endfor -%}
+      </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/{{ reveal_version }}/reveal.min.js"></script>
+
+    <!-- To include plugins, see: https://revealjs.com/plugins/ -->
+
+    {% if has_notes -%}
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/{{ reveal_version }}/plugin/markdown/markdown.min.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/{{ reveal_version }}/plugin/notes/notes.min.js"></script>
+    {%- endif -%}
+
+    <!-- <script src="index.js"></script> -->
+    <script>
+      Reveal.initialize({
+        {% if has_notes -%}
+          plugins: [ RevealMarkdown, RevealNotes ],
+        {%- endif %}
+        // The "normal" size of the presentation, aspect ratio will
+        // be preserved when the presentation is scaled to fit different
+        // resolutions. Can be specified using percentage units.
+        width: {{ width }},
+        height: {{ height }},
+
+        // Factor of the display size that should remain empty around
+        // the content
+        margin: {{ margin }},
+
+        // Bounds for smallest/largest possible scale to apply to content
+        minScale: {{ min_scale }},
+        maxScale: {{ max_scale }},
+
+        // Display presentation control arrows
+        controls: {{ controls }},
+
+        // Help the user learn the controls by providing hints, for example by
+        // bouncing the down arrow when they first encounter a vertical slide
+        controlsTutorial: {{ controls_tutorial }},
+
+        // Determines where controls appear, "edges" or "bottom-right"
+        controlsLayout: {{ controls_layout }},
+
+        // Visibility rule for backwards navigation arrows; "faded", "hidden"
+        // or "visible"
+        controlsBackArrows: {{ controls_back_arrows }},
+
+        // Display a presentation progress bar
+        progress: {{ progress }},
+
+        // Display the page number of the current slide
+        // - true:    Show slide number
+        // - false:   Hide slide number
+        //
+        // Can optionally be set as a string that specifies the number formatting:
+        // - "h.v":   Horizontal . vertical slide number (default)
+        // - "h/v":   Horizontal / vertical slide number
+        // - "c":   Flattened slide number
+        // - "c/t":   Flattened slide number / total slides
+        //
+        // Alternatively, you can provide a function that returns the slide
+        // number for the current slide. The function should take in a slide
+        // object and return an array with one string [slideNumber] or
+        // three strings [n1,delimiter,n2]. See #formatSlideNumber().
+        slideNumber: {{ slide_number }},
+
+        // Can be used to limit the contexts in which the slide number appears
+        // - "all":      Always show the slide number
+        // - "print":    Only when printing to PDF
+        // - "speaker":  Only in the speaker view
+        showSlideNumber: {{ show_slide_number }},
+
+        // Use 1 based indexing for # links to match slide number (default is zero
+        // based)
+        hashOneBasedIndex: {{ hash_one_based_index }},
+
+        // Add the current slide number to the URL hash so that reloading the
+        // page/copying the URL will return you to the same slide
+        hash: {{ hash }},
+
+        // Flags if we should monitor the hash and change slides accordingly
+        respondToHashChanges: {{ respond_to_hash_changes }},
+
+        // Push each slide change to the browser history.  Implies `hash: true`
+        history: {{ history }},
+
+        // Enable keyboard shortcuts for navigation
+        keyboard: {{ keyboard }},
+
+        // Optional function that blocks keyboard events when retuning false
+        //
+        // If you set this to 'focused', we will only capture keyboard events
+        // for embedded decks when they are in focus
+        keyboardCondition: {{ keyboard_condition }},
+
+        // Disables the default reveal.js slide layout (scaling and centering)
+        // so that you can use custom CSS layout
+        disableLayout: {{ disable_layout }},
+
+        // Enable the slide overview mode
+        overview: {{ overview }},
+
+        // Vertical centering of slides
+        center: {{ center }},
+
+        // Enables touch navigation on devices with touch input
+        touch: {{ touch }},
+
+        // Loop the presentation
+        loop: {{ loop }},
+
+        // Change the presentation direction to be RTL
+        rtl: {{ rtl }},
+
+        // Changes the behavior of our navigation directions.
+        //
+        // "default"
+        // Left/right arrow keys step between horizontal slides, up/down
+        // arrow keys step between vertical slides. Space key steps through
+        // all slides (both horizontal and vertical).
+        //
+        // "linear"
+        // Removes the up/down arrows. Left/right arrows step through all
+        // slides (both horizontal and vertical).
+        //
+        // "grid"
+        // When this is enabled, stepping left/right from a vertical stack
+        // to an adjacent vertical stack will land you at the same vertical
+        // index.
+        //
+        // Consider a deck with six slides ordered in two vertical stacks:
+        // 1.1    2.1
+        // 1.2    2.2
+        // 1.3    2.3
+        //
+        // If you're on slide 1.3 and navigate right, you will normally move
+        // from 1.3 -> 2.1. If "grid" is used, the same navigation takes you
+        // from 1.3 -> 2.3.
+        navigationMode: {{ navigation_mode }},
+
+        // Randomizes the order of slides each time the presentation loads
+        shuffle: {{ shuffle }},
+
+        // Turns fragments on and off globally
+        fragments: {{ fragments }},
+
+        // Flags whether to include the current fragment in the URL,
+        // so that reloading brings you to the same fragment position
+        fragmentInURL: {{ fragment_in_url }},
+
+        // Flags if the presentation is running in an embedded mode,
+        // i.e. contained within a limited portion of the screen
+        embedded: {{ embedded }},
+
+        // Flags if we should show a help overlay when the question-mark
+        // key is pressed
+        help: {{ help }},
+
+        // Flags if it should be possible to pause the presentation (blackout)
+        pause: {{ pause }},
+
+        // Flags if speaker notes should be visible to all viewers
+        showNotes: {{ show_notes }},
+
+        // Global override for autolaying embedded media (video/audio/iframe)
+        // - null:   Media will only autoplay if data-autoplay is present
+        // - true:   All media will autoplay, regardless of individual setting
+        // - false:  No media will autoplay, regardless of individual setting
+        autoPlayMedia: {{ auto_play_media }},
+
+        // Global override for preloading lazy-loaded iframes
+        // - null:   Iframes with data-src AND data-preload will be loaded when within
+        //           the viewDistance, iframes with only data-src will be loaded when visible
+        // - true:   All iframes with data-src will be loaded when within the viewDistance
+        // - false:  All iframes with data-src will be loaded only when visible
+        preloadIframes: {{ preload_iframes }},
+
+        // Can be used to globally disable auto-animation
+        autoAnimate: {{ auto_animate }},
+
+        // Optionally provide a custom element matcher that will be
+        // used to dictate which elements we can animate between.
+        autoAnimateMatcher: {{ auto_animate_matcher }},
+
+        // Default settings for our auto-animate transitions, can be
+        // overridden per-slide or per-element via data arguments
+        autoAnimateEasing: {{ auto_animate_easing }},
+        autoAnimateDuration: {{ auto_animate_duration }},
+        autoAnimateUnmatched: {{ auto_animate_unmatched }},
+
+        // CSS properties that can be auto-animated. Position & scale
+        // is matched separately so there's no need to include styles
+        // like top/right/bottom/left, width/height or margin.
+        autoAnimateStyles: {{ auto_animate_styles }},
+
+        // Controls automatic progression to the next slide
+        // - 0:      Auto-sliding only happens if the data-autoslide HTML attribute
+        //           is present on the current slide or fragment
+        // - 1+:     All slides will progress automatically at the given interval
+        // - false:  No auto-sliding, even if data-autoslide is present
+        autoSlide: {{ auto_slide }},
+
+        // Stop auto-sliding after user input
+        autoSlideStoppable: {{ auto_slide_stoppable }},
+
+        // Use this method for navigation when auto-sliding (defaults to navigateNext)
+        autoSlideMethod: {{ auto_slide_method }},
+
+        // Specify the average time in seconds that you think you will spend
+        // presenting each slide. This is used to show a pacing timer in the
+        // speaker view
+        defaultTiming: {{ default_timing }},
+
+        // Enable slide navigation via mouse wheel
+        mouseWheel: {{ mouse_wheel }},
+
+        // Opens links in an iframe preview overlay
+        // Add `data-preview-link` and `data-preview-link="false"` to customize each link
+        // individually
+        previewLinks: {{ preview_links }},
+
+        // Exposes the reveal.js API through window.postMessage
+        postMessage: {{ post_message }},
+
+        // Dispatches all reveal.js events to the parent window through postMessage
+        postMessageEvents: {{ post_message_events }},
+
+        // Focuses body when page changes visibility to ensure keyboard shortcuts work
+        focusBodyOnPageVisibilityChange: {{ focus_body_on_page_visibility_change }},
+
+        // Transition style
+        transition: {{ transition }}, // none/fade/slide/convex/concave/zoom
+
+        // Transition speed
+        transitionSpeed: {{ transition_speed }}, // default/fast/slow
+
+        // Transition style for full page slide backgrounds
+        backgroundTransition: {{ background_transition }}, // none/fade/slide/convex/concave/zoom
+
+        // The maximum number of pages a single slide can expand onto when printing
+        // to PDF, unlimited by default
+        pdfMaxPagesPerSlide: {{ pdf_max_pages_per_slide }},
+
+        // Prints each fragment on a separate slide
+        pdfSeparateFragments: {{ pdf_separate_fragments }},
+
+        // Offset used to reduce the height of content within exported PDF pages.
+        // This exists to account for environment differences based on how you
+        // print to PDF. CLI printing options, like phantomjs and wkpdf, can end
+        // on precisely the total height of the document whereas in-browser
+        // printing has to end one pixel before.
+        pdfPageHeightOffset: {{ pdf_page_height_offset }},
+
+        // Number of slides away from the current that are visible
+        viewDistance: {{ view_distance }},
+
+        // Number of slides away from the current that are visible on mobile
+        // devices. It is advisable to set this to a lower number than
+        // viewDistance in order to save resources.
+        mobileViewDistance: {{ mobile_view_distance }},
+
+        // The display mode that will be used to show slides
+        display: {{ display }},
+
+        // Hide cursor if inactive
+        hideInactiveCursor: {{ hide_inactive_cursor }},
+
+        // Time before the cursor is hidden (in ms)
+        hideCursorTime: {{ hide_cursor_time }}
+      });
+
+      {% if data_uri %}
+        // Fix found by @t-fritsch on GitHub
+        // see: https://github.com/hakimel/reveal.js/discussions/3362#discussioncomment-6651475.
+        function fixBase64VideoBackground(event) {
+          // event.previousSlide, event.currentSlide, event.indexh, event.indexv
+          if (event.currentSlide.getAttribute('data-background-video')) {
+            const background = Reveal.getSlideBackground(event.indexh, event.indexv),
+              video = background.querySelector('video'),
+              sources = video.querySelectorAll('source');
+
+            sources.forEach((source, i) => {
+              const src = source.getAttribute('src');
+              if(src.match(/^data:video.*;base64$/)) {
+                const nextSrc = sources[i+1]?.getAttribute('src');
+                video.setAttribute('src', `${src},${nextSrc}`);
+              }
+            });
+          }
+        }
+        Reveal.on( 'ready', fixBase64VideoBackground );
+        Reveal.on( 'slidechanged', fixBase64VideoBackground );
+      {% endif %}
+    </script>
+
+    <!-- Add a clock to each section dynamically using JavaScript -->
+    <script>
+      document.addEventListener('DOMContentLoaded', function () {
+        var revealContainer = document.querySelector('.reveal');
+
+        // Append dynamic content to each section
+        var sections = revealContainer.querySelectorAll('.slides > section');
+        sections.forEach(function (section) {
+          // Create a new clock container
+          var clockContainer = document.createElement('div');
+          clockContainer.className = 'clock';
+
+          // Append the new clock container to the section
+          section.appendChild(clockContainer);
+        });
+
+        // Function to update the clock content
+        function updateClock() {
+          var now = new Date();
+          var hours = now.getHours();
+          var minutes = now.getMinutes();
+          var seconds = now.getSeconds();
+
+          // Format the time as HH:MM:SS
+          var timeString = pad(hours) + ":" + pad(minutes) + ":" + pad(seconds);
+
+          // Update the content of all clock containers
+          var clockContainers = document.querySelectorAll('.clock');
+          clockContainers.forEach(function (container) {
+            container.innerText = timeString;
+          });
+        }
+
+        // Function to pad zero for single-digit numbers
+        function pad(number) {
+          return String(number).padStart(2, "0");
+        }
+
+        // Update the clock every second
+        setInterval(updateClock, 1000);
+
+        // Register a reveal.js event to update the clock on each slide change
+        Reveal.addEventListener('slidechanged', function (event) {
+          updateClock();
+        });
+
+        // Initial update
+        updateClock();
+      });
+    </script>
+
+    <!-- define the style of the clock -->
+    <style>
+      .clock {
+        position: fixed;
+        bottom: 10px;
+        left: 10px;
+        font-size: 24px;
+        font-family: "Arial", sans-serif;
+        color: #333;
+      }
+
+      /* control the relative position of the clock to the slides */
+      .reveal .slides > section.present, .reveal .slides > section > section.present {
+        min-height: 100% !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: center !important;
+        position: absolute !important;
+        top: 0 !important;
+      }
+      section > h1 {
+        position: absolute !important;
+        top: 0 !important;
+        margin-left: auto !important;
+        margin-right: auto !important;
+        left: 0 !important;
+        right: 0 !important;
+      }
+
+      .print-pdf .reveal .slides > section.present, .print-pdf .reveal .slides > section > section.present {
+        min-height: 770px !important;
+        position: relative !important;
+      }
+    </style>
+
+  </body>
+</html>

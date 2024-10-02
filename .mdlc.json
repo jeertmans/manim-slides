@@ -1,0 +1,8 @@
+{
+  "replacementPatterns": [
+    {
+      "pattern": "^/(?<path>.*)$",
+      "replacement": "https://eertmans.be/manim-slides/latest/$<path>.html"
+    }
+  ]
+}

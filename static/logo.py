@@ -51,3 +51,28 @@ class ManimSlidesLogo(Scene):
         )  # order matters
         logo.move_to(ORIGIN)
         self.add(logo)
+
+
+class ManimSlidesFavicon(Scene):
+    def construct(self):
+        tex_template = TexTemplate()
+        tex_template.add_to_preamble(r"\usepackage{graphicx}\usepackage{fontawesome5}")
+        fill_color = "#c9d1d9"
+        stroke_color = "#343434"
+        play = Tex(
+            r"\faStepBackward\faStepForward",
+            fill_color=fill_color,
+            stroke_color=stroke_color,
+            tex_template=tex_template,
+        ).scale(4)
+        comment = Tex(
+            r"\reflectbox{\faComment*[regular]}",
+            fill_color=fill_color,
+            stroke_color=stroke_color,
+            tex_template=tex_template,
+        ).scale(9)
+        comment.move_to(play)
+        comment.shift(0.4 * DOWN)
+        favicon = VGroup(comment, play).scale(3)
+        favicon.move_to(ORIGIN)
+        self.add(favicon)

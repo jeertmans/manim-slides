@@ -9,8 +9,10 @@ We will go from the *most restrictive* method, to the least restrictive one.
 If you need to present on a computer without prior knowledge on what will be
 installed on it, please directly refer to the last sections.
 
-> **NOTES:** in the next sections, we will assume your animations are described
+:::{note}
+In the next sections, we will assume your animations are described
 in `example.py`, and you have one presentation called `BasicExample`.
+:::
 
 ## With Manim Slides installed on the target machine
 
@@ -32,8 +34,8 @@ the key bindings might not be the same.
 Example:
 
 ```bash
-# If you use ManimGl, replace `manim` with `manimgl`
-manim example.py BasicExample
+# If you use ManimGl, add `--GL` after `render`
+manim-slides render example.py BasicExample
 
 # This or `manim-slides BasicExample` works since
 # `present` is implied by default
@@ -124,33 +126,47 @@ to use an `iframe`:
 </div>
 ```
 
+<!-- markdown-link-check-disable -->
+<!-- see why: https://github.com/tcort/markdown-link-check/discussions/189 -->
+
 The additional code comes from
 [this article](https://faq.dailymotion.com/hc/en-us/articles/360022841393-How-to-preserve-the-player-aspect-ratio-on-a-responsive-page)
 and it there to preserve the original aspect ratio (16:9).
 
+<!-- markdown-link-check-enable -->
 
 ### Sharing ONE HTML file
 
-A future feature, that will be available once
-[#122](https://github.com/jeertmans/manim-slides/issues/122) is solved, will be
-to include all animations as data URI encoded, within the HTML file itself.
+If you set the `data_uri` option to `true` (with `-cdata_uri=true`),
+all animations will be data URI encoded, making the HTML a self-contained
+presentation file that can be shared on its own.
 
 ### Over the internet
 
-Finally, HTML conversion makes it convenient to play your presentation on a
+HTML conversion makes it convenient to play your presentation on a
 remote server.
 
 This is how your are able to watch all the examples on this website. If you want
-to know how to share your slide with GitHub pages, see the
-[workflow file](https://github.com/jeertmans/manim-slides/blob/main/.github/workflows/pages.yml).
+to know how to share your slide with GitHub pages, check out the
+[Manim Slides Starter GitHub repository template](https://github.com/jeertmans/manim-slides-starter).
 
-> **WARNING:** keep in mind that playing large video files over the internet
+:::{warning}
+Keep in mind that playing large video files over the internet network
 can take some time, and *glitches* may occur between slide transitions for this
 reason.
+:::
+
+### Using the Github starter template
+
+A [starter template](https://github.com/jeertmans/manim-slides-starter) is
+available which allows to quickly get going with a new Manim slides
+presentation on your Github account. The template comes ready with
+functionality to automate tasks using Github actions and publish to Github
+Pages. Please refer to the template page for usage instructions.
 
 ### With PowerPoint (*EXPERIMENTAL*)
 
-A recent conversion feature is to the PowerPoint format, thanks to the
+A convenient conversion feature is to the PowerPoint format, thanks to the
 `python-pptx` package. Even though it is fully working,
 it is still considered in an *EXPERIMENTAL* status because we do not
 exactly know what versions of PowerPoint (or LibreOffice Impress) are supported.

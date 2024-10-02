@@ -16,7 +16,9 @@ Utilities for using Manim Slides with IPython (in particular: Jupyter notebooks)
 This magic requires two additional dependencies: ``manim`` and ``IPython``.
 You can install them manually, or with the extra keyword:
 
-    pip install manim-slides[magic]
+.. code-block:: bash
+
+    pip install "manim-slides[magic]"
 
 Note that you will still need to install Manim's platform-specific dependencies,
 see
@@ -30,7 +32,7 @@ import mimetypes
 import shutil
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any
 
 from IPython import get_ipython
 from IPython.core.interactiveshell import InteractiveShell
@@ -49,18 +51,18 @@ from ..present import get_scenes_presentation_config
 class ManimSlidesMagic(Magics):  # type: ignore
     def __init__(self, shell: InteractiveShell) -> None:
         super().__init__(shell)
-        self.rendered_files: Dict[Path, Path] = {}
+        self.rendered_files: dict[Path, Path] = {}
 
     @needs_local_scope
     @line_cell_magic
-    def manim_slides(
+    def manim_slides(  # noqa: C901
         self,
         line: str,
-        cell: Optional[str] = None,
-        local_ns: Dict[str, Any] = {},
+        cell: str | None = None,
+        local_ns: dict[str, Any] | None = None,
     ) -> None:
-        r"""Render Manim Slides contained in IPython cells.
-        Works as a line or cell magic.
+        r"""
+        Render Manim Slides contained in IPython cells. Works as a line or cell magic.
 
         .. note::
 
@@ -118,7 +120,6 @@ class ManimSlidesMagic(Magics):  # type: ignore
 
         Examples
         --------
-
         First make sure to put ``from manim_slides import ManimSlidesMagic``,
         or even ``from manim_slides import *``
         in a cell and evaluate it. Then, a typical Jupyter notebook cell for Manim Slides
@@ -145,6 +146,8 @@ class ManimSlidesMagic(Magics):  # type: ignore
             CLI flag.
 
         """
+        if local_ns is None:
+            local_ns = {}
         if cell:
             exec(cell, local_ns)
 
@@ -174,8 +177,8 @@ class ManimSlidesMagic(Magics):  # type: ignore
                 renderer = OpenGLRenderer()
 
             try:
-                SceneClass = local_ns[config["scene_names"][0]]
-                scene = SceneClass(renderer=renderer)
+                scene_cls = local_ns[config["scene_names"][0]]
+                scene = scene_cls(renderer=renderer)
                 scene.render()
             finally:
                 # Shader cache becomes invalid as the context is destroyed
@@ -225,7 +228,7 @@ class ManimSlidesMagic(Magics):  # type: ignore
             # TODO: FIXME
             # Seems like files are blocked so date-uri is the only working option...
             if kwargs.get("data_uri", "false").lower().strip() == "false":
-                logger.warn(
+                logger.warning(
                     "data_uri option is currently automatically enabled, "
                     "because using local video files does not seem to work properly."
                 )
@@ -246,9 +249,7 @@ class ManimSlidesMagic(Magics):  # type: ignore
                 )
             else:
                 result = HTML(
-                    """<div style="position:relative;padding-bottom:56.25%;"><iframe style="width:100%;height:100%;position:absolute;left:0px;top:0px;" frameborder="0" width="100%" height="100%" allowfullscreen allow="autoplay" src="{src}"></iframe></div>""".format(
-                        src=tmpfile.as_posix()
-                    )
+                    f"""<div style="position:relative;padding-bottom:56.25%;"><iframe style="width:100%;height:100%;position:absolute;left:0px;top:0px;" frameborder="0" width="100%" height="100%" allowfullscreen allow="autoplay" src="{tmpfile.as_posix()}"></iframe></div>"""
                 )
 
             display(result)

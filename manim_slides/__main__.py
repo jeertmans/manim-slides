@@ -6,9 +6,11 @@ from click_default_group import DefaultGroup
 from trogon import tui
 
 from .__version__ import __version__
+from .checkhealth import checkhealth
 from .convert import convert
-from .logger import make_logger
+from .logger import logger
 from .present import list_scenes, present
+from .render import render
 from .wizard import init, wizard
 
 
@@ -29,16 +31,13 @@ def cli(notify_outdated_version: bool) -> None:
 
     If no command is specified, defaults to `present`.
     """
-    logger = make_logger()
     # Code below is mostly a copy from:
     # https://github.com/ManimCommunity/manim/blob/main/manim/cli/render/commands.py
     if notify_outdated_version:
         manim_info_url = "https://pypi.org/pypi/manim-slides/json"
         warn_prompt = "Cannot check if latest release of Manim Slides is installed"
         try:
-            req_info: requests.models.Response = requests.get(
-                manim_info_url, timeout=10
-            )
+            req_info: requests.models.Response = requests.get(manim_info_url, timeout=2)
             req_info.raise_for_status()
             stable = req_info.json()["info"]["version"]
             if stable != __version__:
@@ -67,9 +66,11 @@ def cli(notify_outdated_version: bool) -> None:
 
 
 cli.add_command(convert)
+cli.add_command(checkhealth)
 cli.add_command(init)
 cli.add_command(list_scenes)
 cli.add_command(present)
+cli.add_command(render)
 cli.add_command(wizard)
 
 

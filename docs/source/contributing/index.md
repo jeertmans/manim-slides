@@ -18,10 +18,10 @@ workflow
 internals
 ```
 
-[Workflow](./workflow)
+[Workflow](/contributing/workflow)
 : how to work on this project. Start here if you're a new contributor.
 
-[Internals](./internals)
+[Internals](/contributing/internals)
 : how Manim Slides is built and how the various parts of it work.
 
 ## Reporting an Issue

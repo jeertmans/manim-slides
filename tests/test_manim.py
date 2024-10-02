@@ -1,76 +1,68 @@
 import importlib
+import os
 import sys
-from contextlib import contextmanager
-from importlib.abc import MetaPathFinder
-from importlib.machinery import ModuleSpec
-from types import ModuleType
-from typing import Iterator, Optional, Sequence
 
 import pytest
 
-import manim_slides.manim as msm
-
-
-@contextmanager
-def suppress_module_finder() -> Iterator[None]:
-    meta_path = sys.meta_path
-    try:
-
-        class PathFinder(MetaPathFinder):
-            @classmethod
-            def find_spec(
-                cls,
-                fullname: str,
-                path: Optional[Sequence[str]],
-                target: Optional[ModuleType] = None,
-            ) -> Optional[ModuleSpec]:
-                if fullname in ["manim", "manimlib"]:
-                    return None
-
-                for finder in meta_path:
-                    spec = finder.find_spec(fullname, path, target=target)
-                    if spec is not None:
-                        return spec
-
-                return None
-
-        sys.meta_path = [PathFinder]
-        yield
-    finally:
-        sys.meta_path = meta_path
+import manim_slides.slide as slide
 
 
 def assert_import(
     *,
+    api_name: str,
     manim: bool,
-    manim_available: bool,
-    manim_imported: bool,
     manimgl: bool,
-    manimgl_available: bool,
-    manimgl_imported: bool,
 ) -> None:
-    importlib.reload(msm)
+    importlib.reload(slide)
 
-    assert msm.MANIM == manim
-    assert msm.MANIM_AVAILABLE == manim_available
-    assert msm.MANIM_IMPORTED == manim_imported
-    assert msm.MANIMGL == manimgl
-    assert msm.MANIMGL_AVAILABLE == manim_available
-    assert msm.MANIMGL_IMPORTED == manimgl_imported
+    assert slide.API_NAME == api_name
+    assert slide.MANIM == manim
+    assert slide.MANIMGL == manimgl
+
+
+def test_force_api() -> None:
+    pytest.importorskip("manimlib")
+    import manim  # noqa: F401
+
+    if "manimlib" in sys.modules:
+        del sys.modules["manimlib"]
+
+    os.environ[slide.MANIM_API] = "manimlib"
+    os.environ[slide.FORCE_MANIM_API] = "1"
+
+    assert_import(
+        api_name="manimlib",
+        manim=False,
+        manimgl=True,
+    )
+
+    del os.environ[slide.MANIM_API]
+    del os.environ[slide.FORCE_MANIM_API]
+
+
+def test_invalid_api() -> None:
+    os.environ[slide.MANIM_API] = "manim_slides"
+
+    with pytest.raises(ImportError):
+        assert_import(
+            api_name="",
+            manim=False,
+            manimgl=False,
+        )
+
+    del os.environ[slide.MANIM_API]
 
 
 @pytest.mark.filterwarnings("ignore:assert_import")
 def test_manim_and_manimgl_imported() -> None:
+    pytest.importorskip("manimlib")
     import manim  # noqa: F401
     import manimlib  # noqa: F401
 
     assert_import(
+        api_name="manim",
         manim=True,
-        manim_available=True,
-        manim_imported=True,
         manimgl=False,
-        manimgl_available=True,
-        manimgl_imported=True,
     )
 
 
@@ -81,28 +73,23 @@ def test_manim_imported() -> None:
         del sys.modules["manimlib"]
 
     assert_import(
+        api_name="manim",
         manim=True,
-        manim_available=True,
-        manim_imported=True,
         manimgl=False,
-        manimgl_available=True,
-        manimgl_imported=False,
     )
 
 
 def test_manimgl_imported() -> None:
+    pytest.importorskip("manimlib")
     import manimlib  # noqa: F401
 
     if "manim" in sys.modules:
         del sys.modules["manim"]
 
     assert_import(
+        api_name="manimlib",
         manim=False,
-        manim_available=True,
-        manim_imported=False,
         manimgl=True,
-        manimgl_available=True,
-        manimgl_imported=True,
     )
 
 
@@ -114,30 +101,7 @@ def test_nothing_imported() -> None:
         del sys.modules["manimlib"]
 
     assert_import(
+        api_name="manim",
         manim=True,
-        manim_available=True,
-        manim_imported=False,
         manimgl=False,
-        manimgl_available=True,
-        manimgl_imported=False,
     )
-
-
-def test_no_package_available() -> None:
-    with suppress_module_finder():
-        if "manim" in sys.modules:
-            del sys.modules["manim"]
-
-        if "manimlib" in sys.modules:
-            del sys.modules["manimlib"]
-
-        with pytest.raises(ModuleNotFoundError):
-            # Actual values are not important
-            assert_import(
-                manim=False,
-                manim_available=False,
-                manim_imported=False,
-                manimgl=False,
-                manimgl_available=False,
-                manimgl_imported=False,
-            )

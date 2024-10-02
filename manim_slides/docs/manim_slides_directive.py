@@ -1,6 +1,6 @@
 # type: ignore
 r"""
-A directive for including Manim slides in a Sphinx document
+A directive for including Manim Slides in a Sphinx document
 ===========================================================
 
 .. warning::
@@ -21,7 +21,9 @@ This directive requires three additional dependencies:
 with Sphinx.
 You can install them manually, or with the extra keyword:
 
-    pip install manim-slides[sphinx-directive]
+.. code-block:: bash
+
+    pip install "manim-slides[sphinx-directive]"
 
 Note that you will still need to install Manim's platform-specific dependencies,
 see
@@ -69,13 +71,40 @@ render scenes that are defined within doctests, for example::
         >>> class DirectiveDoctestExample(Slide):
         ...     def construct(self):
         ...         self.play(Create(dot))
+        ...
+
+A third application is to render scenes from another specific file::
+
+    .. manim-slides:: file.py:FileExample
+        :hide_source:
+        :quality: high
+
+.. warning::
+
+    The code will be executed with the current working directory
+    being the same as the one containing the source file. This being said,
+    you should probably not include examples that rely on external files, since
+    relative paths risk to be broken.
+
+.. note::
+
+    If you want to skip rendering the slides (e.g., for testing)
+    you can either set the ``SKIP_MANIM_SLIDES`` environ
+    variable (to any value) or pass  the ``skip-manim-slides``
+    tag to ``sphinx``:
+
+    .. code-block:: bash
+
+        sphinx-build -t skip-manim-slides <OTHER_SPHINX_OPTIONS>
+        # or if you use a Makefile
+        make html O=-tskip-manim-slides
 
 Options
 -------
 
 Options can be passed as follows::
 
-    .. manim-slides:: <Class name>
+    .. manim-slides:: <file>:<Class name>
         :<option name>: <value>
 
 The following configuration options are supported by the
@@ -101,12 +130,73 @@ directive:
         A list of methods, separated by spaces,
         that is rendered in a reference block after the source code.
 
-"""
+    template
+        A path to the template file to use.
+
+    config_options
+        An unprocessed string of options to pass to ``manim-slides convert``.
+        Options must be separated with a space, and each option must be
+        a key, value pair using an equal sign as a separator.
+
+        Unlike for the CLI version, you don't need to prepend each option with
+        ``-c``.
+
+        E.g., pass ``slide_number=true controls=false``.
+
+        By default, ``controls=true`` is set.
+
+Examples
+--------
+The following code::
+
+    .. manim-slides:: MySlide
+        :hide_source:
+        :config_options: slide_number=true controls=false
+
+        from manim import *
+        from manim_slides import Slide
+
+        class MySlide(Slide):
+            def construct(self):
+                text = Text("Hello")
+                self.wipe([], text)
+
+                self.next_slide()
+                self.play(text.animate.scale(2))
+
+                self.next_slide()
+                self.zoom(text)
+
+Renders as follows:
+
+.. manim-slides:: MySlide
+    :hide_source:
+    :config_options: slide_number=true controls=false
+
+    from manim import *
+    from manim_slides import Slide
+
+    class MySlide(Slide):
+        def construct(self):
+            text = Text("Hello")
+            self.wipe([], text)
+
+            self.next_slide()
+            self.play(text.animate.scale(2))
+
+            self.next_slide()
+            self.zoom(text)
+
+
+"""  # noqa: D400, D415
+
 from __future__ import annotations
 
 import csv
 import itertools as it
+import os
 import re
+import shlex
 import sys
 from pathlib import Path
 from timeit import timeit
@@ -124,8 +214,9 @@ classnamedict = {}
 
 
 class SkipManimNode(nodes.Admonition, nodes.Element):
-    """Auxiliary node class that is used when the ``skip-manim-slides`` tag is
-    present or ``.pot`` files are being built.
+    """
+    Auxiliary node class that is used when the ``skip-manim-slides`` tag is present or
+    ``.pot`` files are being built.
 
     Skips rendering the manim-slides directive and outputs a placeholder instead.
     """
@@ -144,8 +235,9 @@ def depart(self, node):
 
 
 def process_name_list(option_input: str, reference_type: str) -> list[str]:
-    r"""Reformats a string of space separated class names
-    as a list of strings containing valid Sphinx references.
+    r"""
+    Reformats a string of space separated class names as a list of strings containing
+    valid Sphinx references.
 
     Tests
     -----
@@ -161,15 +253,16 @@ def process_name_list(option_input: str, reference_type: str) -> list[str]:
 
 
 class ManimSlidesDirective(Directive):
-    r"""The manim-slides directive, rendering videos while building
-    the documentation.
+    r"""
+    The manim-slides directive, rendering videos while building the documentation.
 
     See the module docstring for documentation.
     """
+
     has_content = True
     required_arguments = 1
     optional_arguments = 0
-    option_spec = {
+    option_spec = {  # noqa: RUF012
         "hide_source": bool,
         "quality": lambda arg: directives.choice(
             arg,
@@ -179,16 +272,20 @@ class ManimSlidesDirective(Directive):
         "ref_classes": lambda arg: process_name_list(arg, "class"),
         "ref_functions": lambda arg: process_name_list(arg, "func"),
         "ref_methods": lambda arg: process_name_list(arg, "meth"),
+        "template": lambda arg: Path(arg),
+        "config_options": lambda arg: dict(
+            option.split("=") for option in shlex.split(arg)
+        ),
     }
     final_argument_whitespace = True
 
-    def run(self):
+    def run(self):  # noqa: C901
         # Rendering is skipped if the tag skip-manim is present,
         # or if we are making the pot-files
         should_skip = (
-            "skip-manim-slides"
-            in self.state.document.settings.env.app.builder.tags.tags
+            self.state.document.settings.env.app.builder.tags.has("skip-manim-slides")
             or self.state.document.settings.env.app.builder.name == "gettext"
+            or "SKIP_MANIM_SLIDES" in os.environ
         )
         if should_skip:
             node = SkipManimNode()
@@ -211,7 +308,17 @@ class ManimSlidesDirective(Directive):
 
         global classnamedict
 
-        clsname = self.arguments[0]
+        def split_file_cls(arg: str) -> tuple[Path, str]:
+            if ":" in arg:
+                file, cls = arg.split(":", maxsplit=1)
+                _, file = self.state.document.settings.env.relfn2path(file)
+                return Path(file), cls
+            else:
+                return None, arg
+
+        arguments = [split_file_cls(arg) for arg in self.arguments]
+
+        clsname = arguments[0][1]
         if clsname not in classnamedict:
             classnamedict[clsname] = 1
         else:
@@ -271,20 +378,24 @@ class ManimSlidesDirective(Directive):
             "output_file": output_file,
         }
 
-        user_code = self.content
+        if file := arguments[0][0]:
+            user_code = file.absolute().read_text().splitlines()
+        else:
+            user_code = self.content
+
         if user_code[0].startswith(">>> "):  # check whether block comes from doctest
             user_code = [
                 line[4:] for line in user_code if line.startswith((">>> ", "... "))
             ]
 
         code = [
-            "from manim import *",
             *user_code,
             f"{clsname}().render()",
         ]
 
         try:
             with tempconfig(example_config):
+                print(f"Rendering {clsname}...")  # noqa: T201
                 run_time = timeit(lambda: exec("\n".join(code), globals()), number=1)
                 video_dir = config.get_dir("video_dir")
         except Exception as e:
@@ -303,12 +414,20 @@ class ManimSlidesDirective(Directive):
         presentation_configs = get_scenes_presentation_config(
             [clsname], Path("./slides")
         )
-        RevealJS(presentation_configs=presentation_configs, controls="true").convert_to(
-            destfile
-        )
-        # shutil.copyfile(filesrc, destfile)
 
-        print("CLASS NAME:", clsname)
+        template = self.options.get("template", None)
+
+        if template:
+            template = source_file_name.parents[0].joinpath(template)
+
+        config_options = self.options.get("config_options", {})
+        config_options.setdefault("controls", "true")
+
+        RevealJS(
+            presentation_configs=presentation_configs,
+            template=template,
+            **config_options,
+        ).convert_to(destfile)
 
         rendered_template = jinja2.Template(TEMPLATE).render(
             clsname=clsname,
@@ -336,7 +455,7 @@ def _write_rendering_stats(scene_name, run_time, file_name):
             [
                 re.sub(r"^(reference\/)|(manim\.)", "", file_name),
                 scene_name,
-                "%.3f" % run_time,
+                f"{run_time:.3f}",
             ],
         )
 
@@ -348,7 +467,7 @@ def _log_rendering_times(*args):
         if len(data) == 0:
             sys.exit()
 
-        print("\nRendering Summary\n-----------------\n")
+        print("\nRendering Summary\n-----------------\n")  # noqa: T201
 
         max_file_length = max(len(row[0]) for row in data)
         for key, group in it.groupby(data, key=lambda row: row[0]):
@@ -356,15 +475,17 @@ def _log_rendering_times(*args):
             group = list(group)
             if len(group) == 1:
                 row = group[0]
-                print(f"{key}{row[2].rjust(7, '.')}s {row[1]}")
+                print(f"{key}{row[2].rjust(7, '.')}s {row[1]}")  # noqa: T201
                 continue
             time_sum = sum(float(row[2]) for row in group)
-            print(
+            print(  # noqa: T201
                 f"{key}{f'{time_sum:.3f}'.rjust(7, '.')}s  => {len(group)} EXAMPLES",
             )
             for row in group:
-                print(f"{' '*(max_file_length)} {row[2].rjust(7)}s {row[1]}")
-        print("")
+                print(  # noqa: T201
+                    f"{' '*(max_file_length)} {row[2].rjust(7)}s {row[1]}"
+                )
+        print("")  # noqa: T201
 
 
 def _delete_rendering_times(*args):
@@ -400,6 +521,7 @@ TEMPLATE = r"""
 
 .. raw:: html
 
+    <!-- From: https://faq.dailymotion.com/hc/en-us/articles/360022841393-How-to-preserve-the-player-aspect-ratio-on-a-responsive-page -->
 
     <div style="position:relative;padding-bottom:56.25%;">
         <iframe
