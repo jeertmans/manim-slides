@@ -6,7 +6,7 @@ ci:
   autoupdate_commit_msg: 'chore(deps): pre-commit autoupdate'
 repos:
 - repo: https://github.com/pre-commit/pre-commit-hooks
-  rev: v4.6.0
+  rev: v5.0.0
   hooks:
   - id: check-yaml
   - id: check-toml
@@ -21,7 +21,7 @@ repos:
     exclude: poetry.lock
     args: [--autofix, --trailing-commas]
 - repo: https://github.com/astral-sh/ruff-pre-commit
-  rev: v0.6.8
+  rev: v0.6.9
   hooks:
   - id: ruff
     args: [--fix]
