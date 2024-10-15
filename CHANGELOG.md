@@ -10,6 +10,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 (unreleased)=
 ## [Unreleased](https://github.com/jeertmans/manim-slides/compare/v5.1.8...HEAD)
 
+(unreleased-fixed)=
+## Chore
+
+- Fixed failing docker builds.
+  [#481](https://github.com/jeertmans/manim-slides/pull/481)
+
 (v5.1.8)=
 ## [v5.1.8](https://github.com/jeertmans/manim-slides/compare/v5.1.7...v5.1.8)
 
