@@ -8,9 +8,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <!-- start changelog -->
 
 (unreleased)=
-## [Unreleased](https://github.com/jeertmans/manim-slides/compare/v5.1.8...HEAD)
+## [Unreleased](https://github.com/jeertmans/manim-slides/compare/v5.1.9...HEAD)
 
-(unreleased-fixed)=
+(v5.1.9)=
+## [v5.1.9](https://github.com/jeertmans/manim-slides/compare/v5.1.8...v5.1.9)
+
+(v5.1.9-fixed)=
 ## Chore
 
 - Fixed failing docker builds.
