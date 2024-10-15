@@ -31,8 +31,9 @@ RUN wget -O /tmp/install-tl-unx.tar.gz http://mirror.ctan.org/systems/texlive/tl
 # clone and build manim-slides
 COPY . /opt/manim-slides
 WORKDIR /opt/manim-slides
+ENV UV_PYTHON=/usr/local/bin/python
 RUN pip install --no-cache-dir uv
-RUN uv pip install --no-cache-dir --system manim[jupyterlab] .[sphinx-directive]
+RUN uv pip install --no-cache-dir manim[jupyterlab] .[sphinx-directive]
 
 ARG NB_USER=manimslidesuser
 ARG NB_UID=1000
