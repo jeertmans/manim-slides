@@ -37,9 +37,9 @@ RUN uv pip install --no-cache-dir manim[jupyterlab] .[sphinx-directive]
 
 ARG NB_USER=manimslidesuser
 ARG NB_UID=1000
-ENV USER ${NB_USER}
-ENV NB_UID ${NB_UID}
-ENV HOME /manim-slides
+ENV USER=${NB_USER}
+ENV NB_UID=${NB_UID}
+ENV HOME=/manim-slides
 
 RUN adduser --disabled-password \
     --gecos "Default user" \
