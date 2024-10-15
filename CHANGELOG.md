@@ -8,7 +8,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <!-- start changelog -->
 
 (unreleased)=
-## [Unreleased](https://github.com/jeertmans/manim-slides/compare/v5.1.8...HEAD)
+## [Unreleased](https://github.com/jeertmans/manim-slides/compare/v5.1.9...HEAD)
+
+(v5.1.9)=
+## [v5.1.9](https://github.com/jeertmans/manim-slides/compare/v5.1.8...v5.1.9)
+
+(v5.1.9-fixed)=
+## Chore
+
+- Fixed failing docker builds.
+  [#481](https://github.com/jeertmans/manim-slides/pull/481)
 
 (v5.1.8)=
 ## [v5.1.8](https://github.com/jeertmans/manim-slides/compare/v5.1.7...v5.1.8)
