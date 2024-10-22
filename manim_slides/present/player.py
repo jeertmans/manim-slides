@@ -28,7 +28,6 @@ class Info(QWidget):  # type: ignore[misc]
     def __init__(
         self,
         *,
-        full_screen: bool,
         aspect_ratio_mode: Qt.AspectRatioMode,
         screen: Optional[QScreen],
     ) -> None:
@@ -37,9 +36,6 @@ class Info(QWidget):  # type: ignore[misc]
         if screen:
             self.setScreen(screen)
             self.move(screen.geometry().topLeft())
-
-        if full_screen:
-            self.setWindowState(Qt.WindowFullScreen)
 
         layout = QHBoxLayout()
 
@@ -243,7 +239,6 @@ class Player(QMainWindow):  # type: ignore[misc]
         self.slide_changed.connect(self.slide_changed_callback)
 
         self.info = Info(
-            full_screen=full_screen,
             aspect_ratio_mode=aspect_ratio_mode,
             screen=info_window_screen,
         )
@@ -252,6 +247,9 @@ class Player(QMainWindow):  # type: ignore[misc]
         self.video_sink.videoFrameChanged.connect(self.frame_changed)
         self.hide_info_window = hide_info_window
 
+        if full_screen:
+            self.info.setWindowState(Qt.WindowFullScreen)
+            
         # Connecting key callbacks
 
         self.config.keys.QUIT.connect(self.close)
@@ -535,8 +533,10 @@ class Player(QMainWindow):  # type: ignore[misc]
     def full_screen(self) -> None:
         if self.windowState() == Qt.WindowFullScreen:
             self.setWindowState(Qt.WindowNoState)
+            self.info.setWindowState(Qt.WindowNoState)
         else:
             self.setWindowState(Qt.WindowFullScreen)
+            self.info.setWindowState(Qt.WindowFullScreen)
 
     @Slot()
     def hide_mouse(self) -> None:

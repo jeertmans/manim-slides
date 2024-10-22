@@ -1,7 +1,7 @@
 import signal
 import sys
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Literal
 
 import click
 from click import Context, Parameter
@@ -202,7 +202,7 @@ def start_at_callback(
     "screen_number",
     metavar="NUMBER",
     type=int,
-    default=None,
+    default=0,
     help="Present content on the given screen (a.k.a. display).",
 )
 @click.option(
@@ -222,8 +222,9 @@ def start_at_callback(
 )
 @click.option(
     "--hide-info-window",
-    is_flag=True,
-    help="Hide info window.",
+    type=click.Choice(["auto", "always", "never"], case_sensitive=False),
+    default="auto",
+    help="Hide info window. Auto will hide the info window if there is only one screen.",
 )
 @click.option(
     "--info-window-screen",
@@ -248,10 +249,10 @@ def present(
     start_at: tuple[Optional[int], Optional[int], Optional[int]],
     start_at_scene_number: int,
     start_at_slide_number: int,
-    screen_number: Optional[int],
+    screen_number: int,
     playback_rate: float,
     next_terminates_loop: bool,
-    hide_info_window: bool,
+    hide_info_window: Literal["auto", "always", "never"],
     info_window_screen_number: Optional[int],
 ) -> None:
     """
@@ -304,12 +305,27 @@ def present(
             )
             return None
 
+    should_hide_info_window = False
+    
+    if hide_info_window == "auto":
+        should_hide_info_window = len(app.screens()) == 1
+    elif hide_info_window == "always":
+        should_hide_info_window = True
+
+    if should_hide_info_window and info_window_screen_number is not None:
+        logger.warning(
+            f"Ignoring `--info-window-screen` because `--hide-info-window` is set to `{hide_info_window}`."
+        )
+    
+    if not should_hide_info_window and info_window_screen_number is None and len(app.screens()) > 1:
+        info_window_screen_number = 1 if screen_number == 0 else 0
+
     if screen_number is not None:
         screen = get_screen(screen_number)
     else:
         screen = None
 
-    if info_window_screen_number is not None:
+    if info_window_screen_number is not None and not should_hide_info_window:
         info_window_screen = get_screen(info_window_screen_number)
     else:
         info_window_screen = None
@@ -333,7 +349,7 @@ def present(
         screen=screen,
         playback_rate=playback_rate,
         next_terminates_loop=next_terminates_loop,
-        hide_info_window=hide_info_window,
+        hide_info_window=should_hide_info_window,
         info_window_screen=info_window_screen,
     )
 
