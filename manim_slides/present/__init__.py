@@ -201,8 +201,8 @@ def start_at_callback(
     "--screen",
     "screen_number",
     metavar="NUMBER",
-    type=int,
-    default=0,
+    type=Optional[int],
+    default=None,
     help="Present content on the given screen (a.k.a. display).",
 )
 @click.option(
@@ -249,7 +249,7 @@ def present(
     start_at: tuple[Optional[int], Optional[int], Optional[int]],
     start_at_scene_number: int,
     start_at_slide_number: int,
-    screen_number: int,
+    screen_number: Optional[int],
     playback_rate: float,
     next_terminates_loop: bool,
     hide_info_window: Literal["auto", "always", "never"],
@@ -316,13 +316,6 @@ def present(
         logger.warning(
             f"Ignoring `--info-window-screen` because `--hide-info-window` is set to `{hide_info_window}`."
         )
-
-    if (
-        not should_hide_info_window
-        and info_window_screen_number is None
-        and len(app.screens()) > 1
-    ):
-        info_window_screen_number = 1 if screen_number == 0 else 0
 
     if screen_number is not None:
         screen = get_screen(screen_number)
