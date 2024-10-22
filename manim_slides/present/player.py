@@ -490,14 +490,20 @@ class Player(QMainWindow):  # type: ignore[misc]
 
         if not self.hide_info_window:
             if len(screens) > 1 and self.isFullScreen():
-                target_screen = screens[1] if self.screen() == screens[0] else screens[0]
+                target_screen = (
+                    screens[1] if self.screen() == screens[0] else screens[0]
+                )
                 self.info.setScreen(target_screen)
                 self.info.move(target_screen.geometry().topLeft())
 
             self.info.show()
 
-            if self.info.screen() == self.screen(): # It is better when Qt assigns the location, but if it fails to, this is a fallback
-                target_screen = screens[1] if self.screen() == screens[0] else screens[0]
+            if (
+                self.info.screen() == self.screen()
+            ):  # It is better when Qt assigns the location, but if it fails to, this is a fallback
+                target_screen = (
+                    screens[1] if self.screen() == screens[0] else screens[0]
+                )
                 self.info.setScreen(target_screen)
                 self.info.move(target_screen.geometry().topLeft())
 
