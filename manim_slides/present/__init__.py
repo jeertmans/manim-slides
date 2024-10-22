@@ -350,7 +350,7 @@ def present(
         info_window_screen=info_window_screen,
     )
 
-    player.show()
+    player.show(app.screens())
 
     signal.signal(signal.SIGINT, signal.SIG_DFL)
     sys.exit(app.exec())
