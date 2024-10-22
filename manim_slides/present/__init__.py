@@ -1,7 +1,7 @@
 import signal
 import sys
 from pathlib import Path
-from typing import Optional, Literal
+from typing import Literal, Optional
 
 import click
 from click import Context, Parameter
@@ -306,7 +306,7 @@ def present(
             return None
 
     should_hide_info_window = False
-    
+
     if hide_info_window == "auto":
         should_hide_info_window = len(app.screens()) == 1
     elif hide_info_window == "always":
@@ -316,8 +316,12 @@ def present(
         logger.warning(
             f"Ignoring `--info-window-screen` because `--hide-info-window` is set to `{hide_info_window}`."
         )
-    
-    if not should_hide_info_window and info_window_screen_number is None and len(app.screens()) > 1:
+
+    if (
+        not should_hide_info_window
+        and info_window_screen_number is None
+        and len(app.screens()) > 1
+    ):
         info_window_screen_number = 1 if screen_number == 0 else 0
 
     if screen_number is not None:

@@ -249,7 +249,7 @@ class Player(QMainWindow):  # type: ignore[misc]
 
         if full_screen:
             self.info.setWindowState(Qt.WindowFullScreen)
-            
+
         # Connecting key callbacks
 
         self.config.keys.QUIT.connect(self.close)
