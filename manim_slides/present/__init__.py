@@ -222,7 +222,6 @@ def start_at_callback(
 )
 @click.option(
     "--hide-info-window",
-    default="auto",
     flag_value="always",
     help="Hide info window. By default, hide the info window if there is only one screen.",
 )
@@ -260,7 +259,7 @@ def present(  # noqa: C901
     screen_number: Optional[int],
     playback_rate: float,
     next_terminates_loop: bool,
-    hide_info_window: Literal["auto", "always", "never"],
+    hide_info_window: Optional[Literal["always", "never"]],
     info_window_screen_number: Optional[int],
 ) -> None:
     """
@@ -317,7 +316,7 @@ def present(  # noqa: C901
 
     should_hide_info_window = False
 
-    if hide_info_window == "auto":
+    if hide_info_window is None:
         should_hide_info_window = len(screens) == 1
     elif hide_info_window == "always":
         should_hide_info_window = True
