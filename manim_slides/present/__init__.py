@@ -201,7 +201,7 @@ def start_at_callback(
     "--screen",
     "screen_number",
     metavar="NUMBER",
-    type=Optional[int],
+    type=int,
     default=None,
     help="Present content on the given screen (a.k.a. display).",
 )
@@ -222,9 +222,15 @@ def start_at_callback(
 )
 @click.option(
     "--hide-info-window",
-    type=click.Choice(["auto", "always", "never"], case_sensitive=False),
     default="auto",
-    help="Hide info window. Auto will hide the info window if there is only one screen.",
+    flag_value="always",
+    help="Hide info window. By default, hide the info window if there is only one screen.",
+)
+@click.option(
+    "--show-info-window",
+    "hide_info_window",
+    flag_value="never",
+    help="Force to show info window.",
 )
 @click.option(
     "--info-window-screen",
@@ -232,11 +238,13 @@ def start_at_callback(
     metavar="NUMBER",
     type=int,
     default=None,
-    help="Put info window on the given screen (a.k.a. display).",
+    help="Put info window on the given screen (a.k.a. display). "
+    "If there is more than one screen, it will by default put the info window "
+    "on a different screen than the main player.",
 )
 @click.help_option("-h", "--help")
 @verbosity_option
-def present(
+def present(  # noqa: C901
     scenes: list[str],
     config_path: Path,
     folder: Path,
@@ -295,20 +303,22 @@ def present(
     app = qapp()
     app.setApplicationName("Manim Slides")
 
+    screens = app.screens()
+
     def get_screen(number: int) -> Optional[QScreen]:
         try:
-            return app.screens()[number]
+            return screens[number]
         except IndexError:
             logger.error(
                 f"Invalid screen number {number}, "
-                f"allowed values are from 0 to {len(app.screens())-1} (incl.)"
+                f"allowed values are from 0 to {len(screens)-1} (incl.)"
             )
             return None
 
     should_hide_info_window = False
 
     if hide_info_window == "auto":
-        should_hide_info_window = len(app.screens()) == 1
+        should_hide_info_window = len(screens) == 1
     elif hide_info_window == "always":
         should_hide_info_window = True
 
@@ -324,6 +334,10 @@ def present(
 
     if info_window_screen_number is not None and not should_hide_info_window:
         info_window_screen = get_screen(info_window_screen_number)
+    elif len(app.screens()) > 1:
+        info_window_screen = next(
+            screen for screen in screens if screen != app.primaryScreen
+        )
     else:
         info_window_screen = None
 
@@ -350,7 +364,7 @@ def present(
         info_window_screen=info_window_screen,
     )
 
-    player.show(app.screens())
+    player.show()
 
     signal.signal(signal.SIGINT, signal.SIG_DFL)
     sys.exit(app.exec())
