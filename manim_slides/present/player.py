@@ -162,7 +162,7 @@ class Player(QMainWindow):  # type: ignore[misc]
     presentation_changed: Signal = Signal()
     slide_changed: Signal = Signal()
 
-    def __init__(  # noqa: C901
+    def __init__(
         self,
         config: Config,
         presentation_configs: list[PresentationConfig],
@@ -246,9 +246,6 @@ class Player(QMainWindow):  # type: ignore[misc]
         self.info.key_press_event.connect(self.keyPressEvent)
         self.video_sink.videoFrameChanged.connect(self.frame_changed)
         self.hide_info_window = hide_info_window
-
-        if full_screen:
-            self.info.setWindowState(Qt.WindowFullScreen)
 
         # Connecting key callbacks
 
@@ -482,11 +479,28 @@ class Player(QMainWindow):  # type: ignore[misc]
             self.info.next_media_player.setSource(url)
             self.info.next_media_player.play()
 
-    def show(self) -> None:
+    def show(self, screens: list[QScreen]) -> None:
+        """Screens is necessary to prevent the info window from being shown on the same screen as the main window (especially in full screen mode)."""
         super().show()
 
         if not self.hide_info_window:
-            self.info.show()
+            if len(screens) > 1 and self.isFullScreen():
+                self.ensure_different_screens(screens)
+
+            if self.isFullScreen():
+                self.info.showFullScreen()
+            else:
+                self.info.show()
+
+            if (
+                len(screens) > 1 and self.info.screen() == self.screen()
+            ):  # It is better when Qt assigns the location, but if it fails to, this is a fallback
+                self.ensure_different_screens(screens)
+
+    def ensure_different_screens(self, screens: list[QScreen]) -> None:
+        target_screen = screens[1] if self.screen() == screens[0] else screens[0]
+        self.info.setScreen(target_screen)
+        self.info.move(target_screen.geometry().topLeft())
 
     @Slot()
     def close(self) -> None:

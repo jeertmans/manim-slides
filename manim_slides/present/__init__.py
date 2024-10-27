@@ -333,10 +333,6 @@ def present(  # noqa: C901
 
     if info_window_screen_number is not None and not should_hide_info_window:
         info_window_screen = get_screen(info_window_screen_number)
-    elif len(app.screens()) > 1:
-        info_window_screen = next(
-            screen for screen in screens if screen != app.primaryScreen
-        )
     else:
         info_window_screen = None
 
@@ -363,7 +359,7 @@ def present(  # noqa: C901
         info_window_screen=info_window_screen,
     )
 
-    player.show()
+    player.show(screens)
 
     signal.signal(signal.SIGINT, signal.SIG_DFL)
     sys.exit(app.exec())
