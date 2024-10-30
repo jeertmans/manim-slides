@@ -462,7 +462,7 @@ class RevealJS(Converter):
                 soup = BeautifulSoup(content, "html.parser")
                 session = requests.Session()
 
-                for tag, inner in [("linl", "href"), ("script", "src")]:
+                for tag, inner in [("link", "href"), ("script", "src")]:
                     for item in soup.find_all(tag):
                         if item.has_attr(inner) and (link := item[inner]).startswith("http"):
                             asset_filename = assets_dir / link.rsplit("/", 1)[1]
