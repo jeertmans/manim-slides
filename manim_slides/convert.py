@@ -396,20 +396,18 @@ class RevealJS(Converter):
         DEST.
         """
         if self.data_uri and not self.offline:
-            assets_dir = Path("")  # Actually we won't care.
+            assets_dir = None  # Actually we won't care.
         else:
             dirname = dest.parent
             basename = dest.stem
             ext = dest.suffix
 
-        assets_dir = Path(
-            self.assets_dir.format(dirname=dirname, basename=basename, ext=ext)
-        )
-        full_assets_dir = dirname / assets_dir
+            assets_dir = Path(
+                self.assets_dir.format(dirname=dirname, basename=basename, ext=ext)
+            )
+            full_assets_dir = dirname / assets_dir
 
-        needs_assets = (not self.data_uri) or self.offline
-
-        if needs_assets:
+        if assets_dir is not None:
             logger.debug(f"Assets will be saved to: {full_assets_dir}")
             full_assets_dir.mkdir(parents=True, exist_ok=True)
 
@@ -443,7 +441,9 @@ class RevealJS(Converter):
             revealjs_template = Template(self.load_template())
 
             options = self.model_dump()
-            options["assets_dir"] = assets_dir
+
+            if assets_dir is not None:
+                options["assets_dir"] = assets_dir
 
             has_notes = any(
                 slide_config.notes != ""
