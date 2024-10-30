@@ -15,6 +15,8 @@ from typing import Any, Callable, Optional, Union
 import av
 import click
 import pptx
+import requests
+from bs4 import BeautifulSoup
 from click import Context, Parameter
 from jinja2 import Template
 from lxml import etree
@@ -289,6 +291,7 @@ class RevealTheme(str, StrEnum):
 class RevealJS(Converter):
     # Export option: use data-uri
     data_uri: bool = False
+    offline: bool = Field(False, description="Download remote assets for offline presentation.")
     # Presentation size options from RevealJS
     width: Union[Str, int] = Str("100%")
     height: Union[Str, int] = Str("100%")
@@ -390,7 +393,7 @@ class RevealJS(Converter):
         Convert this configuration into a RevealJS HTML presentation, saved to
         DEST.
         """
-        if self.data_uri:
+        if self.data_uri and not self.offline:
             assets_dir = Path("")  # Actually we won't care.
         else:
             dirname = dest.parent
@@ -450,6 +453,23 @@ class RevealJS(Converter):
                 env=os.environ,
                 **options,
             )
+
+
+            if self.offline:
+                soup = BeautifulSoup(content, "html.parser")
+                session = requests.Session()
+
+                for tag, inner in [("linl", "href"), ("script", "src")]:
+                    for item in soup.find_all(tag):
+                        if item.has_attr(inner) and (link := item[inner]).startswith("http"):
+                            asset_filename = assets_dir / link.rsplit("/", 1)[1]
+                            asset = session.get(link)
+                            with open(asset_filename, "wb") as asset_file:
+                                asset_file.write(asset.content)
+
+                            item[inner] = str(asset_filename)
+
+                content = str(soup)
 
             f.write(content)
 
@@ -666,7 +686,6 @@ def show_template_option(function: Callable[..., Any]) -> Callable[..., Any]:
     is_flag=True,
     help="Open the newly created file using the appropriate application.",
 )
-@click.option("-f", "--force", is_flag=True, help="Overwrite any existing file.")
 @click.option(
     "-c",
     "--config",
@@ -693,7 +712,6 @@ def convert(
     dest: Path,
     to: str,
     open_result: bool,
-    force: bool,
     config_options: dict[str, str],
     template: Optional[Path],
 ) -> None:
