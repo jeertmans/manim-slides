@@ -160,7 +160,7 @@ class TestConverter:
         self, tmp_path: Path, presentation_config: PresentationConfig
     ) -> None:
         out_file = tmp_path / "slides.html"
-        RevealJS(presentation_configs=[presentation_config], offline=True).convert_to(
+        RevealJS(presentation_configs=[presentation_config], offline="true").convert_to(
             out_file
         )
         assert out_file.exists()
@@ -170,7 +170,7 @@ class TestConverter:
             "black.min.css",
             "reveal.min.css",
             "reveal.min.js",
-            "zenbun.min.css",
+            "zenburn.min.css",
         ]:
             assert (assets_dir / file).exists()
 
