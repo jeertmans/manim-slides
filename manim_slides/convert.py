@@ -468,12 +468,12 @@ class RevealJS(Converter):
                         if item.has_attr(inner) and (link := item[inner]).startswith(
                             "http"
                         ):
-                            asset_filename = assets_dir / link.rsplit("/", 1)[1]
+                            asset_name = link.rsplit("/", 1)[1]
                             asset = session.get(link)
-                            with open(asset_filename, "wb") as asset_file:
+                            with open(full_assets_dir / asset_name, "wb") as asset_file:
                                 asset_file.write(asset.content)
 
-                            item[inner] = str(asset_filename)
+                            item[inner] = str(assets_dir / asset_name)
 
                 content = str(soup)
 
