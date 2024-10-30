@@ -291,7 +291,9 @@ class RevealTheme(str, StrEnum):
 class RevealJS(Converter):
     # Export option:
     data_uri: bool = False
-    offline: bool = Field(False, description="Download remote assets for offline presentation.")
+    offline: bool = Field(
+        False, description="Download remote assets for offline presentation."
+    )
     # Presentation size options from RevealJS
     width: Union[Str, int] = Str("100%")
     height: Union[Str, int] = Str("100%")
@@ -457,14 +459,15 @@ class RevealJS(Converter):
                 **options,
             )
 
-
             if self.offline:
                 soup = BeautifulSoup(content, "html.parser")
                 session = requests.Session()
 
                 for tag, inner in [("link", "href"), ("script", "src")]:
                     for item in soup.find_all(tag):
-                        if item.has_attr(inner) and (link := item[inner]).startswith("http"):
+                        if item.has_attr(inner) and (link := item[inner]).startswith(
+                            "http"
+                        ):
                             asset_filename = assets_dir / link.rsplit("/", 1)[1]
                             asset = session.get(link)
                             with open(asset_filename, "wb") as asset_file:
