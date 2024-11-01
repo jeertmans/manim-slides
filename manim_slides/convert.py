@@ -395,19 +395,16 @@ class RevealJS(Converter):
         Convert this configuration into a RevealJS HTML presentation, saved to
         DEST.
         """
-        if self.data_uri and not self.offline:
-            assets_dir = None  # Actually we won't care.
-        else:
-            dirname = dest.parent
-            basename = dest.stem
-            ext = dest.suffix
+        dirname = dest.parent
+        basename = dest.stem
+        ext = dest.suffix
 
-            assets_dir = Path(
-                self.assets_dir.format(dirname=dirname, basename=basename, ext=ext)
-            )
-            full_assets_dir = dirname / assets_dir
+        assets_dir = Path(
+            self.assets_dir.format(dirname=dirname, basename=basename, ext=ext)
+        )
+        full_assets_dir = dirname / assets_dir
 
-        if assets_dir is not None:
+        if not self.data_uri or self.offline:
             logger.debug(f"Assets will be saved to: {full_assets_dir}")
             full_assets_dir.mkdir(parents=True, exist_ok=True)
 
