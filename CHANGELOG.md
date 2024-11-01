@@ -16,6 +16,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added `--offline` option to `manim-slides convert` for offline
   HTML presentations.
   [#440](https://github.com/jeertmans/manim-slides/pull/440)
+- Added documentation to config option to `manim-slides convert`
+  when using `--show-config`.
+  [#485](https://github.com/jeertmans/manim-slides/pull/485)
 
 (v5.1.9)=
 ## [v5.1.9](https://github.com/jeertmans/manim-slides/compare/v5.1.8...v5.1.9)
