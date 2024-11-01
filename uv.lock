@@ -1237,10 +1237,11 @@ wheels = [
 
 [[package]]
 name = "manim-slides"
-version = "5.1.7"
+version = "5.1.9"
 source = { editable = "." }
 dependencies = [
     { name = "av" },
+    { name = "beautifulsoup4" },
     { name = "click" },
     { name = "click-default-group" },
     { name = "jinja2" },
@@ -1335,6 +1336,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "av", specifier = ">=9.0.0" },
+    { name = "beautifulsoup4", specifier = ">=4.12.3" },
     { name = "click", specifier = ">=8.1.3" },
     { name = "click-default-group", specifier = ">=1.2.2" },
     { name = "docutils", marker = "extra == 'docs'", specifier = ">=0.20.1" },

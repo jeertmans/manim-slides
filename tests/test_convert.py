@@ -156,6 +156,24 @@ class TestConverter:
         file_contents = out_file.read_text()
         assert "manim" in file_contents.casefold()
 
+    def test_revealjs_offline_converter(
+        self, tmp_path: Path, presentation_config: PresentationConfig
+    ) -> None:
+        out_file = tmp_path / "slides.html"
+        RevealJS(presentation_configs=[presentation_config], offline="true").convert_to(
+            out_file
+        )
+        assert out_file.exists()
+        assets_dir = Path(tmp_path / "slides_assets")
+        assert assets_dir.is_dir()
+        for file in [
+            "black.min.css",
+            "reveal.min.css",
+            "reveal.min.js",
+            "zenburn.min.css",
+        ]:
+            assert (assets_dir / file).exists()
+
     def test_htmlzip_converter(
         self, tmp_path: Path, presentation_config: PresentationConfig
     ) -> None:

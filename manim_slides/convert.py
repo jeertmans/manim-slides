@@ -15,6 +15,8 @@ from typing import Any, Callable, Optional, Union
 import av
 import click
 import pptx
+import requests
+from bs4 import BeautifulSoup
 from click import Context, Parameter
 from jinja2 import Template
 from lxml import etree
@@ -287,8 +289,11 @@ class RevealTheme(str, StrEnum):
 
 
 class RevealJS(Converter):
-    # Export option: use data-uri
+    # Export option:
     data_uri: bool = False
+    offline: bool = Field(
+        False, description="Download remote assets for offline presentation."
+    )
     # Presentation size options from RevealJS
     width: Union[Str, int] = Str("100%")
     height: Union[Str, int] = Str("100%")
@@ -385,27 +390,25 @@ class RevealJS(Converter):
     def open(self, file: Path) -> None:
         webbrowser.open(file.absolute().as_uri())
 
-    def convert_to(self, dest: Path) -> None:
+    def convert_to(self, dest: Path) -> None:  # noqa: C901
         """
         Convert this configuration into a RevealJS HTML presentation, saved to
         DEST.
         """
-        if self.data_uri:
-            assets_dir = Path("")  # Actually we won't care.
-        else:
-            dirname = dest.parent
-            basename = dest.stem
-            ext = dest.suffix
+        dirname = dest.parent
+        basename = dest.stem
+        ext = dest.suffix
 
-            assets_dir = Path(
-                self.assets_dir.format(dirname=dirname, basename=basename, ext=ext)
-            )
-            full_assets_dir = dirname / assets_dir
+        assets_dir = Path(
+            self.assets_dir.format(dirname=dirname, basename=basename, ext=ext)
+        )
+        full_assets_dir = dirname / assets_dir
 
+        if not self.data_uri or self.offline:
             logger.debug(f"Assets will be saved to: {full_assets_dir}")
-
             full_assets_dir.mkdir(parents=True, exist_ok=True)
 
+        if not self.data_uri:
             num_presentation_configs = len(self.presentation_configs)
 
             if num_presentation_configs > 1:
@@ -435,7 +438,9 @@ class RevealJS(Converter):
             revealjs_template = Template(self.load_template())
 
             options = self.model_dump()
-            options["assets_dir"] = assets_dir
+
+            if assets_dir is not None:
+                options["assets_dir"] = assets_dir
 
             has_notes = any(
                 slide_config.notes != ""
@@ -450,6 +455,24 @@ class RevealJS(Converter):
                 env=os.environ,
                 **options,
             )
+
+            if self.offline:
+                soup = BeautifulSoup(content, "html.parser")
+                session = requests.Session()
+
+                for tag, inner in [("link", "href"), ("script", "src")]:
+                    for item in soup.find_all(tag):
+                        if item.has_attr(inner) and (link := item[inner]).startswith(
+                            "http"
+                        ):
+                            asset_name = link.rsplit("/", 1)[1]
+                            asset = session.get(link)
+                            with open(full_assets_dir / asset_name, "wb") as asset_file:
+                                asset_file.write(asset.content)
+
+                            item[inner] = str(assets_dir / asset_name)
+
+                content = str(soup)
 
             f.write(content)
 
@@ -590,7 +613,7 @@ class PowerPoint(Converter):
 
 
 def show_config_options(function: Callable[..., Any]) -> Callable[..., Any]:
-    """Wrap a function to add a `--show-config` option."""
+    """Wrap a function to add a '--show-config' option."""
 
     def callback(ctx: Context, param: Parameter, value: bool) -> None:
         if not value or ctx.resilient_parsing:
@@ -621,7 +644,7 @@ def show_config_options(function: Callable[..., Any]) -> Callable[..., Any]:
 
 
 def show_template_option(function: Callable[..., Any]) -> Callable[..., Any]:
-    """Wrap a function to add a `--show-template` option."""
+    """Wrap a function to add a '--show-template' option."""
 
     def callback(ctx: Context, param: Parameter, value: bool) -> None:
         if not value or ctx.resilient_parsing:
@@ -666,7 +689,6 @@ def show_template_option(function: Callable[..., Any]) -> Callable[..., Any]:
     is_flag=True,
     help="Open the newly created file using the appropriate application.",
 )
-@click.option("-f", "--force", is_flag=True, help="Overwrite any existing file.")
 @click.option(
     "-c",
     "--config",
@@ -674,7 +696,7 @@ def show_template_option(function: Callable[..., Any]) -> Callable[..., Any]:
     multiple=True,
     callback=validate_config_option,
     help="Configuration options passed to the converter. "
-    "E.g., pass ``-cslide_number=true`` to display slide numbers.",
+    "E.g., pass '-cslide_number=true' to display slide numbers.",
 )
 @click.option(
     "--use-template",
@@ -682,7 +704,13 @@ def show_template_option(function: Callable[..., Any]) -> Callable[..., Any]:
     metavar="FILE",
     type=click.Path(exists=True, dir_okay=False, path_type=Path),
     help="Use the template given by FILE instead of default one. "
-    "To echo the default template, use ``--show-template``.",
+    "To echo the default template, use '--show-template'.",
+)
+@click.option(
+    "--offline",
+    is_flag=True,
+    help="Download any remote content and store it in the assets folder. "
+    "The is a convenient alias to '-coffline=true'.",
 )
 @show_template_option
 @show_config_options
@@ -693,9 +721,9 @@ def convert(
     dest: Path,
     to: str,
     open_result: bool,
-    force: bool,
     config_options: dict[str, str],
     template: Optional[Path],
+    offline: bool,
 ) -> None:
     """Convert SCENE(s) into a given format and writes the result in DEST."""
     presentation_configs = get_scenes_presentation_config(scenes, folder)
@@ -712,6 +740,13 @@ def convert(
                 cls = RevealJS
         else:
             cls = Converter.from_string(to)
+
+        if (
+            offline
+            and issubclass(cls, (RevealJS, HtmlZip))
+            and "offline" not in config_options
+        ):
+            config_options["offline"] = "true"
 
         converter = cls(
             presentation_configs=presentation_configs,

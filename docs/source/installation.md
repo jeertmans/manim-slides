@@ -137,12 +137,12 @@ Manim Slides is distributed under Nixpkgs >=24.05.
 If you are using Nix or NixOS, you can find Manim Slides under:
 
  - `nixpkgs.manim-slides`, which is meant to be a stand alone application and
-   includes pyqt6 (see above);
+   includes PyQt6 (see above);
  - `nixpkgs.python3Packages.manim-slides`, which is meant to be used as a
-   module (for notebook magics), and includes IPython but not does not include
-   any Qt bindings.
+   module (for notebook magics), and includes IPython but does not include
+   any Qt binding.
 
-You can try out the Manim Slides package with
+You can try out the Manim Slides package with:
 
 ```sh
 nix-shell -p manim ffmpeg manim-slides
@@ -160,7 +160,7 @@ nix-shell -p manim ffmpeg "python3.withPackages(ps: with ps; [ manim-slides, ...
 or bundle this into [your Nix environment](https://wiki.nixos.org/wiki/Python).
 
 :::{note}
-Nix current does not support `manimgl`.
+Nix does not currently support `manimgl`.
 :::
 
 ## When you need a Qt backend
