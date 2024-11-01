@@ -31,7 +31,6 @@ from pydantic import (
     PositiveFloat,
     PositiveInt,
     ValidationError,
-    conlist,
 )
 from pydantic_core import CoreSchema, core_schema
 from pydantic_extra_types.color import Color
@@ -103,7 +102,7 @@ def read_image_from_video_file(file: Path, frame_index: "FrameIndex") -> Image:
 
 
 class Converter(BaseModel):  # type: ignore
-    presentation_configs: conlist(PresentationConfig, min_length=1)  # type: ignore[valid-type]
+    presentation_configs: list[PresentationConfig]
     assets_dir: str = Field(
         "{basename}_assets",
         description="Assets folder.\nThis is a template string that accepts 'dirname', 'basename', and 'ext' as variables.\nThose variables are obtained from the output filename.",
@@ -799,14 +798,26 @@ def show_config_options(function: Callable[..., Any]) -> Callable[..., Any]:
         if not value or ctx.resilient_parsing:
             return
 
-        to = ctx.params.get("to", "html")
+        if "to" in ctx.params:
+            to = ctx.params["to"]
+            cls = Converter.from_string(to)
+        elif "dest" in ctx.params:
+            dest = Path(ctx.params["dest"])
+            fmt = dest.suffix[1:].lower()
+            try:
+                cls = Converter.from_string(fmt)
+            except KeyError:
+                logger.warning(
+                    f"Could not guess conversion format from {dest!s}, defaulting to HTML."
+                )
+                cls = RevealJS
+        else:
+            cls = RevealJS
 
-        converter = Converter.from_string(to)
-
-        if doc := getattr(converter, "__doc__", ""):
+        if doc := getattr(cls, "__doc__", ""):
             click.echo(textwrap.dedent(doc))
 
-        for key, field in converter.model_fields.items():
+        for key, field in cls.model_fields.items():
             if field.is_required():
                 continue
 
@@ -835,12 +846,25 @@ def show_template_option(function: Callable[..., Any]) -> Callable[..., Any]:
         if not value or ctx.resilient_parsing:
             return
 
-        to = ctx.params.get("to", "html")
+        if "to" in ctx.params:
+            to = ctx.params["to"]
+            cls = Converter.from_string(to)
+        elif "dest" in ctx.params:
+            dest = Path(ctx.params["dest"])
+            fmt = dest.suffix[1:].lower()
+            try:
+                cls = Converter.from_string(fmt)
+            except KeyError:
+                logger.warning(
+                    f"Could not guess conversion format from {dest!s}, defaulting to HTML."
+                )
+                cls = RevealJS
+        else:
+            cls = RevealJS
+
         template = ctx.params.get("template", None)
 
-        converter = Converter.from_string(to)(
-            presentation_configs=[PresentationConfig()], template=template
-        )
+        converter = cls(presentation_configs=[], template=template)
         click.echo(converter.load_template())
 
         ctx.exit()
@@ -859,7 +883,7 @@ def show_template_option(function: Callable[..., Any]) -> Callable[..., Any]:
 @click.command()
 @click.argument("scenes", nargs=-1)
 @folder_path_option
-@click.argument("dest", type=click.Path(dir_okay=False, path_type=Path))
+@click.argument("dest", type=click.Path(dir_okay=False, path_type=Path), is_eager=True)
 @click.option(
     "--to",
     type=click.Choice(["auto", "html", "pdf", "pptx", "zip"], case_sensitive=False),
