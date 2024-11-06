@@ -6,9 +6,6 @@ build:
   apt_packages:
   - libpango1.0-dev
   - ffmpeg
-  jobs:
-    post_install:
-    - ipython kernel install --name "manim-slides" --user
 sphinx:
   builder: html
   configuration: docs/source/conf.py
