@@ -9,6 +9,7 @@ __all__ = [
 
 import os
 import sys
+import importlib.util
 
 
 class ManimApiNotFoundError(ImportError):
@@ -49,7 +50,13 @@ if not os.environ.get(FORCE_MANIM_API):
 MANIM: bool = API_NAME == "manim"
 MANIMGL: bool = API_NAME == "manimlib"
 
-if MANIM:
+if MANIM and importlib.util.find_spec("manim_voiceover") is not None:
+    print("Hello")
+    try:
+        from .manimvoiceover import Slide, ThreeDSlide
+    except ImportError as e:
+        raise ManimApiNotFoundError from e
+elif MANIM:
     try:
         from .manim import Slide, ThreeDSlide
     except ImportError as e:
