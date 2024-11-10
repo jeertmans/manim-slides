@@ -1,10 +1,11 @@
 # flake8: noqa: F403, F405
 # type: ignore
 
-from manim_slides import Slide, ThreeDSlide
-from manim_slides.slide import MANIM, MANIMGL
 from manim_voiceover import VoiceoverScene
 from manim_voiceover.services.gtts import GTTSService
+
+from manim_slides import Slide, ThreeDSlide
+from manim_slides.slide import MANIM, MANIMGL
 
 if MANIM:
     from manim import *
@@ -24,10 +25,14 @@ class BasicExample(Slide, VoiceoverScene):
 
         self.next_slide(loop=True)
         with self.voiceover(text="Now a dot is moving along the circle") as tracker:
-            self.play(MoveAlongPath(dot, circle), rate_func=linear, run_time=tracker.duration)
+            self.play(
+                MoveAlongPath(dot, circle), rate_func=linear, run_time=tracker.duration
+            )
         self.next_slide()
 
-        with self.voiceover(text="Now the dot is moving back to the center of the circle") as tracker:
+        with self.voiceover(
+            text="Now the dot is moving back to the center of the circle"
+        ) as tracker:
             self.play(dot.animate.move_to(ORIGIN), run_time=tracker.duration)
 
 

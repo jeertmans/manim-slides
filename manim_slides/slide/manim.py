@@ -1,21 +1,24 @@
 from pathlib import Path
 from typing import Any, Optional
-from typing_extensions import TypedDict
 
 from manim import Scene, ThreeDScene, config
 from manim.renderer.opengl_renderer import OpenGLRenderer
 from manim.utils.color import rgba_to_color
+from typing_extensions import TypedDict
 
 from ..config import BaseSlideConfig
 from .base import BaseSlide
+
 
 class AudioType(TypedDict):
     starting_time: float
     file: Path
 
+
 class SlideAudioType(TypedDict):
     starting_time: float
     audio: list[AudioType]
+
 
 class Slide(BaseSlide, Scene):  # type: ignore[misc]
     """
@@ -45,7 +48,6 @@ class Slide(BaseSlide, Scene):  # type: ignore[misc]
             "starting_time": 0,
             "audio": [],
         }  # self._slides only defines the slide after next_slide() is called, so we need to define the slides here and then update them in next_slide().
-
 
     @property
     def _frame_shape(self) -> tuple[float, float]:
@@ -177,14 +179,18 @@ class Slide(BaseSlide, Scene):  # type: ignore[misc]
                     "file": audio["file"],
                 }
             )
-    
-    def add_sound(self, sound_file: str, time_offset: float = 0, gain: float | None = None, **kwargs):
+
+    def add_sound(
+        self,
+        sound_file: str,
+        time_offset: float = 0,
+        gain: float | None = None,
+        **kwargs,
+    ):
         self.slide_audio["audio"].append(
             {
                 "starting_time": self.renderer.time,
-                "file": Path(
-                    sound_file
-                ),
+                "file": Path(sound_file),
             }
         )
         return super().add_sound(sound_file, time_offset, gain, **kwargs)

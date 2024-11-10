@@ -5,7 +5,6 @@ from inspect import Parameter, signature
 from pathlib import Path
 from textwrap import dedent
 from typing import Any, Callable, Optional
-from typing_extensions import TypedDict
 
 import rtoml
 from pydantic import (
@@ -20,10 +19,12 @@ from pydantic import (
     model_validator,
 )
 from pydantic_extra_types.color import Color
+from typing_extensions import TypedDict
 
 from .logger import logger
 
 Receiver = Callable[..., Any]
+
 
 class Signal(BaseModel):  # type: ignore[misc]
     __receivers: list[Receiver] = PrivateAttr(default_factory=list)
@@ -149,7 +150,8 @@ class Config(BaseModel):  # type: ignore[misc]
         """Merge with another config."""
         self.keys = self.keys.merge_with(other.keys)
         return self
-    
+
+
 class RelativeAudioType(TypedDict):
     starting_time: float
     file: Path

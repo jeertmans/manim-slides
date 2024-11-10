@@ -6,8 +6,9 @@ from pathlib import Path
 
 import av
 
-from .logger import logger
 from .config import RelativeAudioType
+from .logger import logger
+
 
 def concatenate_video_files(files: list[Path], dest: Path) -> None:
     """Concatenate multiple video files into one."""
@@ -61,7 +62,10 @@ def concatenate_video_files(files: list[Path], dest: Path) -> None:
 
     os.unlink(tmp_file)  # https://stackoverflow.com/a/54768241
 
-def add_audio_to_video(video: Path, dest_file: Path, audio_files: list[RelativeAudioType]) -> None:
+
+def add_audio_to_video(
+    video: Path, dest_file: Path, audio_files: list[RelativeAudioType]
+) -> None:
     """Add audio to a video file."""
     with (
         av.open(str(video), mode="r") as input_container,
@@ -87,7 +91,7 @@ def add_audio_to_video(video: Path, dest_file: Path, audio_files: list[RelativeA
                     packet.dts += offset
 
                     output_container.mux(packet)
-                
+
         for packet in input_container.demux(video_stream):
             if packet.dts is None:
                 continue

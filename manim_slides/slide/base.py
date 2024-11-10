@@ -19,10 +19,10 @@ from ..config import BaseSlideConfig, PresentationConfig, PreSlideConfig, SlideC
 from ..defaults import FOLDER_PATH
 from ..logger import logger
 from ..utils import (
+    add_audio_to_video,
     concatenate_video_files,
     merge_basenames,
     reverse_video_file,
-    add_audio_to_video,
 )
 from . import MANIM
 
