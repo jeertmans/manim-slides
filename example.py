@@ -3,6 +3,7 @@
 
 from manim_slides import Slide, ThreeDSlide
 from manim_slides.slide import MANIM, MANIMGL
+from manim_voiceover import VoiceoverScene
 from manim_voiceover.services.gtts import GTTSService
 
 if MANIM:
@@ -11,7 +12,7 @@ elif MANIMGL:
     from manimlib import *
 
 
-class BasicExample(Slide):
+class BasicExample(Slide, VoiceoverScene):
     def construct(self):
         self.set_speech_service(GTTSService())
 
@@ -22,7 +23,7 @@ class BasicExample(Slide):
             self.play(GrowFromCenter(circle), run_time=tracker.duration)
 
         self.next_slide(loop=True)
-        with self.voiceover(text="This is a dot moving along the circle") as tracker:
+        with self.voiceover(text="Now a dot is moving along the circle") as tracker:
             self.play(MoveAlongPath(dot, circle), rate_func=linear, run_time=tracker.duration)
         self.next_slide()
 

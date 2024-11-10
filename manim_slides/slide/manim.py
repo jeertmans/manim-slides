@@ -1,5 +1,6 @@
 from pathlib import Path
 from typing import Any, Optional
+from typing_extensions import TypedDict
 
 from manim import Scene, ThreeDScene, config
 from manim.renderer.opengl_renderer import OpenGLRenderer
@@ -8,6 +9,13 @@ from manim.utils.color import rgba_to_color
 from ..config import BaseSlideConfig
 from .base import BaseSlide
 
+class AudioType(TypedDict):
+    starting_time: float
+    file: Path
+
+class SlideAudioType(TypedDict):
+    starting_time: float
+    audio: list[AudioType]
 
 class Slide(BaseSlide, Scene):  # type: ignore[misc]
     """
@@ -30,6 +38,14 @@ class Slide(BaseSlide, Scene):  # type: ignore[misc]
         as the original one, i.e., ``rev_file = file``,
         for the current slide config.
     """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.slide_audio: SlideAudioType = {
+            "starting_time": 0,
+            "audio": [],
+        }  # self._slides only defines the slide after next_slide() is called, so we need to define the slides here and then update them in next_slide().
+
 
     @property
     def _frame_shape(self) -> tuple[float, float]:
@@ -117,6 +133,12 @@ class Slide(BaseSlide, Scene):  # type: ignore[misc]
             base_slide_config=base_slide_config,
         )
 
+        self.add_audio_to_slide()
+        self.slide_audio = {
+            "starting_time": self.renderer.time,
+            "audio": [],
+        }
+
     def render(self, *args: Any, **kwargs: Any) -> None:
         """MANIM renderer."""
         # We need to disable the caching limit since we rely on intermediate files
@@ -141,6 +163,31 @@ class Slide(BaseSlide, Scene):  # type: ignore[misc]
 
         if flush_manim_cache:
             self.renderer.file_writer.flush_cache_directory()
+
+    def _add_last_slide(self) -> None:
+        super()._add_last_slide()
+        self.add_audio_to_slide()
+
+    def add_audio_to_slide(self):
+        for audio in self.slide_audio["audio"]:
+            self._slides[-1].audio.append(
+                {
+                    "starting_time": audio["starting_time"]
+                    - self.slide_audio["starting_time"],
+                    "file": audio["file"],
+                }
+            )
+    
+    def add_sound(self, sound_file: str, time_offset: float = 0, gain: float | None = None, **kwargs):
+        self.slide_audio["audio"].append(
+            {
+                "starting_time": self.renderer.time,
+                "file": Path(
+                    sound_file
+                ),
+            }
+        )
+        return super().add_sound(sound_file, time_offset, gain, **kwargs)
 
 
 class ThreeDSlide(Slide, ThreeDScene):  # type: ignore[misc]
