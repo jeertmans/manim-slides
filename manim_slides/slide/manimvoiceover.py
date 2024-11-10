@@ -9,7 +9,7 @@ from manim_voiceover import VoiceoverScene, VoiceoverTracker
 
 
 class AudioType(TypedDict):
-    ending_time: float
+    starting_time: float
     file: Path
 
 class SlideAudioType(TypedDict):
@@ -66,7 +66,7 @@ class Slide(ManimSlide, VoiceoverScene):
             self.wait_for_voiceover()
             self.slide_audio["audio"].append(
                 {
-                    "ending_time": self.renderer.time,
+                    "starting_time": voiceover_information.start_t,
                     "file": Path(
                         "media", "voiceovers", voiceover_information.data["final_audio"]
                     ),
@@ -90,7 +90,7 @@ class Slide(ManimSlide, VoiceoverScene):
         for audio in self.slide_audio["audio"]:
             self._slides[-1].audio.append(
                 {
-                    "starting_time": audio["ending_time"]
+                    "starting_time": audio["starting_time"]
                     - self.slide_audio["starting_time"],
                     "file": audio["file"],
                 }
