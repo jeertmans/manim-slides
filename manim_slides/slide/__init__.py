@@ -49,9 +49,9 @@ if not os.environ.get(FORCE_MANIM_API):
 
 MANIM: bool = API_NAME == "manim"
 MANIMGL: bool = API_NAME == "manimlib"
+MANIM_VOICEOVER: bool = importlib.util.find_spec("manim_voiceover") is not None
 
-if MANIM and importlib.util.find_spec("manim_voiceover") is not None:
-    print("Hello")
+if MANIM and MANIM_VOICEOVER:
     try:
         from .manimvoiceover import Slide, ThreeDSlide
     except ImportError as e:
