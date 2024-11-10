@@ -7,7 +7,7 @@ from pathlib import Path
 import av
 
 from .logger import logger
-
+from .config import RelativeAudioType
 
 def concatenate_video_files(files: list[Path], dest: Path) -> None:
     """Concatenate multiple video files into one."""
@@ -60,6 +60,40 @@ def concatenate_video_files(files: list[Path], dest: Path) -> None:
             output_container.mux(packet)
 
     os.unlink(tmp_file)  # https://stackoverflow.com/a/54768241
+
+def add_audio_to_video(video: Path, dest_file: Path, audio_files: list[RelativeAudioType]) -> None:
+    """Add audio to a video file."""
+    with (
+        av.open(str(video), mode="r") as input_container,
+        av.open(str(dest_file), mode="w") as output_container,
+    ):
+        video_stream = input_container.streams.video[0]
+        output_video_stream = output_container.add_stream(template=video_stream)
+
+        for audio_file in audio_files:
+            audio = audio_file["file"]
+            offset = audio_file.get("starting_time", 0)
+
+            with av.open(str(audio)) as audio_container:
+                audio_stream = audio_container.streams.audio[0]
+                output_audio_stream = output_container.add_stream(template=audio_stream)
+
+                for packet in audio_container.demux(audio_stream):
+                    if packet.dts is None:
+                        continue
+
+                    packet.stream = output_audio_stream
+                    packet.pts += offset
+                    packet.dts += offset
+
+                    output_container.mux(packet)
+                
+        for packet in input_container.demux(video_stream):
+            if packet.dts is None:
+                continue
+
+            packet.stream = output_video_stream
+            output_container.mux(packet)
 
 
 def merge_basenames(files: list[Path]) -> Path:

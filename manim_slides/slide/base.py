@@ -18,7 +18,12 @@ from tqdm import tqdm
 from ..config import BaseSlideConfig, PresentationConfig, PreSlideConfig, SlideConfig
 from ..defaults import FOLDER_PATH
 from ..logger import logger
-from ..utils import concatenate_video_files, merge_basenames, reverse_video_file
+from ..utils import (
+    concatenate_video_files,
+    merge_basenames,
+    reverse_video_file,
+    add_audio_to_video,
+)
 from . import MANIM
 
 if TYPE_CHECKING:
@@ -537,6 +542,12 @@ class BaseSlide:
                     rev_file = dst_file
                 else:
                     reverse_video_file(dst_file, rev_file)
+
+            if pre_slide_config.audio:
+                new_dst_file = dst_file.with_stem(dst_file.stem + "_audio")
+                add_audio_to_video(dst_file, new_dst_file, pre_slide_config.audio)
+                dst_file.unlink()
+                dst_file = new_dst_file
 
             slides.append(
                 SlideConfig.from_pre_slide_config_and_files(
