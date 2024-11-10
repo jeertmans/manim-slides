@@ -1,10 +1,20 @@
 from contextlib import contextmanager
 from typing import Generator
+from typing_extensions import TypedDict
+from pathlib import Path
 
 from .manim import Slide as ManimSlide
 from manim import ThreeDScene
 from manim_voiceover import VoiceoverScene, VoiceoverTracker
 
+
+class AudioType(TypedDict):
+    ending_time: float
+    file: Path
+
+class SlideAudioType(TypedDict):
+    starting_time: float
+    audio: list[AudioType]
 
 class Slide(ManimSlide, VoiceoverScene):
     """
@@ -30,7 +40,7 @@ class Slide(ManimSlide, VoiceoverScene):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.slide_audio = {
+        self.slide_audio: SlideAudioType = {
             "starting_time": 0,
             "audio": [],
         }  # self._slides only defines the slide after next_slide() is called, so we need to define the slides here and then update them in next_slide().
@@ -57,7 +67,9 @@ class Slide(ManimSlide, VoiceoverScene):
             self.slide_audio["audio"].append(
                 {
                     "ending_time": self.renderer.time,
-                    "file": voiceover_information.data["final_audio"],
+                    "file": Path(
+                        "media", "voiceovers", voiceover_information.data["final_audio"]
+                    ),
                 }
             )
 
@@ -80,7 +92,7 @@ class Slide(ManimSlide, VoiceoverScene):
                 {
                     "starting_time": audio["ending_time"]
                     - self.slide_audio["starting_time"],
-                    "file": f"./media/voiceovers/{audio['file']}",
+                    "file": audio["file"],
                 }
             )
 
