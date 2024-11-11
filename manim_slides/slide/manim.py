@@ -42,7 +42,7 @@ class Slide(BaseSlide, Scene):  # type: ignore[misc]
         for the current slide config.
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
         self.slide_audio: SlideAudioType = {
             "starting_time": 0,
@@ -170,7 +170,7 @@ class Slide(BaseSlide, Scene):  # type: ignore[misc]
         super()._add_last_slide()
         self.add_audio_to_slide()
 
-    def add_audio_to_slide(self):
+    def add_audio_to_slide(self) -> None:
         for audio in self.slide_audio["audio"]:
             self._slides[-1].audio.append(
                 {
@@ -184,16 +184,16 @@ class Slide(BaseSlide, Scene):  # type: ignore[misc]
         self,
         sound_file: str,
         time_offset: float = 0,
-        gain: float | None = None,
-        **kwargs,
-    ):
+        gain: Optional[float] = None,
+        **kwargs: Any,
+    ) -> None:
         self.slide_audio["audio"].append(
             {
                 "starting_time": self.renderer.time,
                 "file": Path(sound_file),
             }
         )
-        return super().add_sound(sound_file, time_offset, gain, **kwargs)
+        super().add_sound(sound_file, time_offset, gain, **kwargs)
 
 
 class ThreeDSlide(Slide, ThreeDScene):  # type: ignore[misc]

@@ -1,10 +1,10 @@
 # flake8: noqa: F403, F405
 # type: ignore
 
-OPENAI = False
-
 from manim_slides import Slide, ThreeDSlide
 from manim_slides.slide import MANIM, MANIM_VOICEOVER, MANIMGL
+
+OPENAI = False
 
 if MANIM:
     from manim import *
