@@ -35,13 +35,13 @@ jobs:
 
     - name: Install manim dependencies on MacOS
       if: matrix.os == 'macos-latest'
-      run: brew install ffmpeg py3cairo pango pkg-config scipy
+      run: brew install ffmpeg py3cairo pango pkg-config scipy portaudio
 
     - name: Install manim dependencies on Ubuntu
       if: matrix.os == 'ubuntu-latest'
       run: |
         sudo apt-get update
-        sudo apt-get install build-essential python3-dev libcairo2-dev libpango1.0-dev ffmpeg freeglut3-dev xvfb
+        sudo apt-get install build-essential python3-dev libcairo2-dev libpango1.0-dev ffmpeg freeglut3-dev xvfb portaudio19-dev
         nohup Xvfb $DISPLAY &
 
     - name: Install Windows dependencies
@@ -79,13 +79,13 @@ jobs:
 
     - name: Install manim dependencies on MacOS
       if: matrix.os == 'macos-latest'
-      run: brew install ffmpeg py3cairo pango pkg-config scipy
+      run: brew install ffmpeg py3cairo pango pkg-config scipy portaudio
 
     - name: Install manim dependencies on Ubuntu
       if: matrix.os == 'ubuntu-latest'
       run: |
         sudo apt-get update
-        sudo apt-get install build-essential python3-dev libcairo2-dev libpango1.0-dev ffmpeg freeglut3-dev xvfb
+        sudo apt-get install build-essential python3-dev libcairo2-dev libpango1.0-dev ffmpeg freeglut3-dev xvfb portaudio19-dev
         nohup Xvfb $DISPLAY &
 
     - name: Install Windows dependencies
