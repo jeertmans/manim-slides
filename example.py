@@ -4,7 +4,7 @@
 OPENAI = False
 
 from manim_slides import Slide, ThreeDSlide
-from manim_slides.slide import MANIM, MANIMGL, MANIM_VOICEOVER
+from manim_slides.slide import MANIM, MANIM_VOICEOVER, MANIMGL
 
 if MANIM:
     from manim import *
@@ -13,12 +13,14 @@ elif MANIMGL:
 
 if MANIM_VOICEOVER:
     from manim_voiceover import VoiceoverScene
+
     if OPENAI:
         from manim_voiceover.services.openai import OpenAIService as SpeechService
     else:
         from manim_voiceover.services.gtts import GTTSService as SpeechService
 
 if not MANIM_VOICEOVER:
+
     class BasicExample(Slide):
         def construct(self):
             circle = Circle(radius=3, color=BLUE)
@@ -32,6 +34,7 @@ if not MANIM_VOICEOVER:
 
             self.play(dot.animate.move_to(ORIGIN))
 else:
+
     class BasicExample(Slide, VoiceoverScene):
         def construct(self):
             self.set_speech_service(SpeechService())
@@ -45,7 +48,9 @@ else:
             self.next_slide(loop=True)
             with self.voiceover(text="Now a dot is moving along the circle") as tracker:
                 self.play(
-                    MoveAlongPath(dot, circle), rate_func=linear, run_time=tracker.duration
+                    MoveAlongPath(dot, circle),
+                    rate_func=linear,
+                    run_time=tracker.duration,
                 )
             self.next_slide()
 

@@ -65,9 +65,6 @@ pyqt6-full = ["manim-slides[full,pyqt6]"]
 pyside6 = ["pyside6>=6.6.1"]
 pyside6-full = ["manim-slides[full,pyside6]"]
 sphinx-directive = ["docutils>=0.20.1", "manim-slides[manim]"]
-voiceover = [
-  "manim-voiceover[all]>=0.3.7",
-]
 tests = [
   "manim-slides[full,manimgl,pyqt6,pyside6,sphinx-directive]",
   "pytest>=7.4.0",
@@ -75,6 +72,9 @@ tests = [
   "pytest-env>=0.8.2",
   "pytest-missing-modules>=0.1.0",
   "pytest-qt>=4.2.0",
+]
+voiceover = [
+  "manim-voiceover[all]>=0.3.7",
 ]
 
 [project.scripts]
