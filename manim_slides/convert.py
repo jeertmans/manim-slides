@@ -48,7 +48,7 @@ def open_with_default(file: Path) -> None:
     if system == "Darwin":
         subprocess.call(("open", str(file)))
     elif system == "Windows":
-        os.startfile(str(file))
+        os.startfile(str(file))  # type: ignore[attr-defined]
     else:
         subprocess.call(("xdg-open", str(file)))
 
