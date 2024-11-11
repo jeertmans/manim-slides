@@ -1,39 +1,58 @@
 # flake8: noqa: F403, F405
 # type: ignore
 
-from manim_voiceover import VoiceoverScene
-from manim_voiceover.services.gtts import GTTSService
+OPENAI = False
 
 from manim_slides import Slide, ThreeDSlide
-from manim_slides.slide import MANIM, MANIMGL
+from manim_slides.slide import MANIM, MANIMGL, MANIM_VOICEOVER
 
 if MANIM:
     from manim import *
 elif MANIMGL:
     from manimlib import *
 
+if MANIM_VOICEOVER:
+    from manim_voiceover import VoiceoverScene
+    if OPENAI:
+        from manim_voiceover.services.openai import OpenAIService as SpeechService
+    else:
+        from manim_voiceover.services.gtts import GTTSService as SpeechService
 
-class BasicExample(Slide, VoiceoverScene):
-    def construct(self):
-        self.set_speech_service(GTTSService())
+if not MANIM_VOICEOVER:
+    class BasicExample(Slide):
+        def construct(self):
+            circle = Circle(radius=3, color=BLUE)
+            dot = Dot()
 
-        circle = Circle(radius=3, color=BLUE)
-        dot = Dot()
+            self.play(GrowFromCenter(circle))
 
-        with self.voiceover(text="This is a circle") as tracker:
-            self.play(GrowFromCenter(circle), run_time=tracker.duration)
+            self.next_slide(loop=True)
+            self.play(MoveAlongPath(dot, circle), run_time=2, rate_func=linear)
+            self.next_slide()
 
-        self.next_slide(loop=True)
-        with self.voiceover(text="Now a dot is moving along the circle") as tracker:
-            self.play(
-                MoveAlongPath(dot, circle), rate_func=linear, run_time=tracker.duration
-            )
-        self.next_slide()
+            self.play(dot.animate.move_to(ORIGIN))
+else:
+    class BasicExample(Slide, VoiceoverScene):
+        def construct(self):
+            self.set_speech_service(SpeechService())
 
-        with self.voiceover(
-            text="Now the dot is moving back to the center of the circle"
-        ) as tracker:
-            self.play(dot.animate.move_to(ORIGIN), run_time=tracker.duration)
+            circle = Circle(radius=3, color=BLUE)
+            dot = Dot()
+
+            with self.voiceover(text="This is a circle") as tracker:
+                self.play(GrowFromCenter(circle), run_time=tracker.duration)
+
+            self.next_slide(loop=True)
+            with self.voiceover(text="Now a dot is moving along the circle") as tracker:
+                self.play(
+                    MoveAlongPath(dot, circle), rate_func=linear, run_time=tracker.duration
+                )
+            self.next_slide()
+
+            with self.voiceover(
+                text="Now the dot is moving back to the center of the circle"
+            ) as tracker:
+                self.play(dot.animate.move_to(ORIGIN), run_time=tracker.duration)
 
 
 class ConvertExample(Slide):

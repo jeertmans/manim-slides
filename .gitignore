@@ -48,3 +48,6 @@ paper/media/
 coverage.xml
 
 rendering_times.csv
+
+# Manim Voice Over
+.env

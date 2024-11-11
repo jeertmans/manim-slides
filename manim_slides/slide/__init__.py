@@ -1,6 +1,7 @@
 __all__ = [
     "MANIM",
     "MANIMGL",
+    "MANIM_VOICEOVER",
     "API_NAME",
     "Slide",
     "ThreeDSlide",
@@ -48,6 +49,7 @@ if not os.environ.get(FORCE_MANIM_API):
 
 MANIM: bool = API_NAME == "manim"
 MANIMGL: bool = API_NAME == "manimlib"
+MANIM_VOICEOVER: bool = "manim_voiceover" in sys.modules
 
 if MANIM:
     try:
