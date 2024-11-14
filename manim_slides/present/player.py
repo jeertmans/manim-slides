@@ -515,6 +515,9 @@ class Player(QMainWindow):  # type: ignore[misc]
 
     @Slot()
     def reverse(self) -> None:
+        if self.playing_reversed_slide and self.current_slide_index >= 1:
+            self.current_slide_index -= 1
+
         self.load_reversed_slide()
         self.preview_next_slide()
 
