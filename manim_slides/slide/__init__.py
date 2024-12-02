@@ -1,7 +1,7 @@
 __all__ = [
+    "API_NAME",
     "MANIM",
     "MANIMGL",
-    "API_NAME",
     "Slide",
     "ThreeDSlide",
 ]
