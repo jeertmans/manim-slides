@@ -23,6 +23,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Allow multiple slide reverses by going backward [@PeculiarProgrammer](https://github.com/PeculiarProgrammer).
   [#488](https://github.com/jeertmans/manim-slides/pull/488)
 
+(unreleased-fixed)=
+### Fixed
+
+- Fixed PyAV issue by pinning its version to `<14`.
+  A future release will contain a fix that supports both `av>=14`
+  and `av<14`, as their syntax differ, but the former doesn't
+  provide binary wheels for Python 3.9.
+  [#494](https://github.com/jeertmans/manim-slides/pull/494)
+
 (v5.1.9)=
 ## [v5.1.9](https://github.com/jeertmans/manim-slides/compare/v5.1.8...v5.1.9)
 
