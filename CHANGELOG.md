@@ -28,7 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Fixed PyAV issue by pinning its version to `<14`.
   A future release will contain a fix that supports both `av>=14`
-  and `av<14`, as their syntax differ but the former doesn't
+  and `av<14`, as their syntax differ, but the former doesn't
   provide binary wheels for Python 3.9.
   [#494](https://github.com/jeertmans/manim-slides/pull/494)
 
