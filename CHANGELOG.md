@@ -8,22 +8,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <!-- start changelog -->
 
 (unreleased)=
-## [Unreleased](https://github.com/jeertmans/manim-slides/compare/v5.1.9...HEAD)
+## [Unreleased](https://github.com/jeertmans/manim-slides/compare/v5.1.10...HEAD)
 
-(unreleased-added)=
+(v5.1.10)=
+## [v5.1.10](https://github.com/jeertmans/manim-slides/compare/v5.1.9...v5.1.10)
+
+(v5.1.10-added)=
 ### Added
 
 - Added `--offline` option to `manim-slides convert` for offline
   HTML presentations.
   [#440](https://github.com/jeertmans/manim-slides/pull/440)
 
-(unreleased-changed)=
+(v5.1.10-changed)=
 ### Changed
 
 - Allow multiple slide reverses by going backward [@PeculiarProgrammer](https://github.com/PeculiarProgrammer).
   [#488](https://github.com/jeertmans/manim-slides/pull/488)
 
-(unreleased-fixed)=
+(v5.1.10-fixed)=
 ### Fixed
 
 - Fixed PyAV issue by pinning its version to `<14`.
