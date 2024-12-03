@@ -34,7 +34,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   and `av<14`, as their syntax differ, but the former doesn't
   provide binary wheels for Python 3.9.
   [#494](https://github.com/jeertmans/manim-slides/pull/494)
-- Fixed blank web page when converting multiple slides into HTML [#497](https://github.com/jeertmans/manim-slides/pull/497)
+- Fixed blank web page when converting multiple slides into HTML.
+  [#497](https://github.com/jeertmans/manim-slides/pull/497)
 
 (v5.1.9)=
 ## [v5.1.9](https://github.com/jeertmans/manim-slides/compare/v5.1.8...v5.1.9)
