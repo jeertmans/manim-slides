@@ -74,9 +74,6 @@ jobs:
       with:
         enable-cache: true
 
-    - name: Setup Python ${{ matrix.pyversion }}
-      run: uv python install ${{ matrix.pyversion }}
-
     - name: Install manim dependencies on MacOS
       if: matrix.os == 'macos-latest'
       run: brew install ffmpeg py3cairo pango pkg-config scipy
@@ -96,11 +93,8 @@ jobs:
       if: matrix.os == 'windows-latest'
       uses: ssciwr/setup-mesa-dist-win@v2
 
-    - name: Install Manim Slides
-      run: uv sync --locked --extra tests
-
     - name: Run pytest
-      run: uv run pytest
+      run: uv run --python ${{ matrix.pyversion }} --frozen --extra tests pytest
 
     - name: Upload to codecov.io
       uses: codecov/codecov-action@v4
