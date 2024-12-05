@@ -8,9 +8,48 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <!-- start changelog -->
 
 (unreleased)=
-## [Unreleased](https://github.com/jeertmans/manim-slides/compare/v5.1.7...HEAD)
+## [Unreleased](https://github.com/jeertmans/manim-slides/compare/v5.1.10...HEAD)
 
-(unreleased-added)=
+(v5.1.10)=
+## [v5.1.10](https://github.com/jeertmans/manim-slides/compare/v5.1.9...v5.1.10)
+
+(v5.1.10-added)=
+### Added
+
+- Added `--offline` option to `manim-slides convert` for offline
+  HTML presentations.
+  [#440](https://github.com/jeertmans/manim-slides/pull/440)
+
+(v5.1.10-changed)=
+### Changed
+
+- Allow multiple slide reverses by going backward [@PeculiarProgrammer](https://github.com/PeculiarProgrammer).
+  [#488](https://github.com/jeertmans/manim-slides/pull/488)
+
+(v5.1.10-fixed)=
+### Fixed
+
+- Fixed PyAV issue by pinning its version to `<14`.
+  A future release will contain a fix that supports both `av>=14`
+  and `av<14`, as their syntax differ, but the former doesn't
+  provide binary wheels for Python 3.9.
+  [#494](https://github.com/jeertmans/manim-slides/pull/494)
+- Fixed blank web page when converting multiple slides into HTML.
+  [#497](https://github.com/jeertmans/manim-slides/pull/497)
+
+(v5.1.9)=
+## [v5.1.9](https://github.com/jeertmans/manim-slides/compare/v5.1.8...v5.1.9)
+
+(v5.1.9-fixed)=
+## Chore
+
+- Fixed failing docker builds.
+  [#481](https://github.com/jeertmans/manim-slides/pull/481)
+
+(v5.1.8)=
+## [v5.1.8](https://github.com/jeertmans/manim-slides/compare/v5.1.7...v5.1.8)
+
+(v5.1.8-added)=
 ### Added
 
 - Added `manim-slides checkhealth` command to easily obtain important information
@@ -19,8 +58,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added support for `disable_caching` and `flush_cache` options from Manim, and
   also the possibility to configure them through class options.
   [#452](https://github.com/jeertmans/manim-slides/pull/452)
+- Added `--to=zip` convert format to generate an archive with HTML output
+  and asset files.
+  [#470](https://github.com/jeertmans/manim-slides/pull/470)
 
-(unreleased-chore)=
+(v5.1.8-chore)=
 ### Chore
 
 - Pin `rtoml==0.9.0` on Windows platforms,
@@ -41,8 +83,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   [#462](https://github.com/jeertmans/manim-slides/pull/462)
 - Fixed deprecation warnings.
   [#467](https://github.com/jeertmans/manim-slides/pull/467)
+- Documented potential fix for PPTX issue.
+  [#475](https://github.com/jeertmans/manim-slides/pull/475)
+- Changed project manager from Rye to uv.
+  [#476](https://github.com/jeertmans/manim-slides/pull/476)
 
-(unreleased-fixed)=
+(v5.1.8-fixed)=
 ### Fixed
 
 - Fix combining assets from multiple scenes to avoid filename collision.
@@ -53,7 +99,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   thanks to [@PeculiarProgrammer](https://github.com/PeculiarProgrammer)!
   [#465](https://github.com/jeertmans/manim-slides/pull/465)
 
-(unreleased-removed)=
+(v5.1.8-removed)=
 ### Removed
 
 - Removed `full-gl` extra, because it does not make sense to ship both

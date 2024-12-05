@@ -4,7 +4,6 @@ __pycache__/
 /build
 /dist
 *.egg-info/
-.pdm-python
 
 # Manim files
 images/
@@ -45,7 +44,7 @@ paper/paper.pdf
 paper/media/
 
 # Others
-.coverage
+.coverage*
 coverage.xml
 
 rendering_times.csv

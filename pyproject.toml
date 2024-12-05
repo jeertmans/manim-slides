@@ -17,7 +17,8 @@ classifiers = [
   "Topic :: Scientific/Engineering",
 ]
 dependencies = [
-  "av>=9.0.0",
+  "av>=9.0.0,<14",
+  "beautifulsoup4>=4.12.3",
   "click>=8.1.3",
   "click-default-group>=1.2.2",
   "jinja2>=3.1.2",
@@ -65,6 +66,7 @@ pyside6 = ["pyside6>=6.6.1"]
 pyside6-full = ["manim-slides[full,pyside6]"]
 sphinx-directive = ["docutils>=0.20.1", "manim-slides[manim]"]
 tests = [
+  "manim-slides[full,manimgl,pyqt6,pyside6,sphinx-directive]",
   "pytest>=7.4.0",
   "pytest-cov>=4.1.0",
   "pytest-env>=0.8.2",
@@ -86,7 +88,7 @@ Repository = "https://github.com/jeertmans/manim-slides"
 allow_dirty = false
 commit = true
 commit_args = ""
-current_version = "5.1.7"
+current_version = "5.1.10"
 ignore_missing_version = false
 message = "chore(deps): bump version from {current_version} to {new_version}"
 parse = '(?P<major>\d+)\.(?P<minor>\d+)\.(?P<patch>\d+)(-rc(?P<release>\d+))?'
@@ -136,7 +138,7 @@ search = "<!-- start changelog -->"
 builtin = "clear,rare,informal,usage,names,en-GB_to_en-US"
 check-hidden = true
 ignore-words-list = "master"
-skip = "requirements.lock,requirements-dev.lock"
+skip = "uv.lock"
 
 [tool.coverage.report]
 exclude_lines = [
@@ -185,11 +187,10 @@ env = [
   "QT_QPA_PLATFORM=offscreen",
 ]
 filterwarnings = [
-  "error",
   '''ignore:'audioop' is deprecated:DeprecationWarning''',
   'ignore:pkg_resources is deprecated as an API:DeprecationWarning',
   'ignore::DeprecationWarning:pkg_resources.*:',
-  'ignore::SyntaxWarning:pydub.*:',
+  'ignore::DeprecationWarning:pydub.*:',
 ]
 
 [tool.ruff]
@@ -220,15 +221,12 @@ isort = {known-first-party = ["manim_slides", "tests"]}
 "docs/source/reference/magic_example.ipynb" = ["F403", "F405"]
 "tests/test_slide.py" = ["N801"]
 
-[tool.rye]
+[tool.uv]
 dev-dependencies = [
   "bump-my-version>=0.20.3",
   "pre-commit>=3.5.0",
   "setuptools>=73.0.1",
 ]
-managed = true
-
-[tool.uv]
 override-dependencies = [
   # Bypass constraints from ManimGL
   "manimpango>=0.5.0,<1.0.0",

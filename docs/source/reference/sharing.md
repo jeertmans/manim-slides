@@ -166,7 +166,7 @@ Pages. Please refer to the template page for usage instructions.
 
 ### With PowerPoint (*EXPERIMENTAL*)
 
-A recent conversion feature is to the PowerPoint format, thanks to the
+A convenient conversion feature is to the PowerPoint format, thanks to the
 `python-pptx` package. Even though it is fully working,
 it is still considered in an *EXPERIMENTAL* status because we do not
 exactly know what versions of PowerPoint (or LibreOffice Impress) are supported.

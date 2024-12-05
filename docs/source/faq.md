@@ -54,8 +54,11 @@ with ManimCE or ManimGL.
 ### Slides go black when video finishes
 
 This is an issue with Qt,
-which cannot be solve on all platforms and Python versions,
+which cannot be solved on all platforms and Python versions,
 see [#293](https://github.com/jeertmans/manim-slides/issues/293).
+
+Recent version of Manim Slides, i.e., `manim-slides>5.1.7`, come
+with a fix that should work fine.
 
 ### How to increase quality on Windows
 
@@ -120,3 +123,7 @@ This issue is (probably) caused by PowerPoint never freeing
 memory, causing memory allocation errors, and can be partially
 solved by reducing the video quality or the number of slides,
 see [#392](https://github.com/jeertmans/manim-slides/issues/392).
+
+Another solution, suggested by [@Azercoco](https://github.com/Azercoco) in
+[#392 (comment)](https://github.com/jeertmans/manim-slides/issues/392#issuecomment-2368198106),
+is to disable hardware/GPU acceleration.
