@@ -1,5 +1,6 @@
 import random
 import shutil
+import sys
 from pathlib import Path
 from typing import Any, Union
 
@@ -24,7 +25,24 @@ from manim_slides.config import PresentationConfig
 from manim_slides.defaults import FOLDER_PATH
 from manim_slides.render import render
 from manim_slides.slide.manim import Slide as CESlide
-from manim_slides.slide.manimlib import Slide as GLSlide
+
+if sys.version_info < (3, 10):
+
+    class _GLSlide:
+        def construct(self) -> None:
+            pass
+
+        def render(self) -> None:
+            pass
+
+    GLSlide = pytest.param(
+        _GLSlide,
+        marks=pytest.mark.skip(reason="See https://github.com/3b1b/manim/issues/2263"),
+    )
+else:
+    from manim_slides.slide.manimlib import Slide as GLSlide
+
+    _GLSlide = GLSlide
 
 
 class CEGLSlide(CESlide):
@@ -32,15 +50,21 @@ class CEGLSlide(CESlide):
         super().__init__(*args, renderer=OpenGLRenderer(), **kwargs)
 
 
-SlideType = Union[type[CESlide], type[GLSlide], type[CEGLSlide]]
-Slide = Union[CESlide, GLSlide, CEGLSlide]
+SlideType = Union[type[CESlide], type[_GLSlide], type[CEGLSlide]]
+Slide = Union[CESlide, _GLSlide, CEGLSlide]
 
 
 @pytest.mark.parametrize(
     "renderer",
     [
         "--CE",
-        "--GL",
+        pytest.param(
+            "--GL",
+            marks=pytest.mark.skipif(
+                sys.version_info < (3, 10),
+                reason="See https://github.com/3b1b/manim/issues/2263",
+            ),
+        ),
     ],
 )
 def test_render_basic_slide(
@@ -143,7 +167,13 @@ def test_clear_cache(
     "renderer",
     [
         "--CE",
-        "--GL",
+        pytest.param(
+            "--GL",
+            marks=pytest.mark.skipif(
+                sys.version_info < (3, 10),
+                reason="See https://github.com/3b1b/manim/issues/2263",
+            ),
+        ),
     ],
 )
 @pytest.mark.parametrize(
