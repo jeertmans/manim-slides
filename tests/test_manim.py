@@ -11,6 +11,7 @@ skip_if_py39 = pytest.mark.skipif(
     reason="See https://github.com/3b1b/manim/issues/2263",
 )
 
+
 def assert_import(
     *,
     api_name: str,
