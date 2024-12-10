@@ -10,10 +10,12 @@ from .base import BaseSlide
 class Slide(BaseSlide, Scene):  # type: ignore[misc]
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         kwargs.setdefault("file_writer_config", {}).update(
-            skip_animations=True,
             break_into_partial_movies=True,
             write_to_movie=True,
         )
+        # See: https://github.com/3b1b/manim/issues/2261
+        if kwargs["file_writer_config"].setdefault("output_directory", ".") == "":
+            kwargs["file_writer_config"]["output_directory"] = "."
 
         kwargs["preview"] = False  # Avoid opening a preview window
         super().__init__(*args, **kwargs)
