@@ -22,19 +22,27 @@ class Slide(BaseSlide, Scene):  # type: ignore[misc]
 
     @property
     def _frame_height(self) -> float:
-        return self.camera.frame.get_height()  # type: ignore
+        return float(self.camera.get_frame_height())
 
     @property
     def _frame_width(self) -> float:
-        return self.camera.frame.get_width()  # type: ignore
+        return float(self.camera.get_frame_width())
 
     @property
     def _background_color(self) -> str:
-        return self.camera_config["background_color"].hex  # type: ignore
+        rgba = self.camera.background_rgba
+        r = int(255 * rgba[0])
+        g = int(255 * rgba[1])
+        b = int(255 * rgba[2])
+        if rgba[3] == 1.0:
+            return f"#{r:02x}{g:02x}{b:02x}"
+
+        a = int(255 * rgba[3])
+        return f"#{r:02x}{g:02x}{b:02x}{a:02x}"
 
     @property
     def _resolution(self) -> tuple[int, int]:
-        return self.camera_config["pixel_width"], self.camera_config["pixel_height"]
+        return self.camera.get_pixel_width(), self.camera.get_pixel_height()
 
     @property
     def _partial_movie_files(self) -> list[Path]:
