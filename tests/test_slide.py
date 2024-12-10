@@ -39,6 +39,19 @@ if sys.version_info < (3, 10):
         _GLSlide,
         marks=pytest.mark.skip(reason="See https://github.com/3b1b/manim/issues/2263"),
     )
+elif sys.version_info >= (3, 12):
+
+    class _GLSlide:
+        def construct(self) -> None:
+            pass
+
+        def render(self) -> None:
+            pass
+
+    GLSlide = pytest.param(
+        _GLSlide,
+        marks=pytest.mark.skip(reason="Issue when import 'pyrr'"),
+    )
 else:
     from manim_slides.slide.manimlib import Slide as GLSlide
 
@@ -61,8 +74,8 @@ Slide = Union[CESlide, _GLSlide, CEGLSlide]
         pytest.param(
             "--GL",
             marks=pytest.mark.skipif(
-                sys.version_info < (3, 10),
-                reason="See https://github.com/3b1b/manim/issues/2263",
+                sys.version_info < (3, 10) or sys.version_info >= (3, 12),
+                reason="See https://github.com/3b1b/manim/issues/2263 or 'pyrr' issue.",
             ),
         ),
     ],
@@ -170,8 +183,8 @@ def test_clear_cache(
         pytest.param(
             "--GL",
             marks=pytest.mark.skipif(
-                sys.version_info < (3, 10),
-                reason="See https://github.com/3b1b/manim/issues/2263",
+                sys.version_info < (3, 10) or sys.version_info >= (3, 12),
+                reason="See https://github.com/3b1b/manim/issues/2263 or 'pyrr' issue.",
             ),
         ),
     ],
