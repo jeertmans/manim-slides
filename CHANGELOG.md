@@ -15,7 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Bump ManimGL to `>=1.7.1`, to remove conflicting dependencies
   with Manim's.
-  [#498](https://github.com/jeertmans/manim-slides/pull/498)
+  [#499](https://github.com/jeertmans/manim-slides/pull/499)
 
 (v5.1.10)=
 ## [v5.1.10](https://github.com/jeertmans/manim-slides/compare/v5.1.9...v5.1.10)
