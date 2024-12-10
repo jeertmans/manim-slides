@@ -6,6 +6,11 @@ import pytest
 
 import manim_slides.slide as slide
 
+skip_if_py39 = pytest.mark.skipif(
+    sys.version_info < (3, 10),
+    reason="See https://github.com/3b1b/manim/issues/2263",
+)
+
 
 def assert_import(
     *,
@@ -20,6 +25,7 @@ def assert_import(
     assert slide.MANIMGL == manimgl
 
 
+@skip_if_py39
 def test_force_api() -> None:
     pytest.importorskip("manimlib")
     import manim  # noqa: F401
@@ -53,6 +59,7 @@ def test_invalid_api() -> None:
     del os.environ[slide.MANIM_API]
 
 
+@skip_if_py39
 @pytest.mark.filterwarnings("ignore:assert_import")
 def test_manim_and_manimgl_imported() -> None:
     pytest.importorskip("manimlib")
@@ -79,6 +86,7 @@ def test_manim_imported() -> None:
     )
 
 
+@skip_if_py39
 def test_manimgl_imported() -> None:
     pytest.importorskip("manimlib")
     import manimlib  # noqa: F401
