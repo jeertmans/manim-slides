@@ -1,6 +1,5 @@
 import random
 import shutil
-import sys
 from pathlib import Path
 from typing import Any, Union
 
@@ -25,21 +24,13 @@ from manim_slides.config import PresentationConfig
 from manim_slides.defaults import FOLDER_PATH
 from manim_slides.render import render
 from manim_slides.slide.manim import Slide as CESlide
+from manim_slides.slide.manimlib import Slide as GLSlide
 
 
 class CEGLSlide(CESlide):
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, renderer=OpenGLRenderer(), **kwargs)
 
-
-if sys.version_info >= (3, 12):
-
-    class _GLSlide:
-        pass
-
-    GLSlide = pytest.param(_GLSlide, marks=pytest.mark.skip())
-else:
-    from manim_slides.slide.manimlib import Slide as GLSlide
 
 SlideType = Union[type[CESlide], type[GLSlide], type[CEGLSlide]]
 Slide = Union[CESlide, GLSlide, CEGLSlide]
@@ -49,13 +40,7 @@ Slide = Union[CESlide, GLSlide, CEGLSlide]
     "renderer",
     [
         "--CE",
-        pytest.param(
-            "--GL",
-            marks=pytest.mark.skipif(
-                sys.version_info >= (3, 12),
-                reason="ManimGL requires numpy<1.25, which is outdated and Python < 3.12",
-            ),
-        ),
+        "--GL",
     ],
 )
 def test_render_basic_slide(
@@ -158,13 +143,7 @@ def test_clear_cache(
     "renderer",
     [
         "--CE",
-        pytest.param(
-            "--GL",
-            marks=pytest.mark.skipif(
-                sys.version_info >= (3, 12),
-                reason="ManimGL requires numpy<1.25, which is outdated and Python < 3.12",
-            ),
-        ),
+        "--GL",
     ],
 )
 @pytest.mark.parametrize(

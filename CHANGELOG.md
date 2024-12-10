@@ -10,6 +10,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 (unreleased)=
 ## [Unreleased](https://github.com/jeertmans/manim-slides/compare/v5.1.10...HEAD)
 
+(unreleased-chore)=
+### Chore
+
+- Bump ManimGL to `>=1.7.1`, to remove conflicting dependencies
+  with Manim's.
+  [#498](https://github.com/jeertmans/manim-slides/pull/498)
+
 (v5.1.10)=
 ## [v5.1.10](https://github.com/jeertmans/manim-slides/compare/v5.1.9...v5.1.10)
 
