@@ -1,20 +1,5 @@
-import sys
-from importlib.metadata import version
-from importlib.util import find_spec
 from pathlib import Path
 from typing import Any, ClassVar, Optional
-
-if (
-    version("manimgl") in ("1.7.1", "1.7.0")
-    and "pyrr" not in sys.modules
-    and find_spec("pyrr") is None
-):
-    from unittest.mock import MagicMock
-
-    # ManimGL is broken because its imports a module that is not listed in its deps.
-    # Furtunately, the imported code is unused, so we can mock it.
-    # See patch: https://github.com/3b1b/manim/pull/2253/files.
-    sys.modules["pyrr"] = MagicMock()
 
 from manimlib import Scene, ThreeDCamera
 from manimlib.utils.file_ops import get_sorted_integer_files
