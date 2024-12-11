@@ -48,6 +48,24 @@ def render(ce: bool, gl: bool, args: tuple[str, ...]) -> None:
     if ce and gl:
         raise click.UsageError("You cannot specify both --CE and --GL renderers.")
     if gl:
-        subprocess.run([sys.executable, "-m", "manimlib", *args])
+        from importlib.metadata import version
+        from importlib.util import find_spec
+
+        if (
+            version("manimgl") in ("1.7.1", "1.7.0")
+            and "pyrr" not in sys.modules
+            and find_spec("pyrr") is None
+        ):
+            import runpy
+            from unittest.mock import MagicMock
+
+            # ManimGL is broken because its imports a module that is not listed in its deps.
+            # Furtunately, the imported code is unused, so we can mock it.
+            # See patch: https://github.com/3b1b/manim/pull/2253/files.
+            sys.modules["pyrr"] = MagicMock()
+            sys.argv = ["manimlib", *args]
+            runpy.run_module("manimlib", run_name="__main__", alter_sys=True)
+        else:
+            subprocess.run([sys.executable, "-m", "manimlib", *args])
     else:
         subprocess.run([sys.executable, "-m", "manim", "render", *args])
