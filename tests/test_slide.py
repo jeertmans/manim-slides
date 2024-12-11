@@ -26,23 +26,32 @@ from manim_slides.defaults import FOLDER_PATH
 from manim_slides.render import render
 from manim_slides.slide.manim import Slide as CESlide
 
+if sys.version_info < (3, 10):
+
+    class _GLSlide:
+        def construct(self) -> None:
+            pass
+
+        def render(self) -> None:
+            pass
+
+    GLSlide = pytest.param(
+        _GLSlide,
+        marks=pytest.mark.skip(reason="See https://github.com/3b1b/manim/issues/2263"),
+    )
+else:
+    from manim_slides.slide.manimlib import Slide as GLSlide
+
+    _GLSlide = GLSlide
+
 
 class CEGLSlide(CESlide):
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, renderer=OpenGLRenderer(), **kwargs)
 
 
-if sys.version_info >= (3, 12):
-
-    class _GLSlide:
-        pass
-
-    GLSlide = pytest.param(_GLSlide, marks=pytest.mark.skip())
-else:
-    from manim_slides.slide.manimlib import Slide as GLSlide
-
-SlideType = Union[type[CESlide], type[GLSlide], type[CEGLSlide]]
-Slide = Union[CESlide, GLSlide, CEGLSlide]
+SlideType = Union[type[CESlide], type[_GLSlide], type[CEGLSlide]]
+Slide = Union[CESlide, _GLSlide, CEGLSlide]
 
 
 @pytest.mark.parametrize(
@@ -52,8 +61,8 @@ Slide = Union[CESlide, GLSlide, CEGLSlide]
         pytest.param(
             "--GL",
             marks=pytest.mark.skipif(
-                sys.version_info >= (3, 12),
-                reason="ManimGL requires numpy<1.25, which is outdated and Python < 3.12",
+                sys.version_info < (3, 10),
+                reason="See https://github.com/3b1b/manim/issues/2263.",
             ),
         ),
     ],
@@ -161,8 +170,8 @@ def test_clear_cache(
         pytest.param(
             "--GL",
             marks=pytest.mark.skipif(
-                sys.version_info >= (3, 12),
-                reason="ManimGL requires numpy<1.25, which is outdated and Python < 3.12",
+                sys.version_info < (3, 10),
+                reason="See https://github.com/3b1b/manim/issues/2263.",
             ),
         ),
     ],

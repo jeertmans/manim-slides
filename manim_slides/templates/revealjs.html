@@ -25,7 +25,7 @@
             {%- if data_uri -%}
               {% set file = file_to_data_uri(slide_config.file) %}
             {%- else -%}
-              {% set file = assets_dir / slide_config.file.name %}
+              {% set file = assets_dir / (prefix(outer_loop.index0) + slide_config.file.name) %}
             {%- endif -%}
         <section
           data-background-size={{ background_size }}
