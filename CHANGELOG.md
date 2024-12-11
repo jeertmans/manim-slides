@@ -10,6 +10,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 (unreleased)=
 ## [Unreleased](https://github.com/jeertmans/manim-slides/compare/v5.1.10...HEAD)
 
+(unreleased-changed)=
+### Changed
+
+- The info window is now only shown in presentations when there
+  are multiple monitors. However, the `--show-info-window` option
+  was added to `manim-slides present` to force the info window.
+  When there are multiple monitors, the info window will no longer
+  be on the same monitor as the main window, unless overridden.
+  [@PeculiarProgrammer](https://github.com/PeculiarProgrammer)
+  [#482](https://github.com/jeertmans/manim-slides/pull/482)
+
 (unreleased-chore)=
 ### Chore
 
