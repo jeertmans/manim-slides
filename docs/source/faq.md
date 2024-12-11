@@ -29,13 +29,8 @@ ManimGL support is only guaranteed to work
 on a very minimal set of versions, because it differs quite a lot from ManimCE,
 and its development is not very active.
 
-The typical issues are that (1) ManimGL needs an outdated NumPy version
-and (2) ManimGL **should not** be installed from the GitHub repository,
-at least not from the `main` branch, but from a version released to PyPI.
-
-To solve the NumPy issue, you can safely downgrade NumPy to a version supported
-by ManimGL,
-while ignoring the possible *conflicting dependencies* messages from `pip` (or else).
+The typical issue is that ManimGL `<1.7.1` needs an outdated NumPy version, but
+can be resolved by manually downgrading NumPy, or upgrading ManimGL (**recommended**).
 
 ### Presenting
 
