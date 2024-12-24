@@ -70,12 +70,9 @@ jobs:
       uses: actions/checkout@v4
 
     - name: Setup uv
-      uses: astral-sh/setup-uv@v3
+      uses: astral-sh/setup-uv@v4
       with:
         enable-cache: true
-
-    - name: Setup Python ${{ matrix.pyversion }}
-      run: uv python install ${{ matrix.pyversion }}
 
     - name: Install manim dependencies on MacOS
       if: matrix.os == 'macos-latest'
@@ -96,14 +93,11 @@ jobs:
       if: matrix.os == 'windows-latest'
       uses: ssciwr/setup-mesa-dist-win@v2
 
-    - name: Install Manim Slides
-      run: uv sync --locked --extra tests
-
     - name: Run pytest
-      run: uv run pytest
+      run: uv run --python ${{ matrix.pyversion }} --frozen --extra tests pytest
 
     - name: Upload to codecov.io
-      uses: codecov/codecov-action@v4
+      uses: codecov/codecov-action@v5
       env:
         CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
       with:

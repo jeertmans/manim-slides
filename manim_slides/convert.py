@@ -611,6 +611,7 @@ class RevealJS(Converter):
                 get_duration_ms=get_duration_ms,
                 has_notes=has_notes,
                 env=os.environ,
+                prefix=prefix if not self.data_uri else None,
                 **options,
             )
 

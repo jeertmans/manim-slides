@@ -8,9 +8,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <!-- start changelog -->
 
 (unreleased)=
-## [Unreleased](https://github.com/jeertmans/manim-slides/compare/v5.1.9...HEAD)
+## [Unreleased](https://github.com/jeertmans/manim-slides/compare/v5.2.0...HEAD)
 
-(unreleased-added)=
+(v5.2.0)=
+## [v5.2.0](https://github.com/jeertmans/manim-slides/compare/v5.1.10...v5.2.0)
+
+(v5.2.0-changed)=
+### Changed
+
+- The info window is now only shown in presentations when there
+  are multiple monitors. However, the `--show-info-window` option
+  was added to `manim-slides present` to force the info window.
+  When there are multiple monitors, the info window will no longer
+  be on the same monitor as the main window, unless overridden.
+  [@PeculiarProgrammer](https://github.com/PeculiarProgrammer)
+  [#482](https://github.com/jeertmans/manim-slides/pull/482)
+
+(v5.2.0-chore)=
+### Chore
+
+- Bump ManimGL to `>=1.7.1`, to remove conflicting dependencies
+  with Manim's.
+  [#499](https://github.com/jeertmans/manim-slides/pull/499)
+
+(v5.1.10)=
+## [v5.1.10](https://github.com/jeertmans/manim-slides/compare/v5.1.9...v5.1.10)
+
+(v5.1.10-added)=
 ### Added
 
 - Added `--offline` option to `manim-slides convert` for offline
@@ -20,11 +44,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   when using `--show-config`.
   [#485](https://github.com/jeertmans/manim-slides/pull/485)
 
-(unreleased-changed)=
+(v5.1.10-changed)=
 ### Changed
 
 - Allow multiple slide reverses by going backward [@PeculiarProgrammer](https://github.com/PeculiarProgrammer).
   [#488](https://github.com/jeertmans/manim-slides/pull/488)
+
+(v5.1.10-fixed)=
+### Fixed
+
+- Fixed PyAV issue by pinning its version to `<14`.
+  A future release will contain a fix that supports both `av>=14`
+  and `av<14`, as their syntax differ, but the former doesn't
+  provide binary wheels for Python 3.9.
+  [#494](https://github.com/jeertmans/manim-slides/pull/494)
+- Fixed blank web page when converting multiple slides into HTML.
+  [#497](https://github.com/jeertmans/manim-slides/pull/497)
 
 (v5.1.9)=
 ## [v5.1.9](https://github.com/jeertmans/manim-slides/compare/v5.1.8...v5.1.9)

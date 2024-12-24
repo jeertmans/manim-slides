@@ -39,6 +39,13 @@ def test_checkhealth(
         del sys.modules["qtpy"]  # Avoid using cached module
 
     with missing_modules(*names):
+        if (
+            not manimlib_missing
+            and not MANIMGL_NOT_INSTALLED
+            and sys.version_info < (3, 10)
+        ):
+            pytest.skip("See https://github.com/3b1b/manim/issues/2263")
+
         result = runner.invoke(
             checkhealth,
             env={"QT_API": "pyqt6", "FORCE_QT_API": "1"},

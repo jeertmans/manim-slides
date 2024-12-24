@@ -29,19 +29,6 @@ please refer to their specific installation guidelines:
 - [Manim](https://docs.manim.community/en/stable/installation.html)
 - [ManimGL](https://3b1b.github.io/manim/getting_started/installation.html)
 
-:::{warning}
-If you install Manim from its git repository, as suggested by ManimGL,
-make sure to first check out a supported version (e.g., `git checkout tags/v1.6.1`
-for ManimGL), otherwise it might install an unsupported version of Manim!
-See [#314](https://github.com/jeertmans/manim-slides/issues/314).
-
-Also, note that ManimGL uses outdated dependencies, and may
-not work out-of-the-box. One example is NumPy: ManimGL
-does not specify any restriction on this package, but
-only `numpy<1.25` will work, see
-[#2053](https://github.com/3b1b/manim/issues/2053).
-:::
-
 <!-- end deps -->
 
 ## Pip Install
