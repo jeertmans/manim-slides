@@ -8,9 +8,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <!-- start changelog -->
 
 (unreleased)=
-## [Unreleased](https://github.com/jeertmans/manim-slides/compare/v5.1.10...HEAD)
+## [Unreleased](https://github.com/jeertmans/manim-slides/compare/v5.2.0...HEAD)
 
-(unreleased-changed)=
+(v5.2.0)=
+## [v5.2.0](https://github.com/jeertmans/manim-slides/compare/v5.1.10...v5.2.0)
+
+(v5.2.0-changed)=
 ### Changed
 
 - The info window is now only shown in presentations when there
@@ -21,7 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   [@PeculiarProgrammer](https://github.com/PeculiarProgrammer)
   [#482](https://github.com/jeertmans/manim-slides/pull/482)
 
-(unreleased-chore)=
+(v5.2.0-chore)=
 ### Chore
 
 - Bump ManimGL to `>=1.7.1`, to remove conflicting dependencies
