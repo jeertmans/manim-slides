@@ -3,7 +3,10 @@ from enum import EnumMeta
 from pathlib import Path
 
 import pytest
+import requests
+from bs4 import BeautifulSoup
 from pydantic import ValidationError
+from pytest_mock import MockerFixture
 
 from manim_slides.config import PresentationConfig
 from manim_slides.convert import (
@@ -173,6 +176,37 @@ class TestConverter:
             "zenburn.min.css",
         ]:
             assert (assets_dir / file).exists()
+
+    def test_revealjs_offline_inlining(
+        self,
+        tmp_path: Path,
+        presentation_config: PresentationConfig,
+        mocker: MockerFixture,
+    ) -> None:
+        # Mock requests.Session.get to return a fake response
+        mock_response = mocker.Mock()
+        mock_response.text = "body { background-color: #9a3241; }"
+        mock_response.content = b"body { background-color: #9a3241; }"
+        mocker.patch.object(requests.Session, "get", return_value=mock_response)
+
+        out_file = tmp_path / "slides.html"
+        RevealJS(presentation_configs=[presentation_config], offline="true").convert_to(
+            out_file
+        )
+        assert out_file.exists()
+
+        with open(out_file, encoding="utf-8") as file:
+            content = file.read()
+
+        soup = BeautifulSoup(content, "html.parser")
+
+        # Check if CSS is inlined
+        styles = soup.find_all("style")
+        assert any("background-color: #9a3241;" in style.string for style in styles)
+
+        # Check if JS is inlined
+        scripts = soup.find_all("script")
+        assert any("background-color: #9a3241;" in script.string for script in scripts)
 
     def test_htmlzip_converter(
         self, tmp_path: Path, presentation_config: PresentationConfig
