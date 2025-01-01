@@ -406,7 +406,6 @@ class RevealJS(Converter):
 
         if not self.data_uri or self.offline:
             logger.debug(f"Assets will be saved to: {full_assets_dir}")
-            full_assets_dir.mkdir(parents=True, exist_ok=True)
 
         if not self.data_uri:
             num_presentation_configs = len(self.presentation_configs)
@@ -427,6 +426,7 @@ class RevealJS(Converter):
                 def prefix(i: int) -> str:
                     return ""
 
+            full_assets_dir.mkdir(parents=True, exist_ok=True)
             for i, presentation_config in enumerate(self.presentation_configs):
                 presentation_config.copy_to(
                     full_assets_dir, include_reversed=False, prefix=prefix(i)
@@ -456,7 +456,6 @@ class RevealJS(Converter):
                 prefix=prefix if not self.data_uri else None,
                 **options,
             )
-
             if self.offline:
                 soup = BeautifulSoup(content, "html.parser")
                 session = requests.Session()
@@ -468,10 +467,24 @@ class RevealJS(Converter):
                         ):
                             asset_name = link.rsplit("/", 1)[1]
                             asset = session.get(link)
-                            with open(full_assets_dir / asset_name, "wb") as asset_file:
-                                asset_file.write(asset.content)
+                            # If it is a CSS file, inline it
+                            if tag == "link" and "stylesheet" in item["rel"]:
+                                item.decompose()
+                                style = soup.new_tag("style")
+                                style.string = asset.text
+                                soup.head.append(style)
+                            # If it is a JS file, inline it
+                            elif tag == "script":
+                                item.decompose()
+                                script = soup.new_tag("script")
+                                script.string = asset.text
+                                soup.head.append(script)
+                            else:
+                                full_assets_dir.mkdir(parents=True, exist_ok=True)
+                                with open(full_assets_dir / asset_name, "wb") as asset_file:
+                                    asset_file.write(asset.content)
 
-                            item[inner] = str(assets_dir / asset_name)
+                                item[inner] = str(assets_dir / asset_name)
 
                 content = str(soup)
 
