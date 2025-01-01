@@ -481,7 +481,9 @@ class RevealJS(Converter):
                                 soup.head.append(script)
                             else:
                                 full_assets_dir.mkdir(parents=True, exist_ok=True)
-                                with open(full_assets_dir / asset_name, "wb") as asset_file:
+                                with open(
+                                    full_assets_dir / asset_name, "wb"
+                                ) as asset_file:
                                     asset_file.write(asset.content)
 
                                 item[inner] = str(assets_dir / asset_name)
