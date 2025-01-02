@@ -6,7 +6,6 @@ import pytest
 import requests
 from bs4 import BeautifulSoup
 from pydantic import ValidationError
-from pytest_mock import MockerFixture
 
 from manim_slides.config import PresentationConfig
 from manim_slides.convert import (
@@ -181,16 +180,24 @@ class TestConverter:
         self,
         tmp_path: Path,
         presentation_config: PresentationConfig,
-        mocker: MockerFixture,
+        monkeypatch: pytest.MonkeyPatch,
     ) -> None:
         # Mock requests.Session.get to return a fake response
-        mock_response = mocker.Mock()
-        mock_response.text = "body { background-color: #9a3241; }"
-        mock_response.content = b"body { background-color: #9a3241; }"
-        mocker.patch.object(requests.Session, "get", return_value=mock_response)
+        class MockResponse:
+            def __init__(self, content, text, status_code):
+                self.content = content
+                self.text = text
+                self.status_code = status_code
+
+        # Mock function for 'get'
+        def mock_get(*args, **kwargs):
+            return MockResponse(b"body { background-color: #9a3241; }", "body { background-color: #9a3241; }", 200)
+
+        # Apply the monkeypatch
+        monkeypatch.setattr(requests.Session, "get", mock_get)
 
         out_file = tmp_path / "slides.html"
-        RevealJS(presentation_configs=[presentation_config], offline="true").convert_to(
+        RevealJS(presentation_configs=[presentation_config], offline="true", one_file="true").convert_to(
             out_file
         )
         assert out_file.exists()

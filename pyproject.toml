@@ -72,7 +72,6 @@ tests = [
   "pytest-env>=0.8.2",
   "pytest-missing-modules>=0.1.0",
   "pytest-qt>=4.2.0",
-  "pytest-mock>=3.14.0",
 ]
 
 [project.scripts]
