@@ -780,7 +780,7 @@ def convert(
                 DeprecationWarning,
                 stacklevel=2,
             )
-            config_options["one_file"] = config_options.pop("data_uri")
+            config_options.setdefaut("one_file", config_options.pop("data_uri"))
 
         if (
             offline
