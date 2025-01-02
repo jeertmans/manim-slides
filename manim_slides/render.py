@@ -1,7 +1,7 @@
 """
 Alias command to either
 ``manim render [OPTIONS] [ARGS]...`` or
-``manimgl [OPTIONS] [ARGS]...``.
+``manimgl -w [OPTIONS] [ARGS]...``.
 
 This is especially useful for two reasons:
 
@@ -48,6 +48,6 @@ def render(ce: bool, gl: bool, args: tuple[str, ...]) -> None:
     if ce and gl:
         raise click.UsageError("You cannot specify both --CE and --GL renderers.")
     if gl:
-        subprocess.run([sys.executable, "-m", "manimlib", *args])
+        subprocess.run([sys.executable, "-m", "manimlib", "-w", *args])
     else:
         subprocess.run([sys.executable, "-m", "manim", "render", *args])
