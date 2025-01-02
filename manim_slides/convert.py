@@ -731,7 +731,7 @@ def show_template_option(function: Callable[..., Any]) -> Callable[..., Any]:
     "To echo the default template, use '--show-template'.",
 )
 @click.option(
-    "--one-file",
+    "--one_file",
     is_flag=True,
     help="Save all assets in a single HTML file.",
 )
