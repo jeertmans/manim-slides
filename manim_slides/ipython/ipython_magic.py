@@ -222,11 +222,11 @@ class ManimSlidesMagic(Magics):  # type: ignore
 
             kwargs = dict(arg.split("=", 1) for arg in manim_slides_args)
 
-            if embed:  # Embedding implies data-uri
+            if embed:  # Embedding implies one_file
                 kwargs["one_file"] = "true"
 
             # TODO: FIXME
-            # Seems like files are blocked so date-uri is the only working option...
+            # Seems like files are blocked so one_file is the only working option...
             if kwargs.get("one_file", "false").lower().strip() == "false":
                 logger.warning(
                     "one_file option is currently automatically enabled, "
