@@ -16,7 +16,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [macos-latest, ubuntu-latest, windows-latest]
+        os: [macos-13, ubuntu-latest, windows-latest]
         pyversion: ['3.9', '3.10', '3.11', '3.12']
         extras: [pyside6-full, manimgl]
         exclude:
@@ -41,7 +41,9 @@ jobs:
       if: matrix.os == 'ubuntu-latest'
       run: |
         sudo apt-get update
-        sudo apt-get install build-essential python3-dev libcairo2-dev libpango1.0-dev ffmpeg freeglut3-dev xvfb
+        sudo apt install software-properties-common
+        sudo add-apt-repository ppa:deadsnakes/ppa
+        sudo apt-get install build-essential python${{ matrix.pyversion }}-dev libcairo2-dev libpango1.0-dev ffmpeg freeglut3-dev xvfb
         nohup Xvfb $DISPLAY &
 
     - name: Install Windows dependencies
