@@ -1535,7 +1535,6 @@ manim = [
 ]
 manimgl = [
     { name = "manimgl" },
-    { name = "pyrr" },
 ]
 pyqt6 = [
     { name = "pyqt6" },
@@ -1568,7 +1567,6 @@ tests = [
     { name = "manim" },
     { name = "manimgl" },
     { name = "pyqt6" },
-    { name = "pyrr" },
     { name = "pyside6" },
     { name = "pytest" },
     { name = "pytest-cov" },
@@ -1614,8 +1612,8 @@ requires-dist = [
     { name = "manim", marker = "extra == 'pyside6-full'", specifier = ">=0.18.0" },
     { name = "manim", marker = "extra == 'sphinx-directive'", specifier = ">=0.18.0" },
     { name = "manim", marker = "extra == 'tests'", specifier = ">=0.18.0" },
-    { name = "manimgl", marker = "extra == 'manimgl'", specifier = ">=1.7.1" },
-    { name = "manimgl", marker = "extra == 'tests'", specifier = ">=1.7.1" },
+    { name = "manimgl", marker = "extra == 'manimgl'", specifier = ">=1.7.2" },
+    { name = "manimgl", marker = "extra == 'tests'", specifier = ">=1.7.2" },
     { name = "myst-parser", marker = "extra == 'docs'", specifier = ">=2.0.0" },
     { name = "nbsphinx", marker = "extra == 'docs'", specifier = ">=0.9.2" },
     { name = "numpy", specifier = ">=1.19" },
@@ -1627,8 +1625,6 @@ requires-dist = [
     { name = "pyqt6", marker = "extra == 'pyqt6'", specifier = ">=6.7.0" },
     { name = "pyqt6", marker = "extra == 'pyqt6-full'", specifier = ">=6.7.0" },
     { name = "pyqt6", marker = "extra == 'tests'", specifier = ">=6.7.0" },
-    { name = "pyrr", marker = "extra == 'manimgl'" },
-    { name = "pyrr", marker = "extra == 'tests'" },
     { name = "pyside6", marker = "extra == 'pyside6'", specifier = ">=6.6.1,!=6.8.1.1" },
     { name = "pyside6", marker = "extra == 'pyside6-full'", specifier = ">=6.6.1,!=6.8.1.1" },
     { name = "pyside6", marker = "extra == 'tests'", specifier = ">=6.6.1,!=6.8.1.1" },
@@ -2095,15 +2091,6 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/e0/47/dd32fa426cc72114383ac549964eecb20ecfd886d1e5ccf5340b55b02f57/mpmath-1.3.0.tar.gz", hash = "sha256:7a28eb2a9774d00c7bc92411c19a89209d5da7c4c9a9e227be8330a23a25b91f", size = 508106 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/43/e3/7d92a15f894aa0c9c4b49b8ee9ac9850d6e63b03c9c32c0367a13ae62209/mpmath-1.3.0-py3-none-any.whl", hash = "sha256:a0b2b9fe80bbcd81a6647ff13108738cfb482d481d826cc0e02f5b35e5c88d2c", size = 536198 },
-]
-
-[[package]]
-name = "multipledispatch"
-version = "1.0.0"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/fe/3e/a62c3b824c7dec33c4a1578bcc842e6c30300051033a4e5975ed86cc2536/multipledispatch-1.0.0.tar.gz", hash = "sha256:5c839915465c68206c3e9c473357908216c28383b425361e5d144594bf85a7e0", size = 12385 }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/51/c0/00c9809d8b9346eb238a6bbd5f83e846a4ce4503da94a4c08cb7284c325b/multipledispatch-1.0.0-py3-none-any.whl", hash = "sha256:0c53cd8b077546da4e48869f49b13164bebafd0c2a5afceb6bb6a316e7fb46e4", size = 12818 },
 ]
 
 [[package]]
@@ -3004,20 +2991,6 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/be/6d/784be4a20aec7077a300ea94ff44c91673371f7655f8789dcb71c6db64d6/PyQt6_sip-13.9.1-cp39-cp39-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:fa27b51ae4c7013b3700cf0ecf46907d1333ae396fc6511311920485cbce094b", size = 302692 },
     { url = "https://files.pythonhosted.org/packages/e0/7b/6ce677bac6fcd108d1fa51b8c84b405fdd25c2bf6787c14305c3f6e04efe/PyQt6_sip-13.9.1-cp39-cp39-manylinux_2_5_x86_64.manylinux1_x86_64.whl", hash = "sha256:1d322ded1d1fea339cc6ac65b768e72c69c486eebb7db6ccde061b5786d74cc5", size = 281920 },
     { url = "https://files.pythonhosted.org/packages/60/87/78a08ffcb191b2eaa74b3d252b48a65ba470cb173a770e681274474094ab/PyQt6_sip-13.9.1-cp39-cp39-win_amd64.whl", hash = "sha256:8c207528992d59b0801458aa6fcff118e5c099608ef0fc6ff8bccbdc23f29c04", size = 53605 },
-]
-
-[[package]]
-name = "pyrr"
-version = "0.10.3"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "multipledispatch" },
-    { name = "numpy", version = "2.0.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
-    { name = "numpy", version = "2.2.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/e5/7f/2af23f61340972116e4efabc3ac6e02c8bad7f7315b3002c278092963f17/pyrr-0.10.3.tar.gz", hash = "sha256:3c0f7b20326e71f706a610d58f2190fff73af01eef60c19cb188b186f0ec7e1d", size = 64845 }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/80/d4/09bb74e93f9f677eadcf9ddb92681755f75e0f354a1b904f1913e32ca1b2/pyrr-0.10.3-py3-none-any.whl", hash = "sha256:d8af23fb9bb29262405845e1c98f7339fbba5e49323b98528bd01160a75c65ac", size = 46790 },
 ]
 
 [[package]]

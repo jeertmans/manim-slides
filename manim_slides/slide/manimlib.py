@@ -2,7 +2,6 @@ from pathlib import Path
 from typing import Any, ClassVar, Optional
 
 from manimlib import Scene, ThreeDCamera
-from manimlib.utils.file_ops import get_sorted_integer_files
 
 from .base import BaseSlide
 
@@ -10,14 +9,9 @@ from .base import BaseSlide
 class Slide(BaseSlide, Scene):  # type: ignore[misc]
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         kwargs.setdefault("file_writer_config", {}).update(
-            break_into_partial_movies=True,
-            write_to_movie=True,
+            subdivide_output=True,
         )
-        # See: https://github.com/3b1b/manim/issues/2261
-        if kwargs["file_writer_config"].setdefault("output_directory", ".") == "":
-            kwargs["file_writer_config"]["output_directory"] = "."
 
-        kwargs["preview"] = False  # Avoid opening a preview window
         super().__init__(*args, **kwargs)
 
     @property
@@ -46,16 +40,9 @@ class Slide(BaseSlide, Scene):  # type: ignore[misc]
 
     @property
     def _partial_movie_files(self) -> list[Path]:
-        kwargs = {
-            "remove_non_integer_files": True,
-            "extension": self.file_writer.movie_file_extension,
-        }
-        return [
-            Path(file)
-            for file in get_sorted_integer_files(
-                self.file_writer.partial_movie_directory, **kwargs
-            )
-        ]
+        partial_movie_directory = self.file_writer.partial_movie_directory
+        extension = self.file_writer.movie_file_extension
+        return sorted(partial_movie_directory.glob(f"*{extension}"))
 
     @property
     def _show_progress_bar(self) -> bool:

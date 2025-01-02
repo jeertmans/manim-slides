@@ -212,13 +212,10 @@ def init_slide(cls: SlideType) -> Slide:
     if issubclass(cls, CESlide):
         return cls()
     elif issubclass(cls, GLSlide):
-        from manimlib.config import get_configuration, parse_cli
-        from manimlib.extract_scene import get_scene_config
+        from manimlib.config import parse_cli
 
-        args = parse_cli()
-        config = get_configuration(args)
-        scene_config = get_scene_config(config)
-        return cls(**scene_config)
+        _args = parse_cli()
+        return cls()
 
     raise ValueError(f"Unsupported class {cls}")
 
