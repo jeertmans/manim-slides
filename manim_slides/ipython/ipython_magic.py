@@ -125,7 +125,7 @@ class ManimSlidesMagic(Magics):  # type: ignore
         in a cell and evaluate it. Then, a typical Jupyter notebook cell for Manim Slides
         could look as follows::
 
-            %%manim_slides -v WARNING --progress_bar None MySlide --manim-slides controls=true one_file
+            %%manim_slides -v WARNING --progress_bar None MySlide --manim-slides controls=true one_file=true
 
             class MySlide(Slide):
                 def construct(self):
