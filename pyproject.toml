@@ -59,10 +59,10 @@ full = [
 ]
 magic = ["manim-slides[manim]", "ipython>=8.12.2"]
 manim = ["manim>=0.18.0"]
-manimgl = ["manimgl>=1.7.1", "pyrr"]
+manimgl = ["manimgl>=1.7.2"]
 pyqt6 = ["pyqt6>=6.7.0"]
 pyqt6-full = ["manim-slides[full,pyqt6]"]
-pyside6 = ["pyside6>=6.6.1"]
+pyside6 = ["pyside6>=6.6.1,!=6.8.1.1"]
 pyside6-full = ["manim-slides[full,pyside6]"]
 sphinx-directive = ["docutils>=0.20.1", "manim-slides[manim]"]
 tests = [
