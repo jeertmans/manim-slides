@@ -884,7 +884,7 @@ def show_template_option(function: Callable[..., Any]) -> Callable[..., Any]:
 @click.command()
 @click.argument("scenes", nargs=-1)
 @folder_path_option
-@click.argument("dest", type=click.Path(dir_okay=False, path_type=Path), is_eager=True)
+@click.argument("dest", type=click.Path(dir_okay=False, path_type=Path))
 @click.option(
     "--to",
     type=click.Choice(["auto", "html", "pdf", "pptx", "zip"], case_sensitive=False),

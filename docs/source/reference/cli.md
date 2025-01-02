@@ -8,3 +8,34 @@ This page contains an exhaustive list of all the commands available with `manim-
     :prog: manim-slides
     :nested: full
 ```
+
+# Config Options
+
+Each converter has its own configuration options, which are listed below.
+
+::::{dropdown} HTML
+:open:
+```{program-output} manim-slides convert --to=html --show-config
+```
+::::
+
+::::{dropdown} Zip
+:open:
+:::{note}
+The Zip converter inherits from the HTML converter.
+:::
+```{program-output} manim-slides convert --to=zip --show-config
+```
+::::
+
+::::{dropdown} PDF
+:open:
+```{program-output} manim-slides convert --to=pdf --show-config
+```
+::::
+
+::::{dropdown} HTML
+:open:
+```{program-output} manim-slides convert --to=pdf --show-config
+```
+::::

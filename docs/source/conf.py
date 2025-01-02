@@ -30,6 +30,7 @@ extensions = [
     # Additional
     "nbsphinx",
     "myst_parser",
+    "sphinxcontrib.programoutput",
     "sphinxext.opengraph",
     "sphinx_click",
     "sphinx_copybutton",
