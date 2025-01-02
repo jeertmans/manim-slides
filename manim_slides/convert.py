@@ -773,9 +773,12 @@ def convert(
 
         # Change data_uri to one_file and print a warning
         if "data_uri" in config_options:
+            warnings.simplefilter("default")
             warnings.warn(
                 "The 'data_uri' configuration option is deprecated. "
-                "Use 'one_file' instead."
+                "Use 'one_file' instead.",
+                DeprecationWarning,
+                stacklevel=2,
             )
             config_options["one_file"] = config_options.pop("data_uri")
 

@@ -184,21 +184,21 @@ class TestConverter:
     ) -> None:
         # Mock requests.Session.get to return a fake response
         class MockResponse:
-            def __init__(self, content, text, status_code):
+            def __init__(self, content: bytes, text: str, status_code: int) -> None:
                 self.content = content
                 self.text = text
                 self.status_code = status_code
 
-        # Mock function for 'get'
-        def mock_get(*args, **kwargs):
-            return MockResponse(
+        # Apply the monkeypatch
+        monkeypatch.setattr(
+            requests.Session,
+            "get",
+            lambda: MockResponse(
                 b"body { background-color: #9a3241; }",
                 "body { background-color: #9a3241; }",
                 200,
-            )
-
-        # Apply the monkeypatch
-        monkeypatch.setattr(requests.Session, "get", mock_get)
+            ),
+        )
 
         out_file = tmp_path / "slides.html"
         RevealJS(
