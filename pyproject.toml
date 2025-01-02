@@ -51,6 +51,7 @@ docs = [
   "pandoc>=2.3",
   "sphinx>=7.0.1",
   "sphinxcontrib-programoutput>=0.18",
+  "sphinx-design>=0.6.1",
   "sphinx-click>=4.4.0",
   "sphinx-copybutton>=0.5.1",
   "sphinxext-opengraph>=0.7.5",

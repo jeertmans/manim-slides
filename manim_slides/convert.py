@@ -658,6 +658,9 @@ class FrameIndex(str, Enum):
     first = "first"
     last = "last"
 
+    def __repr__(self) -> str:
+        return self.value
+
 
 class PDF(Converter):
     frame_index: FrameIndex = Field(

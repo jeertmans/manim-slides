@@ -34,6 +34,7 @@ extensions = [
     "sphinxext.opengraph",
     "sphinx_click",
     "sphinx_copybutton",
+    "sphinx_design",
     # Custom
     "manim_slides.docs.manim_slides_directive",
 ]
