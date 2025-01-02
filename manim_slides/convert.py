@@ -4,8 +4,8 @@ import platform
 import shutil
 import subprocess
 import tempfile
-import webbrowser
 import warnings
+import webbrowser
 from base64 import b64encode
 from collections import deque
 from enum import Enum
@@ -487,12 +487,12 @@ class RevealJS(Converter):
                                 script.string = asset.text
                                 soup.head.append(script)
                             else:
-                                raise ValueError(f"Unable to inline {tag} asset: {link}")
+                                raise ValueError(
+                                    f"Unable to inline {tag} asset: {link}"
+                                )
                         else:
                             full_assets_dir.mkdir(parents=True, exist_ok=True)
-                            with open(
-                                full_assets_dir / asset_name, "wb"
-                            ) as asset_file:
+                            with open(full_assets_dir / asset_name, "wb") as asset_file:
                                 asset_file.write(asset.content)
 
                             item[inner] = str(assets_dir / asset_name)
@@ -780,9 +780,9 @@ def convert(
             config_options["one_file"] = config_options.pop("data_uri")
 
         if (
-            offline and
-            issubclass(cls, (RevealJS, HtmlZip)) and
-            "offline" not in config_options
+            offline
+            and issubclass(cls, (RevealJS, HtmlZip))
+            and "offline" not in config_options
         ):
             config_options["offline"] = "true"
 

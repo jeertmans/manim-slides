@@ -138,7 +138,7 @@ and it there to preserve the original aspect ratio (16:9).
 ### Sharing ONE HTML file
 
 If you set the `--one_file` flag, all animations will be data URI encoded,
-making the HTML a self-contained presentation file that can be shared 
+making the HTML a self-contained presentation file that can be shared
 on its own. If you also set the `--offline` flag, the JS and CSS files will
 be included in the HTML file as well.
 

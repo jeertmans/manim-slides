@@ -191,15 +191,19 @@ class TestConverter:
 
         # Mock function for 'get'
         def mock_get(*args, **kwargs):
-            return MockResponse(b"body { background-color: #9a3241; }", "body { background-color: #9a3241; }", 200)
+            return MockResponse(
+                b"body { background-color: #9a3241; }",
+                "body { background-color: #9a3241; }",
+                200,
+            )
 
         # Apply the monkeypatch
         monkeypatch.setattr(requests.Session, "get", mock_get)
 
         out_file = tmp_path / "slides.html"
-        RevealJS(presentation_configs=[presentation_config], offline="true", one_file="true").convert_to(
-            out_file
-        )
+        RevealJS(
+            presentation_configs=[presentation_config], offline="true", one_file="true"
+        ).convert_to(out_file)
         assert out_file.exists()
 
         with open(out_file, encoding="utf-8") as file:
