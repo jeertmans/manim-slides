@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 (unreleased)=
 ## [Unreleased](https://github.com/jeertmans/manim-slides/compare/v5.2.0...HEAD)
 
-(unreleased-changed)=
+(unreleased-added)=
 ### Added
 
 - Added CSS and JS inline for `manim-slides convert` if `--offline`
