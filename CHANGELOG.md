@@ -10,6 +10,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 (unreleased)=
 ## [Unreleased](https://github.com/jeertmans/manim-slides/compare/v5.2.0...HEAD)
 
+(unreleased-added)=
+### Added
+
+- Added CSS and JS inline for `manim-slides convert` if `--offline`
+  and `--one-file` (`-cone_file`) are used for HTML output.
+  [@Rapsssito](https://github.com/Rapsssito) [#505](https://github.com/jeertmans/manim-slides/pull/505)
+
+(unreleased-changed)=
+### Changed
+
+- Deprecate `-cdata_uri` in favor of `-cone_file` for `manim-slides convert`.
+  [@Rapsssito](https://github.com/Rapsssito) [#505](https://github.com/jeertmans/manim-slides/pull/505)
+
 (v5.2.0)=
 ## [v5.2.0](https://github.com/jeertmans/manim-slides/compare/v5.1.10...v5.2.0)
 

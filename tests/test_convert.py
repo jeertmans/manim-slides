@@ -3,6 +3,8 @@ from enum import EnumMeta
 from pathlib import Path
 
 import pytest
+import requests
+from bs4 import BeautifulSoup
 
 from manim_slides.config import PresentationConfig
 from manim_slides.convert import (
@@ -172,6 +174,101 @@ class TestConverter:
             "zenburn.min.css",
         ]:
             assert (assets_dir / file).exists()
+
+    def test_revealjs_data_encode(
+        self,
+        tmp_path: Path,
+        presentation_config: PresentationConfig,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        # Mock requests.Session.get to return a fake response (should not be called)
+        class MockResponse:
+            def __init__(self, content: bytes, text: str, status_code: int) -> None:
+                self.content = content
+                self.text = text
+                self.status_code = status_code
+
+        # Apply the monkeypatch
+        monkeypatch.setattr(
+            requests.Session,
+            "get",
+            lambda self, url: MockResponse(
+                b"body { background-color: #9a3241; }",
+                "body { background-color: #9a3241; }",
+                200,
+            ),
+        )
+        out_file = tmp_path / "slides.html"
+        RevealJS(
+            presentation_configs=[presentation_config], offline="false", one_file="true"
+        ).convert_to(out_file)
+        assert out_file.exists()
+        # Check that assets are not stored
+        assert not (tmp_path / "slides_assets").exists()
+
+        with open(out_file, encoding="utf-8") as file:
+            content = file.read()
+
+        soup = BeautifulSoup(content, "html.parser")
+
+        # Check if video is encoded in base64
+        videos = soup.find_all("section")
+        assert all(
+            "data:video/mp4;base64," in video["data-background-video"]
+            for video in videos
+        )
+
+        # Check if CSS is not inlined
+        styles = soup.find_all("style")
+        assert not any("background-color: #9a3241;" in style.string for style in styles)
+        # Check if JS is not inlined
+        scripts = soup.find_all("script")
+        assert not any(
+            "background-color: #9a3241;" in (script.string or "") for script in scripts
+        )
+
+    def test_revealjs_offline_inlining(
+        self,
+        tmp_path: Path,
+        presentation_config: PresentationConfig,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        # Mock requests.Session.get to return a fake response
+        class MockResponse:
+            def __init__(self, content: bytes, text: str, status_code: int) -> None:
+                self.content = content
+                self.text = text
+                self.status_code = status_code
+
+        # Apply the monkeypatch
+        monkeypatch.setattr(
+            requests.Session,
+            "get",
+            lambda self, url: MockResponse(
+                b"body { background-color: #9a3241; }",
+                "body { background-color: #9a3241; }",
+                200,
+            ),
+        )
+
+        out_file = tmp_path / "slides.html"
+        RevealJS(
+            presentation_configs=[presentation_config], offline="true", one_file="true"
+        ).convert_to(out_file)
+        assert out_file.exists()
+
+        with open(out_file, encoding="utf-8") as file:
+            content = file.read()
+
+        soup = BeautifulSoup(content, "html.parser")
+
+        # Check if CSS is inlined
+        styles = soup.find_all("style")
+        assert any("background-color: #9a3241;" in style.string for style in styles)
+
+        # Check if JS is inlined
+        scripts = soup.find_all("script")
+        assert any("background-color: #9a3241;" in script.string for script in scripts)
 
     def test_htmlzip_converter(
         self, tmp_path: Path, presentation_config: PresentationConfig

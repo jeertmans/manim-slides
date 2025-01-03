@@ -125,7 +125,7 @@ class ManimSlidesMagic(Magics):  # type: ignore
         in a cell and evaluate it. Then, a typical Jupyter notebook cell for Manim Slides
         could look as follows::
 
-            %%manim_slides -v WARNING --progress_bar None MySlide --manim-slides controls=true data_uri=true
+            %%manim_slides -v WARNING --progress_bar None MySlide --manim-slides controls=true one_file=true
 
             class MySlide(Slide):
                 def construct(self):
@@ -222,17 +222,29 @@ class ManimSlidesMagic(Magics):  # type: ignore
 
             kwargs = dict(arg.split("=", 1) for arg in manim_slides_args)
 
-            if embed:  # Embedding implies data-uri
-                kwargs["data_uri"] = "true"
+            # If data_uri is set, raise a warning
+            if "data_uri" in kwargs:
+                logger.warning(
+                    "'data_uri' configuration option is deprecated and will be removed in a future release. "
+                    "Please use 'one_file' instead."
+                )
+                kwargs["one_file"] = (
+                    kwargs["one_file"]
+                    if "one_file" in kwargs
+                    else kwargs.pop("data_uri")
+                )
+
+            if embed:  # Embedding implies one_file
+                kwargs["one_file"] = "true"
 
             # TODO: FIXME
-            # Seems like files are blocked so date-uri is the only working option...
-            if kwargs.get("data_uri", "false").lower().strip() == "false":
+            # Seems like files are blocked so one_file is the only working option...
+            if kwargs.get("one_file", "false").lower().strip() == "false":
                 logger.warning(
-                    "data_uri option is currently automatically enabled, "
+                    "one_file option is currently automatically enabled, "
                     "because using local video files does not seem to work properly."
                 )
-                kwargs["data_uri"] = "true"
+                kwargs["one_file"] = "true"
 
             presentation_configs = get_scenes_presentation_config(
                 [clsname], Path("./slides")

@@ -22,7 +22,7 @@
         {% for presentation_config in presentation_configs -%}
           {% set outer_loop = loop %}
           {%- for slide_config in presentation_config.slides -%}
-            {%- if data_uri -%}
+            {%- if one_file -%}
               {% set file = file_to_data_uri(slide_config.file) %}
             {%- else -%}
               {% set file = assets_dir / (prefix(outer_loop.index0) + slide_config.file.name) %}
@@ -320,7 +320,7 @@
         hideCursorTime: {{ hide_cursor_time }}
       });
 
-      {% if data_uri -%}
+      {% if one_file -%}
       // Fix found by @t-fritsch on GitHub
       // see: https://github.com/hakimel/reveal.js/discussions/3362#discussioncomment-6651475.
       function fixBase64VideoBackground(event) {

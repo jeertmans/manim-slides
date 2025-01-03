@@ -5,6 +5,7 @@ import shutil
 import subprocess
 import tempfile
 import textwrap
+import warnings
 import webbrowser
 from base64 import b64encode
 from collections import deque
@@ -298,9 +299,9 @@ class RevealJS(Converter):
     Please check out https://revealjs.com/config/ for more details.
     """
 
-    # Export option: use data-uri
-    data_uri: bool = Field(
-        False, description="Store all animations inside the HTML as data URI."
+    # Export option:
+    one_file: bool = Field(
+        False, description="Embed all assets (e.g., animations) inside the HTML."
     )
     offline: bool = Field(
         False, description="Download remote assets for offline presentation."
@@ -562,11 +563,10 @@ class RevealJS(Converter):
         )
         full_assets_dir = dirname / assets_dir
 
-        if not self.data_uri or self.offline:
+        if not self.one_file or self.offline:
             logger.debug(f"Assets will be saved to: {full_assets_dir}")
-            full_assets_dir.mkdir(parents=True, exist_ok=True)
 
-        if not self.data_uri:
+        if not self.one_file:
             num_presentation_configs = len(self.presentation_configs)
 
             if num_presentation_configs > 1:
@@ -585,6 +585,7 @@ class RevealJS(Converter):
                 def prefix(i: int) -> str:
                     return ""
 
+            full_assets_dir.mkdir(parents=True, exist_ok=True)
             for i, presentation_config in enumerate(self.presentation_configs):
                 presentation_config.copy_to(
                     full_assets_dir, include_reversed=False, prefix=prefix(i)
@@ -611,28 +612,50 @@ class RevealJS(Converter):
                 get_duration_ms=get_duration_ms,
                 has_notes=has_notes,
                 env=os.environ,
-                prefix=prefix if not self.data_uri else None,
+                prefix=prefix if not self.one_file else None,
                 **options,
             )
+            # If not offline, write the content to the file
+            if not self.offline:
+                f.write(content)
+                return
 
-            if self.offline:
-                soup = BeautifulSoup(content, "html.parser")
-                session = requests.Session()
+            # If offline, download remote assets and store them in the assets folder
+            soup = BeautifulSoup(content, "html.parser")
+            session = requests.Session()
 
-                for tag, inner in [("link", "href"), ("script", "src")]:
-                    for item in soup.find_all(tag):
-                        if item.has_attr(inner) and (link := item[inner]).startswith(
-                            "http"
-                        ):
-                            asset_name = link.rsplit("/", 1)[1]
-                            asset = session.get(link)
+            for tag, inner in [("link", "href"), ("script", "src")]:
+                for item in soup.find_all(tag):
+                    if item.has_attr(inner) and (link := item[inner]).startswith(
+                        "http"
+                    ):
+                        asset_name = link.rsplit("/", 1)[1]
+                        asset = session.get(link)
+                        if self.one_file:
+                            # If it is a CSS file, inline it
+                            if tag == "link" and "stylesheet" in item["rel"]:
+                                item.decompose()
+                                style = soup.new_tag("style")
+                                style.string = asset.text
+                                soup.head.append(style)
+                            # If it is a JS file, inline it
+                            elif tag == "script":
+                                item.decompose()
+                                script = soup.new_tag("script")
+                                script.string = asset.text
+                                soup.head.append(script)
+                            else:
+                                raise ValueError(
+                                    f"Unable to inline {tag} asset: {link}"
+                                )
+                        else:
+                            full_assets_dir.mkdir(parents=True, exist_ok=True)
                             with open(full_assets_dir / asset_name, "wb") as asset_file:
                                 asset_file.write(asset.content)
 
                             item[inner] = str(assets_dir / asset_name)
 
-                content = str(soup)
-
+            content = str(soup)
             f.write(content)
 
 
@@ -920,6 +943,12 @@ def show_template_option(function: Callable[..., Any]) -> Callable[..., Any]:
     "To echo the default template, use '--show-template'.",
 )
 @click.option(
+    "--one-file",
+    is_flag=True,
+    help="Embed all local assets (e.g., video files) in the output file. "
+    "The is a convenient alias to '-cone_file=true'.",
+)
+@click.option(
     "--offline",
     is_flag=True,
     help="Download any remote content and store it in the assets folder. "
@@ -937,6 +966,7 @@ def convert(
     config_options: dict[str, str],
     template: Optional[Path],
     offline: bool,
+    one_file: bool,
 ) -> None:
     """Convert SCENE(s) into a given format and writes the result in DEST."""
     presentation_configs = get_scenes_presentation_config(scenes, folder)
@@ -953,6 +983,28 @@ def convert(
                 cls = RevealJS
         else:
             cls = Converter.from_string(to)
+
+        if (
+            one_file
+            and issubclass(cls, (RevealJS, HtmlZip))
+            and "one_file" not in config_options
+        ):
+            config_options["one_file"] = "true"
+
+        # Change data_uri to one_file and print a warning if present
+        if "data_uri" in config_options:
+            warnings.warn(
+                "The 'data_uri' configuration option is deprecated and will be "
+                "removed in the next major version. "
+                "Use 'one_file' instead.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            config_options["one_file"] = (
+                config_options["one_file"]
+                if "one_file" in config_options
+                else config_options.pop("data_uri")
+            )
 
         if (
             offline
