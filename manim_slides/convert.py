@@ -1003,9 +1003,8 @@ def convert(
             config_options["one_file"] = (
                 config_options["one_file"]
                 if "one_file" in config_options
-                else config_options["data_uri"]
+                else config_options.pop("data_uri")
             )
-            config_options.pop("data_uri")
 
         if (
             offline

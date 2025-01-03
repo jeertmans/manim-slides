@@ -222,6 +222,18 @@ class ManimSlidesMagic(Magics):  # type: ignore
 
             kwargs = dict(arg.split("=", 1) for arg in manim_slides_args)
 
+            # If data_uri is set, raise a warning
+            if "data_uri" in kwargs:
+                logger.warning(
+                    "'data_uri' configuration option is deprecated and will be removed in a future release. "
+                    "Please use 'one_file' instead."
+                )
+                kwargs["one_file"] = (
+                    kwargs["one_file"]
+                    if "one_file" in kwargs
+                    else kwargs.pop("data_uri")
+                )
+
             if embed:  # Embedding implies one_file
                 kwargs["one_file"] = "true"
 
