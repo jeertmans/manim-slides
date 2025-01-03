@@ -102,7 +102,7 @@ Questions related to `manim-slides convert [SCENES]... output.html`.
 
 ### I moved my `.html` file and it stopped working
 
-If you did not specify `--one_file` when converting,
+If you did not specify `--one-file` (or `-cone_file=true`) when converting,
 then Manim Slides generated a folder containing all
 the video files, in the same folder as the HTML
 output. As the path to video files is a relative path,
