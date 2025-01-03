@@ -945,7 +945,8 @@ def show_template_option(function: Callable[..., Any]) -> Callable[..., Any]:
 @click.option(
     "--one_file",
     is_flag=True,
-    help="Save all assets in a single HTML file.",
+    help="Embed all local assets (e.g., video files) in the output file. "
+    "The is a convenient alias to '-cone_file=true'.",
 )
 @click.option(
     "--offline",
