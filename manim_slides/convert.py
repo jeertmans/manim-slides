@@ -984,6 +984,13 @@ def convert(
         else:
             cls = Converter.from_string(to)
 
+        if (
+            one_file
+            and issubclass(cls, (RevealJS, HtmlZip))
+            and "one_file" not in config_options
+        ):
+            config_options["one_file"] = "true"
+
         # Change data_uri to one_file and print a warning if present
         if "data_uri" in config_options:
             warnings.warn(
@@ -993,14 +1000,12 @@ def convert(
                 DeprecationWarning,
                 stacklevel=2,
             )
-            config_options.setdefaut("one_file", config_options.pop("data_uri"))
-
-        if (
-            one_file or
-            and issubclass(cls, (RevealJS, HtmlZip))
-            and "one_file" not in config_options
-        ):
-            config_options["one_file"] = "true"
+            config_options["one_file"] = (
+                config_options["one_file"]
+                if "one_file" in config_options
+                else config_options["data_uri"]
+            )
+            config_options.pop("data_uri")
 
         if (
             offline

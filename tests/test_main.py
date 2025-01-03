@@ -1,3 +1,4 @@
+import warnings
 from pathlib import Path
 
 import pytest
@@ -62,6 +63,34 @@ def test_convert(slides_folder: Path, extension: str) -> None:
         )
 
         assert results.exit_code == 0
+
+
+@pytest.mark.parametrize(("extension",), [("html",)])
+def test_convert_data_uri_deprecated(slides_folder: Path, extension: str) -> None:
+    runner = CliRunner(mix_stderr=False)
+
+    with runner.isolated_filesystem():
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            results = runner.invoke(
+                cli,
+                [
+                    "convert",
+                    "BasicSlide",
+                    f"basic_example.{extension}",
+                    "--folder",
+                    str(slides_folder),
+                    "--to",
+                    extension,
+                    "-cdata_uri=true",
+                ],
+            )
+            assert any(
+                "'data_uri' configuration option is deprecated" in str(item.message)
+                and item.category is DeprecationWarning
+                for item in w
+            )
+            assert results.exit_code == 0
 
 
 @pytest.mark.parametrize(

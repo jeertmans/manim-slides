@@ -175,7 +175,7 @@ class TestConverter:
         ]:
             assert (assets_dir / file).exists()
 
-    def test_revealjs_offline_data_encode(
+    def test_revealjs_data_encode(
         self,
         tmp_path: Path,
         presentation_config: PresentationConfig,
