@@ -3,7 +3,6 @@ from enum import EnumMeta
 from pathlib import Path
 
 import pytest
-from pydantic import ValidationError
 
 from manim_slides.config import PresentationConfig
 from manim_slides.convert import (
