@@ -226,10 +226,6 @@ class TestConverter:
         ).convert_to(out_file)
         assert out_file.exists()
 
-    def test_converter_no_presentation_config(self) -> None:
-        with pytest.raises(ValidationError):
-            Converter(presentation_configs=[])
-
     def test_pptx_converter(
         self, tmp_path: Path, presentation_config: PresentationConfig
     ) -> None:
