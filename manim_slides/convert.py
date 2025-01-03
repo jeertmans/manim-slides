@@ -984,16 +984,23 @@ def convert(
         else:
             cls = Converter.from_string(to)
 
-        # Change data_uri to one_file and print a warning
+        # Change data_uri to one_file and print a warning if present
         if "data_uri" in config_options:
-            warnings.simplefilter("default")
             warnings.warn(
-                "The 'data_uri' configuration option is deprecated. "
+                "The 'data_uri' configuration option is deprecated and will be "
+                "removed in the next major version. "
                 "Use 'one_file' instead.",
                 DeprecationWarning,
                 stacklevel=2,
             )
-            config_options.setdefaut("one_file", config_options.pop("data_uri"))
+            config_options.setdefaut("one_file", config_options.pop("data_uri"))       
+
+        if (
+            one_file or 
+            and issubclass(cls, (RevealJS, HtmlZip))
+            and "one_file" not in config_options
+        ):
+            config_options["one_file"] = "true"
 
         if (
             offline
