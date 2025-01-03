@@ -943,7 +943,7 @@ def show_template_option(function: Callable[..., Any]) -> Callable[..., Any]:
     "To echo the default template, use '--show-template'.",
 )
 @click.option(
-    "--one_file",
+    "--one-file",
     is_flag=True,
     help="Embed all local assets (e.g., video files) in the output file. "
     "The is a convenient alias to '-cone_file=true'.",
