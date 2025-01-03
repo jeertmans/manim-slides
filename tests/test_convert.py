@@ -5,7 +5,6 @@ from pathlib import Path
 import pytest
 import requests
 from bs4 import BeautifulSoup
-from pydantic import ValidationError
 
 from manim_slides.config import PresentationConfig
 from manim_slides.convert import (

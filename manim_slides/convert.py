@@ -298,7 +298,7 @@ class RevealJS(Converter):
 
     Please check out https://revealjs.com/config/ for more details.
     """
-    
+
     # Export option:
     one_file: bool = Field(
         False, description="Embed all assets (e.g., animations) inside the HTML."
