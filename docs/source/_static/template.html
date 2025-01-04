@@ -316,15 +316,15 @@
       });
 
       {% if one_file %}
-        // Fix found by @t-fritsch on GitHub
-        // see: https://github.com/hakimel/reveal.js/discussions/3362#discussioncomment-6651475.
+        // Fix found by @t-fritsch and @Rapsssito on GitHub
+        // see: https://github.com/hakimel/reveal.js/discussions/3362#discussioncomment-11733074.
         function fixBase64VideoBackground(event) {
-          // event.previousSlide, event.currentSlide, event.indexh, event.indexv
-          if (event.currentSlide.getAttribute('data-background-video')) {
-            const background = Reveal.getSlideBackground(event.indexh, event.indexv),
-              video = background.querySelector('video'),
-              sources = video.querySelectorAll('source');
-
+          // Analyze all slides backgrounds
+          for (const slide of Reveal.getBackgroundsElement().querySelectorAll('.slide-background')) {
+            // Get the slide video and its sources for each background
+            const video = slide.querySelector('video');
+            const sources = video.querySelectorAll('source');
+            // Update the source of the video
             sources.forEach((source, i) => {
               const src = source.getAttribute('src');
               if(src.match(/^data:video.*;base64$/)) {
@@ -334,8 +334,8 @@
             });
           }
         }
+        // Setup base64 videos
         Reveal.on( 'ready', fixBase64VideoBackground );
-        Reveal.on( 'slidechanged', fixBase64VideoBackground );
       {% endif %}
     </script>
 
