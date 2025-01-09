@@ -22,6 +22,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Deprecate `-cdata_uri` in favor of `-cone_file` for `manim-slides convert`.
   [@Rapsssito](https://github.com/Rapsssito) [#505](https://github.com/jeertmans/manim-slides/pull/505)
+- Changed template to avoid micro-stuttering with `--one-file` in HTML presentation.
+  [@Rapsssito](https://github.com/Rapsssito) [#508](https://github.com/jeertmans/manim-slides/pull/508)
 
 (v5.2.0)=
 ## [v5.2.0](https://github.com/jeertmans/manim-slides/compare/v5.1.10...v5.2.0)
