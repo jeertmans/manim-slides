@@ -20,7 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 (unreleased-changed)=
 ### Changed
 
-- fix(convert): avoid micro-stuttering with `--one-file` in HTML presentation.
+- Changed template to avoid micro-stuttering with `--one-file` in HTML presentation.
   [@Rapsssito](https://github.com/Rapsssito) [#508](https://github.com/jeertmans/manim-slides/pull/508)
 - Deprecate `-cdata_uri` in favor of `-cone_file` for `manim-slides convert`.
   [@Rapsssito](https://github.com/Rapsssito) [#505](https://github.com/jeertmans/manim-slides/pull/505)
