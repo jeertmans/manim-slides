@@ -463,13 +463,13 @@ class Player(QMainWindow):  # type: ignore[misc]
     def presentation_changed_callback(self) -> None:
         index = self.current_presentation_index
         count = self.presentations_count
-        self.info.scene_label.setText(f"{index+1:4d}/{count:4<d}")
+        self.info.scene_label.setText(f"{index + 1:4d}/{count:4<d}")
 
     @Slot()
     def slide_changed_callback(self) -> None:
         index = self.current_slide_index
         count = self.current_slides_count
-        self.info.slide_label.setText(f"{index+1:4d}/{count:4<d}")
+        self.info.slide_label.setText(f"{index + 1:4d}/{count:4<d}")
         self.info.slide_notes.setText(self.current_slide_config.notes)
         self.preview_next_slide()
 
