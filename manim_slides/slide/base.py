@@ -521,6 +521,8 @@ class BaseSlide:
             ascii=True if platform.system() == "Windows" else None,
             disable=not self._show_progress_bar,
         ):
+            if pre_slide_config.skip_animations:
+                continue
             slide_files = files[pre_slide_config.slides_slice]
 
             file = merge_basenames(slide_files)
