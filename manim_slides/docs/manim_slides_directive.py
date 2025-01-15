@@ -339,7 +339,7 @@ class ManimSlidesDirective(Directive):
             ref_block = ""
 
         if "quality" in self.options:
-            quality = f'{self.options["quality"]}_quality'
+            quality = f"{self.options['quality']}_quality"
         else:
             quality = "example_quality"
         frame_rate = QUALITIES[quality]["frame_rate"]
@@ -483,7 +483,7 @@ def _log_rendering_times(*args):
             )
             for row in group:
                 print(  # noqa: T201
-                    f"{' '*(max_file_length)} {row[2].rjust(7)}s {row[1]}"
+                    f"{' ' * (max_file_length)} {row[2].rjust(7)}s {row[1]}"
                 )
         print("")  # noqa: T201
 

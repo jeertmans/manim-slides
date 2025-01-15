@@ -310,7 +310,7 @@ def present(  # noqa: C901
         except IndexError:
             logger.error(
                 f"Invalid screen number {number}, "
-                f"allowed values are from 0 to {len(screens)-1} (incl.)"
+                f"allowed values are from 0 to {len(screens) - 1} (incl.)"
             )
             return None
 
