@@ -49,6 +49,7 @@ docs = [
   "myst-parser>=2.0.0",
   "nbsphinx>=0.9.2",
   "pandoc>=2.3",
+  "pygments<2.19",  # See: https://github.com/ManimCommunity/manim/issues/4104
   "sphinx>=7.0.1",
   "sphinxcontrib-programoutput>=0.18",
   "sphinx-design>=0.6.1",
@@ -60,7 +61,7 @@ full = [
   "manim-slides[magic,manim,sphinx-directive]",
 ]
 magic = ["manim-slides[manim]", "ipython>=8.12.2"]
-manim = ["manim>=0.18.0"]
+manim = ["manim>=0.17"]
 manimgl = ["manimgl>=1.7.2"]
 pyqt6 = ["pyqt6>=6.7.0"]
 pyqt6-full = ["manim-slides[full,pyqt6]"]
@@ -135,6 +136,13 @@ replace = '''<!-- start changelog -->
 (unreleased)=
 ## [Unreleased](https://github.com/jeertmans/manim-slides/compare/v{new_version}...HEAD)'''
 search = "<!-- start changelog -->"
+
+[[tool.bumpversion.files]]
+filename = "uv.lock"
+replace = '''name = "manim-slides"
+version = "{new_version}"'''
+search = '''name = "manim-slides"
+version = "{current_version}"'''
 
 [tool.codespell]
 builtin = "clear,rare,informal,usage,names,en-GB_to_en-US"
