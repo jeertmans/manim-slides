@@ -122,7 +122,7 @@ body:
       This will be automatically formatted into code, so no need for backticks.
     placeholder: |
       from manim import *
-      from manim_slides.slide import Slide
+      from manim_slides import Slide
 
 
       class MWE(Slide):
