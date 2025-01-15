@@ -8,9 +8,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <!-- start changelog -->
 
 (unreleased)=
-## [Unreleased](https://github.com/jeertmans/manim-slides/compare/v5.3.0...HEAD)
+## [Unreleased](https://github.com/jeertmans/manim-slides/compare/v5.3.1...HEAD)
 
-(unreleased-fixed)=
+(v5.3.1)=
+## [v5.3.1](https://github.com/jeertmans/manim-slides/compare/v5.3.0...v5.3.1)
+
+(v5.3.1-fixed)=
 ### Fixed
 
 - Fixed HTML template to avoid missing slides when exporting with `--one-file`.
