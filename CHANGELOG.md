@@ -10,7 +10,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 (unreleased)=
 ## [Unreleased](https://github.com/jeertmans/manim-slides/compare/v5.3.0...HEAD)
 
-- Changed template to avoid missing slides in HTML presentation.
+(unreleased-fixed)=
+### Fixed
+
+- Fixed HTML template to avoid missing slides when exporting with `--one-file`.
   [@Rapsssito](https://github.com/Rapsssito) [#515](https://github.com/jeertmans/manim-slides/pull/515)
 
 (v5.3.0)=
