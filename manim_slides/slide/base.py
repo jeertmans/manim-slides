@@ -300,8 +300,10 @@ class BaseSlide:
             :meth:`Scene.next_section<manim.scene.scene.Scene.next_section>`,
             or ignored if `manimlib` API is used.
         :param skip_animations:
-            Passed to `:meth:`Scene.next_section<manim.scene.scene.Scene.next_section>`,
-            or ignored if `manimlib` API is used.
+            Exclude the next slide from the output.
+        
+            If `manim` is used, this is also passed to `:meth:`Scene.next_section<manim.scene.scene.Scene.next_section>`,
+            which will avoid rendering the corresponding animations.
         :param loop:
             If set, next slide will be looping.
         :param auto_next:
