@@ -492,7 +492,6 @@ class TestSlide:
                 self.next_slide()
                 self.play(GrowFromCenter(square))
 
-
     def test_canvas(self) -> None:
         @assert_constructs
         class _(CESlide):
