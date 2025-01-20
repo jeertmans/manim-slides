@@ -479,6 +479,20 @@ class TestSlide:
                 self.next_slide()
                 assert self._current_slide == 2
 
+    def test_next_slide_skip_animations(self) -> None:
+        @assert_constructs
+        class _(CESlide):
+            def construct(self) -> None:
+                # TODO: Check if the slide is missing from the JSON
+                circle = Circle(color=BLUE)
+                self.play(GrowFromCenter(circle))
+                self.next_slide(skip_animations=True)
+                square = Circle(color=BLUE)
+                self.play(GrowFromCenter(square))
+                self.next_slide()
+                self.play(GrowFromCenter(square))
+
+
     def test_canvas(self) -> None:
         @assert_constructs
         class _(CESlide):

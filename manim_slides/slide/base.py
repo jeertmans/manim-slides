@@ -299,6 +299,9 @@ class BaseSlide:
             Positional arguments passed to
             :meth:`Scene.next_section<manim.scene.scene.Scene.next_section>`,
             or ignored if `manimlib` API is used.
+        :param skip_animations:
+            Passed to `:meth:`Scene.next_section<manim.scene.scene.Scene.next_section>`,
+            or ignored if `manimlib` API is used.
         :param loop:
             If set, next slide will be looping.
         :param auto_next:
