@@ -61,7 +61,7 @@ full = [
   "manim-slides[magic,manim,sphinx-directive]",
 ]
 magic = ["manim-slides[manim]", "ipython>=8.12.2"]
-manim = ["manim>=0.17"]
+manim = ["manim>=0.19"]
 manimgl = ["manimgl>=1.7.2"]
 pyqt6 = ["pyqt6>=6.7.0"]
 pyqt6-full = ["manim-slides[full,pyqt6]"]
