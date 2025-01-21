@@ -89,6 +89,15 @@ class Slide(BaseSlide, Scene):  # type: ignore[misc]
     def _start_at_animation_number(self) -> Optional[int]:
         return config["from_animation_number"]  # type: ignore
 
+    def play(self, *args: Any, **kwargs: Any) -> None:
+        """Overload 'self.play' and increment animation count."""
+        super().play(*args, **kwargs)
+
+        if self._base_slide_config.skip_animations:
+            # Manim will not render the animations, so we reset the animation
+            # counter to the previous value
+            self._current_animation -= 1
+
     def next_section(self, *args: Any, **kwargs: Any) -> None:
         """
         Alias to :meth:`next_slide`.
@@ -111,7 +120,9 @@ class Slide(BaseSlide, Scene):  # type: ignore[misc]
         base_slide_config: BaseSlideConfig,
         **kwargs: Any,
     ) -> None:
-        Scene.next_section(self, *args, **kwargs)
+        Scene.next_section(
+            self, *args, skip_animations=base_slide_config.skip_animations, **kwargs
+        )
         BaseSlide.next_slide.__wrapped__(
             self,
             base_slide_config=base_slide_config,

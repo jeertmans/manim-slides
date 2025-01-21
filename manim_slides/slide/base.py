@@ -277,7 +277,7 @@ class BaseSlide:
         self._wait_time_between_slides = max(wait_time, 0.0)
 
     def play(self, *args: Any, **kwargs: Any) -> None:
-        """Overload `self.play` and increment animation count."""
+        """Overload 'self.play' and increment animation count."""
         super().play(*args, **kwargs)  # type: ignore[misc]
         self._current_animation += 1
 
@@ -299,6 +299,11 @@ class BaseSlide:
             Positional arguments passed to
             :meth:`Scene.next_section<manim.scene.scene.Scene.next_section>`,
             or ignored if `manimlib` API is used.
+        :param skip_animations:
+            Exclude the next slide from the output.
+
+            If `manim` is used, this is also passed to `:meth:`Scene.next_section<manim.scene.scene.Scene.next_section>`,
+            which will avoid rendering the corresponding animations.
         :param loop:
             If set, next slide will be looping.
         :param auto_next:
@@ -521,9 +526,16 @@ class BaseSlide:
             ascii=True if platform.system() == "Windows" else None,
             disable=not self._show_progress_bar,
         ):
+            if pre_slide_config.skip_animations:
+                continue
             slide_files = files[pre_slide_config.slides_slice]
 
-            file = merge_basenames(slide_files)
+            try:
+                file = merge_basenames(slide_files)
+            except ValueError as e:
+                raise ValueError(
+                    f"Failed to merge basenames of files for slide: {pre_slide_config!r}"
+                ) from e
             dst_file = scene_files_folder / file.name
             rev_file = scene_files_folder / f"{file.stem}_reversed{file.suffix}"
 
