@@ -4,7 +4,6 @@ import random
 import shutil
 import sys
 import tempfile
-import threading
 from collections.abc import Iterator
 from pathlib import Path
 from typing import Any, Union
@@ -237,21 +236,17 @@ def assert_constructs(cls: SlideType) -> None:
     init_slide(cls).construct()
 
 
-_L = (
-    threading.Lock()
-)  # We cannot change directory multiple times at once (in the same thread)
-
-
 @contextlib.contextmanager
 def tmp_cwd() -> Iterator[str]:
-    old_cwd = os.getcwd()
+    cwd = os.getcwd()
+    tmp_dir = tempfile.mkdtemp()
 
-    with tempfile.TemporaryDirectory() as tmp_dir, _L:
-        try:
-            os.chdir(tmp_dir)
-            yield tmp_dir
-        finally:
-            os.chdir(old_cwd)
+    os.chdir(tmp_dir)
+
+    try:
+        yield tmp_dir
+    finally:
+        os.chdir(cwd)
 
 
 def assert_renders(cls: SlideType) -> None:
