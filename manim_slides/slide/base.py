@@ -277,7 +277,7 @@ class BaseSlide:
         self._wait_time_between_slides = max(wait_time, 0.0)
 
     def play(self, *args: Any, **kwargs: Any) -> None:
-        """Overload `self.play` and increment animation count."""
+        """Overload 'self.play' and increment animation count."""
         super().play(*args, **kwargs)  # type: ignore[misc]
         self._current_animation += 1
 
@@ -530,7 +530,12 @@ class BaseSlide:
                 continue
             slide_files = files[pre_slide_config.slides_slice]
 
-            file = merge_basenames(slide_files)
+            try:
+                file = merge_basenames(slide_files)
+            except ValueError as e:
+                raise ValueError(
+                    f"Failed to merge basenames of files for slide: {pre_slide_config!r}"
+                ) from e
             dst_file = scene_files_folder / file.name
             rev_file = scene_files_folder / f"{file.stem}_reversed{file.suffix}"
 

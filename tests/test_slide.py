@@ -1,6 +1,11 @@
+import contextlib
+import os
 import random
 import shutil
 import sys
+import tempfile
+import threading
+from collections.abc import Iterator
 from pathlib import Path
 from typing import Any, Union
 
@@ -17,6 +22,7 @@ from manim import (
     Dot,
     FadeIn,
     GrowFromCenter,
+    Square,
     Text,
 )
 from manim.renderer.opengl_renderer import OpenGLRenderer
@@ -229,8 +235,26 @@ def assert_constructs(cls: SlideType) -> None:
     init_slide(cls).construct()
 
 
+_L = (
+    threading.Lock()
+)  # We cannot change directory multiple times at once (in the same thread)
+
+
+@contextlib.contextmanager
+def tmp_cwd() -> Iterator[str]:
+    old_cwd = os.getcwd()
+
+    with tempfile.TemporaryDirectory() as tmp_dir, _L:
+        try:
+            os.chdir(tmp_dir)
+            yield tmp_dir
+        finally:
+            os.chdir(old_cwd)
+
+
 def assert_renders(cls: SlideType) -> None:
-    init_slide(cls).render()
+    with tmp_cwd():
+        init_slide(cls).render()
 
 
 class TestSlide:
@@ -480,17 +504,51 @@ class TestSlide:
                 assert self._current_slide == 2
 
     def test_next_slide_skip_animations(self) -> None:
-        @assert_constructs
-        class _(CESlide):
+        class Foo(CESlide):
             def construct(self) -> None:
-                # TODO: Check if the slide is missing from the JSON
                 circle = Circle(color=BLUE)
                 self.play(GrowFromCenter(circle))
+                assert not self._base_slide_config.skip_animations
                 self.next_slide(skip_animations=True)
-                square = Circle(color=BLUE)
+                square = Square(color=BLUE)
                 self.play(GrowFromCenter(square))
+                assert self._base_slide_config.skip_animations
                 self.next_slide()
+                assert not self._base_slide_config.skip_animations
                 self.play(GrowFromCenter(square))
+
+        class Bar(CESlide):
+            def construct(self) -> None:
+                circle = Circle(color=BLUE)
+                self.play(GrowFromCenter(circle))
+                assert not self._base_slide_config.skip_animations
+                self.next_slide(skip_animations=False)
+                square = Square(color=BLUE)
+                self.play(GrowFromCenter(square))
+                assert not self._base_slide_config.skip_animations
+                self.next_slide()
+                assert not self._base_slide_config.skip_animations
+                self.play(GrowFromCenter(square))
+
+        with tmp_cwd() as tmp_dir:
+            init_slide(Foo).render()
+            init_slide(Bar).render()
+
+            slides_folder = Path(tmp_dir) / "slides"
+
+            assert slides_folder.exists()
+
+            slide_file = slides_folder / "Foo.json"
+
+            config = PresentationConfig.from_file(slide_file)
+
+            assert len(config.slides) == 2
+
+            slide_file = slides_folder / "Bar.json"
+
+            config = PresentationConfig.from_file(slide_file)
+
+            assert len(config.slides) == 3
 
     def test_canvas(self) -> None:
         @assert_constructs
