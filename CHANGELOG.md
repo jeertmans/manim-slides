@@ -16,6 +16,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added `skip_animations` compatibility with ManimCE.
   [@Rapsssito](https://github.com/Rapsssito) [#516](https://github.com/jeertmans/manim-slides/pull/516)
 
+(unreleased-chore)=
+### Chore
+
+- Bumped Manim to `>=0.19`, as it fixed OpenGL renderer issue.
+  [#522](https://github.com/jeertmans/manim-slides/pull/522)
+
+(unreleased-fixed)=
+### Fixed
+
+- Fixed OpenGL renderer having no partial movie files with Manim bindings.
+  [#522](https://github.com/jeertmans/manim-slides/pull/522)
+- Fixed `ConvertExample` example as `manim>=0.19` changed the `Code` class.
+  [#522](https://github.com/jeertmans/manim-slides/pull/522)
+
 (v5.3.1)=
 ## [v5.3.1](https://github.com/jeertmans/manim-slides/compare/v5.3.0...v5.3.1)
 
@@ -60,11 +74,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 (v5.2.0-chore)=
 ### Chore
 
-- Bump ManimGL to `>=1.7.1`, to remove conflicting dependencies
+- Bumped ManimGL to `>=1.7.1`, to remove conflicting dependencies
   with Manim's.
   [#499](https://github.com/jeertmans/manim-slides/pull/499)
 
-- Bump ManimGL to `>=1.7.2`, to remove `pyrr` from dependencies,
+- Bumped ManimGL to `>=1.7.2`, to remove `pyrr` from dependencies,
   and to avoid complex code for supporting both `1.7.1` and `>=1.7.2`,
   as the latter includes many breaking changes.
   [#506](https://github.com/jeertmans/manim-slides/pull/506)
@@ -127,7 +141,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 (v5.1.8-chore)=
 ### Chore
 
-- Pin `rtoml==0.9.0` on Windows platforms,
+- Pinned `rtoml==0.9.0` on Windows platforms,
   see [#398](https://github.com/jeertmans/manim-slides/pull/398),
   until
   [samuelcolvin/rtoml#74](https://github.com/samuelcolvin/rtoml/issues/74)

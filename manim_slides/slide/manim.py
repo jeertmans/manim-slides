@@ -31,6 +31,12 @@ class Slide(BaseSlide, Scene):  # type: ignore[misc]
         for the current slide config.
     """
 
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        # OpenGL renderer disables 'write_to_movie' by default
+        # which is required for saving the animations
+        config["write_to_movie"] = True
+        super().__init__(*args, **kwargs)
+
     @property
     def _frame_shape(self) -> tuple[float, float]:
         if isinstance(self.renderer, OpenGLRenderer):
