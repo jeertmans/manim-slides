@@ -137,13 +137,6 @@ replace = '''<!-- start changelog -->
 ## [Unreleased](https://github.com/jeertmans/manim-slides/compare/v{new_version}...HEAD)'''
 search = "<!-- start changelog -->"
 
-[[tool.bumpversion.files]]
-filename = "uv.lock"
-replace = '''name = "manim-slides"
-version = "{new_version}"'''
-search = '''name = "manim-slides"
-version = "{current_version}"'''
-
 [tool.codespell]
 builtin = "clear,rare,informal,usage,names,en-GB_to_en-US"
 check-hidden = true
