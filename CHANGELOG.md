@@ -8,21 +8,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <!-- start changelog -->
 
 (unreleased)=
-## [Unreleased](https://github.com/jeertmans/manim-slides/compare/v5.3.1...HEAD)
+## [Unreleased](https://github.com/jeertmans/manim-slides/compare/v5.4.0...HEAD)
 
-(unreleased-added)=
+(v5.4.0)=
+## [v5.4.0](https://github.com/jeertmans/manim-slides/compare/v5.3.1...v5.4.0)
+
+(v5.4.0-added)=
 ### Added
 
 - Added `skip_animations` compatibility with ManimCE.
   [@Rapsssito](https://github.com/Rapsssito) [#516](https://github.com/jeertmans/manim-slides/pull/516)
 
-(unreleased-chore)=
+(v5.4.0-chore)=
 ### Chore
 
 - Bumped Manim to `>=0.19`, as it fixed OpenGL renderer issue.
   [#522](https://github.com/jeertmans/manim-slides/pull/522)
 
-(unreleased-fixed)=
+(v5.4.0-fixed)=
 ### Fixed
 
 - Fixed OpenGL renderer having no partial movie files with Manim bindings.
