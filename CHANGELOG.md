@@ -10,6 +10,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 (unreleased)=
 ## [Unreleased](https://github.com/jeertmans/manim-slides/compare/v5.4.0...HEAD)
 
+(unreleased-added)=
+### Added
+
+- Added `start_skip_animations` and `stop_skip_animations` methods.
+  [#523](https://github.com/jeertmans/manim-slides/pull/523)
+
 (v5.4.0)=
 ## [v5.4.0](https://github.com/jeertmans/manim-slides/compare/v5.3.1...v5.4.0)
 

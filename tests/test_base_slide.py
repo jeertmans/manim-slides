@@ -86,6 +86,15 @@ class TestBaseSlide:
 
         assert base_slide.wait_time_between_slides == 0.0
 
+    def test_skip_animations(self, base_slide: BaseSlide) -> None:
+        assert base_slide._skip_animations == False
+
+    def test_start_and_stop_skip_animations(self, base_slide: BaseSlide) -> None:
+        base_slide.start_skip_animations()
+        assert base_slide._skip_animations == True
+        base_slide.stop_skip_animations()
+        assert base_slide._skip_animations == False
+
     def test_play(self) -> None:
         pass  # This method should be tested in test_slide.py
 

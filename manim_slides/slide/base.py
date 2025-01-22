@@ -49,6 +49,7 @@ class BaseSlide:
         self._start_animation = 0
         self._canvas: MutableMapping[str, Mobject] = {}
         self._wait_time_between_slides = 0.0
+        self._skip_animations = False
 
     @property
     @abstractmethod
@@ -304,6 +305,11 @@ class BaseSlide:
 
             If `manim` is used, this is also passed to `:meth:`Scene.next_section<manim.scene.scene.Scene.next_section>`,
             which will avoid rendering the corresponding animations.
+
+            .. seealso::
+
+                :meth:`start_skip_animations`
+                :meth:`stop_skip_animations`
         :param loop:
             If set, next slide will be looping.
         :param auto_next:
@@ -463,6 +469,9 @@ class BaseSlide:
 
             self._current_slide += 1
 
+        if self._skip_animations:
+            base_slide_config.skip_animations = True
+
         self._base_slide_config = base_slide_config
         self._start_animation = self._current_animation
 
@@ -571,6 +580,24 @@ class BaseSlide:
         logger.info(
             f"Slide '{scene_name}' configuration written in '{slide_path.absolute()}'"
         )
+
+    def start_skip_animations(self) -> None:
+        """
+        Start skipping animations.
+
+        This automatically applies ``skip_animations=True``
+        to all subsequent calls to :meth:`next_slide`.
+
+        This is useful when you want to skip animations from multiple slides in a row,
+        without having to manually set ``skip_animations=True``.
+        """
+        self._skip_animations = True
+
+    def stop_skip_animations(self) -> None:
+        """
+        Stop skipping animations.
+        """
+        self._skip_animations = False
 
     def wipe(
         self,
