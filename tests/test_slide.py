@@ -527,9 +527,25 @@ class TestSlide:
                 assert not self._base_slide_config.skip_animations
                 self.play(GrowFromCenter(square))
 
+        class Baz(CESlide):
+            def construct(self) -> None:
+                circle = Circle(color=BLUE)
+                self.play(GrowFromCenter(circle))
+                assert not self._base_slide_config.skip_animations
+                self.start_skip_animations()
+                self.next_slide()
+                square = Square(color=BLUE)
+                self.play(GrowFromCenter(square))
+                assert self._base_slide_config.skip_animations
+                self.next_slide()
+                assert self._base_slide_config.skip_animations
+                self.play(GrowFromCenter(square))
+                self.stop_skip_animations()
+
         with tmp_cwd() as tmp_dir:
             init_slide(Foo).render()
             init_slide(Bar).render()
+            init_slide(Baz).render()
 
             slides_folder = Path(tmp_dir) / "slides"
 
@@ -546,6 +562,12 @@ class TestSlide:
             config = PresentationConfig.from_file(slide_file)
 
             assert len(config.slides) == 3
+
+            slide_file = slides_folder / "Baz.json"
+
+            config = PresentationConfig.from_file(slide_file)
+
+            assert len(config.slides) == 1
 
     def test_canvas(self) -> None:
         @assert_constructs

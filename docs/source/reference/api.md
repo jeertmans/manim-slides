@@ -18,6 +18,8 @@ use, not the methods used internally when rendering.
         next_section,
         next_slide,
         remove_from_canvas,
+        start_skip_animations,
+        stop_skip_animations,
         wait_time_between_slides,
         wipe,
         zoom,
