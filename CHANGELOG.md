@@ -8,9 +8,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <!-- start changelog -->
 
 (unreleased)=
-## [Unreleased](https://github.com/jeertmans/manim-slides/compare/v5.4.1...HEAD)
+## [Unreleased](https://github.com/jeertmans/manim-slides/compare/v5.4.2...HEAD)
 
-(unreleased-fixed)=
+(v5.4.2)=
+## [v5.4.2](https://github.com/jeertmans/manim-slides/compare/v5.4.1...v5.4.2)
+
+(v5.4.2-fixed)=
 ### Fixed
 
 - Fixed `start_skip_animations` to actually pass argument to ManimCE,
