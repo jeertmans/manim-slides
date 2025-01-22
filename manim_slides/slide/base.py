@@ -594,9 +594,7 @@ class BaseSlide:
         self._skip_animations = True
 
     def stop_skip_animations(self) -> None:
-        """
-        Stop skipping animations.
-        """
+        """Stop skipping animations."""
         self._skip_animations = False
 
     def wipe(

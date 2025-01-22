@@ -127,7 +127,10 @@ class Slide(BaseSlide, Scene):  # type: ignore[misc]
         **kwargs: Any,
     ) -> None:
         Scene.next_section(
-            self, *args, skip_animations=base_slide_config.skip_animations, **kwargs
+            self,
+            *args,
+            skip_animations=base_slide_config.skip_animations | self._skip_animations,
+            **kwargs,
         )
         BaseSlide.next_slide.__wrapped__(
             self,

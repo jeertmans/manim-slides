@@ -10,6 +10,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 (unreleased)=
 ## [Unreleased](https://github.com/jeertmans/manim-slides/compare/v5.4.1...HEAD)
 
+(unreleased-fixed)=
+### Fixed
+
+- Fixed `start_skip_animations` to actually pass argument to ManimCE,
+  otherwise video animations were still rendered, just excluded from
+  the final output.
+  [#524](https://github.com/jeertmans/manim-slides/pull/524)
+
 (v5.4.1)=
 ## [v5.4.1](https://github.com/jeertmans/manim-slides/compare/v5.4.0...v5.4.1)
 
