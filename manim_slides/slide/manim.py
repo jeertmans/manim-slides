@@ -11,7 +11,7 @@ from .base import BaseSlide
 
 class Slide(BaseSlide, Scene):  # type: ignore[misc]
     """
-    Inherits from :class:`Scene<manim.scene.scene.Scene>` and provide necessary tools
+    Inherits from :class:`Scene<manim.scene.scene.Scene>` and provides necessary tools
     for slides rendering.
 
     :param args: Positional arguments passed to scene object.
@@ -20,15 +20,26 @@ class Slide(BaseSlide, Scene):  # type: ignore[misc]
     :cvar bool disable_caching: :data:`False`: Whether to disable the use of
         cached animation files.
     :cvar bool flush_cache: :data:`False`: Whether to flush the cache.
-
         Unlike with Manim, flushing is performed before rendering.
     :cvar bool skip_reversing: :data:`False`: Whether to generate reversed animations.
-
         If set to :data:`False`, and no cached reversed animation
         exists (or caching is disabled) for a given slide,
         then the reversed animation will be simply the same
         as the original one, i.e., ``rev_file = file``,
         for the current slide config.
+    :cvar typing.Optional[float] max_duration_before_split_reverse: :data:`4.0`: Maximum duration
+        before of a video animation before it is reversed by splitting the file into smaller chunks.
+        Generating reversed animations can require an important amount of
+        memory (because the whole video needs to be kept in memory),
+        and splitting the video into multiple chunks usually speeds
+        up the process (because it can be done in parallel) while taking
+        less memory.
+        Set this to :data:`None` to disable splitting the file into chunks.
+    :cvar typing.Optional[int] num_processes: :data:`None`: Number of processes
+        to use for parallelizable operations.
+        If :data:`None`, defaults to :func:`os.process_cpu_count`.
+        This is currently used when generating reversed animations, and can
+        increase memory consumption.
     """
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:

@@ -36,6 +36,8 @@ class BaseSlide:
     disable_caching: bool = False
     flush_cache: bool = False
     skip_reversing: bool = False
+    max_duration_before_split_reverse: float | None = 4.0
+    num_processes: int | None = None
 
     def __init__(
         self, *args: Any, output_folder: Path = FOLDER_PATH, **kwargs: Any
@@ -530,10 +532,11 @@ class BaseSlide:
 
         for pre_slide_config in tqdm(
             self._slides,
-            desc=f"Concatenating animation files to '{scene_files_folder}' and generating reversed animations",
+            desc=f"Concatenating animations to '{scene_files_folder}' and generating reversed animations",
             leave=self._leave_progress_bar,
             ascii=True if platform.system() == "Windows" else None,
             disable=not self._show_progress_bar,
+            unit=" slides",
         ):
             if pre_slide_config.skip_animations:
                 continue
@@ -557,7 +560,15 @@ class BaseSlide:
                 if skip_reversing:
                     rev_file = dst_file
                 else:
-                    reverse_video_file(dst_file, rev_file)
+                    reverse_video_file(
+                        dst_file,
+                        rev_file,
+                        max_segment_duration=self.max_duration_before_split_reverse,
+                        num_processes=self.num_processes,
+                        leave=self._leave_progress_bar,
+                        ascii=True if platform.system() == "Windows" else None,
+                        disable=not self._show_progress_bar,
+                    )
 
             slides.append(
                 SlideConfig.from_pre_slide_config_and_files(

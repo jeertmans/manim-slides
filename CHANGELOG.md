@@ -10,6 +10,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 (unreleased)=
 ## [Unreleased](https://github.com/jeertmans/manim-slides/compare/v5.4.2...HEAD)
 
+(unreleased-added)=
+### Added
+
+- Added `max_duration_before_split_reverse` and `num_processes` class variables.
+  [#439](https://github.com/jeertmans/manim-slides/pull/439)
+
+(unreleased-changed)=
+### Changed
+
+- Automatically split large video animations into smaller chunks
+  for lightweight (and potentially faster) reversed animations generation.
+  [#439](https://github.com/jeertmans/manim-slides/pull/439)
+
 (v5.4.2)=
 ## [v5.4.2](https://github.com/jeertmans/manim-slides/compare/v5.4.1...v5.4.2)
 

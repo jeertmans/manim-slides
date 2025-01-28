@@ -314,6 +314,26 @@ class TestSlide:
                 self.play(dot.animate.move_to(LEFT))
                 self.play(dot.animate.move_to(DOWN))
 
+    def test_split_reverse(self) -> None:
+        @assert_renders
+        class _(CESlide):
+            max_duration_before_split_reverse = 3.0
+
+            def construct(self) -> None:
+                self.wait(2.0)
+                for _ in range(3):
+                    self.next_slide()
+                    self.wait(10.0)
+
+        @assert_renders
+        class __(CESlide):
+            max_duration_before_split_reverse = None
+
+            def construct(self) -> None:
+                self.wait(5.0)
+                self.next_slide()
+                self.wait(5.0)
+
     def test_file_too_long(self) -> None:
         @assert_renders
         class _(CESlide):
