@@ -11,7 +11,7 @@ from .base import BaseSlide
 
 class Slide(BaseSlide, Scene):  # type: ignore[misc]
     """
-    Inherits from :class:`Scene<manim.scene.scene.Scene>` and provide necessary tools
+    Inherits from :class:`Scene<manim.scene.scene.Scene>` and provides necessary tools
     for slides rendering.
 
     :param args: Positional arguments passed to scene object.
