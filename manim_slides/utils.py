@@ -149,7 +149,7 @@ def reverse_video_file(
                 <= max_segment_duration
             ):
                 return reverse_video_file_in_one_chunk((src, dest))
-        else:
+        else:  # pragma: no cover
             logger.debug(
                 f"Could not determine duration of {src}, falling back to segmentation."
             )
