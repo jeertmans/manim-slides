@@ -36,6 +36,8 @@ class BaseSlide:
     disable_caching: bool = False
     flush_cache: bool = False
     skip_reversing: bool = False
+    max_duration_before_split_reverse: float | None = 4.0
+    num_processes: int | None = None
 
     def __init__(
         self, *args: Any, output_folder: Path = FOLDER_PATH, **kwargs: Any
@@ -561,6 +563,8 @@ class BaseSlide:
                     reverse_video_file(
                         dst_file,
                         rev_file,
+                        max_segment_duration=self.max_duration_before_split_reverse,
+                        num_processes=self.num_processes,
                         leave=self._leave_progress_bar,
                         ascii=True if platform.system() == "Windows" else None,
                         disable=not self._show_progress_bar,

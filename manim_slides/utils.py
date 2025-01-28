@@ -134,14 +134,16 @@ def reverse_video_file_in_one_chunk(src_and_dest: tuple[Path, Path]) -> None:
 def reverse_video_file(
     src: Path,
     dest: Path,
-    max_segment_duration: float = 4,
-    processes: Optional[int] = None,
+    max_segment_duration: Optional[float] = 4.0,
+    num_processes: Optional[int] = None,
     **tqdm_kwargs: Any,
 ) -> None:
     """Reverses a video file, writing the result to `dest`."""
     with av.open(str(src)) as input_container:  # Fast path if file is short enough
         input_stream = input_container.streams.video[0]
-        if input_stream.duration:
+        if max_segment_duration is None:
+            return reverse_video_file_in_one_chunk((src, dest))
+        elif input_stream.duration:
             if (
                 float(input_stream.duration * input_stream.time_base)
                 <= max_segment_duration
@@ -176,7 +178,7 @@ def reverse_video_file(
                 src_file.with_stem("rev_" + src_file.stem) for src_file in src_files
             ]
 
-            with Pool(processes, maxtasksperchild=1) as pool:
+            with Pool(num_processes, maxtasksperchild=1) as pool:
                 for _ in tqdm(
                     pool.imap_unordered(
                         reverse_video_file_in_one_chunk, zip(src_files, rev_files)

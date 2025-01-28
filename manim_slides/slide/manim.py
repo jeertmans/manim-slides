@@ -29,6 +29,24 @@ class Slide(BaseSlide, Scene):  # type: ignore[misc]
         then the reversed animation will be simply the same
         as the original one, i.e., ``rev_file = file``,
         for the current slide config.
+    :cvar float|None max_duration_before_split_reverse: :data:`4.0`:
+        Maximum duration before of a video animation before it is
+        reversed by splitting the file into smaller chunks.
+
+        Generating reversed animations can require an important amount of
+        memory (because the whole video needs to be kept in memory),
+        and splitting the video into multiple chunks usually speeds
+        up the process (because it can be done in parallel) while taking
+        less memory.
+
+        Set this to :data:`None` to disable splitting the file into chunks.
+    :cvar int|None num_processes :data:`None`:
+        Number of processes to use for parallelizable operations.
+
+        Defaults to :data:`None`, the number of available logical processes.
+
+        This is currently used when generating reversed animations, and can
+        increase memory consumption.
     """
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
