@@ -49,7 +49,10 @@ docs = [
   "myst-parser>=2.0.0",
   "nbsphinx>=0.9.2",
   "pandoc>=2.3",
+  "pygments<2.19",  # See: https://github.com/ManimCommunity/manim/issues/4104
   "sphinx>=7.0.1",
+  "sphinxcontrib-programoutput>=0.18",
+  "sphinx-design>=0.6.1",
   "sphinx-click>=4.4.0",
   "sphinx-copybutton>=0.5.1",
   "sphinxext-opengraph>=0.7.5",
@@ -58,11 +61,11 @@ full = [
   "manim-slides[magic,manim,sphinx-directive]",
 ]
 magic = ["manim-slides[manim]", "ipython>=8.12.2"]
-manim = ["manim>=0.18.0"]
-manimgl = ["manimgl>=1.6.1;python_version<'3.12'"]
+manim = ["manim>=0.19"]
+manimgl = ["manimgl>=1.7.2"]
 pyqt6 = ["pyqt6>=6.7.0"]
 pyqt6-full = ["manim-slides[full,pyqt6]"]
-pyside6 = ["pyside6>=6.6.1"]
+pyside6 = ["pyside6>=6.6.1,!=6.8.1.1"]
 pyside6-full = ["manim-slides[full,pyside6]"]
 sphinx-directive = ["docutils>=0.20.1", "manim-slides[manim]"]
 tests = [
@@ -88,7 +91,7 @@ Repository = "https://github.com/jeertmans/manim-slides"
 allow_dirty = false
 commit = true
 commit_args = ""
-current_version = "5.1.10"
+current_version = "5.4.2"
 ignore_missing_version = false
 message = "chore(deps): bump version from {current_version} to {new_version}"
 parse = '(?P<major>\d+)\.(?P<minor>\d+)\.(?P<patch>\d+)(-rc(?P<release>\d+))?'
@@ -190,7 +193,8 @@ filterwarnings = [
   '''ignore:'audioop' is deprecated:DeprecationWarning''',
   'ignore:pkg_resources is deprecated as an API:DeprecationWarning',
   'ignore::DeprecationWarning:pkg_resources.*:',
-  'ignore::DeprecationWarning:pydub.*:',
+  'ignore:invalid escape sequence.*:DeprecationWarning',
+  'ignore:invalid escape sequence.*:SyntaxWarning',
 ]
 
 [tool.ruff]
@@ -226,10 +230,4 @@ dev-dependencies = [
   "bump-my-version>=0.20.3",
   "pre-commit>=3.5.0",
   "setuptools>=73.0.1",
-]
-override-dependencies = [
-  # Bypass constraints from ManimGL
-  "manimpango>=0.5.0,<1.0.0",
-  "numpy<=1.24;python_version < '3.12'",
-  "numpy>=1.26;python_version >= '3.12'",
 ]

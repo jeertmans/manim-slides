@@ -28,7 +28,6 @@ class Info(QWidget):  # type: ignore[misc]
     def __init__(
         self,
         *,
-        full_screen: bool,
         aspect_ratio_mode: Qt.AspectRatioMode,
         screen: Optional[QScreen],
     ) -> None:
@@ -37,9 +36,6 @@ class Info(QWidget):  # type: ignore[misc]
         if screen:
             self.setScreen(screen)
             self.move(screen.geometry().topLeft())
-
-        if full_screen:
-            self.setWindowState(Qt.WindowFullScreen)
 
         layout = QHBoxLayout()
 
@@ -243,7 +239,6 @@ class Player(QMainWindow):  # type: ignore[misc]
         self.slide_changed.connect(self.slide_changed_callback)
 
         self.info = Info(
-            full_screen=full_screen,
             aspect_ratio_mode=aspect_ratio_mode,
             screen=info_window_screen,
         )
@@ -468,13 +463,13 @@ class Player(QMainWindow):  # type: ignore[misc]
     def presentation_changed_callback(self) -> None:
         index = self.current_presentation_index
         count = self.presentations_count
-        self.info.scene_label.setText(f"{index+1:4d}/{count:4<d}")
+        self.info.scene_label.setText(f"{index + 1:4d}/{count:4<d}")
 
     @Slot()
     def slide_changed_callback(self) -> None:
         index = self.current_slide_index
         count = self.current_slides_count
-        self.info.slide_label.setText(f"{index+1:4d}/{count:4<d}")
+        self.info.slide_label.setText(f"{index + 1:4d}/{count:4<d}")
         self.info.slide_notes.setText(self.current_slide_config.notes)
         self.preview_next_slide()
 
@@ -484,11 +479,28 @@ class Player(QMainWindow):  # type: ignore[misc]
             self.info.next_media_player.setSource(url)
             self.info.next_media_player.play()
 
-    def show(self) -> None:
+    def show(self, screens: list[QScreen]) -> None:
+        """Screens is necessary to prevent the info window from being shown on the same screen as the main window (especially in full screen mode)."""
         super().show()
 
         if not self.hide_info_window:
-            self.info.show()
+            if len(screens) > 1 and self.isFullScreen():
+                self.ensure_different_screens(screens)
+
+            if self.isFullScreen():
+                self.info.showFullScreen()
+            else:
+                self.info.show()
+
+            if (
+                len(screens) > 1 and self.info.screen() == self.screen()
+            ):  # It is better when Qt assigns the location, but if it fails to, this is a fallback
+                self.ensure_different_screens(screens)
+
+    def ensure_different_screens(self, screens: list[QScreen]) -> None:
+        target_screen = screens[1] if self.screen() == screens[0] else screens[0]
+        self.info.setScreen(target_screen)
+        self.info.move(target_screen.geometry().topLeft())
 
     @Slot()
     def close(self) -> None:
@@ -538,8 +550,10 @@ class Player(QMainWindow):  # type: ignore[misc]
     def full_screen(self) -> None:
         if self.windowState() == Qt.WindowFullScreen:
             self.setWindowState(Qt.WindowNoState)
+            self.info.setWindowState(Qt.WindowNoState)
         else:
             self.setWindowState(Qt.WindowFullScreen)
+            self.info.setWindowState(Qt.WindowFullScreen)
 
     @Slot()
     def hide_mouse(self) -> None:

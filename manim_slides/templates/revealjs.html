@@ -22,7 +22,7 @@
         {% for presentation_config in presentation_configs -%}
           {% set outer_loop = loop %}
           {%- for slide_config in presentation_config.slides -%}
-            {%- if data_uri -%}
+            {%- if one_file -%}
               {% set file = file_to_data_uri(slide_config.file) %}
             {%- else -%}
               {% set file = assets_dir / (prefix(outer_loop.index0) + slide_config.file.name) %}
@@ -128,6 +128,9 @@
 
         // Flags if we should monitor the hash and change slides accordingly
         respondToHashChanges: {{ respond_to_hash_changes }},
+
+        // Enable support for jump-to-slide navigation shortcuts
+        jumpToSlide: {{ jump_to_slide }},
 
         // Push each slide change to the browser history.  Implies `hash: true`
         history: {{ history }},
@@ -317,27 +320,48 @@
         hideCursorTime: {{ hide_cursor_time }}
       });
 
-      {% if data_uri -%}
-      // Fix found by @t-fritsch on GitHub
-      // see: https://github.com/hakimel/reveal.js/discussions/3362#discussioncomment-6651475.
-      function fixBase64VideoBackground(event) {
-        // event.previousSlide, event.currentSlide, event.indexh, event.indexv
-        if (event.currentSlide.getAttribute('data-background-video')) {
-          const background = Reveal.getSlideBackground(event.indexh, event.indexv),
-            video = background.querySelector('video'),
-            sources = video.querySelectorAll('source');
+      {% if one_file -%}
+      // Fix found by @t-fritsch and @Rapsssito on GitHub
+      // see: https://github.com/hakimel/reveal.js/discussions/3362#discussioncomment-11733074.
+      function setVideoBase64(video) {
+        const sources = video.querySelectorAll('source');
+        // Update the source of the video
+        sources.forEach((source, i) => {
+          const src = source.getAttribute('src');
+          if(src.match(/^data:video.*;base64$/)) {
+            const nextSrc = sources[i+1]?.getAttribute('src');
+            video.setAttribute('src', `${src},${nextSrc}`);
+          }
+        });
+      }
 
-          sources.forEach((source, i) => {
-            const src = source.getAttribute('src');
-            if(src.match(/^data:video.*;base64$/)) {
-              const nextSrc = sources[i+1]?.getAttribute('src');
-              video.setAttribute('src', `${src},${nextSrc}`);
-            }
-          });
+      function fixBase64VideoBackground(event) {
+        // Analyze all slides backgrounds
+        for (const slide of Reveal.getBackgroundsElement().querySelectorAll('.slide-background')) {
+          // Get the slide video and its sources for each background
+          const video = slide.querySelector('video');
+          if (video) {
+            setVideoBase64(video);
+          } else {
+            // Listen to the creation of the video element
+            const observer = new MutationObserver((mutationsList) => {
+              for (const mutation of mutationsList) {
+                if (mutation.type === 'childList') {
+                  for (const addedNode of mutation.addedNodes) {
+                    if (addedNode.tagName === 'VIDEO') {
+                      setVideoBase64(addedNode);
+                      observer.disconnect(); // Stop observing once the video is handled
+                    }
+                  }
+                }
+              }
+            });
+            observer.observe(slide, { childList: true, subtree: true });
+          }
         }
       }
+      // Setup base64 videos
       Reveal.on( 'ready', fixBase64VideoBackground );
-      Reveal.on( 'slidechanged', fixBase64VideoBackground );
       {%- endif %}
     </script>
 

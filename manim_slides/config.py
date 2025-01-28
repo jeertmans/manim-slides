@@ -160,6 +160,7 @@ class BaseSlideConfig(BaseModel):  # type: ignore
     reversed_playback_rate: float = 1.0
     notes: str = ""
     dedent_notes: bool = True
+    skip_animations: bool = False
 
     @classmethod
     def wrapper(cls, arg_name: str) -> Callable[..., Any]:
