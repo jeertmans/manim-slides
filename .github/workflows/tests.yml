@@ -16,7 +16,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [macos-latest, ubuntu-latest, windows-latest]
+        os: [macos-13, ubuntu-latest, windows-latest]
         pyversion: ['3.9', '3.10', '3.11', '3.12']
         extras: [pyside6-full, manimgl]
         exclude:
@@ -41,7 +41,9 @@ jobs:
       if: matrix.os == 'ubuntu-latest'
       run: |
         sudo apt-get update
-        sudo apt-get install build-essential python3-dev libcairo2-dev libpango1.0-dev ffmpeg freeglut3-dev xvfb
+        sudo apt install software-properties-common
+        sudo add-apt-repository ppa:deadsnakes/ppa
+        sudo apt-get install build-essential python${{ matrix.pyversion }}-dev libcairo2-dev libpango1.0-dev ffmpeg freeglut3-dev xvfb
         nohup Xvfb $DISPLAY &
 
     - name: Install Windows dependencies
@@ -63,36 +65,16 @@ jobs:
     env:
       QT_QPA_PLATFORM: offscreen
       MANIM_SLIDES_VERBOSITY: error
-      PYTHONFAULTHANDLER: 1
       DISPLAY: :99
       GITHUB_WORKFLOWS: 1
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
 
-    - name: Setup Rye
-      if: matrix.os != 'windows-latest'
-      env:
-        RYE_TOOLCHAIN_VERSION: ${{ matrix.pyversion}}
-        RYE_INSTALL_OPTION: --yes
-      run: |
-        curl -sSf https://rye.astral.sh/get | bash
-        echo "$HOME/.rye/shims" >> $GITHUB_PATH
-
-    # Stolen from https://github.com/bluss/pyproject-local-kernel/blob/2b641290694adc998fb6bceea58d3737523a68b7/.github/workflows/ci.yaml
-    - name: Install Rye (Windows)
-      if: matrix.os == 'windows-latest'
-      shell: bash
-      run: |
-        C:/msys64/usr/bin/wget.exe -q 'https://github.com/astral-sh/rye/releases/latest/download/rye-x86_64-windows.exe' -O rye-x86_64-windows.exe
-        ./rye-x86_64-windows.exe self install --toolchain-version ${{ matrix.pyversion }} --modify-path -y
-        echo "$HOME\\.rye\\shims" >> $GITHUB_PATH
-
-    - name: Configure Rye
-      shell: bash
-      run: |
-        rye config --set-bool behavior.use-uv=true
-        rye pin ${{ matrix.pyversion }}
+    - name: Setup uv
+      uses: astral-sh/setup-uv@v4
+      with:
+        enable-cache: true
 
     - name: Install manim dependencies on MacOS
       if: matrix.os == 'macos-latest'
@@ -113,16 +95,11 @@ jobs:
       if: matrix.os == 'windows-latest'
       uses: ssciwr/setup-mesa-dist-win@v2
 
-    - name: Install Manim Slides
-      shell: bash
-      run: rye sync
-
     - name: Run pytest
-      shell: bash
-      run: rye run pytest
+      run: uv run --python ${{ matrix.pyversion }} --frozen --extra tests pytest
 
     - name: Upload to codecov.io
-      uses: codecov/codecov-action@v4
+      uses: codecov/codecov-action@v5
       env:
         CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
       with:

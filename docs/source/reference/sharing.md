@@ -137,9 +137,10 @@ and it there to preserve the original aspect ratio (16:9).
 
 ### Sharing ONE HTML file
 
-If you set the `data_uri` option to `true` (with `-cdata_uri=true`),
-all animations will be data URI encoded, making the HTML a self-contained
-presentation file that can be shared on its own.
+If you set the `--one-file` flag, all animations will be data URI encoded,
+making the HTML a self-contained presentation file that can be shared
+on its own. If you also set the `--offline` flag, the JS and CSS files will
+be included in the HTML file as well.
 
 ### Over the internet
 
@@ -166,7 +167,7 @@ Pages. Please refer to the template page for usage instructions.
 
 ### With PowerPoint (*EXPERIMENTAL*)
 
-A recent conversion feature is to the PowerPoint format, thanks to the
+A convenient conversion feature is to the PowerPoint format, thanks to the
 `python-pptx` package. Even though it is fully working,
 it is still considered in an *EXPERIMENTAL* status because we do not
 exactly know what versions of PowerPoint (or LibreOffice Impress) are supported.

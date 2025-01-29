@@ -24,25 +24,30 @@ the repository, and clone it locally.
 
 As for every Python project, using virtual environment is recommended to avoid
 conflicts between modules.
-For this project, we use [Rye](https://rye.astral.sh/) to easily manage project
+For this project, we use [uv](https://github.com/astral-sh/uv) to easily manage project
 and development dependencies. If not already, please install this tool.
 
 ## Installing Python modules
 
-With Rye, installation becomes straightforward:
+With uv, installation becomes straightforward:
 
 ```bash
-rye sync --all-features
+uv sync --all-extras
 ```
+
+:::{note}
+You still need the same dependencies as to install Manim and ManimGL,
+so please check their respective installation guides.
+:::
 
 ## Running commands
 
 Because modules are installed in a new Python environment,
 you cannot use them directly in the shell.
-Instead, you either need to prepend `rye run` to any command, e.g.:
+Instead, you either need to prepend `uv run` to any command, e.g.:
 
 ```bash
-rye run manim-slides wizard
+uv run manim-slides wizard
 ```
 
 ## Testing your code
@@ -51,7 +56,7 @@ Most of the tests are done with GitHub actions, thus not on your computer.
 The only command you should run locally is:
 
 ```bash
-rye run pre-commit run --all-files
+uv run pre-commit run --all-files
 ```
 
 This runs a few linter and formatter to make sure the code quality and style stay
@@ -61,7 +66,7 @@ If a warning or an error is displayed, please fix it before going to next step.
 For testing your code, simply run:
 
 ```bash
-rye run pytest
+uv run pytest
 ```
 
 ## Building the documentation
@@ -73,7 +78,7 @@ To generate the documentation, run the following:
 
 ```bash
 cd docs
-rye run make html
+uv run make html
 ```
 
 Then, the output index file is located at `docs/build/html/index.html` and

@@ -16,6 +16,8 @@ from pydantic import (
     PositiveInt,
     PrivateAttr,
     ValidationError,
+    conset,
+    field_serializer,
     field_validator,
     model_validator,
 )
@@ -76,20 +78,13 @@ def key_id(name: str) -> PositiveInt:
 class Key(BaseModel):  # type: ignore[misc]
     """Represent a list of key codes, with optionally a name."""
 
-    ids: list[PositiveInt] = Field(unique=True)
+    ids: conset(PositiveInt, min_length=1)  # type: ignore[valid-type]
     name: Optional[str] = None
 
     __signal: Signal = PrivateAttr(default_factory=Signal)
 
-    @field_validator("ids")
-    @classmethod
-    def ids_is_non_empty_set(cls, ids: set[Any]) -> set[Any]:
-        if len(ids) <= 0:
-            raise ValueError("Key's ids must be a non-empty set")
-        return ids
-
     def set_ids(self, *ids: int) -> None:
-        self.ids = list(set(ids))
+        self.ids = set(ids)
 
     def match(self, key_id: int) -> bool:
         """Return whether a given key id matches this key."""
@@ -106,6 +101,10 @@ class Key(BaseModel):  # type: ignore[misc]
 
     def connect(self, function: Receiver) -> None:
         self.__signal.connect(function)
+
+    @field_serializer("ids")
+    def serialize_dt(self, ids: set[int]) -> list[int]:
+        return list(self.ids)
 
 
 class Keys(BaseModel):  # type: ignore[misc]
@@ -203,6 +202,8 @@ class BaseSlideConfig(BaseModel):  # type: ignore
     """The notes attached to this slide."""
     dedent_notes: bool = True
     """Whether to automatically remove any leading indentation in the notes."""
+    skip_animations: bool = False
+    src: Optional[FilePath] = None
 
     @classmethod
     def wrapper(cls, arg_name: str) -> Callable[..., Any]:
@@ -226,7 +227,7 @@ class BaseSlideConfig(BaseModel):  # type: ignore
                 fun_kwargs = {
                     key: value
                     for key, value in kwargs.items()
-                    if key not in cls.__fields__
+                    if key not in cls.model_fields
                 }
                 fun_kwargs[arg_name] = cls(**kwargs)
                 return fun(*args, **fun_kwargs)
@@ -240,7 +241,7 @@ class BaseSlideConfig(BaseModel):  # type: ignore
                     default=field_info.default,
                     annotation=field_info.annotation,
                 )
-                for field_name, field_info in cls.__fields__.items()
+                for field_name, field_info in cls.model_fields.items()
             ]
 
             sig = sig.replace(parameters=parameters)
@@ -251,20 +252,18 @@ class BaseSlideConfig(BaseModel):  # type: ignore
         return _wrapper_
 
     @model_validator(mode="after")
-    @classmethod
     def apply_dedent_notes(
-        cls, base_slide_config: "BaseSlideConfig"
+        self,
     ) -> "BaseSlideConfig":
         """
         Remove indentation from notes, if specified.
 
-        :param base_slide_config: The current config.
         :return: The config, optionally modified.
         """
-        if base_slide_config.dedent_notes:
-            base_slide_config.notes = dedent(base_slide_config.notes)
+        if self.dedent_notes:
+            self.notes = dedent(self.notes)
 
-        return base_slide_config
+        return self
 
 
 class PreSlideConfig(BaseSlideConfig):
@@ -292,7 +291,7 @@ class PreSlideConfig(BaseSlideConfig):
         return cls(
             start_animation=start_animation,
             end_animation=end_animation,
-            **base_slide_config.dict(),
+            **base_slide_config.model_dump(),
         )
 
     @field_validator("start_animation", "end_animation")
@@ -309,31 +308,37 @@ class PreSlideConfig(BaseSlideConfig):
         return v
 
     @model_validator(mode="after")
-    @classmethod
     def start_animation_is_before_end(
-        cls, pre_slide_config: "PreSlideConfig"
+        self,
     ) -> "PreSlideConfig":
         """
-        Validate that start and end animation indices satisfy `start < end`.
+        Validate that start and end animation indices satisfy 'start < end'.
 
-        :param pre_slide_config: The current config.
         :return: The config, if indices are valid.
         """
-        if pre_slide_config.start_animation >= pre_slide_config.end_animation:
-            if pre_slide_config.start_animation == pre_slide_config.end_animation == 0:
-                raise ValueError(
-                    "You have to play at least one animation (e.g., `self.wait()`) "
-                    "before pausing. If you want to start paused, use the appropriate "
-                    "command-line option when presenting. "
-                    "IMPORTANT: when using ManimGL, `self.wait()` is not considered "
-                    "to be an animation, so prefer to directly use `self.play(...)`."
-                )
-
             raise ValueError(
                 "Start animation index must be strictly lower than end animation index"
             )
+        return self
 
-        return pre_slide_config
+    @model_validator(mode="after")
+    def has_src_or_more_than_zero_animations(
+        self,
+    ) -> "PreSlideConfig":
+        if self.src is not None and self.start_animation != self.end_animation:
+            raise ValueError(
+                "A slide cannot have 'src=...' and more than zero animations at the same time."
+            )
+        elif self.src is None and self.start_animation == self.end_animation:
+            raise ValueError(
+                "You have to play at least one animation (e.g., 'self.wait()') "
+                "before pausing. If you want to start paused, use the appropriate "
+                "command-line option when presenting. "
+                "IMPORTANT: when using ManimGL, 'self.wait()' is not considered "
+                "to be an animation, so prefer to directly use 'self.play(...)'."
+            )
+
+        return self
 
     @property
     def slides_slice(self) -> slice:
@@ -352,7 +357,7 @@ class SlideConfig(BaseSlideConfig):
     def from_pre_slide_config_and_files(
         cls, pre_slide_config: PreSlideConfig, file: Path, rev_file: Path
     ) -> "SlideConfig":
-        return cls(file=file, rev_file=rev_file, **pre_slide_config.dict())
+        return cls(file=file, rev_file=rev_file, **pre_slide_config.model_dump())
 
 
 class PresentationConfig(BaseModel):  # type: ignore[misc]
@@ -402,24 +407,21 @@ class PresentationConfig(BaseModel):  # type: ignore[misc]
         use_cached: bool = True,
         include_reversed: bool = True,
         prefix: str = "",
-    ) -> "PresentationConfig":
+    ) -> None:
         """
         Copy the files to a given directory and return the corresponding configuration.
-
+        
         :param folder: The folder that will contain the animation files.
         :param use_cached: Whether caching should be used to avoid copies when possible.
         :param include_reversed: Whether to also copy reversed animation to the folder.
         :param prefix: Optional prefix added to each file name.
         """
-        slides = []
         for slide_config in self.slides:
             file = slide_config.file
             rev_file = slide_config.rev_file
 
             dest = folder / f"{prefix}{file.name}"
             rev_dest = folder / f"{prefix}{rev_file.name}"
-
-            slides.append(slide_config.model_copy(file=dest, rev_file=rev_dest))
 
             if not use_cached or not dest.exists():
                 shutil.copy(file, dest)
@@ -428,33 +430,3 @@ class PresentationConfig(BaseModel):  # type: ignore[misc]
                 # TODO: if include_reversed is False, then rev_dev will likely not exist
                 # and this will cause an issue when decoding.
                 shutil.copy(rev_file, rev_dest)
-
-        return self.model_copy(slides=slides)
-
-
-def list_presentation_configs(folder: Path) -> list[Path]:
-    """
-    List all presentation configs in a given folder.
-
-    :param folder: The folder to search the presentation configs.
-    :return: The list of paths that map to valid presentation configs.
-    """
-    paths = []
-
-    for filepath in folder.glob("*.json"):
-        try:
-            _ = PresentationConfig.from_file(filepath)
-            paths.append(filepath)
-        except (
-            ValidationError,
-            json.JSONDecodeError,
-        ) as e:  # Could not parse this file as a proper presentation config
-            logger.warn(
-                f"Something went wrong with parsing presentation config `{filepath}`: {e}."
-            )
-
-    logger.debug(
-        f"Found {len(paths)} valid presentation configuration files in `{folder}`."
-    )
-
-    return paths

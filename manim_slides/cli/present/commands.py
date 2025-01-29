@@ -1,7 +1,7 @@
 import signal
 import sys
 from pathlib import Path
-from typing import Optional
+from typing import Literal, Optional
 
 import click
 from click import Context, Parameter
@@ -16,23 +16,6 @@ from ..commons import (
     verbosity_option,
 )
 
-PREFERRED_QT_VERSIONS = ("6.5.1", "6.5.2")
-
-
-def warn_if_non_desirable_pyside6_version() -> None:
-    from qtpy import API, QT_VERSION
-
-    if sys.version_info < (3, 12) and (
-        API != "pyside6" or QT_VERSION not in PREFERRED_QT_VERSIONS
-    ):
-        logger.warn(
-            f"You are using {API = }, {QT_VERSION = }, "
-            "but we recommend installing 'PySide6==6.5.2', mainly to avoid "
-            "flashing screens between slides, "
-            "see issue https://github.com/jeertmans/manim-slides/issues/293. "
-            "You can do so with `pip install 'manim-slides[pyside6]'`."
-        )
-
 
 @click.command()
 @folder_path_option
@@ -44,6 +27,81 @@ def list_scenes(folder: Path) -> None:
     num_digits = len(str(len(scene_names)))
     for i, scene_name in enumerate(scene_names, start=1):
         click.secho(f"{i:{num_digits}d}: {scene_name}", fg="green")
+
+
+def _list_scenes(folder: Path) -> list[str]:
+    """List available scenes in given directory."""
+    scenes = []
+
+    for filepath in folder.glob("*.json"):
+        try:
+            _ = PresentationConfig.from_file(filepath)
+            scenes.append(filepath.stem)
+        except (
+            Exception
+        ) as e:  # Could not parse this file as a proper presentation config
+            logger.warning(
+                f"Something went wrong with parsing presentation config `{filepath}`: {e}"
+            )
+
+    logger.debug(f"Found {len(scenes)} valid scene configuration files in `{folder}`.")
+
+    return scenes
+
+
+def prompt_for_scenes(folder: Path) -> list[str]:
+    """Prompt the user to select scenes within a given folder."""
+    scene_choices = dict(enumerate(_list_scenes(folder), start=1))
+
+    for i, scene in scene_choices.items():
+        click.secho(f"{i}: {scene}", fg="green")
+
+    click.echo()
+
+    click.echo("Choose number corresponding to desired scene/arguments.")
+    click.echo("(Use comma separated list for multiple entries)")
+
+    def value_proc(value: Optional[str]) -> list[str]:
+        indices = list(map(int, (value or "").strip().replace(" ", "").split(",")))
+
+        if not all(0 < i <= len(scene_choices) for i in indices):
+            raise click.UsageError("Please only enter numbers displayed on the screen.")
+
+        return [scene_choices[i] for i in indices]
+
+    if len(scene_choices) == 0:
+        raise click.UsageError(
+            "No scenes were found, are you in the correct directory?"
+        )
+
+    while True:
+        try:
+            scenes = click.prompt("Choice(s)", value_proc=value_proc)
+            return scenes  # type: ignore
+        except ValueError as e:
+            raise click.UsageError(str(e)) from None
+
+
+def get_scenes_presentation_config(
+    scenes: list[str], folder: Path
+) -> list[PresentationConfig]:
+    """Return a list of presentation configurations based on the user input."""
+    if len(scenes) == 0:
+        scenes = prompt_for_scenes(folder)
+
+    presentation_configs = []
+    for scene in scenes:
+        config_file = folder / f"{scene}.json"
+        if not config_file.exists():
+            raise click.UsageError(
+                f"File {config_file} does not exist, check the scene name and make sure to use Slide as your scene base class"
+            )
+        try:
+            presentation_configs.append(PresentationConfig.from_file(config_file))
+        except ValidationError as e:
+            raise click.UsageError(str(e)) from None
+
+    return presentation_configs
 
 
 def start_at_callback(
@@ -171,8 +229,14 @@ def start_at_callback(
 )
 @click.option(
     "--hide-info-window",
-    is_flag=True,
-    help="Hide info window.",
+    flag_value="always",
+    help="Hide info window. By default, hide the info window if there is only one screen.",
+)
+@click.option(
+    "--show-info-window",
+    "hide_info_window",
+    flag_value="never",
+    help="Force to show info window.",
 )
 @click.option(
     "--info-window-screen",
@@ -180,12 +244,14 @@ def start_at_callback(
     metavar="NUMBER",
     type=int,
     default=None,
-    help="Put info window on the given screen (a.k.a. display).",
+    help="Put info window on the given screen (a.k.a. display). "
+    "If there is more than one screen, it will by default put the info window "
+    "on a different screen than the main player.",
 )
 @click.help_option("-h", "--help")
 @verbosity_option
-def present(
-    scenes: list[Path],
+def present(  # noqa: C901
+    scenes: list[str],
     config_path: Path,
     folder: Path,
     start_paused: bool,
@@ -200,7 +266,7 @@ def present(
     screen_number: Optional[int],
     playback_rate: float,
     next_terminates_loop: bool,
-    hide_info_window: bool,
+    hide_info_window: Optional[Literal["always", "never"]],
     info_window_screen_number: Optional[int],
 ) -> None:
     """
@@ -234,8 +300,6 @@ def present(
     if start_at[1]:
         start_at_slide_number = start_at[1]
 
-    warn_if_non_desirable_pyside6_version()
-
     from qtpy.QtCore import Qt
     from qtpy.QtGui import QScreen
 
@@ -245,22 +309,36 @@ def present(
     app = qapp()
     app.setApplicationName("Manim Slides")
 
+    screens = app.screens()
+
     def get_screen(number: int) -> Optional[QScreen]:
         try:
-            return app.screens()[number]
+            return screens[number]
         except IndexError:
             logger.error(
                 f"Invalid screen number {number}, "
-                f"allowed values are from 0 to {len(app.screens())-1} (incl.)"
+                f"allowed values are from 0 to {len(screens) - 1} (incl.)"
             )
             return None
+
+    should_hide_info_window = False
+
+    if hide_info_window is None:
+        should_hide_info_window = len(screens) == 1
+    elif hide_info_window == "always":
+        should_hide_info_window = True
+
+    if should_hide_info_window and info_window_screen_number is not None:
+        logger.warning(
+            f"Ignoring `--info-window-screen` because `--hide-info-window` is set to `{hide_info_window}`."
+        )
 
     if screen_number is not None:
         screen = get_screen(screen_number)
     else:
         screen = None
 
-    if info_window_screen_number is not None:
+    if info_window_screen_number is not None and not should_hide_info_window:
         info_window_screen = get_screen(info_window_screen_number)
     else:
         info_window_screen = None
@@ -284,11 +362,11 @@ def present(
         screen=screen,
         playback_rate=playback_rate,
         next_terminates_loop=next_terminates_loop,
-        hide_info_window=hide_info_window,
+        hide_info_window=should_hide_info_window,
         info_window_screen=info_window_screen,
     )
 
-    player.show()
+    player.show(screens)
 
     signal.signal(signal.SIGINT, signal.SIG_DFL)
     sys.exit(app.exec())

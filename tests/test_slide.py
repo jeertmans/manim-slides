@@ -1,6 +1,10 @@
+import contextlib
+import os
 import random
 import shutil
 import sys
+import tempfile
+from collections.abc import Iterator
 from pathlib import Path
 from typing import Any, Union
 
@@ -17,6 +21,7 @@ from manim import (
     Dot,
     FadeIn,
     GrowFromCenter,
+    Square,
     Text,
 )
 from manim.renderer.opengl_renderer import OpenGLRenderer
@@ -26,23 +31,32 @@ from manim_slides.defaults import FOLDER_PATH
 from manim_slides.render import render
 from manim_slides.slide.manim import Slide as CESlide
 
+if sys.version_info < (3, 10):
+
+    class _GLSlide:
+        def construct(self) -> None:
+            pass
+
+        def render(self) -> None:
+            pass
+
+    GLSlide = pytest.param(
+        _GLSlide,
+        marks=pytest.mark.skip(reason="See https://github.com/3b1b/manim/issues/2263"),
+    )
+else:
+    from manim_slides.slide.manimlib import Slide as GLSlide
+
+    _GLSlide = GLSlide
+
 
 class CEGLSlide(CESlide):
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, renderer=OpenGLRenderer(), **kwargs)
 
 
-if sys.version_info >= (3, 12):
-
-    class _GLSlide:
-        pass
-
-    GLSlide = pytest.param(_GLSlide, marks=pytest.mark.skip())
-else:
-    from manim_slides.slide.manimlib import Slide as GLSlide
-
-SlideType = Union[type[CESlide], type[GLSlide], type[CEGLSlide]]
-Slide = Union[CESlide, GLSlide, CEGLSlide]
+SlideType = Union[type[CESlide], type[_GLSlide], type[CEGLSlide]]
+Slide = Union[CESlide, _GLSlide, CEGLSlide]
 
 
 @pytest.mark.parametrize(
@@ -52,11 +66,13 @@ Slide = Union[CESlide, GLSlide, CEGLSlide]
         pytest.param(
             "--GL",
             marks=pytest.mark.skipif(
-                sys.version_info >= (3, 12),
-                reason="ManimGL requires numpy<1.25, which is outdated and Python < 3.12",
+                sys.version_info < (3, 10),
+                reason="See https://github.com/3b1b/manim/issues/2263.",
             ),
         ),
+        "--CE --renderer=opengl",
     ],
+    ids=("CE", "GL", "CE(GL)"),
 )
 def test_render_basic_slide(
     renderer: str,
@@ -69,7 +85,7 @@ def test_render_basic_slide(
     with runner.isolated_filesystem() as tmp_dir:
         shutil.copy(manimgl_config, tmp_dir)
         results = runner.invoke(
-            render, [renderer, str(slides_file), "BasicSlide", "-ql"]
+            render, [*renderer.split(" "), str(slides_file), "BasicSlide", "-ql"]
         )
 
         assert results.exit_code == 0, results
@@ -97,17 +113,116 @@ def test_render_basic_slide(
         assert local_presentation_config.resolution == presentation_config.resolution
 
 
+def test_clear_cache(
+    slides_file: Path,
+) -> None:
+    runner = CliRunner()
+
+    with runner.isolated_filesystem() as tmp_dir:
+        local_media_folder = (
+            Path(tmp_dir)
+            / "media"
+            / "videos"
+            / slides_file.stem
+            / "480p15"
+            / "partial_movie_files"
+            / "BasicSlide"
+        )
+        local_slides_folder = Path(tmp_dir) / "slides"
+
+        assert not local_media_folder.exists()
+        assert not local_slides_folder.exists()
+        results = runner.invoke(render, [str(slides_file), "BasicSlide", "-ql"])
+
+        assert results.exit_code == 0, results
+        assert local_media_folder.is_dir() and list(local_media_folder.iterdir())
+        assert local_slides_folder.exists()
+
+        results = runner.invoke(
+            render, [str(slides_file), "BasicSlide", "-ql", "--flush_cache"]
+        )
+
+        assert results.exit_code == 0, results
+        assert local_media_folder.is_dir() and not list(local_media_folder.iterdir())
+        assert local_slides_folder.exists()
+
+        results = runner.invoke(
+            render, [str(slides_file), "BasicSlide", "-ql", "--disable_caching"]
+        )
+
+        assert results.exit_code == 0, results
+        assert local_media_folder.is_dir() and list(local_media_folder.iterdir())
+        assert local_slides_folder.exists()
+
+        results = runner.invoke(
+            render,
+            [
+                str(slides_file),
+                "BasicSlide",
+                "-ql",
+                "--disable_caching",
+                "--flush_cache",
+            ],
+        )
+
+        assert results.exit_code == 0, results
+        assert local_media_folder.is_dir() and not list(local_media_folder.iterdir())
+        assert local_slides_folder.exists()
+
+
+@pytest.mark.parametrize(
+    "renderer",
+    [
+        "--CE",
+        pytest.param(
+            "--GL",
+            marks=pytest.mark.skipif(
+                sys.version_info < (3, 10),
+                reason="See https://github.com/3b1b/manim/issues/2263.",
+            ),
+        ),
+    ],
+)
+@pytest.mark.parametrize(
+    ("klass", "skip_reversing"),
+    [("BasicSlide", False), ("BasicSlideSkipReversing", True)],
+)
+def test_skip_reversing(
+    renderer: str,
+    slides_file: Path,
+    manimgl_config: Path,
+    klass: str,
+    skip_reversing: bool,
+) -> None:
+    runner = CliRunner()
+
+    with runner.isolated_filesystem() as tmp_dir:
+        shutil.copy(manimgl_config, tmp_dir)
+        results = runner.invoke(render, [renderer, str(slides_file), klass, "-ql"])
+
+        assert results.exit_code == 0, results
+
+        local_slides_folder = (Path(tmp_dir) / "slides").resolve(strict=True)
+
+        local_config_file = (local_slides_folder / f"{klass}.json").resolve(strict=True)
+
+        local_presentation_config = PresentationConfig.from_file(local_config_file)
+
+        for slide in local_presentation_config.slides:
+            if skip_reversing:
+                assert slide.file == slide.rev_file
+            else:
+                assert slide.file != slide.rev_file
+
+
 def init_slide(cls: SlideType) -> Slide:
     if issubclass(cls, CESlide):
         return cls()
     elif issubclass(cls, GLSlide):
-        from manimlib.config import get_configuration, parse_cli
-        from manimlib.extract_scene import get_scene_config
+        from manimlib.config import parse_cli
 
-        args = parse_cli()
-        config = get_configuration(args)
-        scene_config = get_scene_config(config)
-        return cls(**scene_config)
+        _args = parse_cli()
+        return cls()
 
     raise ValueError(f"Unsupported class {cls}")
 
@@ -121,8 +236,22 @@ def assert_constructs(cls: SlideType) -> None:
     init_slide(cls).construct()
 
 
+@contextlib.contextmanager
+def tmp_cwd() -> Iterator[str]:
+    cwd = os.getcwd()
+    tmp_dir = tempfile.mkdtemp()
+
+    os.chdir(tmp_dir)
+
+    try:
+        yield tmp_dir
+    finally:
+        os.chdir(cwd)
+
+
 def assert_renders(cls: SlideType) -> None:
-    init_slide(cls).render()
+    with tmp_cwd():
+        init_slide(cls).render()
 
 
 class TestSlide:
@@ -184,6 +313,26 @@ class TestSlide:
                 self.play(dot.animate.move_to(UP))
                 self.play(dot.animate.move_to(LEFT))
                 self.play(dot.animate.move_to(DOWN))
+
+    def test_split_reverse(self) -> None:
+        @assert_renders
+        class _(CESlide):
+            max_duration_before_split_reverse = 3.0
+
+            def construct(self) -> None:
+                self.wait(2.0)
+                for _ in range(3):
+                    self.next_slide()
+                    self.wait(10.0)
+
+        @assert_renders
+        class __(CESlide):
+            max_duration_before_split_reverse = None
+
+            def construct(self) -> None:
+                self.wait(5.0)
+                self.next_slide()
+                self.wait(5.0)
 
     def test_file_too_long(self) -> None:
         @assert_renders
@@ -370,6 +519,120 @@ class TestSlide:
                 assert self._current_slide == 2
                 self.next_slide()
                 assert self._current_slide == 2
+
+    def test_next_slide_skip_animations(self) -> None:
+        class Foo(CESlide):
+            def construct(self) -> None:
+                circle = Circle(color=BLUE)
+                self.play(GrowFromCenter(circle))
+                assert not self._base_slide_config.skip_animations
+                self.next_slide(skip_animations=True)
+                square = Square(color=BLUE)
+                self.play(GrowFromCenter(square))
+                assert self._base_slide_config.skip_animations
+                self.next_slide()
+                assert not self._base_slide_config.skip_animations
+                self.play(GrowFromCenter(square))
+
+        class Bar(CESlide):
+            def construct(self) -> None:
+                circle = Circle(color=BLUE)
+                self.play(GrowFromCenter(circle))
+                assert not self._base_slide_config.skip_animations
+                self.next_slide(skip_animations=False)
+                square = Square(color=BLUE)
+                self.play(GrowFromCenter(square))
+                assert not self._base_slide_config.skip_animations
+                self.next_slide()
+                assert not self._base_slide_config.skip_animations
+                self.play(GrowFromCenter(square))
+
+        class Baz(CESlide):
+            def construct(self) -> None:
+                circle = Circle(color=BLUE)
+                self.play(GrowFromCenter(circle))
+                assert not self._base_slide_config.skip_animations
+                self.start_skip_animations()
+                self.next_slide()
+                square = Square(color=BLUE)
+                self.play(GrowFromCenter(square))
+                assert self._base_slide_config.skip_animations
+                self.next_slide()
+                assert self._base_slide_config.skip_animations
+                self.play(GrowFromCenter(square))
+                self.stop_skip_animations()
+
+        with tmp_cwd() as tmp_dir:
+            init_slide(Foo).render()
+            init_slide(Bar).render()
+            init_slide(Baz).render()
+
+            slides_folder = Path(tmp_dir) / "slides"
+
+            assert slides_folder.exists()
+
+            slide_file = slides_folder / "Foo.json"
+
+            config = PresentationConfig.from_file(slide_file)
+
+            assert len(config.slides) == 2
+
+            slide_file = slides_folder / "Bar.json"
+
+            config = PresentationConfig.from_file(slide_file)
+
+            assert len(config.slides) == 3
+
+            slide_file = slides_folder / "Baz.json"
+
+            config = PresentationConfig.from_file(slide_file)
+
+            assert len(config.slides) == 1
+
+    def test_next_slide_include_video(self) -> None:
+        class Foo(CESlide):
+            def construct(self) -> None:
+                circle = Circle(color=BLUE)
+                self.play(GrowFromCenter(circle))
+                self.next_slide()
+                square = Square(color=BLUE)
+                self.play(GrowFromCenter(square))
+                self.next_slide()
+                self.wait(2)
+
+        with tmp_cwd() as tmp_dir:
+            init_slide(Foo).render()
+
+            slides_folder = Path(tmp_dir) / "slides"
+
+            assert slides_folder.exists()
+
+            slide_file = slides_folder / "Foo.json"
+
+            config = PresentationConfig.from_file(slide_file)
+
+            assert len(config.slides) == 3
+
+            class Bar(CESlide):
+                def construct(self) -> None:
+                    self.next_slide(src=config.slides[0].file)
+                    self.wait(2)
+                    self.next_slide()
+                    self.wait(2)
+                    self.next_slide()  # Dummy
+                    self.next_slide(src=config.slides[1].file, loop=True)
+                    self.next_slide()  # Dummy
+                    self.wait(2)
+                    self.next_slide(src=config.slides[2].file)
+
+            init_slide(Bar).render()
+
+            slide_file = slides_folder / "Bar.json"
+
+            config = PresentationConfig.from_file(slide_file)
+
+            assert len(config.slides) == 6
+            assert config.slides[-3].loop
 
     def test_canvas(self) -> None:
         @assert_constructs
