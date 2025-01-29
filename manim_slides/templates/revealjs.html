@@ -12,7 +12,6 @@
     <!-- Theme used for syntax highlighting of code -->
     <!-- <link rel="stylesheet" href="lib/css/zenburn.css"> -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/styles/zenburn.min.css">
-
     <!-- <link rel="stylesheet" href="index.css"> -->
   </head>
 
@@ -31,14 +30,14 @@
           data-background-size={{ background_size }}
           data-background-color="{{ presentation_config.background_color }}"
           data-background-video="{{ file }}"
-          {% if loop.index == 1 and outer_loop.index == 1 -%}
-            data-background-video-muted
+          {% if loop.index == 1 and outer_loop.index == 1 %}
+          data-background-video-muted
           {% endif %}
-          {% if slide_config.loop -%}
-            data-background-video-loop
+          {% if slide_config.loop %}
+          data-background-video-loop
           {% endif %}
-          {% if slide_config.auto_next -%}
-            data-autoslide="{{ get_duration_ms(slide_config.file) }}"
+          {% if slide_config.auto_next %}
+          data-autoslide="{{ get_duration_ms(slide_config.file) }}"
           {% endif %}
           >
           {% if slide_config.notes != "" %}
@@ -62,8 +61,8 @@
     <script>
       Reveal.initialize({
         {% if has_notes %}
-          /// The list of RevealJS plugins.
-          plugins: [ RevealMarkdown, RevealNotes ],
+        /// The list of RevealJS plugins.
+        plugins: [ RevealMarkdown, RevealNotes ],
         {% endif %}
         // The "normal" size of the presentation, aspect ratio will
         // be preserved when the presentation is scaled to fit different
