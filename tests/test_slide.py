@@ -619,7 +619,9 @@ class TestSlide:
                     self.wait(2)
                     self.next_slide()
                     self.wait(2)
+                    self.next_slide()  # Dummy
                     self.next_slide(src=config.slides[1].file, loop=True)
+                    self.next_slide()  # Dummy
                     self.wait(2)
                     self.next_slide(src=config.slides[2].file)
 
