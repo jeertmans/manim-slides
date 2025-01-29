@@ -23,6 +23,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   for lightweight (and potentially faster) reversed animations generation.
   [#439](https://github.com/jeertmans/manim-slides/pull/439)
 
+(unreleased-chore)=
+### Chore
+
+- Trimmed whitespaces in HTML template.
+  [#443](https://github.com/jeertmans/manim-slides/pull/443)
+
 (v5.4.2)=
 ## [v5.4.2](https://github.com/jeertmans/manim-slides/compare/v5.4.1...v5.4.2)
 
