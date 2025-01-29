@@ -69,6 +69,7 @@ pyside6 = ["pyside6>=6.6.1,!=6.8.1.1"]
 pyside6-full = ["manim-slides[full,pyside6]"]
 sphinx-directive = ["docutils>=0.20.1", "manim-slides[manim]"]
 tests = [
+  "importlib-metadata>=8.6.1;python_version<'3.10'",
   "manim-slides[full,manimgl,pyqt6,pyside6,sphinx-directive]",
   "pytest>=7.4.0",
   "pytest-cov>=4.1.0",
