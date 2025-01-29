@@ -69,7 +69,7 @@ class TestWizard:
 
         monkeypatch.setattr(QMessageBox, "exec", exec_patched)
 
-        for i, (key, _) in enumerate(wizard.config.keys.dict().items()):
+        for i, (key, _) in enumerate(wizard.config.keys.model_dump().items()):
             open_dialog(i, getattr(wizard.config.keys, key))
 
         wizard.button_box.accepted.emit()
@@ -89,7 +89,7 @@ def test_init() -> None:
 
         assert results.exit_code == 0
         assert CONFIG_PATH.exists()
-        assert Config().dict() == Config.from_file(CONFIG_PATH).dict()
+        assert Config().model_dump() == Config.from_file(CONFIG_PATH).model_dump()
 
 
 def test_init_custom_path() -> None:
@@ -106,7 +106,7 @@ def test_init_custom_path() -> None:
         assert results.exit_code == 0
         assert not CONFIG_PATH.exists()
         assert custom_path.exists()
-        assert Config().dict() == Config.from_file(custom_path).dict()
+        assert Config().model_dump() == Config.from_file(custom_path).model_dump()
 
 
 def test_init_path_exists() -> None:
@@ -120,7 +120,7 @@ def test_init_path_exists() -> None:
 
         assert results.exit_code == 0
         assert CONFIG_PATH.exists()
-        assert Config().dict() == Config.from_file(CONFIG_PATH).dict()
+        assert Config().model_dump() == Config.from_file(CONFIG_PATH).model_dump()
 
         results = runner.invoke(init, input="o")
 
@@ -156,7 +156,7 @@ def test_wizard(monkeypatch: MonkeyPatch) -> None:
 
         assert results.exit_code == 0
         assert CONFIG_PATH.exists()
-        assert Config().dict() == Config.from_file(CONFIG_PATH).dict()
+        assert Config().model_dump() == Config.from_file(CONFIG_PATH).model_dump()
 
 
 def test_wizard_closed_without_saving(monkeypatch: MonkeyPatch) -> None:

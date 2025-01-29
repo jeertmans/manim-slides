@@ -1,36 +1,38 @@
+ci:
+  autofix_commit_msg: |
+    chore(fmt): auto fixes from pre-commit.com hooks
+
+    for more information, see https://pre-commit.ci
+  autoupdate_commit_msg: 'chore(deps): pre-commit autoupdate'
 repos:
 - repo: https://github.com/pre-commit/pre-commit-hooks
-  rev: v4.6.0
+  rev: v5.0.0
   hooks:
   - id: check-yaml
   - id: check-toml
   - id: end-of-file-fixer
   - id: trailing-whitespace
 - repo: https://github.com/macisamuele/language-formatters-pre-commit-hooks
-  rev: v2.13.0
+  rev: v2.14.0
   hooks:
   - id: pretty-format-yaml
     args: [--autofix]
   - id: pretty-format-toml
     exclude: poetry.lock
     args: [--autofix, --trailing-commas]
-- repo: https://github.com/keewis/blackdoc
-  rev: v0.3.9
-  hooks:
-  - id: blackdoc
 - repo: https://github.com/astral-sh/ruff-pre-commit
-  rev: v0.4.4
+  rev: v0.9.3
   hooks:
   - id: ruff
     args: [--fix]
   - id: ruff-format
 - repo: https://github.com/pre-commit/mirrors-mypy
-  rev: v1.10.0
+  rev: v1.14.1
   hooks:
   - id: mypy
     additional_dependencies: [types-requests, types-setuptools]
 - repo: https://github.com/codespell-project/codespell
-  rev: v2.2.6
+  rev: v2.4.0
   hooks:
   - id: codespell
     additional_dependencies:

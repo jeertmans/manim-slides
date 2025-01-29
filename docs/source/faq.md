@@ -29,13 +29,8 @@ ManimGL support is only guaranteed to work
 on a very minimal set of versions, because it differs quite a lot from ManimCE,
 and its development is not very active.
 
-The typical issues are that (1) ManimGL needs an outdated NumPy version
-and (2) ManimGL **should not** be installed from the GitHub repository,
-at least not from the `main` branch, but from a version released to PyPI.
-
-To solve the NumPy issue, you can safely downgrade NumPy to a version supported
-by ManimGL,
-while ignoring the possible *conflicting dependencies* messages from `pip` (or else).
+The typical issue is that ManimGL `<1.7.1` needs an outdated NumPy version, but
+can be resolved by manually downgrading NumPy, or upgrading ManimGL (**recommended**).
 
 ### Presenting
 
@@ -54,8 +49,11 @@ with ManimCE or ManimGL.
 ### Slides go black when video finishes
 
 This is an issue with Qt,
-which cannot be solve on all platforms and Python versions,
+which cannot be solved on all platforms and Python versions,
 see [#293](https://github.com/jeertmans/manim-slides/issues/293).
+
+Recent version of Manim Slides, i.e., `manim-slides>5.1.7`, come
+with a fix that should work fine.
 
 ### How to increase quality on Windows
 
@@ -104,7 +102,7 @@ Questions related to `manim-slides convert [SCENES]... output.html`.
 
 ### I moved my `.html` file and it stopped working
 
-If you did not specify `-cdata_uri=true` when converting,
+If you did not specify `--one-file` (or `-cone_file=true`) when converting,
 then Manim Slides generated a folder containing all
 the video files, in the same folder as the HTML
 output. As the path to video files is a relative path,
@@ -120,3 +118,7 @@ This issue is (probably) caused by PowerPoint never freeing
 memory, causing memory allocation errors, and can be partially
 solved by reducing the video quality or the number of slides,
 see [#392](https://github.com/jeertmans/manim-slides/issues/392).
+
+Another solution, suggested by [@Azercoco](https://github.com/Azercoco) in
+[#392 (comment)](https://github.com/jeertmans/manim-slides/issues/392#issuecomment-2368198106),
+is to disable hardware/GPU acceleration.

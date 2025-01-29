@@ -4,7 +4,7 @@ from typing import Optional
 
 from qtpy.QtCore import Qt, QTimer, QUrl, Signal, Slot
 from qtpy.QtGui import QCloseEvent, QIcon, QKeyEvent, QScreen
-from qtpy.QtMultimedia import QAudioOutput, QMediaPlayer
+from qtpy.QtMultimedia import QAudioOutput, QMediaPlayer, QVideoFrame
 from qtpy.QtMultimediaWidgets import QVideoWidget
 from qtpy.QtWidgets import (
     QHBoxLayout,
@@ -28,7 +28,6 @@ class Info(QWidget):  # type: ignore[misc]
     def __init__(
         self,
         *,
-        full_screen: bool,
         aspect_ratio_mode: Qt.AspectRatioMode,
         screen: Optional[QScreen],
     ) -> None:
@@ -37,9 +36,6 @@ class Info(QWidget):  # type: ignore[misc]
         if screen:
             self.setScreen(screen)
             self.move(screen.geometry().topLeft())
-
-        if full_screen:
-            self.setWindowState(Qt.WindowFullScreen)
 
         layout = QHBoxLayout()
 
@@ -226,6 +222,8 @@ class Player(QMainWindow):  # type: ignore[misc]
         self.icon = QIcon(":/icon.png")
         self.setWindowIcon(self.icon)
 
+        self.frame = QVideoFrame()
+
         self.audio_output = QAudioOutput()
         self.video_widget = QVideoWidget()
         self.video_sink = self.video_widget.videoSink()
@@ -241,15 +239,12 @@ class Player(QMainWindow):  # type: ignore[misc]
         self.slide_changed.connect(self.slide_changed_callback)
 
         self.info = Info(
-            full_screen=full_screen,
             aspect_ratio_mode=aspect_ratio_mode,
             screen=info_window_screen,
         )
         self.info.close_event.connect(self.closeEvent)
         self.info.key_press_event.connect(self.keyPressEvent)
-        self.video_sink.videoFrameChanged.connect(
-            lambda frame: self.info.video_sink.setVideoFrame(frame)
-        )
+        self.video_sink.videoFrameChanged.connect(self.frame_changed)
         self.hide_info_window = hide_info_window
 
         # Connecting key callbacks
@@ -319,7 +314,7 @@ class Player(QMainWindow):  # type: ignore[misc]
         elif -self.presentations_count <= index < 0:
             self.__current_presentation_index = index + self.presentations_count
         else:
-            logger.warn(f"Could not set presentation index to {index}.")
+            logger.warning(f"Could not set presentation index to {index}.")
             return
 
         self.presentation_changed.emit()
@@ -343,7 +338,7 @@ class Player(QMainWindow):  # type: ignore[misc]
         elif -self.current_slides_count <= index < 0:
             self.__current_slide_index = index + self.current_slides_count
         else:
-            logger.warn(f"Could not set slide index to {index}.")
+            logger.warning(f"Could not set slide index to {index}.")
             return
 
         self.slide_changed.emit()
@@ -468,13 +463,13 @@ class Player(QMainWindow):  # type: ignore[misc]
     def presentation_changed_callback(self) -> None:
         index = self.current_presentation_index
         count = self.presentations_count
-        self.info.scene_label.setText(f"{index+1:4d}/{count:4<d}")
+        self.info.scene_label.setText(f"{index + 1:4d}/{count:4<d}")
 
     @Slot()
     def slide_changed_callback(self) -> None:
         index = self.current_slide_index
         count = self.current_slides_count
-        self.info.slide_label.setText(f"{index+1:4d}/{count:4<d}")
+        self.info.slide_label.setText(f"{index + 1:4d}/{count:4<d}")
         self.info.slide_notes.setText(self.current_slide_config.notes)
         self.preview_next_slide()
 
@@ -484,11 +479,28 @@ class Player(QMainWindow):  # type: ignore[misc]
             self.info.next_media_player.setSource(url)
             self.info.next_media_player.play()
 
-    def show(self) -> None:
+    def show(self, screens: list[QScreen]) -> None:
+        """Screens is necessary to prevent the info window from being shown on the same screen as the main window (especially in full screen mode)."""
         super().show()
 
         if not self.hide_info_window:
-            self.info.show()
+            if len(screens) > 1 and self.isFullScreen():
+                self.ensure_different_screens(screens)
+
+            if self.isFullScreen():
+                self.info.showFullScreen()
+            else:
+                self.info.show()
+
+            if (
+                len(screens) > 1 and self.info.screen() == self.screen()
+            ):  # It is better when Qt assigns the location, but if it fails to, this is a fallback
+                self.ensure_different_screens(screens)
+
+    def ensure_different_screens(self, screens: list[QScreen]) -> None:
+        target_screen = screens[1] if self.screen() == screens[0] else screens[0]
+        self.info.setScreen(target_screen)
+        self.info.move(target_screen.geometry().topLeft())
 
     @Slot()
     def close(self) -> None:
@@ -515,6 +527,9 @@ class Player(QMainWindow):  # type: ignore[misc]
 
     @Slot()
     def reverse(self) -> None:
+        if self.playing_reversed_slide and self.current_slide_index >= 1:
+            self.current_slide_index -= 1
+
         self.load_reversed_slide()
         self.preview_next_slide()
 
@@ -535,8 +550,10 @@ class Player(QMainWindow):  # type: ignore[misc]
     def full_screen(self) -> None:
         if self.windowState() == Qt.WindowFullScreen:
             self.setWindowState(Qt.WindowNoState)
+            self.info.setWindowState(Qt.WindowNoState)
         else:
             self.setWindowState(Qt.WindowFullScreen)
+            self.info.setWindowState(Qt.WindowFullScreen)
 
     @Slot()
     def hide_mouse(self) -> None:
@@ -544,6 +561,34 @@ class Player(QMainWindow):  # type: ignore[misc]
             self.setCursor(Qt.ArrowCursor)
         else:
             self.setCursor(Qt.BlankCursor)
+
+    def frame_changed(self, frame: QVideoFrame) -> None:
+        """
+        Slot to handle possibly invalid frames.
+
+        This slot cannot be decorated with ``@Slot`` as
+        the video sinks are handled in different threads.
+
+        As of Qt>=6.5.3, the last frame of every video is "flushed",
+        resulting in a short black screen between each slide.
+
+        To avoid this issue, we check every frame, and avoid playing
+        invalid ones.
+
+        References
+        ----------
+        1. https://github.com/jeertmans/manim-slides/issues/293
+        2. https://github.com/jeertmans/manim-slides/pull/464
+
+        :param frame: The most recent frame.
+
+        """
+        if frame.isValid():
+            self.frame = frame
+        else:
+            self.video_sink.setVideoFrame(self.frame)  # Reuse previous frame
+
+        self.info.video_sink.setVideoFrame(self.frame)
 
     def closeEvent(self, event: QCloseEvent) -> None:  # noqa: N802
         self.close()

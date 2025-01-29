@@ -1,8 +1,26 @@
-name: Feature Request
+name: Feature request
 description: Have a new idea/feature? Please suggest!
-labels: enhancement
-title: '[FEATURE] <description>'
+title: '[FEATURE] <short-description-here>'
+labels: [enhancement]
+
 body:
+- type: markdown
+  id: preamble
+  attributes:
+    value: |
+      **Thank you for suggesting a new feature!**
+
+      If you know how to implement it, feel free to submit a PR too!
+
+- type: checkboxes
+  id: terms
+  attributes:
+    label: Terms
+    description: 'By submitting this issue, I have:'
+    options:
+    - label: Checked the [existing issues](https://github.com/jeertmans/manim-slides/issues?q=is%3Aissue+label%3Aenhancement+) and [discussions](https://github.com/jeertmans/manim-slides/discussions) to see if my issue had not already been reported;
+      required: true
+
 - type: textarea
   id: description
   attributes:
@@ -10,6 +28,7 @@ body:
     description: A brief description of the enhancement you propose, also include what you tried and what worked.
   validations:
     required: true
+
 - type: textarea
   id: screenshots
   attributes:
@@ -17,6 +36,7 @@ body:
     description: Please add screenshots if applicable
   validations:
     required: false
+
 - type: textarea
   id: extrainfo
   attributes:

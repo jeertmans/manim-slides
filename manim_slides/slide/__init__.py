@@ -1,7 +1,7 @@
 __all__ = [
+    "API_NAME",
     "MANIM",
     "MANIMGL",
-    "API_NAME",
     "Slide",
     "ThreeDSlide",
 ]
@@ -35,7 +35,7 @@ API: str = os.environ.get(MANIM_API, "manim").lower()
 
 if API not in API_NAMES:
     raise ImportError(
-        f"Specified MANIM_API={API!r} is not in valid options: " f"{API_NAMES}",
+        f"Specified MANIM_API={API!r} is not in valid options: {API_NAMES}",
     )
 
 API_NAME = API_NAMES[API]

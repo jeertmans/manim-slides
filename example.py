@@ -53,7 +53,7 @@ class ConvertExample(Slide):
         self.next_slide()
 
         code = Code(
-            code="""from manim import *
+            code_string="""from manim import *
 
 
 class Example(Scene):
@@ -72,7 +72,7 @@ class Example(Scene):
         )
 
         code_step_1 = Code(
-            code="""from manim import *
+            code_string="""from manim import *
 from manim_slides import Slide
 
 class Example(Scene):
@@ -91,7 +91,7 @@ class Example(Scene):
         )
 
         code_step_2 = Code(
-            code="""from manim import *
+            code_string="""from manim import *
 from manim_slides import Slide
 
 class Example(Slide):
@@ -110,7 +110,7 @@ class Example(Slide):
         )
 
         code_step_3 = Code(
-            code="""from manim import *
+            code_string="""from manim import *
 from manim_slides import Slide
 
 class Example(Slide):
@@ -129,7 +129,7 @@ class Example(Slide):
         )
 
         code_step_4 = Code(
-            code="""from manim import *
+            code_string="""from manim import *
 from manim_slides import Slide
 
 class Example(Slide):
@@ -148,19 +148,19 @@ class Example(Slide):
         )
 
         code_step_5 = Code(
-            code="manim-slide render example.py Example",
+            code_string="manim-slide render example.py Example",
             language="console",
         )
 
         code_step_6 = Code(
-            code="manim-slides Example",
+            code_string="manim-slides Example",
             language="console",
         )
 
         or_text = Text("or generate HTML presentation").scale(0.5)
 
         code_step_7 = Code(
-            code="manim-slides convert Example slides.html --open",
+            code_string="manim-slides convert Example slides.html --open",
             language="console",
         ).shift(DOWN)
 

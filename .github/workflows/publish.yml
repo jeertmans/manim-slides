@@ -18,18 +18,13 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
 
-    - name: Setup Rye
-      env:
-        RYE_INSTALL_OPTION: --yes
-      run: |
-        curl -sSf https://rye.astral.sh/get | bash
-        echo "$HOME/.rye/shims" >> $GITHUB_PATH
-
-    - name: Configure Rye
-      run: rye config --set-bool behavior.use-uv=true
+    - name: Setup uv
+      uses: astral-sh/setup-uv@v4
+      with:
+        enable-cache: true
 
     - name: Build package
-      run: rye build
+      run: uv build
 
     - name: Publish to PyPI
       if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
@@ -41,7 +36,6 @@ jobs:
     env:
       REGISTRY: ghcr.io
       IMAGE_NAME: ${{ github.repository }}
-    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
     steps:
     - name: Checkout
       uses: actions/checkout@v4
@@ -68,11 +62,11 @@ jobs:
           print(f"tag_name={ref_tag}", file=f)
 
     - name: Build and push
-      uses: docker/build-push-action@v5
+      uses: docker/build-push-action@v6
       with:
         platforms: linux/arm64,linux/amd64
         file: docker/Dockerfile
-        push: true
+        push: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags') }}
         tags: |
           ghcr.io/jeertmans/manim-slides:latest
           ghcr.io/jeertmans/manim-slides:${{ steps.create_release.outputs.tag_name }}

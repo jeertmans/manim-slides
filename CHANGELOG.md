@@ -8,13 +8,215 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <!-- start changelog -->
 
 (unreleased)=
-## [Unreleased](https://github.com/jeertmans/manim-slides/compare/5.1.7...HEAD)
+## [Unreleased](https://github.com/jeertmans/manim-slides/compare/v5.4.2...HEAD)
 
-(unreleased-fixed)=
+(unreleased-added)=
+### Added
+
+- Added `max_duration_before_split_reverse` and `num_processes` class variables.
+  [#439](https://github.com/jeertmans/manim-slides/pull/439)
+
+(unreleased-changed)=
+### Changed
+
+- Automatically split large video animations into smaller chunks
+  for lightweight (and potentially faster) reversed animations generation.
+  [#439](https://github.com/jeertmans/manim-slides/pull/439)
+
+(v5.4.2)=
+## [v5.4.2](https://github.com/jeertmans/manim-slides/compare/v5.4.1...v5.4.2)
+
+(v5.4.2-fixed)=
+### Fixed
+
+- Fixed `start_skip_animations` to actually pass argument to ManimCE,
+  otherwise video animations were still rendered, just excluded from
+  the final output.
+  [#524](https://github.com/jeertmans/manim-slides/pull/524)
+
+(v5.4.1)=
+## [v5.4.1](https://github.com/jeertmans/manim-slides/compare/v5.4.0...v5.4.1)
+
+(v5.4.1-added)=
+### Added
+
+- Added `start_skip_animations` and `stop_skip_animations` methods.
+  [#523](https://github.com/jeertmans/manim-slides/pull/523)
+
+(v5.4.0)=
+## [v5.4.0](https://github.com/jeertmans/manim-slides/compare/v5.3.1...v5.4.0)
+
+(v5.4.0-added)=
+### Added
+
+- Added `skip_animations` compatibility with ManimCE.
+  [@Rapsssito](https://github.com/Rapsssito) [#516](https://github.com/jeertmans/manim-slides/pull/516)
+
+(v5.4.0-chore)=
+### Chore
+
+- Bumped Manim to `>=0.19`, as it fixed OpenGL renderer issue.
+  [#522](https://github.com/jeertmans/manim-slides/pull/522)
+
+(v5.4.0-fixed)=
+### Fixed
+
+- Fixed OpenGL renderer having no partial movie files with Manim bindings.
+  [#522](https://github.com/jeertmans/manim-slides/pull/522)
+- Fixed `ConvertExample` example as `manim>=0.19` changed the `Code` class.
+  [#522](https://github.com/jeertmans/manim-slides/pull/522)
+
+(v5.3.1)=
+## [v5.3.1](https://github.com/jeertmans/manim-slides/compare/v5.3.0...v5.3.1)
+
+(v5.3.1-fixed)=
+### Fixed
+
+- Fixed HTML template to avoid missing slides when exporting with `--one-file`.
+  [@Rapsssito](https://github.com/Rapsssito) [#515](https://github.com/jeertmans/manim-slides/pull/515)
+
+(v5.3.0)=
+## [v5.3.0](https://github.com/jeertmans/manim-slides/compare/v5.2.0...v5.3.0)
+
+(v5.3.0-added)=
+### Added
+
+- Added CSS and JS inline for `manim-slides convert` if `--offline`
+  and `--one-file` (`-cone_file`) are used for HTML output.
+  [@Rapsssito](https://github.com/Rapsssito) [#505](https://github.com/jeertmans/manim-slides/pull/505)
+
+(v5.3.0-changed)=
+### Changed
+
+- Deprecate `-cdata_uri` in favor of `-cone_file` for `manim-slides convert`.
+  [@Rapsssito](https://github.com/Rapsssito) [#505](https://github.com/jeertmans/manim-slides/pull/505)
+- Changed template to avoid micro-stuttering with `--one-file` in HTML presentation.
+  [@Rapsssito](https://github.com/Rapsssito) [#508](https://github.com/jeertmans/manim-slides/pull/508)
+
+(v5.2.0)=
+## [v5.2.0](https://github.com/jeertmans/manim-slides/compare/v5.1.10...v5.2.0)
+
+(v5.2.0-changed)=
+### Changed
+
+- The info window is now only shown in presentations when there
+  are multiple monitors. However, the `--show-info-window` option
+  was added to `manim-slides present` to force the info window.
+  When there are multiple monitors, the info window will no longer
+  be on the same monitor as the main window, unless overridden.
+  [@PeculiarProgrammer](https://github.com/PeculiarProgrammer)
+  [#482](https://github.com/jeertmans/manim-slides/pull/482)
+
+(v5.2.0-chore)=
+### Chore
+
+- Bumped ManimGL to `>=1.7.1`, to remove conflicting dependencies
+  with Manim's.
+  [#499](https://github.com/jeertmans/manim-slides/pull/499)
+
+- Bumped ManimGL to `>=1.7.2`, to remove `pyrr` from dependencies,
+  and to avoid complex code for supporting both `1.7.1` and `>=1.7.2`,
+  as the latter includes many breaking changes.
+  [#506](https://github.com/jeertmans/manim-slides/pull/506)
+
+(v5.1.10)=
+## [v5.1.10](https://github.com/jeertmans/manim-slides/compare/v5.1.9...v5.1.10)
+
+(v5.1.10-added)=
+### Added
+
+- Added `--offline` option to `manim-slides convert` for offline
+  HTML presentations.
+  [#440](https://github.com/jeertmans/manim-slides/pull/440)
+- Added documentation to config option to `manim-slides convert`
+  when using `--show-config`.
+  [#485](https://github.com/jeertmans/manim-slides/pull/485)
+
+(v5.1.10-changed)=
+### Changed
+
+- Allow multiple slide reverses by going backward [@PeculiarProgrammer](https://github.com/PeculiarProgrammer).
+  [#488](https://github.com/jeertmans/manim-slides/pull/488)
+
+(v5.1.10-fixed)=
+### Fixed
+
+- Fixed PyAV issue by pinning its version to `<14`.
+  A future release will contain a fix that supports both `av>=14`
+  and `av<14`, as their syntax differ, but the former doesn't
+  provide binary wheels for Python 3.9.
+  [#494](https://github.com/jeertmans/manim-slides/pull/494)
+- Fixed blank web page when converting multiple slides into HTML.
+  [#497](https://github.com/jeertmans/manim-slides/pull/497)
+
+(v5.1.9)=
+## [v5.1.9](https://github.com/jeertmans/manim-slides/compare/v5.1.8...v5.1.9)
+
+(v5.1.9-fixed)=
+## Chore
+
+- Fixed failing docker builds.
+  [#481](https://github.com/jeertmans/manim-slides/pull/481)
+
+(v5.1.8)=
+## [v5.1.8](https://github.com/jeertmans/manim-slides/compare/v5.1.7...v5.1.8)
+
+(v5.1.8-added)=
+### Added
+
+- Added `manim-slides checkhealth` command to easily obtain important information
+  for debug purposes.
+  [#458](https://github.com/jeertmans/manim-slides/pull/458)
+- Added support for `disable_caching` and `flush_cache` options from Manim, and
+  also the possibility to configure them through class options.
+  [#452](https://github.com/jeertmans/manim-slides/pull/452)
+- Added `--to=zip` convert format to generate an archive with HTML output
+  and asset files.
+  [#470](https://github.com/jeertmans/manim-slides/pull/470)
+
+(v5.1.8-chore)=
+### Chore
+
+- Pinned `rtoml==0.9.0` on Windows platforms,
+  see [#398](https://github.com/jeertmans/manim-slides/pull/398),
+  until
+  [samuelcolvin/rtoml#74](https://github.com/samuelcolvin/rtoml/issues/74)
+  is solved.
+  [#432](https://github.com/jeertmans/manim-slides/pull/432)
+- Removed an old validation check that prevented setting `loop=True` with
+  `auto_next=True` on `next_slide()`
+  [#445](https://github.com/jeertmans/manim-slides/pull/445)
+- Improved (and fixed) tests for Manim(GL), bumped minimal ManimCE version,
+  improved coverage, and override dependency conflicts.
+  [#447](https://github.com/jeertmans/manim-slides/pull/447)
+- Improved issue templates.
+  [#456](https://github.com/jeertmans/manim-slides/pull/456)
+- Enhanced the error message when the slides folder does not exist.
+  [#462](https://github.com/jeertmans/manim-slides/pull/462)
+- Fixed deprecation warnings.
+  [#467](https://github.com/jeertmans/manim-slides/pull/467)
+- Documented potential fix for PPTX issue.
+  [#475](https://github.com/jeertmans/manim-slides/pull/475)
+- Changed project manager from Rye to uv.
+  [#476](https://github.com/jeertmans/manim-slides/pull/476)
+
+(v5.1.8-fixed)=
 ### Fixed
 
 - Fix combining assets from multiple scenes to avoid filename collision.
   [#429](https://github.com/jeertmans/manim-slides/pull/429)
+- Fixed whitespace issue in default RevealJS template.
+  [#442](https://github.com/jeertmans/manim-slides/pull/442)
+- Fixed black screen issue on recent Qt versions and device loss detected,
+  thanks to [@PeculiarProgrammer](https://github.com/PeculiarProgrammer)!
+  [#465](https://github.com/jeertmans/manim-slides/pull/465)
+
+(v5.1.8-removed)=
+### Removed
+
+- Removed `full-gl` extra, because it does not make sense to ship both
+  `manimgl` and `manim` together.
+  [#447](https://github.com/jeertmans/manim-slides/pull/447)
 
 (v5.1.7)=
 ## [v5.1.7](https://github.com/jeertmans/manim-slides/compare/v5.1.6...v5.1.7)
