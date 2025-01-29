@@ -305,7 +305,7 @@ class BaseSlide:
         :param skip_animations:
             Exclude the next slide from the output.
 
-            If `manim` is used, this is also passed to `:meth:`Scene.next_section<manim.scene.scene.Scene.next_section>`,
+            If `manim` is used, this is also passed to :meth:`Scene.next_section<manim.scene.scene.Scene.next_section>`,
             which will avoid rendering the corresponding animations.
 
             .. seealso::
@@ -348,7 +348,7 @@ class BaseSlide:
                 ``manim-slides convert --to=pptx``.
         :param dedent_notes:
             If set, apply :func:`textwrap.dedent` to notes.
-        :param src:
+        :param pathlib.Path src:
             An optional path to a video file to include as next slide.
 
             The video will be copied into the output folder, but no rescaling
