@@ -15,7 +15,7 @@ class Slide(BaseSlide, Scene):  # type: ignore[misc]
     for slides rendering.
 
     :param args: Positional arguments passed to scene object.
-    :param output_folder: Where the slide animation files should be written.
+    :param pathlib.Path output_folder: Where the slide animation files should be written.
     :param kwargs: Keyword arguments passed to scene object.
     :cvar bool disable_caching: :data:`False`: Whether to disable the use of
         cached animation files.
