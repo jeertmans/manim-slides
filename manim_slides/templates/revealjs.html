@@ -263,17 +263,7 @@
         // Time before the cursor is hidden (in ms)
         hideCursorTime: {{ hide_cursor_time }}
       });
-      {% if data_uri %}
-        // Fix found by @t-fritsch on GitHub
-        // see: https://github.com/hakimel/reveal.js/discussions/3362#discussioncomment-6651475.
-        function fixBase64VideoBackground(event) {
-          // event.previousSlide, event.currentSlide, event.indexh, event.indexv
-          if (event.currentSlide.getAttribute('data-background-video')) {
-            const background = Reveal.getSlideBackground(event.indexh, event.indexv),
-              video = background.querySelector('video'),
-              sources = video.querySelectorAll('source');
-
-      {% if one_file -%}
+      {% if one_file %}
       // Fix found by @t-fritsch and @Rapsssito on GitHub
       // see: https://github.com/hakimel/reveal.js/discussions/3362#discussioncomment-11733074.
       function setVideoBase64(video) {
