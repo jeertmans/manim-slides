@@ -104,7 +104,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   was added to `manim-slides present` to force the info window.
   When there are multiple monitors, the info window will no longer
   be on the same monitor as the main window, unless overridden.
-  [@PeculiarProgrammer](https://github.com/PeculiarProgrammer)
+  [@taibeled](https://github.com/taibeled)
   [#482](https://github.com/jeertmans/manim-slides/pull/482)
 
 (v5.2.0-chore)=
@@ -135,7 +135,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 (v5.1.10-changed)=
 ### Changed
 
-- Allow multiple slide reverses by going backward [@PeculiarProgrammer](https://github.com/PeculiarProgrammer).
+- Allow multiple slide reverses by going backward [@taibeled](https://github.com/taibeled).
   [#488](https://github.com/jeertmans/manim-slides/pull/488)
 
 (v5.1.10-fixed)=
@@ -208,7 +208,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed whitespace issue in default RevealJS template.
   [#442](https://github.com/jeertmans/manim-slides/pull/442)
 - Fixed black screen issue on recent Qt versions and device loss detected,
-  thanks to [@PeculiarProgrammer](https://github.com/PeculiarProgrammer)!
+  thanks to [@taibeled](https://github.com/taibeled)!
   [#465](https://github.com/jeertmans/manim-slides/pull/465)
 
 (v5.1.8-removed)=
