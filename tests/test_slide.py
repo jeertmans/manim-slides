@@ -589,6 +589,49 @@ class TestSlide:
 
             assert len(config.slides) == 1
 
+    def test_next_slide_include_video(self) -> None:
+        class Foo(CESlide):
+            def construct(self) -> None:
+                circle = Circle(color=BLUE)
+                self.play(GrowFromCenter(circle))
+                self.next_slide()
+                square = Square(color=BLUE)
+                self.play(GrowFromCenter(square))
+                self.next_slide()
+                self.wait(2)
+
+        with tmp_cwd() as tmp_dir:
+            init_slide(Foo).render()
+
+            slides_folder = Path(tmp_dir) / "slides"
+
+            assert slides_folder.exists()
+
+            slide_file = slides_folder / "Foo.json"
+
+            config = PresentationConfig.from_file(slide_file)
+
+            assert len(config.slides) == 3
+
+            class Bar(CESlide):
+                def construct(self) -> None:
+                    self.next_slide(src=config.slides[0].file)
+                    self.wait(2)
+                    self.next_slide()
+                    self.wait(2)
+                    self.next_slide(src=config.slides[1].file, loop=True)
+                    self.wait(2)
+                    self.next_slide(src=config.slides[2].file)
+
+            init_slide(Bar).render()
+
+            slide_file = slides_folder / "Bar.json"
+
+            config = PresentationConfig.from_file(slide_file)
+
+            assert len(config.slides) == 6
+            assert config.slides[-3].loop
+
     def test_canvas(self) -> None:
         @assert_constructs
         class _(CESlide):

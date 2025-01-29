@@ -348,6 +348,11 @@ class BaseSlide:
                 ``manim-slides convert --to=pptx``.
         :param dedent_notes:
             If set, apply :func:`textwrap.dedent` to notes.
+        :param src:
+            An optional path to a video file to include as next slide.
+
+            The video will be copied into the output folder, but no rescaling
+            is applied.
         :param kwargs:
             Keyword arguments passed to
             :meth:`Scene.next_section<manim.scene.scene.Scene.next_section>`,
@@ -471,6 +476,18 @@ class BaseSlide:
 
             self._current_slide += 1
 
+        if base_slide_config.src is not None:
+            self._slides.append(
+                PreSlideConfig.from_base_slide_config_and_animation_indices(
+                    base_slide_config,
+                    self._current_animation,
+                    self._current_animation,
+                )
+            )
+
+            base_slide_config = BaseSlideConfig()  # default
+            self._current_slide += 1
+
         if self._skip_animations:
             base_slide_config.skip_animations = True
 
@@ -540,7 +557,10 @@ class BaseSlide:
         ):
             if pre_slide_config.skip_animations:
                 continue
-            slide_files = files[pre_slide_config.slides_slice]
+            if pre_slide_config.src:
+                slide_files = [pre_slide_config.src]
+            else:
+                slide_files = files[pre_slide_config.slides_slice]
 
             try:
                 file = merge_basenames(slide_files)

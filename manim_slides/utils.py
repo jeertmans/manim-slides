@@ -1,5 +1,6 @@
 import hashlib
 import os
+import shutil
 import tempfile
 from collections.abc import Iterator
 from multiprocessing import Pool
@@ -14,6 +15,9 @@ from .logger import logger
 
 def concatenate_video_files(files: list[Path], dest: Path) -> None:
     """Concatenate multiple video files into one."""
+    if len(files) == 1:
+        shutil.copy(files[0], dest)
+        return
 
     def _filter(files: list[Path]) -> Iterator[Path]:
         """Patch possibly empty video files."""

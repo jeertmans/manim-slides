@@ -161,6 +161,7 @@ class BaseSlideConfig(BaseModel):  # type: ignore
     notes: str = ""
     dedent_notes: bool = True
     skip_animations: bool = False
+    src: Optional[FilePath] = None
 
     @classmethod
     def wrapper(cls, arg_name: str) -> Callable[..., Any]:
@@ -205,14 +206,13 @@ class BaseSlideConfig(BaseModel):  # type: ignore
         return _wrapper_
 
     @model_validator(mode="after")
-    @classmethod
     def apply_dedent_notes(
-        cls, base_slide_config: "BaseSlideConfig"
+        self,
     ) -> "BaseSlideConfig":
-        if base_slide_config.dedent_notes:
-            base_slide_config.notes = dedent(base_slide_config.notes)
+        if self.dedent_notes:
+            self.notes = dedent(self.notes)
 
-        return base_slide_config
+        return self
 
 
 class PreSlideConfig(BaseSlideConfig):
@@ -242,25 +242,33 @@ class PreSlideConfig(BaseSlideConfig):
         return v
 
     @model_validator(mode="after")
-    @classmethod
     def start_animation_is_before_end(
-        cls, pre_slide_config: "PreSlideConfig"
+        self,
     ) -> "PreSlideConfig":
-        if pre_slide_config.start_animation >= pre_slide_config.end_animation:
-            if pre_slide_config.start_animation == pre_slide_config.end_animation == 0:
-                raise ValueError(
-                    "You have to play at least one animation (e.g., `self.wait()`) "
-                    "before pausing. If you want to start paused, use the appropriate "
-                    "command-line option when presenting. "
-                    "IMPORTANT: when using ManimGL, `self.wait()` is not considered "
-                    "to be an animation, so prefer to directly use `self.play(...)`."
-                )
-
+        if self.start_animation > self.end_animation:
             raise ValueError(
                 "Start animation index must be strictly lower than end animation index"
             )
+        return self
 
-        return pre_slide_config
+    @model_validator(mode="after")
+    def has_src_or_more_than_zero_animations(
+        self,
+    ) -> "PreSlideConfig":
+        if self.src is not None and self.start_animation != self.end_animation:
+            raise ValueError(
+                "A slide cannot have 'src=...' and more than zero animations at the same time."
+            )
+        elif self.src is None and self.start_animation == self.end_animation:
+            raise ValueError(
+                "You have to play at least one animation (e.g., 'self.wait()') "
+                "before pausing. If you want to start paused, use the appropriate "
+                "command-line option when presenting. "
+                "IMPORTANT: when using ManimGL, 'self.wait()' is not considered "
+                "to be an animation, so prefer to directly use 'self.play(...)'."
+            )
+
+        return self
 
     @property
     def slides_slice(self) -> slice:
