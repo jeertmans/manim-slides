@@ -510,7 +510,7 @@ class BaseSlide:
             )
         )
 
-    def _save_slides(
+    def _save_slides(  # noqa: C901
         self,
         use_cache: bool = True,
         flush_cache: bool = False,

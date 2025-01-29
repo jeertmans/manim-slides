@@ -15,6 +15,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Added `max_duration_before_split_reverse` and `num_processes` class variables.
   [#439](https://github.com/jeertmans/manim-slides/pull/439)
+- Added `src = ...` filepath argument to allow inserting external
+  videos as slides.
+  [#4526](https://github.com/jeertmans/manim-slides/pull/526)
 
 (unreleased-changed)=
 ### Changed
