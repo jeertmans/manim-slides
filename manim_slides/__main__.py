@@ -1,9 +1,8 @@
 """Manim Slides' main entrypoint."""
 
-from .cli.commands import main
-
 from .__version__ import __version__
 from .checkhealth import checkhealth
+from .cli.commands import main
 from .convert import convert
 from .logger import logger
 from .present import list_scenes, present

@@ -410,7 +410,7 @@ class PresentationConfig(BaseModel):  # type: ignore[misc]
     ) -> None:
         """
         Copy the files to a given directory and return the corresponding configuration.
-        
+
         :param folder: The folder that will contain the animation files.
         :param use_cached: Whether caching should be used to avoid copies when possible.
         :param include_reversed: Whether to also copy reversed animation to the folder.
