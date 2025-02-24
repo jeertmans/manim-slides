@@ -234,8 +234,8 @@ you can do so at: [jeertmans@icloud.com](mailto:jeertmans@icloud.com).
 [pypi-download-badge]: https://img.shields.io/pypi/dm/manim-slides
 [documentation-badge]: https://readthedocs.org/projects/manim-slides/badge/?version=latest
 [documentation-url]: https://manim-slides.readthedocs.io/
-[doi-badge]: https://zenodo.org/badge/DOI/10.5281/zenodo.8215167.svg
-[doi-url]: https://doi.org/10.5281/zenodo.8215167
+[doi-badge]: https://zenodo.org/badge/DOI/10.5281/zenodo.7971360.svg
+[doi-url]: https://doi.org/10.5281/zenodo.7971360
 [jose-badge]: https://jose.theoj.org/papers/10.21105/jose.00206/status.svg
 [jose-url]: https://doi.org/10.21105/jose.00206
 [codecov-badge]: https://codecov.io/gh/jeertmans/manim-slides/branch/main/graph/badge.svg?token=8P4DY9JCE4

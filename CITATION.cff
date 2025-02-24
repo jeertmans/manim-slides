@@ -4,13 +4,14 @@
 cff-version: 1.2.0
 title: Manim Slides
 message: >-
-  If you use this software, please cite it using the
-  metadata from this file.
+  If you use this software, please cite it using our article
+  in the Journal of Open Source Education.
 type: software
 authors:
   - name: Jérome Eertmans
     orcid: 'https://orcid.org/0000-0002-5579-5360'
     website: 'https://eertmans.be'
+doi: 10.5281/zenodo.7971360
 repository-code: 'https://github.com/jeertmans/manim-slides'
 url: 'https://eertmans.be/manim-slides'
 abstract: >-
