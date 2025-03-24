@@ -8,9 +8,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <!-- start changelog -->
 
 (unreleased)=
-## [Unreleased](https://github.com/jeertmans/manim-slides/compare/v5.4.2...HEAD)
+## [Unreleased](https://github.com/jeertmans/manim-slides/compare/v5.5.0...HEAD)
 
-(unreleased-added)=
+(v5.5.0)=
+## [v5.5.0](https://github.com/jeertmans/manim-slides/compare/v5.4.2...v5.5.0)
+
+(v5.5.0-added)=
 ### Added
 
 - Added `max_duration_before_split_reverse` and `num_processes` class variables.
@@ -19,14 +22,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   videos as slides.
   [#526](https://github.com/jeertmans/manim-slides/pull/526)
 
-(unreleased-changed)=
+(v5.5.0-changed)=
 ### Changed
 
 - Automatically split large video animations into smaller chunks
   for lightweight (and potentially faster) reversed animations generation.
   [#439](https://github.com/jeertmans/manim-slides/pull/439)
 
-(unreleased-chore)=
+(v5.5.0-chore)=
 ### Chore
 
 - Trimmed whitespaces in HTML template.
