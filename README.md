@@ -1,9 +1,3 @@
-> [!IMPORTANT]
-> Take the [**Manim Slides Survey**](https://forms.gle/i4scrwPQghbTQwQs5)
-> to help improve this tool! Thanks in advance to all the people taking the time
-> to answer this short survey! The form is open until **January 31st 2025**,
-> and results will be communicated in the GitHub discussions.
-
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/jeertmans/manim-slides/main/static/logo_dark_transparent.png">
   <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/jeertmans/manim-slides/main/static/logo_light_transparent.png">
