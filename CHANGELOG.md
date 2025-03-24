@@ -31,6 +31,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Trimmed whitespaces in HTML template.
   [#443](https://github.com/jeertmans/manim-slides/pull/443)
+- Bumped RevealJS' version to 5.2 to allow video playing in speaker view.
+  [#536](https://github.com/jeertmans/manim-slides/pull/536)
 
 (v5.4.2)=
 ## [v5.4.2](https://github.com/jeertmans/manim-slides/compare/v5.4.1...v5.4.2)
