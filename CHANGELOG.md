@@ -17,7 +17,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   view is always available. Previously, it was only included if the slides
   had notes.
   [#538](https://github.com/jeertmans/manim-slides/pull/538)
-
+- Pressing <kbd>SPACE</kbd> key now pauses the slides, instead of skipping it.
+  Previously, it was not possible to pause HTML slides, which can be very annoying
+  when trying to explain something.
+  [#539](https://github.com/jeertmans/manim-slides/pull/539)
+  
 (v5.5.0)=
 ## [v5.5.0](https://github.com/jeertmans/manim-slides/compare/v5.4.2...v5.5.0)
 
