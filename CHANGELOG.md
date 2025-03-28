@@ -10,6 +10,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 (unreleased)=
 ## [Unreleased](https://github.com/jeertmans/manim-slides/compare/v5.5.0...HEAD)
 
+(unreleased-changed)=
+### Changed
+
+- HTML template now always includes the *notes* plugin so that the speaker
+  view is always available. Previously, it was only included if the slides
+  had notes.
+  [#538](https://github.com/jeertmans/manim-slides/pull/538)
+
 (v5.5.0)=
 ## [v5.5.0](https://github.com/jeertmans/manim-slides/compare/v5.4.2...v5.5.0)
 
