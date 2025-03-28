@@ -8,9 +8,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <!-- start changelog -->
 
 (unreleased)=
-## [Unreleased](https://github.com/jeertmans/manim-slides/compare/v5.5.0...HEAD)
+## [Unreleased](https://github.com/jeertmans/manim-slides/compare/v5.5.1...HEAD)
 
-(unreleased-changed)=
+(v5.5.1)=
+## [v5.5.1](https://github.com/jeertmans/manim-slides/compare/v5.5.0...v5.5.1)
+
+(v5.5.1-changed)=
 ### Changed
 
 - HTML template now always includes the *notes* plugin so that the speaker
