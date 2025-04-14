@@ -24,7 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Previously, it was not possible to pause HTML slides, which can be very annoying
   when trying to explain something.
   [#539](https://github.com/jeertmans/manim-slides/pull/539)
-  
+
 (v5.5.0)=
 ## [v5.5.0](https://github.com/jeertmans/manim-slides/compare/v5.4.2...v5.5.0)
 
