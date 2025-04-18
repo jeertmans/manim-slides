@@ -8,7 +8,6 @@ dev = [
   {include-group = "tests"},
   "bump-my-version>=0.20.3",
   "pre-commit>=3.5.0",
-  "setuptools>=73.0.1",
 ]
 docs = [
   "manim-slides[magic,manim,pyqt6,sphinx-directive]",
@@ -33,6 +32,7 @@ tests = [
   "pytest-env>=0.8.2",
   "pytest-missing-modules>=0.1.0",
   "pytest-qt>=4.2.0",
+  "setuptools>=73.0.1",
 ]
 
 [project]

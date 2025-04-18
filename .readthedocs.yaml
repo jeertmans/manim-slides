@@ -6,12 +6,12 @@ build:
   apt_packages:
   - libpango1.0-dev
   - ffmpeg
-jobs:
-  post_create_environment:
-  - asdf plugin add uv
-  - asdf install uv latest
-  - asdf global uv latest
-  - UV_PROJECT_ENVIRONMENT=$READTHEDOCS_VIRTUALENV_PATH uv sync --group docs --no-dev --no-cache
+  jobs:
+    post_create_environment:
+    - asdf plugin add uv
+    - asdf install uv latest
+    - asdf global uv latest
+    - UV_PROJECT_ENVIRONMENT=$READTHEDOCS_VIRTUALENV_PATH uv sync --group docs --no-dev --no-cache
 sphinx:
   builder: html
   configuration: docs/source/conf.py
