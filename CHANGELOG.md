@@ -8,9 +8,36 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <!-- start changelog -->
 
 (unreleased)=
-## [Unreleased](https://github.com/jeertmans/manim-slides/compare/v5.4.2...HEAD)
+## [Unreleased](https://github.com/jeertmans/manim-slides/compare/v5.5.1...HEAD)
 
-(unreleased-added)=
+(unreleased-chore)=
+### Chore
+
+- Moved `docs` and `tests` extras, as well as `dev-dependencies`,
+  inside groups in `dependency-groups`. This could break existing code
+  when using one of those extras, but as they were not part of the public API,
+  we do not consider this to be a **breaking change**.
+  [#542](https://github.com/jeertmans/manim-slides/pull/542)
+
+(v5.5.1)=
+## [v5.5.1](https://github.com/jeertmans/manim-slides/compare/v5.5.0...v5.5.1)
+
+(v5.5.1-changed)=
+### Changed
+
+- HTML template now always includes the *notes* plugin so that the speaker
+  view is always available. Previously, it was only included if the slides
+  had notes.
+  [#538](https://github.com/jeertmans/manim-slides/pull/538)
+- Pressing <kbd>SPACE</kbd> key now pauses the slides, instead of skipping it.
+  Previously, it was not possible to pause HTML slides, which can be very annoying
+  when trying to explain something.
+  [#539](https://github.com/jeertmans/manim-slides/pull/539)
+
+(v5.5.0)=
+## [v5.5.0](https://github.com/jeertmans/manim-slides/compare/v5.4.2...v5.5.0)
+
+(v5.5.0-added)=
 ### Added
 
 - Added `max_duration_before_split_reverse` and `num_processes` class variables.
@@ -19,18 +46,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   videos as slides.
   [#526](https://github.com/jeertmans/manim-slides/pull/526)
 
-(unreleased-changed)=
+(v5.5.0-changed)=
 ### Changed
 
 - Automatically split large video animations into smaller chunks
   for lightweight (and potentially faster) reversed animations generation.
   [#439](https://github.com/jeertmans/manim-slides/pull/439)
 
-(unreleased-chore)=
+(v5.5.0-chore)=
 ### Chore
 
 - Trimmed whitespaces in HTML template.
   [#443](https://github.com/jeertmans/manim-slides/pull/443)
+- Bumped RevealJS' version to 5.2 to allow video playing in speaker view.
+  [#536](https://github.com/jeertmans/manim-slides/pull/536)
 
 (v5.4.2)=
 ## [v5.4.2](https://github.com/jeertmans/manim-slides/compare/v5.4.1...v5.4.2)

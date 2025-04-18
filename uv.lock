@@ -1,4 +1,5 @@
 version = 1
+revision = 1
 requires-python = ">=3.9"
 resolution-markers = [
     "python_full_version >= '3.10' and python_full_version < '3.13'",
@@ -407,7 +408,7 @@ name = "click"
 version = "8.1.8"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "colorama", marker = "platform_system == 'Windows'" },
+    { name = "colorama", marker = "sys_platform == 'win32'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/b9/2e/0090cbf739cee7d23781ad4b89a9894a41538e4fcf4c31dcdd705b78eb8b/click-8.1.8.tar.gz", hash = "sha256:ed53c9d8990d83c2a27deae68e4ee337473f6330c040a31d4225c9574d16096a", size = 226593 }
 wheels = [
@@ -976,7 +977,7 @@ name = "importlib-metadata"
 version = "8.6.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "zipp" },
+    { name = "zipp", marker = "python_full_version < '3.10'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/33/08/c1395a292bb23fd03bdf572a1357c5a733d3eecbab877641ceacab23db6e/importlib_metadata-8.6.1.tar.gz", hash = "sha256:310b41d755445d74569f993ccfc22838295d9fe005425094fad953d7f15c8580", size = 55767 }
 wheels = [
@@ -1009,7 +1010,7 @@ name = "ipykernel"
 version = "6.29.5"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "appnope", marker = "platform_system == 'Darwin'" },
+    { name = "appnope", marker = "sys_platform == 'darwin'" },
     { name = "comm" },
     { name = "debugpy" },
     { name = "ipython", version = "8.18.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
@@ -1526,7 +1527,6 @@ wheels = [
 
 [[package]]
 name = "manim-slides"
-version = "5.4.2"
 source = { editable = "." }
 dependencies = [
     { name = "av" },
@@ -1549,27 +1549,6 @@ dependencies = [
 ]
 
 [package.optional-dependencies]
-docs = [
-    { name = "docutils" },
-    { name = "furo" },
-    { name = "ipykernel" },
-    { name = "ipython", version = "8.18.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
-    { name = "ipython", version = "8.31.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
-    { name = "manim" },
-    { name = "myst-parser", version = "3.0.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
-    { name = "myst-parser", version = "4.0.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
-    { name = "nbsphinx" },
-    { name = "pandoc" },
-    { name = "pygments" },
-    { name = "pyqt6" },
-    { name = "sphinx", version = "7.4.7", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
-    { name = "sphinx", version = "8.1.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
-    { name = "sphinx-click" },
-    { name = "sphinx-copybutton" },
-    { name = "sphinx-design" },
-    { name = "sphinxcontrib-programoutput" },
-    { name = "sphinxext-opengraph" },
-]
 full = [
     { name = "docutils" },
     { name = "ipython", version = "8.18.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
@@ -1611,26 +1590,59 @@ sphinx-directive = [
     { name = "docutils" },
     { name = "manim" },
 ]
-tests = [
-    { name = "docutils" },
+
+[package.dev-dependencies]
+dev = [
+    { name = "bump-my-version" },
+    { name = "furo" },
     { name = "importlib-metadata", marker = "python_full_version < '3.10'" },
-    { name = "ipython", version = "8.18.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
-    { name = "ipython", version = "8.31.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
-    { name = "manim" },
-    { name = "manimgl" },
-    { name = "pyqt6" },
-    { name = "pyside6" },
+    { name = "ipykernel" },
+    { name = "manim-slides", extra = ["full", "magic", "manim", "manimgl", "pyqt6", "pyside6", "sphinx-directive"] },
+    { name = "myst-parser", version = "3.0.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
+    { name = "myst-parser", version = "4.0.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
+    { name = "nbsphinx" },
+    { name = "pandoc" },
+    { name = "pre-commit" },
+    { name = "pygments" },
     { name = "pytest" },
     { name = "pytest-cov" },
     { name = "pytest-env" },
     { name = "pytest-missing-modules" },
     { name = "pytest-qt" },
+    { name = "setuptools" },
+    { name = "sphinx", version = "7.4.7", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
+    { name = "sphinx", version = "8.1.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
+    { name = "sphinx-click" },
+    { name = "sphinx-copybutton" },
+    { name = "sphinx-design" },
+    { name = "sphinxcontrib-programoutput" },
+    { name = "sphinxext-opengraph" },
 ]
-
-[package.dev-dependencies]
-dev = [
-    { name = "bump-my-version" },
-    { name = "pre-commit" },
+docs = [
+    { name = "furo" },
+    { name = "ipykernel" },
+    { name = "manim-slides", extra = ["magic", "manim", "pyqt6", "sphinx-directive"] },
+    { name = "myst-parser", version = "3.0.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
+    { name = "myst-parser", version = "4.0.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
+    { name = "nbsphinx" },
+    { name = "pandoc" },
+    { name = "pygments" },
+    { name = "sphinx", version = "7.4.7", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
+    { name = "sphinx", version = "8.1.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
+    { name = "sphinx-click" },
+    { name = "sphinx-copybutton" },
+    { name = "sphinx-design" },
+    { name = "sphinxcontrib-programoutput" },
+    { name = "sphinxext-opengraph" },
+]
+tests = [
+    { name = "importlib-metadata", marker = "python_full_version < '3.10'" },
+    { name = "manim-slides", extra = ["full", "manimgl", "pyqt6", "pyside6", "sphinx-directive"] },
+    { name = "pytest" },
+    { name = "pytest-cov" },
+    { name = "pytest-env" },
+    { name = "pytest-missing-modules" },
+    { name = "pytest-qt" },
     { name = "setuptools" },
 ]
 
@@ -1640,71 +1652,89 @@ requires-dist = [
     { name = "beautifulsoup4", specifier = ">=4.12.3" },
     { name = "click", specifier = ">=8.1.3" },
     { name = "click-default-group", specifier = ">=1.2.2" },
-    { name = "docutils", marker = "extra == 'docs'", specifier = ">=0.20.1" },
     { name = "docutils", marker = "extra == 'full'", specifier = ">=0.20.1" },
     { name = "docutils", marker = "extra == 'pyqt6-full'", specifier = ">=0.20.1" },
     { name = "docutils", marker = "extra == 'pyside6-full'", specifier = ">=0.20.1" },
     { name = "docutils", marker = "extra == 'sphinx-directive'", specifier = ">=0.20.1" },
-    { name = "docutils", marker = "extra == 'tests'", specifier = ">=0.20.1" },
-    { name = "furo", marker = "extra == 'docs'", specifier = ">=2023.5.20" },
-    { name = "importlib-metadata", marker = "python_full_version < '3.10' and extra == 'tests'", specifier = ">=8.6.1" },
-    { name = "ipykernel", marker = "extra == 'docs'", specifier = ">=6.25.1" },
-    { name = "ipython", marker = "extra == 'docs'", specifier = ">=8.12.2" },
     { name = "ipython", marker = "extra == 'full'", specifier = ">=8.12.2" },
     { name = "ipython", marker = "extra == 'magic'", specifier = ">=8.12.2" },
     { name = "ipython", marker = "extra == 'pyqt6-full'", specifier = ">=8.12.2" },
     { name = "ipython", marker = "extra == 'pyside6-full'", specifier = ">=8.12.2" },
-    { name = "ipython", marker = "extra == 'tests'", specifier = ">=8.12.2" },
     { name = "jinja2", specifier = ">=3.1.2" },
     { name = "lxml", specifier = ">=4.9.2" },
-    { name = "manim", marker = "extra == 'docs'", specifier = ">=0.19" },
     { name = "manim", marker = "extra == 'full'", specifier = ">=0.19" },
     { name = "manim", marker = "extra == 'magic'", specifier = ">=0.19" },
     { name = "manim", marker = "extra == 'manim'", specifier = ">=0.19" },
     { name = "manim", marker = "extra == 'pyqt6-full'", specifier = ">=0.19" },
     { name = "manim", marker = "extra == 'pyside6-full'", specifier = ">=0.19" },
     { name = "manim", marker = "extra == 'sphinx-directive'", specifier = ">=0.19" },
-    { name = "manim", marker = "extra == 'tests'", specifier = ">=0.19" },
     { name = "manimgl", marker = "extra == 'manimgl'", specifier = ">=1.7.2" },
-    { name = "manimgl", marker = "extra == 'tests'", specifier = ">=1.7.2" },
-    { name = "myst-parser", marker = "extra == 'docs'", specifier = ">=2.0.0" },
-    { name = "nbsphinx", marker = "extra == 'docs'", specifier = ">=0.9.2" },
     { name = "numpy", specifier = ">=1.19" },
-    { name = "pandoc", marker = "extra == 'docs'", specifier = ">=2.3" },
     { name = "pillow", specifier = ">=9.5.0" },
     { name = "pydantic", specifier = ">=2.0.1" },
     { name = "pydantic-extra-types", specifier = ">=2.0.0" },
-    { name = "pygments", marker = "extra == 'docs'", specifier = "<2.19" },
-    { name = "pyqt6", marker = "extra == 'docs'", specifier = ">=6.7.0" },
     { name = "pyqt6", marker = "extra == 'pyqt6'", specifier = ">=6.7.0" },
     { name = "pyqt6", marker = "extra == 'pyqt6-full'", specifier = ">=6.7.0" },
-    { name = "pyqt6", marker = "extra == 'tests'", specifier = ">=6.7.0" },
     { name = "pyside6", marker = "extra == 'pyside6'", specifier = ">=6.6.1,!=6.8.1.1" },
     { name = "pyside6", marker = "extra == 'pyside6-full'", specifier = ">=6.6.1,!=6.8.1.1" },
-    { name = "pyside6", marker = "extra == 'tests'", specifier = ">=6.6.1,!=6.8.1.1" },
-    { name = "pytest", marker = "extra == 'tests'", specifier = ">=7.4.0" },
-    { name = "pytest-cov", marker = "extra == 'tests'", specifier = ">=4.1.0" },
-    { name = "pytest-env", marker = "extra == 'tests'", specifier = ">=0.8.2" },
-    { name = "pytest-missing-modules", marker = "extra == 'tests'", specifier = ">=0.1.0" },
-    { name = "pytest-qt", marker = "extra == 'tests'", specifier = ">=4.2.0" },
     { name = "python-pptx", specifier = ">=0.6.21" },
     { name = "qtpy", specifier = ">=2.4.1" },
     { name = "requests", specifier = ">=2.28.1" },
     { name = "rich", specifier = ">=13.3.2" },
     { name = "rtoml", specifier = ">=0.11.0" },
-    { name = "sphinx", marker = "extra == 'docs'", specifier = ">=7.0.1" },
-    { name = "sphinx-click", marker = "extra == 'docs'", specifier = ">=4.4.0" },
-    { name = "sphinx-copybutton", marker = "extra == 'docs'", specifier = ">=0.5.1" },
-    { name = "sphinx-design", marker = "extra == 'docs'", specifier = ">=0.6.1" },
-    { name = "sphinxcontrib-programoutput", marker = "extra == 'docs'", specifier = ">=0.18" },
-    { name = "sphinxext-opengraph", marker = "extra == 'docs'", specifier = ">=0.7.5" },
     { name = "tqdm", specifier = ">=4.64.1" },
 ]
+provides-extras = ["full", "magic", "manim", "manimgl", "pyqt6", "pyqt6-full", "pyside6", "pyside6-full", "sphinx-directive"]
 
 [package.metadata.requires-dev]
 dev = [
     { name = "bump-my-version", specifier = ">=0.20.3" },
+    { name = "furo", specifier = ">=2023.5.20" },
+    { name = "importlib-metadata", marker = "python_full_version < '3.10'", specifier = ">=8.6.1" },
+    { name = "ipykernel", specifier = ">=6.25.1" },
+    { name = "manim-slides", extras = ["full", "manimgl", "pyqt6", "pyside6", "sphinx-directive"] },
+    { name = "manim-slides", extras = ["magic", "manim", "pyqt6", "sphinx-directive"] },
+    { name = "myst-parser", specifier = ">=2.0.0" },
+    { name = "nbsphinx", specifier = ">=0.9.2" },
+    { name = "pandoc", specifier = ">=2.3" },
     { name = "pre-commit", specifier = ">=3.5.0" },
+    { name = "pygments", specifier = "<2.19" },
+    { name = "pytest", specifier = ">=7.4.0" },
+    { name = "pytest-cov", specifier = ">=4.1.0" },
+    { name = "pytest-env", specifier = ">=0.8.2" },
+    { name = "pytest-missing-modules", specifier = ">=0.1.0" },
+    { name = "pytest-qt", specifier = ">=4.2.0" },
+    { name = "setuptools", specifier = ">=73.0.1" },
+    { name = "sphinx", specifier = ">=7.0.1" },
+    { name = "sphinx-click", specifier = ">=4.4.0" },
+    { name = "sphinx-copybutton", specifier = ">=0.5.1" },
+    { name = "sphinx-design", specifier = ">=0.6.1" },
+    { name = "sphinxcontrib-programoutput", specifier = ">=0.18" },
+    { name = "sphinxext-opengraph", specifier = ">=0.7.5" },
+]
+docs = [
+    { name = "furo", specifier = ">=2023.5.20" },
+    { name = "ipykernel", specifier = ">=6.25.1" },
+    { name = "manim-slides", extras = ["magic", "manim", "pyqt6", "sphinx-directive"] },
+    { name = "myst-parser", specifier = ">=2.0.0" },
+    { name = "nbsphinx", specifier = ">=0.9.2" },
+    { name = "pandoc", specifier = ">=2.3" },
+    { name = "pygments", specifier = "<2.19" },
+    { name = "sphinx", specifier = ">=7.0.1" },
+    { name = "sphinx-click", specifier = ">=4.4.0" },
+    { name = "sphinx-copybutton", specifier = ">=0.5.1" },
+    { name = "sphinx-design", specifier = ">=0.6.1" },
+    { name = "sphinxcontrib-programoutput", specifier = ">=0.18" },
+    { name = "sphinxext-opengraph", specifier = ">=0.7.5" },
+]
+tests = [
+    { name = "importlib-metadata", marker = "python_full_version < '3.10'", specifier = ">=8.6.1" },
+    { name = "manim-slides", extras = ["full", "manimgl", "pyqt6", "pyside6", "sphinx-directive"] },
+    { name = "pytest", specifier = ">=7.4.0" },
+    { name = "pytest-cov", specifier = ">=4.1.0" },
+    { name = "pytest-env", specifier = ">=0.8.2" },
+    { name = "pytest-missing-modules", specifier = ">=0.1.0" },
+    { name = "pytest-qt", specifier = ">=4.2.0" },
     { name = "setuptools", specifier = ">=73.0.1" },
 ]
 
@@ -2579,7 +2609,7 @@ name = "plumbum"
 version = "1.9.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "pywin32", marker = "platform_python_implementation != 'PyPy' and platform_system == 'Windows'" },
+    { name = "pywin32", marker = "platform_python_implementation != 'PyPy' and sys_platform == 'win32'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/f0/5d/49ba324ad4ae5b1a4caefafbce7a1648540129344481f2ed4ef6bb68d451/plumbum-1.9.0.tar.gz", hash = "sha256:e640062b72642c3873bd5bdc3effed75ba4d3c70ef6b6a7b907357a84d909219", size = 319083 }
 wheels = [
@@ -4150,7 +4180,7 @@ name = "tqdm"
 version = "4.67.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "colorama", marker = "platform_system == 'Windows'" },
+    { name = "colorama", marker = "sys_platform == 'win32'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/a8/4b/29b4ef32e036bb34e4ab51796dd745cdba7ed47ad142a9f4a1eb8e0c744d/tqdm-4.67.1.tar.gz", hash = "sha256:f8aef9c52c08c13a65f30ea34f4e5aac3fd1a34959879d7e59e63027286627f2", size = 169737 }
 wheels = [

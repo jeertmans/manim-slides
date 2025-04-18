@@ -1,9 +1,3 @@
-> [!IMPORTANT]
-> Take the [**Manim Slides Survey**](https://forms.gle/i4scrwPQghbTQwQs5)
-> to help improve this tool! Thanks in advance to all the people taking the time
-> to answer this short survey! The form is open until **January 31st 2025**,
-> and results will be communicated in the GitHub discussions.
-
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/jeertmans/manim-slides/main/static/logo_dark_transparent.png">
   <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/jeertmans/manim-slides/main/static/logo_light_transparent.png">
@@ -234,8 +228,8 @@ you can do so at: [jeertmans@icloud.com](mailto:jeertmans@icloud.com).
 [pypi-download-badge]: https://img.shields.io/pypi/dm/manim-slides
 [documentation-badge]: https://readthedocs.org/projects/manim-slides/badge/?version=latest
 [documentation-url]: https://manim-slides.readthedocs.io/
-[doi-badge]: https://zenodo.org/badge/DOI/10.5281/zenodo.8215167.svg
-[doi-url]: https://doi.org/10.5281/zenodo.8215167
+[doi-badge]: https://zenodo.org/badge/DOI/10.5281/zenodo.7971360.svg
+[doi-url]: https://doi.org/10.5281/zenodo.7971360
 [jose-badge]: https://jose.theoj.org/papers/10.21105/jose.00206/status.svg
 [jose-url]: https://doi.org/10.21105/jose.00206
 [codecov-badge]: https://codecov.io/gh/jeertmans/manim-slides/branch/main/graph/badge.svg?token=8P4DY9JCE4

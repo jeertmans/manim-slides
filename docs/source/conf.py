@@ -4,6 +4,7 @@
 # For the full list of built-in configuration values, see the documentation:
 # https://www.sphinx-doc.org/en/master/usage/configuration.html
 
+import os
 import sys
 from datetime import date
 
@@ -55,6 +56,7 @@ add_module_names = False
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
+html_baseurl = os.environ.get("READTHEDOCS_CANONICAL_URL", "/")
 html_theme = "furo"
 html_static_path = ["_static"]
 html_favicon = "_static/favicon.png"

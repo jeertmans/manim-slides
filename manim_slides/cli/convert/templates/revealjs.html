@@ -50,11 +50,11 @@
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/{{ reveal_version }}/reveal.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/{{ reveal_version }}/plugin/notes/notes.min.js"></script>
 
     <!-- To include plugins, see: https://revealjs.com/plugins/ -->
     {% if has_notes %}
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/{{ reveal_version }}/plugin/markdown/markdown.min.js"></script>
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/{{ reveal_version }}/plugin/notes/notes.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/{{ reveal_version }}/plugin/markdown/markdown.min.js"></script>
     {% endif %}
 
     <!-- <script src="index.js"></script> -->
@@ -262,6 +262,23 @@
         // Time before the cursor is hidden (in ms)
         hideCursorTime: {{ hide_cursor_time }}
       });
+      // Override SPACE to play / pause the video
+      Reveal.addKeyBinding(
+        {
+          keyCode: 32,
+          key: 'SPACE',
+          description: 'Play / pause video'
+        },
+        () => {
+          var currentVideos = Reveal.getCurrentSlide().slideBackgroundContentElement.getElementsByTagName("video");
+          if (currentVideos.length > 0) {
+            if (currentVideos[0].paused == true) currentVideos[0].play();
+            else currentVideos[0].pause();
+          } else {
+            Reveal.next();
+          }
+        }
+      );
       {% if one_file %}
       // Fix found by @t-fritsch and @Rapsssito on GitHub
       // see: https://github.com/hakimel/reveal.js/discussions/3362#discussioncomment-11733074.

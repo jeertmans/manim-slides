@@ -536,7 +536,7 @@ class RevealJS(Converter):
         "black",
         description="Background color used in slides, not relevant if videos fill the whole area.",
     )
-    reveal_version: str = Field("5.1.0", description="RevealJS version.")
+    reveal_version: str = Field("5.2.0", description="RevealJS version.")
     reveal_theme: RevealTheme = Field(
         RevealTheme.black, description="RevealJS version."
     )
