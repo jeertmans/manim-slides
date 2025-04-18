@@ -7,9 +7,14 @@ import click
 from click import Context, Parameter
 from pydantic import ValidationError
 
-from ..commons import config_path_option, folder_path_option, verbosity_option
-from ..config import Config, PresentationConfig
-from ..logger import logger
+from ...core.config import Config, PresentationConfig, list_presentation_configs
+from ...core.logger import logger
+from ..commons import (
+    config_path_option,
+    folder_path_option,
+    scenes_argument,
+    verbosity_option,
+)
 
 
 @click.command()
@@ -18,8 +23,10 @@ from ..logger import logger
 @verbosity_option
 def list_scenes(folder: Path) -> None:
     """List available scenes."""
-    for i, scene in enumerate(_list_scenes(folder), start=1):
-        click.secho(f"{i}: {scene}", fg="green")
+    scene_names = [path.stem for path in list_presentation_configs(folder)]
+    num_digits = len(str(len(scene_names)))
+    for i, scene_name in enumerate(scene_names, start=1):
+        click.secho(f"{i:{num_digits}d}: {scene_name}", fg="green")
 
 
 def _list_scenes(folder: Path) -> list[str]:
@@ -130,7 +137,7 @@ def start_at_callback(
 
 
 @click.command()
-@click.argument("scenes", nargs=-1)
+@scenes_argument
 @config_path_option
 @folder_path_option
 @click.option("--start-paused", is_flag=True, help="Start paused.")
@@ -276,7 +283,7 @@ def present(  # noqa: C901
     if skip_all:
         exit_after_last_slide = True
 
-    presentation_configs = get_scenes_presentation_config(scenes, folder)
+    presentation_configs = [PresentationConfig.from_file(path) for path in scenes]
 
     if config_path.exists():
         try:

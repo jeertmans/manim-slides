@@ -40,7 +40,7 @@ First, you must include the directive in the Sphinx configuration file:
 
     extensions = [
         # ...
-        "manim_slides.docs.manim_slides_directive",
+        "manim_slides.sphinxext.manim_slides_directive",
     ]
 
 Its basic usage that allows processing **inline content**

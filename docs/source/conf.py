@@ -37,7 +37,7 @@ extensions = [
     "sphinx_copybutton",
     "sphinx_design",
     # Custom
-    "manim_slides.docs.manim_slides_directive",
+    "manim_slides.sphinxext.manim_slides_directive",
 ]
 
 autodoc_typehints = "both"

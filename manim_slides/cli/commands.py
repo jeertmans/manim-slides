@@ -1,13 +1,17 @@
-"""Manim Slides' main entrypoint."""
+"""Manim Slides' CLI."""
 
-from .__version__ import __version__
-from .checkhealth import checkhealth
-from .cli.commands import main
-from .convert import convert
-from .logger import logger
-from .present import list_scenes, present
-from .render import render
-from .wizard import init, wizard
+import json
+
+import click
+import requests
+from click_default_group import DefaultGroup
+
+from ..__version__ import __version__
+from ..core.logger import logger
+from .convert.commands import convert
+from .present.commands import list_scenes, present
+from .render.commands import render
+from .wizard.commands import init, wizard
 
 
 @click.group(cls=DefaultGroup, default="present", default_if_no_args=True)
@@ -20,7 +24,7 @@ from .wizard import init, wizard
 )
 @click.version_option(__version__, "-v", "--version")
 @click.help_option("-h", "--help")
-def cli(notify_outdated_version: bool) -> None:
+def main(notify_outdated_version: bool) -> None:
     """
     Manim Slides command-line utilities.
 
@@ -60,13 +64,9 @@ def cli(notify_outdated_version: bool) -> None:
             logger.debug(f"Something went wrong: {warn_prompt}")
 
 
-cli.add_command(convert)
-cli.add_command(checkhealth)
-cli.add_command(init)
-cli.add_command(list_scenes)
-cli.add_command(present)
-cli.add_command(render)
-cli.add_command(wizard)
-
-if __name__ == "__main__":
-    main()
+main.add_command(convert)
+main.add_command(init)
+main.add_command(list_scenes)
+main.add_command(present)
+main.add_command(render)
+main.add_command(wizard)
