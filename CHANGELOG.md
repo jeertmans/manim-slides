@@ -10,6 +10,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 (unreleased)=
 ## [Unreleased](https://github.com/jeertmans/manim-slides/compare/v5.5.1...HEAD)
 
+(unreleased-chore)=
+### Chore
+
+- Moved `docs` and `tests` extras, as well as `dev-dependencies`,
+  inside groups in `dependency-groups`. This could break existing code
+  when using one of those extras, but as they were not part of the public API,
+  we do not consider this to be a **breaking change**.
+  [#542](https://github.com/jeertmans/manim-slides/pull/542)
+
 (v5.5.1)=
 ## [v5.5.1](https://github.com/jeertmans/manim-slides/compare/v5.5.0...v5.5.1)
 

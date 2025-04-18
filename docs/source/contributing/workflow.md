@@ -32,7 +32,7 @@ and development dependencies. If not already, please install this tool.
 With uv, installation becomes straightforward:
 
 ```bash
-uv sync --all-extras
+uv sync
 ```
 
 :::{note}

@@ -2,6 +2,39 @@
 build-backend = "hatchling.build"
 requires = ["hatchling", "hatch-fancy-pypi-readme"]
 
+[dependency-groups]
+dev = [
+  {include-group = "docs"},
+  {include-group = "tests"},
+  "bump-my-version>=0.20.3",
+  "pre-commit>=3.5.0",
+  "setuptools>=73.0.1",
+]
+docs = [
+  "manim-slides[magic,manim,pyqt6,sphinx-directive]",
+  "furo>=2023.5.20",
+  "ipykernel>=6.25.1",
+  "myst-parser>=2.0.0",
+  "nbsphinx>=0.9.2",
+  "pandoc>=2.3",
+  "pygments<2.19",  # See: https://github.com/ManimCommunity/manim/issues/4104
+  "sphinx>=7.0.1",
+  "sphinxcontrib-programoutput>=0.18",
+  "sphinx-design>=0.6.1",
+  "sphinx-click>=4.4.0",
+  "sphinx-copybutton>=0.5.1",
+  "sphinxext-opengraph>=0.7.5",
+]
+tests = [
+  "importlib-metadata>=8.6.1;python_version<'3.10'",
+  "manim-slides[full,manimgl,pyqt6,pyside6,sphinx-directive]",
+  "pytest>=7.4.0",
+  "pytest-cov>=4.1.0",
+  "pytest-env>=0.8.2",
+  "pytest-missing-modules>=0.1.0",
+  "pytest-qt>=4.2.0",
+]
+
 [project]
 authors = [{name = "Jérome Eertmans", email = "jeertmans@icloud.com"}]
 classifiers = [
@@ -42,21 +75,6 @@ name = "manim-slides"
 requires-python = ">=3.9"
 
 [project.optional-dependencies]
-docs = [
-  "manim-slides[magic,manim,pyqt6,sphinx-directive]",
-  "furo>=2023.5.20",
-  "ipykernel>=6.25.1",
-  "myst-parser>=2.0.0",
-  "nbsphinx>=0.9.2",
-  "pandoc>=2.3",
-  "pygments<2.19",  # See: https://github.com/ManimCommunity/manim/issues/4104
-  "sphinx>=7.0.1",
-  "sphinxcontrib-programoutput>=0.18",
-  "sphinx-design>=0.6.1",
-  "sphinx-click>=4.4.0",
-  "sphinx-copybutton>=0.5.1",
-  "sphinxext-opengraph>=0.7.5",
-]
 full = [
   "manim-slides[magic,manim,sphinx-directive]",
 ]
@@ -68,15 +86,6 @@ pyqt6-full = ["manim-slides[full,pyqt6]"]
 pyside6 = ["pyside6>=6.6.1,!=6.8.1.1"]
 pyside6-full = ["manim-slides[full,pyside6]"]
 sphinx-directive = ["docutils>=0.20.1", "manim-slides[manim]"]
-tests = [
-  "importlib-metadata>=8.6.1;python_version<'3.10'",
-  "manim-slides[full,manimgl,pyqt6,pyside6,sphinx-directive]",
-  "pytest>=7.4.0",
-  "pytest-cov>=4.1.0",
-  "pytest-env>=0.8.2",
-  "pytest-missing-modules>=0.1.0",
-  "pytest-qt>=4.2.0",
-]
 
 [project.scripts]
 manim-slides = "manim_slides.__main__:cli"
@@ -225,10 +234,3 @@ isort = {known-first-party = ["manim_slides", "tests"]}
 [tool.ruff.lint.per-file-ignores]
 "docs/source/reference/magic_example.ipynb" = ["F403", "F405"]
 "tests/test_slide.py" = ["N801"]
-
-[tool.uv]
-dev-dependencies = [
-  "bump-my-version>=0.20.3",
-  "pre-commit>=3.5.0",
-  "setuptools>=73.0.1",
-]
