@@ -116,7 +116,7 @@ class ManimSlidesMagic(Magics):  # type: ignore
             file) will be moved relative to the video locations. Use-cases include building
             documentation with Sphinx and JupyterBook. See also the
             :mod:`Manim Slides directive for Sphinx
-            <manim_slides.docs.manim_slides_directive>`.
+            <manim_slides.sphinxext.manim_slides_directive>`.
 
         Examples
         --------

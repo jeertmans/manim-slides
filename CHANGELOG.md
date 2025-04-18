@@ -18,6 +18,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   when using one of those extras, but as they were not part of the public API,
   we do not consider this to be a **breaking change**.
   [#542](https://github.com/jeertmans/manim-slides/pull/542)
+- Moved `manim_slides.docs.manim_slides_directive` to `manim_slides.sphinxext.manim_slides_directive`.
+  This is a **breaking change** because documentation configs have
+  to be updated.
+  [#242](https://github.com/jeertmans/manim-slides/pull/242)
 
 (v5.5.1)=
 ## [v5.5.1](https://github.com/jeertmans/manim-slides/compare/v5.5.0...v5.5.1)
