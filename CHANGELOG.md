@@ -10,6 +10,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 (unreleased)=
 ## [Unreleased](https://github.com/jeertmans/manim-slides/compare/v5.5.1...HEAD)
 
+(unreleased-added)=
+### Added
+
+- `manim-slides render` now exits with the same return code as the one returned by `manim render` or `manimgl`.
+  [@chrjabs](https://github.com/chrjabs) [#545](https://github.com/jeertmans/manim-slides/pull/545)
+
 (unreleased-chore)=
 ### Chore
 
