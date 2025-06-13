@@ -22,7 +22,16 @@ if MANIM:
     from manim import LEFT, AnimationGroup, FadeIn, FadeOut
     from manim.mobject.mobject import Mobject
 else:
+    import sys
+
+    # Manimlib parses sys.argv on import, so we clear it temporarily.
+    old_argv = sys.argv
+    sys.argv = [__file__]
     from manimlib import LEFT, AnimationGroup, FadeIn, FadeOut
+
+    sys.argv = old_argv
+
+    del sys
 
     Mobject = Any
 

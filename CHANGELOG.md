@@ -30,6 +30,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   [@casperalgera](https://github.com/casperalgera) [#556](https://github.com/jeertmans/manim-slides/pull/556)
 - Added example in the school work section of the gallery.
   [@amstrdm](https://github.com/amstrdm) [#557](https://github.com/jeertmans/manim-slides/pull/557)
+- Fixed some tests that were failing.
+  [#550](https://github.com/jeertmans/manim-slides/pull/550)
+- Pinned `setuptools<81` for `manimgl` extra, as `setuptools>=81`
+  dropped support for its API.
+  [#550](https://github.com/jeertmans/manim-slides/pull/550)
+
+(unreleased-fixed)=
+### Fixed
+
+- Fixed potential import issue of ManimGL, importing `manimlib` will parse `sys.argv`
+  to initialize the config, which can lead to surprising behavior when using the library with
+  different command line arguments that are not meant to be used by ManimGL.
+  [#550](https://github.com/jeertmans/manim-slides/pull/550)
 
 (v5.5.1)=
 ## [v5.5.1](https://github.com/jeertmans/manim-slides/compare/v5.5.0...v5.5.1)
