@@ -67,11 +67,11 @@ For example, below are the slides of his
     </iframe>
 </div>
 
-
 ### Matthew McIlree
+
 Matthew is a Computer Science researcher from Scotland and has used Manim Slides
 to present his work on *Proof Logging for Constraint Programming*. He also publishes
-his presentation slides on his [personal website](https:matthewmcilree.com).
+his presentation slides on his [personal website](https://matthewmcilree.com).
 
 Here are the slides from a 25-minute talk he presented at the 39th Annual AAAI Conference on Artificial Intelligence titled
 [Certifying Bounds Propagation for Integer Multiplication Constraints](https://matthewmcilree.com/files/slides/mcilree_aaai2025.html).
