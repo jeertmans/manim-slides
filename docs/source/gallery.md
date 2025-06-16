@@ -14,7 +14,7 @@ If you too have created content with Manim Slides that is available online
 (e.g., a YouTube video or website),
 don't hesitate to contact us so that we can share your content on this page!
 
-## Scientif Research
+## Scientific Research
 
 Below are people that dissimenate their research results
 using Manim Slides presentations.
@@ -64,6 +64,28 @@ For example, below are the slides of his
         allowfullscreen
         allow="autoplay"
         src="https://eertmans.be/assets/slides/2023-12-07-confirmation.html">
+    </iframe>
+</div>
+
+
+### Matthew McIlree
+Matthew is a Computer Science researcher from Scotland and has used Manim Slides 
+to present his work on *Proof Logging for Constraint Programming*. He also publishes
+his presentation slides on his [personal website](https:matthewmcilree.com). 
+
+Here are the slides from a 25-minute talk he presented at the 39th Annual AAAI Conference on Artificial Intelligence titled 
+[Certifying Bounds Propagation for Integer Multiplication Constraints](https://matthewmcilree.com/files/slides/mcilree_aaai2025.html).
+
+<div style="position:relative;padding-bottom:56.25%;">
+    <iframe
+        loading="lazy"
+        style="width:100%;height:100%;position:absolute;left:0px;top:0px;"
+        frameborder="1"
+        width="100%"
+        height="100%"
+        allowfullscreen
+        allow="autoplay"
+        src="https://matthewmcilree.com/files/slides/mcilree_aaai2025.html">
     </iframe>
 </div>
 
