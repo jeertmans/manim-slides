@@ -1,59 +1,76 @@
-from manim import *
-from manim_slides import Slide
+from manim import (
+    BLUE,
+    DOWN,
+    RED,
+    Circle,
+    Create,
+    FadeIn,
+    Square,
+    Text,
+    Write,
+)
 from PIL import Image, ImageDraw, ImageFont
-import numpy as np
+
+from manim_slides.slide.manim import Slide
+
 
 class StaticImageExample(Slide):
-    def construct(self):
-        # Create a simple image programmatically
-        img = Image.new('RGB', (800, 600), color='white')
-        draw = ImageDraw.Draw(img)
-        
-        # Draw some text
-        try:
-            font = ImageFont.truetype("arial.ttf", 40)
-        except:
-            font = ImageFont.load_default()
-        
-        draw.text((400, 300), "Static Image Slide", fill='black', anchor='mm', font=font)
-        
-        # Draw a simple shape
-        draw.rectangle([200, 200, 600, 400], outline='blue', width=5)
-        
-        # Save the image
-        img_path = "static_image.png"
-        img.save(img_path)
-        
+    def construct(self) -> None:
+        # Create some static images for demonstration
+        def create_sample_image(text: str, filename: str) -> str:
+            # Create a simple image with text
+            img = Image.new("RGB", (800, 600), color="white")
+            draw = ImageDraw.Draw(img)
+
+            try:
+                font = ImageFont.truetype("arial.ttf", 40)
+            except OSError:
+                font = ImageFont.load_default()
+
+            # Add text to the image
+            bbox = draw.textbbox((0, 0), text, font=font)
+            text_width = bbox[2] - bbox[0]
+            text_height = bbox[3] - bbox[1]
+
+            x = (800 - text_width) // 2
+            y = (600 - text_height) // 2
+
+            draw.text((x, y), text, fill="black", font=font)
+
+            # Save the image
+            img.save(filename)
+            return filename
+
+        # Create sample images
+        image1_path = create_sample_image("Static Image Slide 1", "static_image1.png")
+        image2_path = create_sample_image("Static Image Slide 2", "static_image2.png")
+
         # First slide with animation
         title = Text("Static Image Support", font_size=48)
-        subtitle = Text("Manim Slides now supports static images!", font_size=24).next_to(title, DOWN)
-        
+        subtitle = Text(
+            "Manim Slides now supports static images!", font_size=24
+        ).next_to(title, DOWN)
+
         self.play(FadeIn(title))
         self.play(FadeIn(subtitle))
-        
+
         # Second slide with static image
-        self.next_slide(static_image=img_path)
-        
+        self.next_slide(static_image=image1_path)
+
         # Third slide with animation again
         self.next_slide()
         circle = Circle(radius=2, color=BLUE)
         square = Square(side_length=3, color=RED)
-        
+
         self.play(Create(circle))
         self.play(Create(square))
-        
+
         # Fourth slide with another static image (different content)
-        img2 = Image.new('RGB', (800, 600), color='lightblue')
-        draw2 = ImageDraw.Draw(img2)
-        draw2.text((400, 300), "Another Static Image", fill='darkblue', anchor='mm', font=font)
-        draw2.ellipse([250, 200, 550, 400], outline='red', width=5)
-        
-        img2_path = "static_image2.png"
-        img2.save(img2_path)
-        
-        self.next_slide(static_image=img2_path)
-        
+        self.next_slide(static_image=image2_path)
+
         # Final slide
         self.next_slide()
-        final_text = Text("Static images work seamlessly with animations!", font_size=36)
-        self.play(Write(final_text)) 
+        final_text = Text(
+            "Static images work seamlessly with animations!", font_size=36
+        )
+        self.play(Write(final_text))

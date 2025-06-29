@@ -15,7 +15,7 @@ from qtpy.QtWidgets import (
     QWidget,
 )
 
-from ..config import Config, PresentationConfig, SlideConfig, SlideType
+from ..config import Config, PresentationConfig, SlideConfig
 from ..logger import logger
 from ..resources import *  # noqa: F403
 
@@ -47,24 +47,24 @@ class Info(QWidget):  # type: ignore[misc]
             QLabel("Current slide"),
             alignment=Qt.AlignmentFlag.AlignBottom | Qt.AlignmentFlag.AlignHCenter,
         )
-        
+
         # Create stacked widget to handle both video and image content
         self.main_content_stack = QStackedWidget()
-        
+
         # Video widget for video content
         main_video_widget = QVideoWidget()
         main_video_widget.setAspectRatioMode(aspect_ratio_mode)
         main_video_widget.setFixedSize(720, 480)
         self.video_sink = main_video_widget.videoSink()
         self.main_content_stack.addWidget(main_video_widget)
-        
+
         # Image label for static image content
         main_image_label = QLabel()
         main_image_label.setAspectRatioMode(aspect_ratio_mode)
         main_image_label.setFixedSize(720, 480)
         main_image_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.main_content_stack.addWidget(main_image_label)
-        
+
         left_layout.addWidget(self.main_content_stack)
 
         # Current slide information
@@ -123,10 +123,10 @@ class Info(QWidget):  # type: ignore[misc]
             QLabel("Next slide"),
             alignment=Qt.AlignmentFlag.AlignBottom | Qt.AlignmentFlag.AlignHCenter,
         )
-        
+
         # Create stacked widget for next slide preview
         self.next_content_stack = QStackedWidget()
-        
+
         # Video widget for next slide preview
         next_video_widget = QVideoWidget()
         next_video_widget.setAspectRatioMode(aspect_ratio_mode)
@@ -135,14 +135,14 @@ class Info(QWidget):  # type: ignore[misc]
         self.next_media_player.setVideoOutput(next_video_widget)
         self.next_media_player.setLoops(-1)
         self.next_content_stack.addWidget(next_video_widget)
-        
+
         # Image label for next slide preview
         next_image_label = QLabel()
         next_image_label.setAspectRatioMode(aspect_ratio_mode)
         next_image_label.setFixedSize(360, 240)
         next_image_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.next_content_stack.addWidget(next_image_label)
-        
+
         right_layout.addWidget(self.next_content_stack)
 
         # Notes
@@ -254,20 +254,20 @@ class Player(QMainWindow):  # type: ignore[misc]
 
         # Create stacked widget for main content
         self.main_content_stack = QStackedWidget()
-        
+
         # Video widget for main content
         self.audio_output = QAudioOutput()
         self.video_widget = QVideoWidget()
         self.video_sink = self.video_widget.videoSink()
         self.video_widget.setAspectRatioMode(aspect_ratio_mode)
         self.main_content_stack.addWidget(self.video_widget)
-        
+
         # Image label for main content
         self.image_label = QLabel()
         self.image_label.setAspectRatioMode(aspect_ratio_mode)
         self.image_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.main_content_stack.addWidget(self.image_label)
-        
+
         self.setCentralWidget(self.main_content_stack)
 
         self.media_player = QMediaPlayer(self)
@@ -337,12 +337,12 @@ class Player(QMainWindow):  # type: ignore[misc]
 
     def _is_image_file(self, file_path: Path) -> bool:
         """Check if the file is an image based on its extension."""
-        image_extensions = {'.png', '.jpg', '.jpeg', '.gif', '.bmp', '.tiff', '.webp'}
+        image_extensions = {".png", ".jpg", ".jpeg", ".gif", ".bmp", ".tiff", ".webp"}
         return file_path.suffix.lower() in image_extensions
 
     def _is_video_file(self, file_path: Path) -> bool:
         """Check if the file is a video based on its extension."""
-        video_extensions = {'.mp4', '.avi', '.mov', '.mkv', '.wmv', '.flv', '.webm'}
+        video_extensions = {".mp4", ".avi", ".mov", ".mkv", ".wmv", ".flv", ".webm"}
         return file_path.suffix.lower() in video_extensions
 
     """
@@ -456,7 +456,8 @@ class Player(QMainWindow):  # type: ignore[misc]
 
             if self.playing_reversed_slide:
                 self.media_player.setPlaybackRate(
-                    self.current_slide_config.reversed_playback_rate * self.playback_rate
+                    self.current_slide_config.reversed_playback_rate
+                    * self.playback_rate
                 )
             else:
                 self.media_player.setPlaybackRate(
@@ -587,7 +588,9 @@ class Player(QMainWindow):  # type: ignore[misc]
         if self._is_image_file(self.current_file):
             # For images, just go to next slide
             self.load_next_slide()
-        elif self.media_player.playbackState() == QMediaPlayer.PlaybackState.PausedState:
+        elif (
+            self.media_player.playbackState() == QMediaPlayer.PlaybackState.PausedState
+        ):
             self.media_player.play()
         elif self.next_terminates_loop and self.media_player.loops() != 1:
             position = self.media_player.position()

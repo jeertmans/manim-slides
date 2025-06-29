@@ -69,7 +69,7 @@ def concatenate_video_files(files: list[Path], dest: Path) -> None:
     os.unlink(tmp_file)  # https://stackoverflow.com/a/54768241
 
 
-def process_static_image(image_source, dest):
+def process_static_image(image_source: Union[str, Any], dest: Path) -> None:
     try:
         if isinstance(image_source, str):
             shutil.copy(image_source, dest)
@@ -209,22 +209,23 @@ def reverse_video_file(
 
 
 def is_image_file(file_path: str) -> bool:
-    image_extensions = {'.png', '.jpg', '.jpeg', '.gif', '.bmp', '.tiff', '.webp'}
+    image_extensions = {".png", ".jpg", ".jpeg", ".gif", ".bmp", ".tiff", ".webp"}
     return Path(file_path).suffix.lower() in image_extensions
 
 
 def is_video_file(file_path: str) -> bool:
-    video_extensions = {'.mp4', '.avi', '.mov', '.wmv', '.flv', '.webm', '.mkv'}
+    video_extensions = {".mp4", ".avi", ".mov", ".wmv", ".flv", ".webm", ".mkv"}
     return Path(file_path).suffix.lower() in video_extensions
 
 
-def open_with_default(path):
+def open_with_default(path: str) -> None:
     import os
-    import sys
     import subprocess
-    if sys.platform.startswith('darwin'):
-        subprocess.call(('open', path))
-    elif os.name == 'nt':
+    import sys
+
+    if sys.platform.startswith("darwin"):
+        subprocess.call(("open", path))
+    elif os.name == "nt":
         os.startfile(path)
-    elif os.name == 'posix':
-        subprocess.call(('xdg-open', path))
+    elif os.name == "posix":
+        subprocess.call(("xdg-open", path))

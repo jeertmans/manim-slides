@@ -1,8 +1,6 @@
 import mimetypes
 import os
-import platform
 import shutil
-import subprocess
 import tempfile
 import textwrap
 import warnings
@@ -45,7 +43,7 @@ from .present import get_scenes_presentation_config
 from .utils import open_with_default
 
 # Type alias for PIL Image
-Image = Any  # Will be properly typed when PIL is imported
+PILImage = Any  # Will be properly typed when PIL is imported
 
 
 def validate_config_option(
@@ -87,7 +85,7 @@ def get_duration_ms(file: Path) -> float:
 
 def is_image_file(file_path: Path) -> bool:
     """Check if the file is an image based on its extension."""
-    image_extensions = {'.png', '.jpg', '.jpeg', '.gif', '.bmp', '.tiff', '.webp'}
+    image_extensions = {".png", ".jpg", ".jpeg", ".gif", ".bmp", ".tiff", ".webp"}
     return file_path.suffix.lower() in image_extensions
 
 
@@ -126,7 +124,7 @@ class Converter(BaseModel):  # type: ignore
 
     def open(self, file: Path) -> None:
         """Open a file, generated with converter, using appropriate application."""
-        open_with_default(file)
+        open_with_default(str(file))
 
     @classmethod
     def from_string(cls, s: str) -> type["Converter"]:
@@ -790,7 +788,7 @@ class PowerPoint(Converter):
                     file = slide_config.file
 
                     slide = prs.slides.add_slide(layout)
-                    
+
                     if is_image_file(file):
                         # Handle static image
                         slide.shapes.add_picture(

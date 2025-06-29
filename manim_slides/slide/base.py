@@ -2,7 +2,7 @@ from __future__ import annotations
 
 __all__ = ["BaseSlide"]
 
-import platform
+import json
 import shutil
 from abc import abstractmethod
 from collections.abc import MutableMapping, Sequence, ValuesView
@@ -13,14 +13,9 @@ from typing import (
 )
 
 import numpy as np
-from tqdm import tqdm
-import hashlib
-import json
 
-from ..config import BaseSlideConfig, PresentationConfig, PreSlideConfig, SlideConfig, SlideType
+from ..config import BaseSlideConfig, PreSlideConfig
 from ..defaults import FOLDER_PATH
-from ..logger import logger
-from ..utils import concatenate_video_files, merge_basenames, process_static_image, reverse_video_file
 from . import MANIM
 
 if TYPE_CHECKING:
@@ -537,9 +532,9 @@ class BaseSlide:
         max_files_cached: int = 100,
     ) -> None:
         """Save slides to disk."""
-        from .manim import ManimSlide
+        from .manim import Slide
 
-        if not isinstance(self, ManimSlide):
+        if not isinstance(self, Slide):
             return
 
         slides_dir = Path("slides")
@@ -568,13 +563,17 @@ class BaseSlide:
                 slide_data["src"] = str(dst_file.relative_to(slides_dir))
 
                 if not use_cache or not dst_file.exists():
+                    from ..utils import process_static_image
+
                     process_static_image(pre_slide_config.static_image, dst_file)
             else:
                 dst_file = files_dir / f"slide_{i:03d}.mp4"
                 slide_data["src"] = str(dst_file.relative_to(slides_dir))
 
                 if not use_cache or not dst_file.exists():
-                    self._process_video_slide(pre_slide_config, dst_file, skip_reversing)
+                    self._process_video_slide(
+                        pre_slide_config, dst_file, skip_reversing
+                    )
 
             slides_data.append(slide_data)
 
@@ -583,7 +582,9 @@ class BaseSlide:
             json.dump(slides_data, f, indent=2)
 
         self.logger.info(f"Generated {len(slides_data)} slides to '{files_dir}'")
-        self.logger.info(f"Slide '{self.__class__.__name__}' configuration written in '{config_file}'")
+        self.logger.info(
+            f"Slide '{self.__class__.__name__}' configuration written in '{config_file}'"
+        )
 
     def start_skip_animations(self) -> None:
         """

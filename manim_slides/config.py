@@ -28,6 +28,7 @@ Receiver = Callable[..., Any]
 
 class SlideType(Enum):
     """Enumeration of slide types."""
+
     Video = "video"
     Image = "image"
 
@@ -162,7 +163,9 @@ class BaseSlideConfig(BaseModel):
     """Base class for slide config."""
 
     src: Optional[str] = Field(None, description="Source video file path")
-    static_image: Optional[Union[str, Any]] = Field(None, description="Static image file path or PIL Image object")
+    static_image: Optional[Union[str, Any]] = Field(
+        None, description="Static image file path or PIL Image object"
+    )
     loop: bool = Field(False, description="Whether to loop the video")
     notes: Optional[str] = Field(None, description="Speaker notes for this slide")
     preload: bool = Field(True, description="Whether to preload the video")
@@ -181,12 +184,16 @@ class BaseSlideConfig(BaseModel):
     height: Optional[str] = Field(None, description="Video height")
     class_name: Optional[str] = Field(None, description="CSS class name")
     style: Optional[str] = Field(None, description="CSS style string")
-    data_attributes: Optional[dict[str, str]] = Field(None, description="Additional data attributes")
-    custom_attributes: Optional[dict[str, str]] = Field(None, description="Additional custom attributes")
+    data_attributes: Optional[dict[str, str]] = Field(
+        None, description="Additional data attributes"
+    )
+    custom_attributes: Optional[dict[str, str]] = Field(
+        None, description="Additional custom attributes"
+    )
 
-    @field_validator('static_image')
+    @field_validator("static_image")
     @classmethod
-    def validate_static_image(cls, v):
+    def validate_static_image(cls, v: Any) -> Any:
         if v is not None and cls.src is not None:
             raise ValueError("Cannot set both 'src' and 'static_image'")
         return v
@@ -244,7 +251,7 @@ class BaseSlideConfig(BaseModel):
     def apply_dedent_notes(
         self,
     ) -> "BaseSlideConfig":
-        if self.dedent_notes:
+        if self.dedent_notes and self.notes is not None:
             self.notes = dedent(self.notes)
 
         return self
@@ -298,7 +305,11 @@ class PreSlideConfig(BaseSlideConfig):
             raise ValueError(
                 "A slide cannot have 'src=...' and more than zero animations at the same time."
             )
-        elif self.src is None and self.static_image is None and self.start_animation == self.end_animation:
+        elif (
+            self.src is None
+            and self.static_image is None
+            and self.start_animation == self.end_animation
+        ):
             raise ValueError(
                 "You have to play at least one animation (e.g., 'self.wait()') "
                 "before pausing. If you want to start paused, use the appropriate "
