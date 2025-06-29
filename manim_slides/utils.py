@@ -69,19 +69,11 @@ def concatenate_video_files(files: list[Path], dest: Path) -> None:
     os.unlink(tmp_file)  # https://stackoverflow.com/a/54768241
 
 
-def process_static_image(image_source: Union[Path, Any], dest: Path) -> None:
-    """
-    Process a static image for slides.
-    
-    :param image_source: Either a Path to an image file or a PIL Image object
-    :param dest: Destination path for the processed image
-    """
+def process_static_image(image_source, dest):
     try:
-        if isinstance(image_source, Path):
-            # If it's a file path, just copy it
+        if isinstance(image_source, str):
             shutil.copy(image_source, dest)
         else:
-            # If it's a PIL Image object, save it
             image_source.save(dest)
     except Exception as e:
         logger.error(f"Failed to process static image: {e}")
@@ -214,3 +206,25 @@ def reverse_video_file(
                     pass  # We just consume the iterator
 
             concatenate_video_files(rev_files[::-1], dest)
+
+
+def is_image_file(file_path: str) -> bool:
+    image_extensions = {'.png', '.jpg', '.jpeg', '.gif', '.bmp', '.tiff', '.webp'}
+    return Path(file_path).suffix.lower() in image_extensions
+
+
+def is_video_file(file_path: str) -> bool:
+    video_extensions = {'.mp4', '.avi', '.mov', '.wmv', '.flv', '.webm', '.mkv'}
+    return Path(file_path).suffix.lower() in video_extensions
+
+
+def open_with_default(path):
+    import os
+    import sys
+    import subprocess
+    if sys.platform.startswith('darwin'):
+        subprocess.call(('open', path))
+    elif os.name == 'nt':
+        os.startfile(path)
+    elif os.name == 'posix':
+        subprocess.call(('xdg-open', path))

@@ -158,29 +158,38 @@ class Config(BaseModel):  # type: ignore[misc]
         return self
 
 
-class BaseSlideConfig(BaseModel):  # type: ignore
+class BaseSlideConfig(BaseModel):
     """Base class for slide config."""
 
-    loop: bool = False
-    auto_next: bool = False
-    playback_rate: float = 1.0
-    reversed_playback_rate: float = 1.0
-    notes: str = ""
-    dedent_notes: bool = True
-    skip_animations: bool = False
-    src: Optional[FilePath] = None
-    static_image: Optional[Union[FilePath, "PILImage"]] = None
+    src: Optional[str] = Field(None, description="Source video file path")
+    static_image: Optional[Union[str, Any]] = Field(None, description="Static image file path or PIL Image object")
+    loop: bool = Field(False, description="Whether to loop the video")
+    notes: Optional[str] = Field(None, description="Speaker notes for this slide")
+    preload: bool = Field(True, description="Whether to preload the video")
+    aspect_ratio: Optional[float] = Field(None, description="Aspect ratio override")
+    fit: str = Field("contain", description="How to fit the video in the container")
+    background_color: Optional[str] = Field(None, description="Background color")
+    controls: bool = Field(True, description="Whether to show video controls")
+    autoplay: bool = Field(False, description="Whether to autoplay the video")
+    muted: bool = Field(True, description="Whether the video should be muted")
+    volume: float = Field(1.0, description="Video volume (0.0 to 1.0)")
+    playback_rate: float = Field(1.0, description="Video playback rate")
+    start_time: Optional[float] = Field(None, description="Start time in seconds")
+    end_time: Optional[float] = Field(None, description="End time in seconds")
+    poster: Optional[str] = Field(None, description="Poster image for the video")
+    width: Optional[str] = Field(None, description="Video width")
+    height: Optional[str] = Field(None, description="Video height")
+    class_name: Optional[str] = Field(None, description="CSS class name")
+    style: Optional[str] = Field(None, description="CSS style string")
+    data_attributes: Optional[dict[str, str]] = Field(None, description="Additional data attributes")
+    custom_attributes: Optional[dict[str, str]] = Field(None, description="Additional custom attributes")
 
-    @model_validator(mode="after")
-    def validate_src_and_static_image(
-        self,
-    ) -> "BaseSlideConfig":
-        """Validate that src and static_image are not both set."""
-        if self.src is not None and self.static_image is not None:
-            raise ValueError(
-                "A slide cannot have both 'src' and 'static_image' set at the same time."
-            )
-        return self
+    @field_validator('static_image')
+    @classmethod
+    def validate_static_image(cls, v):
+        if v is not None and cls.src is not None:
+            raise ValueError("Cannot set both 'src' and 'static_image'")
+        return v
 
     @property
     def slide_type(self) -> SlideType:
