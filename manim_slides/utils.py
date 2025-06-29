@@ -5,7 +5,7 @@ import tempfile
 from collections.abc import Iterator
 from multiprocessing import Pool
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any, Optional, Union
 
 import av
 from tqdm import tqdm
@@ -67,6 +67,25 @@ def concatenate_video_files(files: list[Path], dest: Path) -> None:
             output_container.mux(packet)
 
     os.unlink(tmp_file)  # https://stackoverflow.com/a/54768241
+
+
+def process_static_image(image_source: Union[Path, Any], dest: Path) -> None:
+    """
+    Process a static image for slides.
+    
+    :param image_source: Either a Path to an image file or a PIL Image object
+    :param dest: Destination path for the processed image
+    """
+    try:
+        if isinstance(image_source, Path):
+            # If it's a file path, just copy it
+            shutil.copy(image_source, dest)
+        else:
+            # If it's a PIL Image object, save it
+            image_source.save(dest)
+    except Exception as e:
+        logger.error(f"Failed to process static image: {e}")
+        raise
 
 
 def merge_basenames(files: list[Path]) -> Path:

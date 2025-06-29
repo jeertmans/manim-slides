@@ -1,10 +1,11 @@
 import json
 import shutil
+from enum import Enum
 from functools import wraps
 from inspect import Parameter, signature
 from pathlib import Path
 from textwrap import dedent
-from typing import Any, Callable, Optional
+from typing import Any, Callable, Optional, Union
 
 import rtoml
 from pydantic import (
@@ -23,6 +24,12 @@ from pydantic_extra_types.color import Color
 from .logger import logger
 
 Receiver = Callable[..., Any]
+
+
+class SlideType(Enum):
+    """Enumeration of slide types."""
+    Video = "video"
+    Image = "image"
 
 
 class Signal(BaseModel):  # type: ignore[misc]
@@ -162,6 +169,25 @@ class BaseSlideConfig(BaseModel):  # type: ignore
     dedent_notes: bool = True
     skip_animations: bool = False
     src: Optional[FilePath] = None
+    static_image: Optional[Union[FilePath, "PILImage"]] = None
+
+    @model_validator(mode="after")
+    def validate_src_and_static_image(
+        self,
+    ) -> "BaseSlideConfig":
+        """Validate that src and static_image are not both set."""
+        if self.src is not None and self.static_image is not None:
+            raise ValueError(
+                "A slide cannot have both 'src' and 'static_image' set at the same time."
+            )
+        return self
+
+    @property
+    def slide_type(self) -> SlideType:
+        """Determine the slide type based on configuration."""
+        if self.static_image is not None:
+            return SlideType.Image
+        return SlideType.Video
 
     @classmethod
     def wrapper(cls, arg_name: str) -> Callable[..., Any]:
@@ -215,6 +241,10 @@ class BaseSlideConfig(BaseModel):  # type: ignore
         return self
 
 
+# Forward reference for PIL Image type
+PILImage = Any  # Will be properly typed when PIL is imported
+
+
 class PreSlideConfig(BaseSlideConfig):
     """Slide config to be used prior to rendering."""
 
@@ -259,7 +289,7 @@ class PreSlideConfig(BaseSlideConfig):
             raise ValueError(
                 "A slide cannot have 'src=...' and more than zero animations at the same time."
             )
-        elif self.src is None and self.start_animation == self.end_animation:
+        elif self.src is None and self.static_image is None and self.start_animation == self.end_animation:
             raise ValueError(
                 "You have to play at least one animation (e.g., 'self.wait()') "
                 "before pausing. If you want to start paused, use the appropriate "

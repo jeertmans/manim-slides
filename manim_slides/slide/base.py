@@ -14,11 +14,12 @@ from typing import (
 
 import numpy as np
 from tqdm import tqdm
+import hashlib
 
-from ..config import BaseSlideConfig, PresentationConfig, PreSlideConfig, SlideConfig
+from ..config import BaseSlideConfig, PresentationConfig, PreSlideConfig, SlideConfig, SlideType
 from ..defaults import FOLDER_PATH
 from ..logger import logger
-from ..utils import concatenate_video_files, merge_basenames, reverse_video_file
+from ..utils import concatenate_video_files, merge_basenames, process_static_image, reverse_video_file
 from . import MANIM
 
 if TYPE_CHECKING:
@@ -353,6 +354,11 @@ class BaseSlide:
 
             The video will be copied into the output folder, but no rescaling
             is applied.
+        :param static_image:
+            An optional path to an image file or PIL Image object to include as next slide.
+
+            The image will be copied into the output folder, but no rescaling
+            is applied.
         :param kwargs:
             Keyword arguments passed to
             :meth:`Scene.next_section<manim.scene.scene.Scene.next_section>`,
@@ -488,6 +494,18 @@ class BaseSlide:
             base_slide_config = BaseSlideConfig()  # default
             self._current_slide += 1
 
+        if base_slide_config.static_image is not None:
+            self._slides.append(
+                PreSlideConfig.from_base_slide_config_and_animation_indices(
+                    base_slide_config,
+                    self._current_animation,
+                    self._current_animation,
+                )
+            )
+
+            base_slide_config = BaseSlideConfig()  # default
+            self._current_slide += 1
+
         if self._skip_animations:
             base_slide_config.skip_animations = True
 
@@ -549,7 +567,7 @@ class BaseSlide:
 
         for pre_slide_config in tqdm(
             self._slides,
-            desc=f"Concatenating animations to '{scene_files_folder}' and generating reversed animations",
+            desc=f"Processing slides to '{scene_files_folder}'",
             leave=self._leave_progress_bar,
             ascii=True if platform.system() == "Windows" else None,
             disable=not self._show_progress_bar,
@@ -557,38 +575,57 @@ class BaseSlide:
         ):
             if pre_slide_config.skip_animations:
                 continue
-            if pre_slide_config.src:
-                slide_files = [pre_slide_config.src]
+
+            slide_type = pre_slide_config.slide_type
+
+            if slide_type == SlideType.Image:
+                # Handle static image slides
+                if pre_slide_config.static_image is None:
+                    continue
+                
+                # Generate a filename for the image
+                image_hash = hashlib.sha256(str(pre_slide_config.static_image).encode()).hexdigest()
+                dst_file = scene_files_folder / f"{image_hash}.png"
+                rev_file = dst_file  # For images, reversed file is the same
+
+                # Process the static image if not cached
+                if not use_cache or not dst_file.exists():
+                    process_static_image(pre_slide_config.static_image, dst_file)
+
             else:
-                slide_files = files[pre_slide_config.slides_slice]
-
-            try:
-                file = merge_basenames(slide_files)
-            except ValueError as e:
-                raise ValueError(
-                    f"Failed to merge basenames of files for slide: {pre_slide_config!r}"
-                ) from e
-            dst_file = scene_files_folder / file.name
-            rev_file = scene_files_folder / f"{file.stem}_reversed{file.suffix}"
-
-            # We only concat animations if it was not present
-            if not use_cache or not dst_file.exists():
-                concatenate_video_files(slide_files, dst_file)
-
-            # We only reverse video if it was not present
-            if not use_cache or not rev_file.exists():
-                if skip_reversing:
-                    rev_file = dst_file
+                # Handle video slides (original logic)
+                if pre_slide_config.src:
+                    slide_files = [pre_slide_config.src]
                 else:
-                    reverse_video_file(
-                        dst_file,
-                        rev_file,
-                        max_segment_duration=self.max_duration_before_split_reverse,
-                        num_processes=self.num_processes,
-                        leave=self._leave_progress_bar,
-                        ascii=True if platform.system() == "Windows" else None,
-                        disable=not self._show_progress_bar,
-                    )
+                    slide_files = files[pre_slide_config.slides_slice]
+
+                try:
+                    file = merge_basenames(slide_files)
+                except ValueError as e:
+                    raise ValueError(
+                        f"Failed to merge basenames of files for slide: {pre_slide_config!r}"
+                    ) from e
+                dst_file = scene_files_folder / file.name
+                rev_file = scene_files_folder / f"{file.stem}_reversed{file.suffix}"
+
+                # We only concat animations if it was not present
+                if not use_cache or not dst_file.exists():
+                    concatenate_video_files(slide_files, dst_file)
+
+                # We only reverse video if it was not present
+                if not use_cache or not rev_file.exists():
+                    if skip_reversing:
+                        rev_file = dst_file
+                    else:
+                        reverse_video_file(
+                            dst_file,
+                            rev_file,
+                            max_segment_duration=self.max_duration_before_split_reverse,
+                            num_processes=self.num_processes,
+                            leave=self._leave_progress_bar,
+                            ascii=True if platform.system() == "Windows" else None,
+                            disable=not self._show_progress_bar,
+                        )
 
             slides.append(
                 SlideConfig.from_pre_slide_config_and_files(

@@ -26,9 +26,13 @@
             {% else %}
               {% set file = assets_dir / (prefix(outer_loop.index0) + slide_config.file.name) %}
             {% endif %}
+            {% set is_image = slide_config.file.suffix.lower() in ['.png', '.jpg', '.jpeg', '.gif', '.bmp', '.tiff', '.webp'] %}
         <section
           data-background-size={{ background_size }}
           data-background-color="{{ presentation_config.background_color }}"
+          {% if is_image %}
+          data-background-image="{{ file }}"
+          {% else %}
           data-background-video="{{ file }}"
           {% if loop.index == 1 and outer_loop.index == 1 %}
           data-background-video-muted
@@ -38,6 +42,7 @@
           {% endif %}
           {% if slide_config.auto_next %}
           data-autoslide="{{ get_duration_ms(slide_config.file) }}"
+          {% endif %}
           {% endif %}
           >
           {% if slide_config.notes != "" %}
@@ -217,38 +222,32 @@
         // Use this method for navigation when auto-sliding (defaults to navigateNext)
         autoSlideMethod: {{ auto_slide_method }},
         // Specify the average time in seconds that you think you will spend
-        // presenting each slide. This is used to show a pacing timer in the
-        // speaker view
+        // presenting each slide. This is used to calculate the timing of
+        // auto-advancing slides when using the data-autoslide HTML attribute.
+        // The timing calculation assumes that you'll spend the full amount of
+        // time on each slide before advancing to the next.
         defaultTiming: {{ default_timing }},
         // Enable slide navigation via mouse wheel
         mouseWheel: {{ mouse_wheel }},
+        // Hides the address bar on mobile devices
+        hideInactiveCursor: {{ hide_inactive_cursor }},
+        // Time before the cursor is hidden (in ms)
+        hideCursorTime: {{ hide_cursor_time }},
         // Opens links in an iframe preview overlay
-        // Add `data-preview-link` and `data-preview-link="false"` to customize each link
-        // individually
+        // Add `data-preview-link` and `data-preview-link-text` to customize a link's preview text
         previewLinks: {{ preview_links }},
-        // Exposes the reveal.js API through window.postMessage
+        // Expose the reveal.js API through window.postMessage
         postMessage: {{ post_message }},
         // Dispatches all reveal.js events to the parent window through postMessage
         postMessageEvents: {{ post_message_events }},
-        // Focuses body when page changes visibility to ensure keyboard shortcuts work
+        // Focus body when page changes visibility to ensure keyboard shortcuts work
         focusBodyOnPageVisibilityChange: {{ focus_body_on_page_visibility_change }},
         // Transition style
-        transition: {{ transition }}, // none/fade/slide/convex/concave/zoom
+        transition: {{ transition }},
         // Transition speed
-        transitionSpeed: {{ transition_speed }}, // default/fast/slow
+        transitionSpeed: {{ transition_speed }},
         // Transition style for full page slide backgrounds
-        backgroundTransition: {{ background_transition }}, // none/fade/slide/convex/concave/zoom
-        // The maximum number of pages a single slide can expand onto when printing
-        // to PDF, unlimited by default
-        pdfMaxPagesPerSlide: {{ pdf_max_pages_per_slide }},
-        // Prints each fragment on a separate slide
-        pdfSeparateFragments: {{ pdf_separate_fragments }},
-        // Offset used to reduce the height of content within exported PDF pages.
-        // This exists to account for environment differences based on how you
-        // print to PDF. CLI printing options, like phantomjs and wkpdf, can end
-        // on precisely the total height of the document whereas in-browser
-        // printing has to end one pixel before.
-        pdfPageHeightOffset: {{ pdf_page_height_offset }},
+        backgroundTransition: {{ background_transition }},
         // Number of slides away from the current that are visible
         viewDistance: {{ view_distance }},
         // Number of slides away from the current that are visible on mobile
