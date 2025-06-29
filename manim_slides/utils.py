@@ -220,11 +220,12 @@ def is_video_file(file_path: str) -> bool:
 
 def open_with_default(path: str) -> None:
     import os
-    import sys
     import subprocess
-    if sys.platform.startswith('darwin'):
-        subprocess.call(('open', path))
-    elif os.name == 'nt':
+    import sys
+
+    if sys.platform.startswith("darwin"):
+        subprocess.call(("open", path))
+    elif os.name == "nt":
         os.startfile(path)  # type: ignore[attr-defined]
-    elif os.name == 'posix':
-        subprocess.call(('xdg-open', path))
+    elif os.name == "posix":
+        subprocess.call(("xdg-open", path))
