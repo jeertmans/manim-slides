@@ -226,6 +226,6 @@ def open_with_default(path: str) -> None:
     if sys.platform.startswith("darwin"):
         subprocess.call(("open", path))
     elif os.name == "nt":
-        os.startfile(path)
+        os.startfile(path)  # type: ignore[attr-defined]
     elif os.name == "posix":
         subprocess.call(("xdg-open", path))
