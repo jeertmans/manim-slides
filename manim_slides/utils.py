@@ -219,27 +219,29 @@ def is_video_file(file_path: str) -> bool:
 
 
 def open_with_default(path: str) -> None:
-    """Open a file with the system's default application.
-    
+    """
+    Open a file with the system's default application.
+
     Args:
         path: Path to the file to open. Must be a valid file path.
-        
+
     Raises:
         ValueError: If path is not a valid file path.
         FileNotFoundError: If the file doesn't exist.
+
     """
     import subprocess
     import sys
     from pathlib import Path
-    
+
     # Validate path
     file_path = Path(path)
     if not file_path.is_file():
         raise FileNotFoundError(f"File not found: {path}")
-    
+
     # Ensure path is absolute and normalized
     abs_path = str(file_path.resolve())
-    
+
     if sys.platform.startswith("darwin"):
         subprocess.run(["open", abs_path], check=True, shell=False)
     elif os.name == "nt":
