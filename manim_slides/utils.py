@@ -5,7 +5,7 @@ import tempfile
 from collections.abc import Iterator
 from multiprocessing import Pool
 from pathlib import Path
-from typing import Any, Optional, Union
+from typing import Any, Optional
 
 import av
 from tqdm import tqdm
@@ -209,22 +209,23 @@ def reverse_video_file(
 
 
 def is_image_file(file_path: str) -> bool:
-    image_extensions = {'.png', '.jpg', '.jpeg', '.gif', '.bmp', '.tiff', '.webp'}
+    image_extensions = {".png", ".jpg", ".jpeg", ".gif", ".bmp", ".tiff", ".webp"}
     return Path(file_path).suffix.lower() in image_extensions
 
 
 def is_video_file(file_path: str) -> bool:
-    video_extensions = {'.mp4', '.avi', '.mov', '.wmv', '.flv', '.webm', '.mkv'}
+    video_extensions = {".mp4", ".avi", ".mov", ".wmv", ".flv", ".webm", ".mkv"}
     return Path(file_path).suffix.lower() in video_extensions
 
 
 def open_with_default(path):
     import os
-    import sys
     import subprocess
-    if sys.platform.startswith('darwin'):
-        subprocess.call(('open', path))
-    elif os.name == 'nt':
+    import sys
+
+    if sys.platform.startswith("darwin"):
+        subprocess.call(("open", path))
+    elif os.name == "nt":
         os.startfile(path)
-    elif os.name == 'posix':
-        subprocess.call(('xdg-open', path))
+    elif os.name == "posix":
+        subprocess.call(("xdg-open", path))

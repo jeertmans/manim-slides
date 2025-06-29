@@ -1,8 +1,6 @@
 import mimetypes
 import os
-import platform
 import shutil
-import subprocess
 import tempfile
 import textwrap
 import warnings
@@ -87,7 +85,7 @@ def get_duration_ms(file: Path) -> float:
 
 def is_image_file(file_path: Path) -> bool:
     """Check if the file is an image based on its extension."""
-    image_extensions = {'.png', '.jpg', '.jpeg', '.gif', '.bmp', '.tiff', '.webp'}
+    image_extensions = {".png", ".jpg", ".jpeg", ".gif", ".bmp", ".tiff", ".webp"}
     return file_path.suffix.lower() in image_extensions
 
 
@@ -790,7 +788,7 @@ class PowerPoint(Converter):
                     file = slide_config.file
 
                     slide = prs.slides.add_slide(layout)
-                    
+
                     if is_image_file(file):
                         # Handle static image
                         slide.shapes.add_picture(
