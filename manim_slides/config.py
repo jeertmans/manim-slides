@@ -159,7 +159,7 @@ class Config(BaseModel):  # type: ignore[misc]
         return self
 
 
-class BaseSlideConfig(BaseModel):
+class BaseSlideConfig(BaseModel):  # type: ignore[misc]
     """Base class for slide config."""
 
     src: Optional[str] = Field(None, description="Source video file path")
