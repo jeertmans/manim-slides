@@ -16,6 +16,9 @@ import numpy as np
 
 from ..config import BaseSlideConfig, PreSlideConfig
 from ..defaults import FOLDER_PATH
+from ..utils import (
+    process_static_image,
+)
 from . import MANIM
 
 if TYPE_CHECKING:
@@ -563,8 +566,6 @@ class BaseSlide:
                 slide_data["src"] = str(dst_file.relative_to(slides_dir))
 
                 if not use_cache or not dst_file.exists():
-                    from ..utils import process_static_image
-
                     process_static_image(pre_slide_config.static_image, dst_file)
             else:
                 dst_file = files_dir / f"slide_{i:03d}.mp4"

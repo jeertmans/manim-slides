@@ -5,7 +5,7 @@ import tempfile
 from collections.abc import Iterator
 from multiprocessing import Pool
 from pathlib import Path
-from typing import Any, Optional, Union
+from typing import Any, Optional
 
 import av
 from tqdm import tqdm
