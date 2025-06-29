@@ -2,7 +2,7 @@ from __future__ import annotations
 
 __all__ = ["BaseSlide"]
 
-import platform
+import json
 import shutil
 from abc import abstractmethod
 from collections.abc import MutableMapping, Sequence, ValuesView
@@ -13,12 +13,12 @@ from typing import (
 )
 
 import numpy as np
-from tqdm import tqdm
 
-from ..config import BaseSlideConfig, PresentationConfig, PreSlideConfig, SlideConfig
+from ..config import BaseSlideConfig, PreSlideConfig
 from ..defaults import FOLDER_PATH
-from ..logger import logger
-from ..utils import concatenate_video_files, merge_basenames, reverse_video_file
+from ..utils import (
+    process_static_image,
+)
 from . import MANIM
 
 if TYPE_CHECKING:
@@ -353,6 +353,11 @@ class BaseSlide:
 
             The video will be copied into the output folder, but no rescaling
             is applied.
+        :param static_image:
+            An optional path to an image file or PIL Image object to include as next slide.
+
+            The image will be copied into the output folder, but no rescaling
+            is applied.
         :param kwargs:
             Keyword arguments passed to
             :meth:`Scene.next_section<manim.scene.scene.Scene.next_section>`,
@@ -488,6 +493,18 @@ class BaseSlide:
             base_slide_config = BaseSlideConfig()  # default
             self._current_slide += 1
 
+        if base_slide_config.static_image is not None:
+            self._slides.append(
+                PreSlideConfig.from_base_slide_config_and_animation_indices(
+                    base_slide_config,
+                    self._current_animation,
+                    self._current_animation,
+                )
+            )
+
+            base_slide_config = BaseSlideConfig()  # default
+            self._current_slide += 1
+
         if self._skip_animations:
             base_slide_config.skip_animations = True
 
@@ -510,106 +527,64 @@ class BaseSlide:
             )
         )
 
-    def _save_slides(  # noqa: C901
+    def _save_slides(
         self,
         use_cache: bool = True,
         flush_cache: bool = False,
         skip_reversing: bool = False,
+        max_files_cached: int = 100,
     ) -> None:
-        """
-        Save slides, optionally using cached files.
+        """Save slides to disk."""
+        from .manim import Slide
 
-        .. warning:
-            Caching files only work with Manim.
-        """
-        self._add_last_slide()
+        if not isinstance(self, Slide):
+            return
 
-        files_folder = self._output_folder / "files"
+        slides_dir = Path("slides")
+        slides_dir.mkdir(exist_ok=True)
 
-        scene_name = str(self)
-        scene_files_folder = files_folder / scene_name
+        files_dir = slides_dir / "files" / self.__class__.__name__
+        files_dir.mkdir(parents=True, exist_ok=True)
 
-        if flush_cache and scene_files_folder.exists():
-            shutil.rmtree(scene_files_folder)
+        if flush_cache:
+            shutil.rmtree(files_dir, ignore_errors=True)
+            files_dir.mkdir(parents=True, exist_ok=True)
 
-        scene_files_folder.mkdir(parents=True, exist_ok=True)
+        slides_data = []
 
-        files: list[Path] = self._partial_movie_files
+        for i, pre_slide_config in enumerate(self.pre_slide_configs):
+            slide_data = {
+                "index": i,
+                "start": pre_slide_config.start,
+                "end": pre_slide_config.end,
+                "loop": pre_slide_config.loop,
+                "notes": pre_slide_config.notes,
+            }
 
-        # We must filter slides that end before the animation offset
-        if offset := self._start_at_animation_number:
-            self._slides = [
-                slide for slide in self._slides if slide.end_animation > offset
-            ]
-            for slide in self._slides:
-                slide.start_animation = max(0, slide.start_animation - offset)
-                slide.end_animation -= offset
+            if pre_slide_config.static_image is not None:
+                dst_file = files_dir / f"slide_{i:03d}.png"
+                slide_data["src"] = str(dst_file.relative_to(slides_dir))
 
-        slides: list[SlideConfig] = []
-
-        for pre_slide_config in tqdm(
-            self._slides,
-            desc=f"Concatenating animations to '{scene_files_folder}' and generating reversed animations",
-            leave=self._leave_progress_bar,
-            ascii=True if platform.system() == "Windows" else None,
-            disable=not self._show_progress_bar,
-            unit=" slides",
-        ):
-            if pre_slide_config.skip_animations:
-                continue
-            if pre_slide_config.src:
-                slide_files = [pre_slide_config.src]
+                if not use_cache or not dst_file.exists():
+                    process_static_image(pre_slide_config.static_image, dst_file)
             else:
-                slide_files = files[pre_slide_config.slides_slice]
+                dst_file = files_dir / f"slide_{i:03d}.mp4"
+                slide_data["src"] = str(dst_file.relative_to(slides_dir))
 
-            try:
-                file = merge_basenames(slide_files)
-            except ValueError as e:
-                raise ValueError(
-                    f"Failed to merge basenames of files for slide: {pre_slide_config!r}"
-                ) from e
-            dst_file = scene_files_folder / file.name
-            rev_file = scene_files_folder / f"{file.stem}_reversed{file.suffix}"
-
-            # We only concat animations if it was not present
-            if not use_cache or not dst_file.exists():
-                concatenate_video_files(slide_files, dst_file)
-
-            # We only reverse video if it was not present
-            if not use_cache or not rev_file.exists():
-                if skip_reversing:
-                    rev_file = dst_file
-                else:
-                    reverse_video_file(
-                        dst_file,
-                        rev_file,
-                        max_segment_duration=self.max_duration_before_split_reverse,
-                        num_processes=self.num_processes,
-                        leave=self._leave_progress_bar,
-                        ascii=True if platform.system() == "Windows" else None,
-                        disable=not self._show_progress_bar,
+                if not use_cache or not dst_file.exists():
+                    self._process_video_slide(
+                        pre_slide_config, dst_file, skip_reversing
                     )
 
-            slides.append(
-                SlideConfig.from_pre_slide_config_and_files(
-                    pre_slide_config, dst_file, rev_file
-                )
-            )
+            slides_data.append(slide_data)
 
-        logger.info(
-            f"Generated {len(slides)} slides to '{scene_files_folder.absolute()}'"
-        )
+        config_file = slides_dir / f"{self.__class__.__name__}.json"
+        with open(config_file, "w") as f:
+            json.dump(slides_data, f, indent=2)
 
-        slide_path = self._output_folder / f"{scene_name}.json"
-
-        PresentationConfig(
-            slides=slides,
-            resolution=self._resolution,
-            background_color=self._background_color,
-        ).to_file(slide_path)
-
-        logger.info(
-            f"Slide '{scene_name}' configuration written in '{slide_path.absolute()}'"
+        self.logger.info(f"Generated {len(slides_data)} slides to '{files_dir}'")
+        self.logger.info(
+            f"Slide '{self.__class__.__name__}' configuration written in '{config_file}'"
         )
 
     def start_skip_animations(self) -> None:

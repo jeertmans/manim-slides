@@ -3,13 +3,14 @@ from pathlib import Path
 from typing import Optional
 
 from qtpy.QtCore import Qt, QTimer, QUrl, Signal, Slot
-from qtpy.QtGui import QCloseEvent, QIcon, QKeyEvent, QScreen
+from qtpy.QtGui import QCloseEvent, QIcon, QKeyEvent, QPixmap, QScreen
 from qtpy.QtMultimedia import QAudioOutput, QMediaPlayer, QVideoFrame
 from qtpy.QtMultimediaWidgets import QVideoWidget
 from qtpy.QtWidgets import (
     QHBoxLayout,
     QLabel,
     QMainWindow,
+    QStackedWidget,
     QVBoxLayout,
     QWidget,
 )
@@ -46,11 +47,25 @@ class Info(QWidget):  # type: ignore[misc]
             QLabel("Current slide"),
             alignment=Qt.AlignmentFlag.AlignBottom | Qt.AlignmentFlag.AlignHCenter,
         )
+
+        # Create stacked widget to handle both video and image content
+        self.main_content_stack = QStackedWidget()
+
+        # Video widget for video content
         main_video_widget = QVideoWidget()
         main_video_widget.setAspectRatioMode(aspect_ratio_mode)
         main_video_widget.setFixedSize(720, 480)
         self.video_sink = main_video_widget.videoSink()
-        left_layout.addWidget(main_video_widget)
+        self.main_content_stack.addWidget(main_video_widget)
+
+        # Image label for static image content
+        main_image_label = QLabel()
+        main_image_label.setAspectRatioMode(aspect_ratio_mode)
+        main_image_label.setFixedSize(720, 480)
+        main_image_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.main_content_stack.addWidget(main_image_label)
+
+        left_layout.addWidget(self.main_content_stack)
 
         # Current slide information
 
@@ -108,14 +123,27 @@ class Info(QWidget):  # type: ignore[misc]
             QLabel("Next slide"),
             alignment=Qt.AlignmentFlag.AlignBottom | Qt.AlignmentFlag.AlignHCenter,
         )
+
+        # Create stacked widget for next slide preview
+        self.next_content_stack = QStackedWidget()
+
+        # Video widget for next slide preview
         next_video_widget = QVideoWidget()
         next_video_widget.setAspectRatioMode(aspect_ratio_mode)
         next_video_widget.setFixedSize(360, 240)
         self.next_media_player = QMediaPlayer()
         self.next_media_player.setVideoOutput(next_video_widget)
         self.next_media_player.setLoops(-1)
+        self.next_content_stack.addWidget(next_video_widget)
 
-        right_layout.addWidget(next_video_widget)
+        # Image label for next slide preview
+        next_image_label = QLabel()
+        next_image_label.setAspectRatioMode(aspect_ratio_mode)
+        next_image_label.setFixedSize(360, 240)
+        next_image_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.next_content_stack.addWidget(next_image_label)
+
+        right_layout.addWidget(self.next_content_stack)
 
         # Notes
 
@@ -224,11 +252,23 @@ class Player(QMainWindow):  # type: ignore[misc]
 
         self.frame = QVideoFrame()
 
+        # Create stacked widget for main content
+        self.main_content_stack = QStackedWidget()
+
+        # Video widget for main content
         self.audio_output = QAudioOutput()
         self.video_widget = QVideoWidget()
         self.video_sink = self.video_widget.videoSink()
         self.video_widget.setAspectRatioMode(aspect_ratio_mode)
-        self.setCentralWidget(self.video_widget)
+        self.main_content_stack.addWidget(self.video_widget)
+
+        # Image label for main content
+        self.image_label = QLabel()
+        self.image_label.setAspectRatioMode(aspect_ratio_mode)
+        self.image_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.main_content_stack.addWidget(self.image_label)
+
+        self.setCentralWidget(self.main_content_stack)
 
         self.media_player = QMediaPlayer(self)
         self.media_player.setAudioOutput(self.audio_output)
@@ -294,6 +334,16 @@ class Player(QMainWindow):  # type: ignore[misc]
 
         self.presentation_changed.emit()
         self.slide_changed.emit()
+
+    def _is_image_file(self, file_path: Path) -> bool:
+        """Check if the file is an image based on its extension."""
+        image_extensions = {".png", ".jpg", ".jpeg", ".gif", ".bmp", ".tiff", ".webp"}
+        return file_path.suffix.lower() in image_extensions
+
+    def _is_video_file(self, file_path: Path) -> bool:
+        """Check if the file is a video based on its extension."""
+        video_extensions = {".mp4", ".avi", ".mov", ".mkv", ".wmv", ".flv", ".webm"}
+        return file_path.suffix.lower() in video_extensions
 
     """
     Properties
@@ -390,31 +440,45 @@ class Player(QMainWindow):  # type: ignore[misc]
     """
 
     def load_current_media(self, start_paused: bool = False) -> None:
-        url = QUrl.fromLocalFile(str(self.current_file))
-        self.media_player.setSource(url)
-
-        if self.playing_reversed_slide:
-            self.media_player.setPlaybackRate(
-                self.current_slide_config.reversed_playback_rate * self.playback_rate
-            )
+        if self._is_image_file(self.current_file):
+            # Load image
+            pixmap = QPixmap(str(self.current_file))
+            if not pixmap.isNull():
+                self.image_label.setPixmap(pixmap)
+                self.main_content_stack.setCurrentIndex(1)  # Show image widget
+            else:
+                logger.error(f"Failed to load image: {self.current_file}")
         else:
-            self.media_player.setPlaybackRate(
-                self.current_slide_config.playback_rate * self.playback_rate
-            )
+            # Load video
+            url = QUrl.fromLocalFile(str(self.current_file))
+            self.media_player.setSource(url)
+            self.main_content_stack.setCurrentIndex(0)  # Show video widget
 
-        if start_paused:
-            self.media_player.pause()
-        else:
-            self.media_player.play()
+            if self.playing_reversed_slide:
+                self.media_player.setPlaybackRate(
+                    self.current_slide_config.reversed_playback_rate
+                    * self.playback_rate
+                )
+            else:
+                self.media_player.setPlaybackRate(
+                    self.current_slide_config.playback_rate * self.playback_rate
+                )
+
+            if start_paused:
+                self.media_player.pause()
+            else:
+                self.media_player.play()
 
     def load_current_slide(self) -> None:
         slide_config = self.current_slide_config
         self.current_file = slide_config.file
 
-        if slide_config.loop:
-            self.media_player.setLoops(-1)
-        else:
-            self.media_player.setLoops(1)
+        if not self._is_image_file(slide_config.file):
+            # Only set loops for video files
+            if slide_config.loop:
+                self.media_player.setLoops(-1)
+            else:
+                self.media_player.setLoops(1)
 
         self.load_current_media()
 
@@ -475,9 +539,20 @@ class Player(QMainWindow):  # type: ignore[misc]
 
     def preview_next_slide(self) -> None:
         if slide_config := self.next_slide_config:
-            url = QUrl.fromLocalFile(str(slide_config.file))
-            self.info.next_media_player.setSource(url)
-            self.info.next_media_player.play()
+            if self._is_image_file(slide_config.file):
+                # Load image for preview
+                pixmap = QPixmap(str(slide_config.file))
+                if not pixmap.isNull():
+                    self.info.next_content_stack.widget(1).setPixmap(pixmap)
+                    self.info.next_content_stack.setCurrentIndex(1)  # Show image widget
+                else:
+                    logger.error(f"Failed to load preview image: {slide_config.file}")
+            else:
+                # Load video for preview
+                url = QUrl.fromLocalFile(str(slide_config.file))
+                self.info.next_media_player.setSource(url)
+                self.info.next_media_player.play()
+                self.info.next_content_stack.setCurrentIndex(0)  # Show video widget
 
     def show(self, screens: list[QScreen]) -> None:
         """Screens is necessary to prevent the info window from being shown on the same screen as the main window (especially in full screen mode)."""
@@ -510,7 +585,12 @@ class Player(QMainWindow):  # type: ignore[misc]
 
     @Slot()
     def next(self) -> None:
-        if self.media_player.playbackState() == QMediaPlayer.PlaybackState.PausedState:
+        if self._is_image_file(self.current_file):
+            # For images, just go to next slide
+            self.load_next_slide()
+        elif (
+            self.media_player.playbackState() == QMediaPlayer.PlaybackState.PausedState
+        ):
             self.media_player.play()
         elif self.next_terminates_loop and self.media_player.loops() != 1:
             position = self.media_player.position()
@@ -527,7 +607,10 @@ class Player(QMainWindow):  # type: ignore[misc]
 
     @Slot()
     def reverse(self) -> None:
-        if self.playing_reversed_slide and self.current_slide_index >= 1:
+        if self._is_image_file(self.current_file):
+            # For images, just go to previous slide
+            self.load_previous_slide()
+        elif self.playing_reversed_slide and self.current_slide_index >= 1:
             self.current_slide_index -= 1
 
         self.load_reversed_slide()
@@ -535,16 +618,21 @@ class Player(QMainWindow):  # type: ignore[misc]
 
     @Slot()
     def replay(self) -> None:
-        self.media_player.setPosition(0)
-        self.media_player.play()
+        if not self._is_image_file(self.current_file):
+            self.media_player.setPosition(0)
+            self.media_player.play()
 
     @Slot()
     def play_pause(self) -> None:
-        state = self.media_player.playbackState()
-        if state == QMediaPlayer.PlaybackState.PausedState:
-            self.media_player.play()
-        elif state == QMediaPlayer.PlaybackState.PlayingState:
-            self.media_player.pause()
+        if self._is_image_file(self.current_file):
+            # For images, just go to next slide
+            self.load_next_slide()
+        else:
+            state = self.media_player.playbackState()
+            if state == QMediaPlayer.PlaybackState.PausedState:
+                self.media_player.play()
+            elif state == QMediaPlayer.PlaybackState.PlayingState:
+                self.media_player.pause()
 
     @Slot()
     def full_screen(self) -> None:
