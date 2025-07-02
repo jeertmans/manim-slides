@@ -93,5 +93,21 @@ Here are the slides from a 25-minute talk he presented at the 39th Annual AAAI C
 
 Below are people that used Manim Slides for school presentations.
 
-*This list is currently empty. Please reach out to us if you have examples
-to share!*
+###Casper Algera
+
+Casper is a Mathematics student from the Netherlands who has used Manim slides for his final presentation of his bachelor thesis.
+In this presentation they visualised a probabilitic coupling argument pertaining to the Contact process.
+Below one can find the presentation, which can also be watched on [YouTube](https://www.youtube.com/watch?v=ZJhvfCL5MWE).
+
+<div style="position:relative;padding-bottom:56.25%;">
+    <iframe
+        loading="lazy"
+        style="width:100%;height:100%;position:absolute;left:0px;top:0px;"
+        frameborder="1"
+        width="100%"
+        height="100%"
+        allowfullscreen
+        allow="autoplay"
+        src="https://casperalgera.github.io/criticalvalueCP/">
+    </iframe>
+</div>
