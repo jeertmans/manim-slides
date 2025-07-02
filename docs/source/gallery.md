@@ -93,7 +93,7 @@ Here are the slides from a 25-minute talk he presented at the 39th Annual AAAI C
 
 Below are people that used Manim Slides for school presentations.
 
-## Antonio Caserta
+### Antonio Caserta
 
 Antonio is a 17-year-old high school student from Germany who used Manim Slides to present his final project, *Episteme*, an AI financial terminal that uses crowdsourced data from social networks to gather stock insights.
 
