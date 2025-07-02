@@ -94,10 +94,9 @@ Here are the slides from a 25-minute talk he presented at the 39th Annual AAAI C
 Below are people that used Manim Slides for school presentations.
 
 ### Casper Algera
-
-Casper is a Mathematics student from the Netherlands who has used Manim slides for his final presentation of his bachelor thesis.
-In this presentation they visualised a probabilitic coupling argument pertaining to the Contact process.
-Below one can find the presentation, which can also be watched on [YouTube](https://www.youtube.com/watch?v=ZJhvfCL5MWE).
+Casper, a Mathematics student from the Netherlands, used Manim Slides to present his bachelor's thesis. 
+In his final presentation, he visualised a probabilistic coupling argument related to the Contact Process.
+The slides are available below, and the full presentation can be viewed on [YouTube](https://www.youtube.com/watch?v=ZJhvfCL5MWE).
 
 <div style="position:relative;padding-bottom:56.25%;">
     <iframe
