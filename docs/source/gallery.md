@@ -93,6 +93,25 @@ Here are the slides from a 25-minute talk he presented at the 39th Annual AAAI C
 
 Below are people that used Manim Slides for school presentations.
 
+## Antonio Caserta
+
+Antonio is a 17-year-old high school student from Germany who used Manim Slides to present his final project, *Episteme*, an AI financial terminal that uses crowdsourced data from social networks to gather stock insights.
+
+The slides from his 30-minute presentation to the school board can be found below and on his [Github repository](https://github.com/amstrdm/episteme-manim-slides)
+
+<div style="position:relative;padding-bottom:56.25%;">
+    <iframe
+        loading="lazy"
+        style="width:100%;height:100%;position:absolute;left:0px;top:0px;"
+        frameborder="1"
+        width="100%"
+        height="100%"
+        allowfullscreen
+        allow="autoplay"
+        src="https://amstrdm.github.io/episteme-manim-slides/">
+    </iframe>
+</div>
+
 ### Casper Algera
 
 Casper, a mathematics student from the Netherlands, used Manim Slides to present his bachelor's thesis.
