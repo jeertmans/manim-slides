@@ -24,6 +24,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   when using one of those extras, but as they were not part of the public API,
   we do not consider this to be a **breaking change**.
   [#542](https://github.com/jeertmans/manim-slides/pull/542)
+- Added example in the research section of the gallery.
+  [@mmcilree](https://github.com/mmcilree) [#552](https://github.com/jeertmans/manim-slides/pull/552)
+- Added example in the school work section of the gallery.
+  [@casperalgera](https://github.com/casperalgera) [#556](https://github.com/jeertmans/manim-slides/pull/556)
 
 (v5.5.1)=
 ## [v5.5.1](https://github.com/jeertmans/manim-slides/compare/v5.5.0...v5.5.1)
