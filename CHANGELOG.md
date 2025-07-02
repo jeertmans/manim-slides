@@ -28,6 +28,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   [@mmcilree](https://github.com/mmcilree) [#552](https://github.com/jeertmans/manim-slides/pull/552)
 - Added example in the school work section of the gallery.
   [@casperalgera](https://github.com/casperalgera) [#556](https://github.com/jeertmans/manim-slides/pull/556)
+- Added example in the school work section of the gallery.
+  [@amstrdm](https://github.com/amstrdm) [#557](https://github.com/jeertmans/manim-slides/pull/557)
 
 (v5.5.1)=
 ## [v5.5.1](https://github.com/jeertmans/manim-slides/compare/v5.5.0...v5.5.1)
