@@ -1,8 +1,6 @@
 import mimetypes
 import os
-import platform
 import shutil
-import subprocess
 import tempfile
 import textwrap
 import warnings
@@ -42,41 +40,37 @@ from .commons import folder_path_option, verbosity_option
 from .config import PresentationConfig
 from .logger import logger
 from .present import get_scenes_presentation_config
+from .utils import open_with_default
 
-
-def open_with_default(file: Path) -> None:
-    system = platform.system()
-    if system == "Darwin":
-        subprocess.call(("open", str(file)))
-    elif system == "Windows":
-        os.startfile(str(file))  # type: ignore[attr-defined]
-    else:
-        subprocess.call(("xdg-open", str(file)))
+# Type alias for PIL Image
+PILImage = Any  # Will be properly typed when PIL is imported
 
 
 def validate_config_option(
     ctx: Context, param: Parameter, value: Any
 ) -> dict[str, str]:
-    config = {}
+    """Validate configuration options."""
+    if not value:
+        return {}
 
-    for c_option in value:
-        try:
-            key, value = c_option.split("=")
-            config[key] = value
-        except ValueError:
+    config_options = {}
+
+    for option in value:
+        if "=" not in option:
             raise click.BadParameter(
-                f"Configuration options `{c_option}` could not be parsed into "
-                "a proper (key, value) pair. "
-                "Please use an `=` sign to separate key from value."
-            ) from None
+                f"Configuration option '{option}' must be in the format 'key=value'"
+            )
 
-    return config
+        key, value_str = option.split("=", 1)
+        config_options[key] = value_str
+
+    return config_options
 
 
 def file_to_data_uri(file: Path) -> str:
-    """Read a video and return the corresponding data-uri."""
+    """Read a file and return the corresponding data-uri."""
     b64 = b64encode(file.read_bytes()).decode("ascii")
-    mime_type = mimetypes.guess_type(file)[0] or "video/mp4"
+    mime_type = mimetypes.guess_type(file)[0] or "application/octet-stream"
 
     return f"data:{mime_type};base64,{b64}"
 
@@ -87,6 +81,12 @@ def get_duration_ms(file: Path) -> float:
         video = container.streams.video[0]
 
         return float(1000 * video.duration * video.time_base)
+
+
+def is_image_file(file_path: Path) -> bool:
+    """Check if the file is an image based on its extension."""
+    image_extensions = {".png", ".jpg", ".jpeg", ".gif", ".bmp", ".tiff", ".webp"}
+    return file_path.suffix.lower() in image_extensions
 
 
 def read_image_from_video_file(file: Path, frame_index: "FrameIndex") -> Image:
@@ -124,7 +124,7 @@ class Converter(BaseModel):  # type: ignore
 
     def open(self, file: Path) -> None:
         """Open a file, generated with converter, using appropriate application."""
-        open_with_default(file)
+        open_with_default(str(file))
 
     @classmethod
     def from_string(cls, s: str) -> type["Converter"]:
@@ -782,39 +782,52 @@ class PowerPoint(Converter):
             for i, presentation_config in enumerate(self.presentation_configs):
                 for slide_config in tqdm(
                     presentation_config.slides,
-                    desc=f"Generating video slides for config {i + 1}",
+                    desc=f"Generating slides for config {i + 1}",
                     leave=False,
                 ):
                     file = slide_config.file
 
-                    mime_type = mimetypes.guess_type(file)[0]
-
-                    if self.poster_frame_image is None:
-                        poster_frame_image = str(directory / f"{frame_number}.png")
-                        image = read_image_from_video_file(
-                            file, frame_index=FrameIndex.first
-                        )
-                        image.save(poster_frame_image)
-
-                        frame_number += 1
-                    else:
-                        poster_frame_image = str(self.poster_frame_image)
-
                     slide = prs.slides.add_slide(layout)
-                    movie = slide.shapes.add_movie(
-                        str(file),
-                        self.left,
-                        self.top,
-                        self.width * 9525,
-                        self.height * 9525,
-                        poster_frame_image=poster_frame_image,
-                        mime_type=mime_type,
-                    )
+
+                    if is_image_file(file):
+                        # Handle static image
+                        slide.shapes.add_picture(
+                            str(file),
+                            self.left,
+                            self.top,
+                            self.width * 9525,
+                            self.height * 9525,
+                        )
+                    else:
+                        # Handle video
+                        mime_type = mimetypes.guess_type(file)[0]
+
+                        if self.poster_frame_image is None:
+                            poster_frame_image = str(directory / f"{frame_number}.png")
+                            image = read_image_from_video_file(
+                                file, frame_index=FrameIndex.first
+                            )
+                            image.save(poster_frame_image)
+
+                            frame_number += 1
+                        else:
+                            poster_frame_image = str(self.poster_frame_image)
+
+                        movie = slide.shapes.add_movie(
+                            str(file),
+                            self.left,
+                            self.top,
+                            self.width * 9525,
+                            self.height * 9525,
+                            poster_frame_image=poster_frame_image,
+                            mime_type=mime_type,
+                        )
+
+                        if self.auto_play_media:
+                            auto_play_media(movie, loop=slide_config.loop)
+
                     if slide_config.notes != "":
                         slide.notes_slide.notes_text_frame.text = slide_config.notes
-
-                    if self.auto_play_media:
-                        auto_play_media(movie, loop=slide_config.loop)
 
             dest.parent.mkdir(parents=True, exist_ok=True)
             prs.save(dest)

@@ -5,7 +5,7 @@ import tempfile
 from collections.abc import Iterator
 from multiprocessing import Pool
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any, Optional, Union
 
 import av
 from tqdm import tqdm
@@ -67,6 +67,17 @@ def concatenate_video_files(files: list[Path], dest: Path) -> None:
             output_container.mux(packet)
 
     os.unlink(tmp_file)  # https://stackoverflow.com/a/54768241
+
+
+def process_static_image(image_source: Union[str, Any], dest: Path) -> None:
+    try:
+        if isinstance(image_source, str):
+            shutil.copy(image_source, dest)
+        else:
+            image_source.save(dest)
+    except Exception as e:
+        logger.error(f"Failed to process static image: {e}")
+        raise
 
 
 def merge_basenames(files: list[Path]) -> Path:
@@ -195,3 +206,47 @@ def reverse_video_file(
                     pass  # We just consume the iterator
 
             concatenate_video_files(rev_files[::-1], dest)
+
+
+def is_image_file(file_path: str) -> bool:
+    image_extensions = {".png", ".jpg", ".jpeg", ".gif", ".bmp", ".tiff", ".webp"}
+    return Path(file_path).suffix.lower() in image_extensions
+
+
+def is_video_file(file_path: str) -> bool:
+    video_extensions = {".mp4", ".avi", ".mov", ".wmv", ".flv", ".webm", ".mkv"}
+    return Path(file_path).suffix.lower() in video_extensions
+
+
+def open_with_default(path: str) -> None:
+    """
+    Open a file with the system's default application.
+
+    Args:
+        path: Path to the file to open. Must be a valid file path.
+
+    Raises:
+        ValueError: If path is not a valid file path.
+        FileNotFoundError: If the file doesn't exist.
+
+    """
+    import subprocess
+    import sys
+    from pathlib import Path
+
+    # Validate path
+    file_path = Path(path)
+    if not file_path.is_file():
+        raise FileNotFoundError(f"File not found: {path}")
+
+    # Ensure path is absolute and normalized
+    abs_path = str(file_path.resolve())
+
+    if sys.platform.startswith("darwin"):
+        subprocess.run(["open", abs_path], check=True, shell=False)
+    elif os.name == "nt":
+        os.startfile(abs_path)  # type: ignore[attr-defined]
+    elif os.name == "posix":
+        subprocess.run(["xdg-open", abs_path], check=True, shell=False)
+    else:
+        raise OSError(f"Unsupported operating system: {sys.platform}")
