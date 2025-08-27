@@ -1,3 +1,10 @@
+"""
+Manim Slides module.
+
+Submodules are lazily imported, in order to provide a faster import experience
+in some cases.
+"""
+
 import sys
 from types import ModuleType
 from typing import Any
@@ -8,9 +15,7 @@ from .__version__ import __version__
 class Module(ModuleType):
     def __getattr__(self, name: str) -> Any:
         if name == "Slide" or name == "ThreeDSlide":
-            module = __import__(
-                "manim_slides.slide", None, None, ["Slide", "ThreeDSlide"]
-            )
+            module = __import__("manim_slides.slide", None, None, [name])
             return getattr(module, name)
         elif name == "ManimSlidesMagic":
             module = __import__(

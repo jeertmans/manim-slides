@@ -1,3 +1,5 @@
+"""ManimGL's implementation of the Slide class."""
+
 import sys
 from pathlib import Path
 from typing import Any, ClassVar, Optional

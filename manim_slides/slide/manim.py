@@ -1,3 +1,5 @@
+"""Manim's implementation of the Slide class."""
+
 from pathlib import Path
 from typing import Any, Optional
 
@@ -5,7 +7,7 @@ from manim import Scene, ThreeDScene, config
 from manim.renderer.opengl_renderer import OpenGLRenderer
 from manim.utils.color import rgba_to_color
 
-from ..config import BaseSlideConfig
+from ..core.config import BaseSlideConfig
 from .base import BaseSlide
 
 

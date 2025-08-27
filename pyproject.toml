@@ -88,7 +88,7 @@ pyside6-full = ["manim-slides[full,pyside6]"]
 sphinx-directive = ["docutils>=0.20.1", "manim-slides[manim]"]
 
 [project.scripts]
-manim-slides = "manim_slides.__main__:cli"
+manim-slides = "manim_slides.cli.commands:main"
 
 [project.urls]
 Changelog = "https://github.com/jeertmans/manim-slides/releases"
@@ -209,7 +209,7 @@ filterwarnings = [
 ]
 
 [tool.ruff]
-extend-exclude = ["manim_slides/resources.py"]
+extend-exclude = ["manim_slides/cli/resources.py"]
 extend-include = ["*.ipynb"]
 line-length = 88
 

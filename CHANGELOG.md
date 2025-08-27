@@ -10,6 +10,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 (unreleased)=
 ## [Unreleased](https://github.com/jeertmans/manim-slides/compare/v5.5.2...HEAD)
 
+(unreleased-chore)=
+### Chore
+
+- Moved `manim_slides.docs.manim_slides_directive` to `manim_slides.sphinxext.manim_slides_directive`.
+  This is a **breaking change** because documentation configs have
+  to be updated.
+  [#242](https://github.com/jeertmans/manim-slides/pull/242)
+
 (v5.5.2)=
 ## [v5.5.2](https://github.com/jeertmans/manim-slides/compare/v5.5.1...v5.5.2)
 

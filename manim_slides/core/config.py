@@ -1,3 +1,5 @@
+"""Manim Slides' configuration tools."""
+
 import json
 import shutil
 from functools import wraps
@@ -13,6 +15,7 @@ from pydantic import (
     FilePath,
     PositiveInt,
     PrivateAttr,
+    ValidationError,
     conset,
     field_serializer,
     field_validator,
@@ -26,28 +29,54 @@ Receiver = Callable[..., Any]
 
 
 class Signal(BaseModel):  # type: ignore[misc]
-    __receivers: list[Receiver] = PrivateAttr(default_factory=list)
+    """Signal that notifies a list of receivers when it is emitted."""
+
+    __receivers: set[Receiver] = PrivateAttr(default_factory=set)
 
     def connect(self, receiver: Receiver) -> None:
-        self.__receivers.append(receiver)
+        """
+        Connect a receiver to this signal.
+
+        This is a no-op if the receiver was already connected to this signal.
+
+        :param receiver: The receiver to connect.
+        """
+        self.__receivers.add(receiver)
 
     def disconnect(self, receiver: Receiver) -> None:
-        self.__receivers.remove(receiver)
+        """
+        Disconnect a receiver from this signal.
+
+        This is a no-op if the receiver was not connected to this signal.
+
+        :param receiver: The receiver to disconnect.
+        """
+        self.__receivers.discard(receiver)
 
     def emit(self, *args: Any) -> None:
+        """
+        Emit this signal and call each of the attached receivers.
+
+        :param args: Positional arguments passed to each receiver.
+        """
         for receiver in self.__receivers:
             receiver(*args)
 
 
 def key_id(name: str) -> PositiveInt:
-    """Avoid importing Qt too early."""
-    from qtpy.QtCore import Qt
+    """
+    Return the id corresponding to the given key name.
+
+    :param str: The name of the key, e.g., 'Q'.
+    :return: The corresponding id.
+    """
+    from qtpy.QtCore import Qt  # Avoid importing Qt too early."""
 
     return getattr(Qt, f"Key_{name}")
 
 
 class Key(BaseModel):  # type: ignore[misc]
-    """Represents a list of key codes, with optionally a name."""
+    """Represent a list of key codes, with optionally a name."""
 
     ids: conset(PositiveInt, min_length=1)  # type: ignore[valid-type]
     name: Optional[str] = None
@@ -58,6 +87,7 @@ class Key(BaseModel):  # type: ignore[misc]
         self.ids = set(ids)
 
     def match(self, key_id: int) -> bool:
+        """Return whether a given key id matches this key."""
         m = key_id in self.ids
 
         if m:
@@ -135,6 +165,7 @@ class Config(BaseModel):  # type: ignore[misc]
     """General Manim Slides config."""
 
     keys: Keys = Field(default_factory=Keys)
+    """The key mapping."""
 
     @classmethod
     def from_file(cls, path: Path) -> "Config":
@@ -142,11 +173,16 @@ class Config(BaseModel):  # type: ignore[misc]
         return cls.model_validate(rtoml.load(path))  # type: ignore
 
     def to_file(self, path: Path) -> None:
-        """Dump the configuration to a file."""
+        """Dump this configuration to a file."""
         rtoml.dump(self.model_dump(), path, pretty=True)
 
     def merge_with(self, other: "Config") -> "Config":
-        """Merge with another config."""
+        """
+        Merge with another config.
+
+        :param other: The other config to be merged with.
+        :return: This config, updated.
+        """
         self.keys = self.keys.merge_with(other.keys)
         return self
 
@@ -155,11 +191,17 @@ class BaseSlideConfig(BaseModel):  # type: ignore
     """Base class for slide config."""
 
     loop: bool = False
+    """Whether this slide should loop."""
     auto_next: bool = False
+    """Whether this slide is skipped upon completion."""
     playback_rate: float = 1.0
+    """The speed at which the animation is played (1.0 is normal)."""
     reversed_playback_rate: float = 1.0
+    """The speed at which the reversed animation is played."""
     notes: str = ""
+    """The notes attached to this slide."""
     dedent_notes: bool = True
+    """Whether to automatically remove any leading indentation in the notes."""
     skip_animations: bool = False
     src: Optional[FilePath] = None
 
@@ -173,7 +215,11 @@ class BaseSlideConfig(BaseModel):  # type: ignore
         The wrapped function must follow two criteria:
         - its last parameter must be ``**kwargs`` (or equivalent);
         - and its second last parameter must be ``<arg_name>``.
+
+        :param arg_name: The name of the argument.
+        :return: The wrapped function.
         """
+        # TODO: improve docs and (maybe) type-hints too
 
         def _wrapper_(fun: Callable[..., Any]) -> Callable[..., Any]:
             @wraps(fun)
@@ -209,6 +255,11 @@ class BaseSlideConfig(BaseModel):  # type: ignore
     def apply_dedent_notes(
         self,
     ) -> "BaseSlideConfig":
+        """
+        Remove indentation from notes, if specified.
+
+        :return: The config, optionally modified.
+        """
         if self.dedent_notes:
             self.notes = dedent(self.notes)
 
@@ -219,7 +270,9 @@ class PreSlideConfig(BaseSlideConfig):
     """Slide config to be used prior to rendering."""
 
     start_animation: int
+    """The index of the first animation."""
     end_animation: int
+    """The index after the last animation."""
 
     @classmethod
     def from_base_slide_config_and_animation_indices(
@@ -228,6 +281,13 @@ class PreSlideConfig(BaseSlideConfig):
         start_animation: int,
         end_animation: int,
     ) -> "PreSlideConfig":
+        """
+        Create a config from a base config and animation indices.
+
+        :param base_slide_config: The base config.
+        :param start_animation: The index of the first animation.
+        :param end_animation: The index after the last animation.
+        """
         return cls(
             start_animation=start_animation,
             end_animation=end_animation,
@@ -237,6 +297,12 @@ class PreSlideConfig(BaseSlideConfig):
     @field_validator("start_animation", "end_animation")
     @classmethod
     def index_is_posint(cls, v: int) -> int:
+        """
+        Validate that animation indices are positive integers.
+
+        :param v: An animation index.
+        :return: The animation index, if valid.
+        """
         if v < 0:
             raise ValueError("Animation index (start or end) cannot be negative")
         return v
@@ -245,7 +311,11 @@ class PreSlideConfig(BaseSlideConfig):
     def start_animation_is_before_end(
         self,
     ) -> "PreSlideConfig":
-        if self.start_animation > self.end_animation:
+        """
+        Validate that start and end animation indices satisfy 'start < end'.
+
+        :return: The config, if indices are valid.
+        """
             raise ValueError(
                 "Start animation index must be strictly lower than end animation index"
             )
@@ -279,7 +349,9 @@ class SlideConfig(BaseSlideConfig):
     """Slide config to be used after rendering."""
 
     file: FilePath
+    """The file containing the animation."""
     rev_file: FilePath
+    """The file containing the reversed animation."""
 
     @classmethod
     def from_pre_slide_config_and_files(
@@ -289,13 +361,22 @@ class SlideConfig(BaseSlideConfig):
 
 
 class PresentationConfig(BaseModel):  # type: ignore[misc]
+    """Presentation config that contains all necessary information for a presentation."""
+
     slides: list[SlideConfig] = Field(min_length=1)
+    """The non-empty list of slide configs."""
     resolution: tuple[PositiveInt, PositiveInt] = (1920, 1080)
+    """The resolution of the animation files."""
     background_color: Color = "black"
+    """The background color of the animation files."""
 
     @classmethod
     def from_file(cls, path: Path) -> "PresentationConfig":
-        """Read a presentation configuration from a file."""
+        """
+        Read a presentation configuration from a file.
+
+        :param path: The path where the config is read from.
+        """
         with open(path) as f:
             obj = json.load(f)
 
@@ -312,7 +393,11 @@ class PresentationConfig(BaseModel):  # type: ignore[misc]
             return cls.model_validate(obj)  # type: ignore
 
     def to_file(self, path: Path) -> None:
-        """Dump the presentation configuration to a file."""
+        """
+        Dump the presentation configuration to a file.
+
+        :param path: The path to save this config.
+        """
         with open(path, "w") as f:
             f.write(self.model_dump_json(indent=2))
 
@@ -323,7 +408,14 @@ class PresentationConfig(BaseModel):  # type: ignore[misc]
         include_reversed: bool = True,
         prefix: str = "",
     ) -> None:
-        """Copy the files to a given directory."""
+        """
+        Copy the files to a given directory and return the corresponding configuration.
+
+        :param folder: The folder that will contain the animation files.
+        :param use_cached: Whether caching should be used to avoid copies when possible.
+        :param include_reversed: Whether to also copy reversed animation to the folder.
+        :param prefix: Optional prefix added to each file name.
+        """
         for slide_config in self.slides:
             file = slide_config.file
             rev_file = slide_config.rev_file
@@ -335,4 +427,6 @@ class PresentationConfig(BaseModel):  # type: ignore[misc]
                 shutil.copy(file, dest)
 
             if include_reversed and (not use_cached or not rev_dest.exists()):
+                # TODO: if include_reversed is False, then rev_dev will likely not exist
+                # and this will cause an issue when decoding.
                 shutil.copy(rev_file, rev_dest)
