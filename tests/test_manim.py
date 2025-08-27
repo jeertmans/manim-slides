@@ -27,7 +27,11 @@ def assert_import(
 
 @skip_if_py39
 def test_force_api() -> None:
+    # Manimlib parses sys.argv on import, so we clear it temporarily.
+    old_argv = sys.argv
+    sys.argv = [__file__]
     pytest.importorskip("manimlib")
+    sys.argv = old_argv
     import manim  # noqa: F401
 
     if "manimlib" in sys.modules:
@@ -62,9 +66,12 @@ def test_invalid_api() -> None:
 @skip_if_py39
 @pytest.mark.filterwarnings("ignore:assert_import")
 def test_manim_and_manimgl_imported() -> None:
+    # Manimlib parses sys.argv on import, so we clear it temporarily.
+    old_argv = sys.argv
+    sys.argv = [__file__]
     pytest.importorskip("manimlib")
+    sys.argv = old_argv
     import manim  # noqa: F401
-    import manimlib  # noqa: F401
 
     assert_import(
         api_name="manim",
@@ -88,8 +95,11 @@ def test_manim_imported() -> None:
 
 @skip_if_py39
 def test_manimgl_imported() -> None:
+    # Manimlib parses sys.argv on import, so we clear it temporarily.
+    old_argv = sys.argv
+    sys.argv = [__file__]
     pytest.importorskip("manimlib")
-    import manimlib  # noqa: F401
+    sys.argv = old_argv
 
     if "manim" in sys.modules:
         del sys.modules["manim"]

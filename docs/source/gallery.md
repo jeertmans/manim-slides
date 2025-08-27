@@ -14,7 +14,7 @@ If you too have created content with Manim Slides that is available online
 (e.g., a YouTube video or website),
 don't hesitate to contact us so that we can share your content on this page!
 
-## Scientif Research
+## Scientific Research
 
 Below are people that dissimenate their research results
 using Manim Slides presentations.
@@ -23,7 +23,7 @@ using Manim Slides presentations.
 
 Daniel publishes his presentations on *Cosmology, String Theory and related*
 topics on his
-[personal website](https://panopepino.github.io/web_page/main_page/slides.html). https://panopepino.github.io/web_page/main_page/slides.html
+[personal website](https://panopepino.github.io/web_page/main_page/slides.html).
 
 For example, below are the slides of a seminar he gave titled
 [Our Universe on a (Dark) Bubble](https://panopepino.github.io/web_page/main_page/presentations/2023_11_long/LS.html).
@@ -67,9 +67,66 @@ For example, below are the slides of his
     </iframe>
 </div>
 
+### Matthew McIlree
+
+Matthew is a Computer Science researcher from Scotland and has used Manim Slides
+to present his work on *Proof Logging for Constraint Programming*. He also publishes
+his presentation slides on his [personal website](https://matthewmcilree.com).
+
+Here are the slides from a 25-minute talk he presented at the 39th Annual AAAI Conference on Artificial Intelligence titled
+[Certifying Bounds Propagation for Integer Multiplication Constraints](https://matthewmcilree.com/files/slides/mcilree_aaai2025.html).
+
+<div style="position:relative;padding-bottom:56.25%;">
+    <iframe
+        loading="lazy"
+        style="width:100%;height:100%;position:absolute;left:0px;top:0px;"
+        frameborder="1"
+        width="100%"
+        height="100%"
+        allowfullscreen
+        allow="autoplay"
+        src="https://matthewmcilree.com/files/slides/mcilree_aaai2025.html">
+    </iframe>
+</div>
+
 ## School Work
 
 Below are people that used Manim Slides for school presentations.
 
-*This list is currently empty. Please reach out to us if you have examples
-to share!*
+### Antonio Caserta
+
+Antonio is a 17-year-old high school student from Germany who used Manim Slides to present his final project, *Episteme*, an AI financial terminal that uses crowdsourced data from social networks to gather stock insights.
+
+The slides from his 30-minute presentation to the school board can be found below and on his [Github repository](https://github.com/amstrdm/episteme-manim-slides)
+
+<div style="position:relative;padding-bottom:56.25%;">
+    <iframe
+        loading="lazy"
+        style="width:100%;height:100%;position:absolute;left:0px;top:0px;"
+        frameborder="1"
+        width="100%"
+        height="100%"
+        allowfullscreen
+        allow="autoplay"
+        src="https://amstrdm.github.io/episteme-manim-slides/">
+    </iframe>
+</div>
+
+### Casper Algera
+
+Casper, a mathematics student from the Netherlands, used Manim Slides to present his bachelor's thesis.
+In his presentation, he illustrates a probabilistic coupling argument related to the [contact process](https://en.wikipedia.org/wiki/Contact_process_(mathematics)).
+His slides are available below, and his full presentation can be viewed on [YouTube](https://www.youtube.com/watch?v=ZJhvfCL5MWE).
+
+<div style="position:relative;padding-bottom:56.25%;">
+    <iframe
+        loading="lazy"
+        style="width:100%;height:100%;position:absolute;left:0px;top:0px;"
+        frameborder="1"
+        width="100%"
+        height="100%"
+        allowfullscreen
+        allow="autoplay"
+        src="https://casperalgera.github.io/criticalvalueCP/">
+    </iframe>
+</div>

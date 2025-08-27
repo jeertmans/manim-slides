@@ -154,21 +154,23 @@ Below is a comparison of the most used ones with Manim Slides:
 
 ## Citing
 
-If you use this project, please cite it using the following reference:
+If you use this software, please cite it using as:
 
 ```bibtex
 @article{Jerome_Eertmans_Manim_Slides_A_2023,
-	title        = {{Manim Slides: A Python package for presenting Manim content anywhere}},
-	author       = {{Jérome Eertmans}},
-	year         = 2023,
-	month        = aug,
-	journal      = {Journal of Open Source Education},
-	volume       = 6,
-	doi          = {10.21105/jose.00206}
+	title   = {{Manim Slides: A Python package for presenting Manim content anywhere}},
+	author  = {{Jérome Eertmans}},
+	year    = 2023,
+	month   = aug,
+	journal = {Journal of Open Source Education},
+	volume  = 6,
+	doi     = {10.21105/jose.00206}
 }
 ```
 
-or by linking this GitHub repository at the end of the presentation.
+or by linking this GitHub repository at the end of your presentation.
+
+Other citation formats can be obtained by clicking on the *Cite this repository* button on this page.
 
 ## Contributing
 

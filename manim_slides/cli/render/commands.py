@@ -48,8 +48,7 @@ def render(ce: bool, gl: bool, args: tuple[str, ...]) -> None:
     if ce and gl:
         raise click.UsageError("You cannot specify both --CE and --GL renderers.")
     if gl:
-        subprocess.run([sys.executable, "-m", "manimlib", "-w", *args])
+        completed = subprocess.run([sys.executable, "-m", "manimlib", "-w", *args])
     else:
-        from manim.cli.render.commands import render as render_ce
-
-        render_ce(args, standalone_mode=False)
+        completed = subprocess.run([sys.executable, "-m", "manim", "render", *args])
+    sys.exit(completed.returncode)

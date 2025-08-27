@@ -1,11 +1,17 @@
 """ManimGL's implementation of the Slide class."""
 
+import sys
 from pathlib import Path
 from typing import Any, ClassVar, Optional
 
-from manimlib import Scene, ThreeDCamera
+# Manimlib parses sys.argv on import, so we clear it temporarily.
+old_argv = sys.argv
+sys.argv = [__file__]
+from manimlib import Scene, ThreeDCamera  # noqa: E402
 
-from .base import BaseSlide
+sys.argv = old_argv
+
+from .base import BaseSlide  # noqa: E402
 
 
 class Slide(BaseSlide, Scene):  # type: ignore[misc]

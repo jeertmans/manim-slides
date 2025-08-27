@@ -8,9 +8,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <!-- start changelog -->
 
 (unreleased)=
-## [Unreleased](https://github.com/jeertmans/manim-slides/compare/v5.5.1...HEAD)
+## [Unreleased](https://github.com/jeertmans/manim-slides/compare/v5.5.2...HEAD)
 
 (unreleased-chore)=
+### Chore
+
+- Moved `manim_slides.docs.manim_slides_directive` to `manim_slides.sphinxext.manim_slides_directive`.
+  This is a **breaking change** because documentation configs have
+  to be updated.
+  [#242](https://github.com/jeertmans/manim-slides/pull/242)
+
+(v5.5.2)=
+## [v5.5.2](https://github.com/jeertmans/manim-slides/compare/v5.5.1...v5.5.2)
+
+(v5.5.2-added)=
+### Added
+
+- `manim-slides render` now exits with the same return code as the one returned by `manim render` or `manimgl`.
+  [@chrjabs](https://github.com/chrjabs) [#545](https://github.com/jeertmans/manim-slides/pull/545)
+
+(v5.5.2-chore)=
 ### Chore
 
 - Moved `docs` and `tests` extras, as well as `dev-dependencies`,
@@ -18,10 +35,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   when using one of those extras, but as they were not part of the public API,
   we do not consider this to be a **breaking change**.
   [#542](https://github.com/jeertmans/manim-slides/pull/542)
-- Moved `manim_slides.docs.manim_slides_directive` to `manim_slides.sphinxext.manim_slides_directive`.
-  This is a **breaking change** because documentation configs have
-  to be updated.
-  [#242](https://github.com/jeertmans/manim-slides/pull/242)
+- Added example in the research section of the gallery.
+  [@mmcilree](https://github.com/mmcilree) [#552](https://github.com/jeertmans/manim-slides/pull/552)
+- Added example in the school work section of the gallery.
+  [@casperalgera](https://github.com/casperalgera) [#556](https://github.com/jeertmans/manim-slides/pull/556)
+- Added example in the school work section of the gallery.
+  [@amstrdm](https://github.com/amstrdm) [#557](https://github.com/jeertmans/manim-slides/pull/557)
+- Fixed some tests that were failing.
+  [#550](https://github.com/jeertmans/manim-slides/pull/550)
+- Pinned `setuptools<81` for `manimgl` extra, as `setuptools>=81`
+  dropped support for its API.
+  [#550](https://github.com/jeertmans/manim-slides/pull/550)
+
+(v5.5.2-fixed)=
+### Fixed
+
+- Fixed potential import issue of ManimGL, importing `manimlib` will parse `sys.argv`
+  to initialize the config, which can lead to surprising behavior when using the library with
+  different command line arguments that are not meant to be used by ManimGL.
+  [#550](https://github.com/jeertmans/manim-slides/pull/550)
 
 (v5.5.1)=
 ## [v5.5.1](https://github.com/jeertmans/manim-slides/compare/v5.5.0...v5.5.1)

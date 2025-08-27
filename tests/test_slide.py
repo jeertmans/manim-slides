@@ -113,6 +113,37 @@ def test_render_basic_slide(
         assert local_presentation_config.resolution == presentation_config.resolution
 
 
+@pytest.mark.parametrize(
+    "renderer",
+    [
+        "--CE",
+        pytest.param(
+            "--GL",
+            marks=pytest.mark.skipif(
+                sys.version_info < (3, 10),
+                reason="See https://github.com/3b1b/manim/issues/2263.",
+            ),
+        ),
+        "--CE --renderer=opengl",
+    ],
+    ids=("CE", "GL", "CE(GL)"),
+)
+def test_render_failing_slide(
+    renderer: str,
+    slides_file: Path,
+    manimgl_config: Path,
+) -> None:
+    runner = CliRunner()
+
+    with runner.isolated_filesystem() as tmp_dir:
+        shutil.copy(manimgl_config, tmp_dir)
+        results = runner.invoke(
+            render, [*renderer.split(" "), str(slides_file), "FailingSlide", "-ql"]
+        )
+
+        assert results.exit_code != 0, results
+
+
 def test_clear_cache(
     slides_file: Path,
 ) -> None:
@@ -219,9 +250,13 @@ def init_slide(cls: SlideType) -> Slide:
     if issubclass(cls, CESlide):
         return cls()
     elif issubclass(cls, GLSlide):
+        # Manimlib parses sys.argv on import, so we clear it temporarily.
+        old_argv = sys.argv
+        sys.argv = [__file__]
         from manimlib.config import parse_cli
 
         _args = parse_cli()
+        sys.argv = old_argv
         return cls()
 
     raise ValueError(f"Unsupported class {cls}")

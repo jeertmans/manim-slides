@@ -20,7 +20,12 @@ def checkhealth() -> None:
         click.secho("\tmanim not found", bold=True)
 
     try:
+        # Manimlib parses sys.argv on import, so we clear it temporarily.
+        old_argv = sys.argv
+        sys.argv = [__file__]
         from manimlib import __version__ as manimlib_version
+
+        sys.argv = old_argv
 
         click.echo(f"\tmanimgl (version: {manimlib_version})")
     except ImportError:

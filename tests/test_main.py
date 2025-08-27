@@ -67,7 +67,7 @@ def test_convert(slides_folder: Path, extension: str) -> None:
 
 @pytest.mark.parametrize(("extension",), [("html",)])
 def test_convert_data_uri_deprecated(slides_folder: Path, extension: str) -> None:
-    runner = CliRunner(mix_stderr=False)
+    runner = CliRunner()
 
     with runner.isolated_filesystem():
         with warnings.catch_warnings(record=True) as w:
