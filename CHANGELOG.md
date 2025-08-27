@@ -8,15 +8,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <!-- start changelog -->
 
 (unreleased)=
-## [Unreleased](https://github.com/jeertmans/manim-slides/compare/v5.5.1...HEAD)
+## [Unreleased](https://github.com/jeertmans/manim-slides/compare/v5.5.2...HEAD)
 
-(unreleased-added)=
+(v5.5.2)=
+## [v5.5.2](https://github.com/jeertmans/manim-slides/compare/v5.5.1...v5.5.2)
+
+(v5.5.2-added)=
 ### Added
 
 - `manim-slides render` now exits with the same return code as the one returned by `manim render` or `manimgl`.
   [@chrjabs](https://github.com/chrjabs) [#545](https://github.com/jeertmans/manim-slides/pull/545)
 
-(unreleased-chore)=
+(v5.5.2-chore)=
 ### Chore
 
 - Moved `docs` and `tests` extras, as well as `dev-dependencies`,
@@ -36,7 +39,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   dropped support for its API.
   [#550](https://github.com/jeertmans/manim-slides/pull/550)
 
-(unreleased-fixed)=
+(v5.5.2-fixed)=
 ### Fixed
 
 - Fixed potential import issue of ManimGL, importing `manimlib` will parse `sys.argv`
