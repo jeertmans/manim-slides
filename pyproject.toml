@@ -26,7 +26,7 @@ docs = [
 ]
 tests = [
   "importlib-metadata>=8.6.1;python_version<'3.10'",
-  "manim-slides[full,manimgl,pyqt6,pyside6,sphinx-directive]",
+  "manim-slides[full,manim,manimgl,pyqt6,pyside6,sphinx-directive]",
   "pytest>=7.4.0",
   "pytest-cov>=4.1.0",
   "pytest-env>=0.8.2",
@@ -80,7 +80,7 @@ full = [
 ]
 magic = ["manim-slides[manim]", "ipython>=8.12.2"]
 manim = ["manim>=0.19"]
-manimgl = ["manimgl>=1.7.2"]
+manimgl = ["manimgl>=1.7.2", "setuptools<81"]
 pyqt6 = ["pyqt6>=6.7.0"]
 pyqt6-full = ["manim-slides[full,pyqt6]"]
 pyside6 = ["pyside6>=6.6.1,!=6.8.1.1"]
@@ -205,13 +205,13 @@ filterwarnings = [
   'ignore::DeprecationWarning:pkg_resources.*:',
   'ignore:invalid escape sequence.*:DeprecationWarning',
   'ignore:invalid escape sequence.*:SyntaxWarning',
+  'ignore:urllib3 v2 only supports OpenSSL.*:urllib3.exceptions.NotOpenSSLWarning',
 ]
 
 [tool.ruff]
 extend-exclude = ["manim_slides/resources.py"]
 extend-include = ["*.ipynb"]
 line-length = 88
-target-version = "py39"
 
 [tool.ruff.lint]
 extend-ignore = [

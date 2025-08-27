@@ -41,7 +41,7 @@ def test_present_unexisting_slide(args: tuple[str, ...]) -> None:
         results = runner.invoke(present, ["UnexistingSlide", *args])
 
         assert results.exit_code != 0
-        assert "UnexistingSlide.json does not exist" in results.stdout
+        assert "UnexistingSlide.json does not exist" in results.output
 
 
 def test_present_full_screen(args: tuple[str, ...]) -> None:

@@ -250,9 +250,13 @@ def init_slide(cls: SlideType) -> Slide:
     if issubclass(cls, CESlide):
         return cls()
     elif issubclass(cls, GLSlide):
+        # Manimlib parses sys.argv on import, so we clear it temporarily.
+        old_argv = sys.argv
+        sys.argv = [__file__]
         from manimlib.config import parse_cli
 
         _args = parse_cli()
+        sys.argv = old_argv
         return cls()
 
     raise ValueError(f"Unsupported class {cls}")
