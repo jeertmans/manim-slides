@@ -150,7 +150,7 @@ Below is a comparison of the most used ones with Manim Slides:
 | Note | Requires minimal modif. in scenes files | Requires minimal modif. in scenes files |  Requires the usage of sections, and configuration through graphical interface | Relies on `nbconvert` to create slides from a Notebook |
 | Support for ManimGL | Yes | No | No | No |
 | Web Browser presentations | Yes | No | Yes | No |
-| Offline presentations | Yes, with Qt | Yes, with OpenCV | No | No
+| Offline presentations | Yes, with Qt, [RevealJS](https://revealjs.com/) (any web browser), or PowerPoint | Yes, with OpenCV | No | No
 
 ## Citing
 
