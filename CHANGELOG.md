@@ -15,6 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Update the comparison table in the README.
   [#560](https://github.com/jeertmans/manim-slides/pull/560)
+- Update the template in the *Customize your RevealJS slides* section.
+  [#565](https://github.com/jeertmans/manim-slides/pull/565)
 
 (v5.5.2)=
 ## [v5.5.2](https://github.com/jeertmans/manim-slides/compare/v5.5.1...v5.5.2)
