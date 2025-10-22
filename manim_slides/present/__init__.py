@@ -39,7 +39,7 @@ def _list_scenes(folder: Path) -> list[str]:
 
     logger.debug(f"Found {len(scenes)} valid scene configuration files in `{folder}`.")
 
-    return scenes
+    return sorted(scenes)
 
 
 def prompt_for_scenes(folder: Path) -> list[str]:

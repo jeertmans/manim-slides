@@ -547,6 +547,10 @@ In an effort to better document changes, this CHANGELOG document is now created.
 (v5-fixed)=
 ### Fixed
 
+- Sort the scene list alphabetically in the `manim convert` command.
+  This fix was contributed by
+  [@msaadsbr](https://github.com/msaadsbr)
+  [#571](https://github.com/jeertmans/manim-slides/pull/571)
 - Patched enums in `manim_slides/convert.py` to correctly call `str`'s
   `__str__` method, and not the `Enum` one.
   This bug was discovered by
