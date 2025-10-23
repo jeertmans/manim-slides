@@ -10,6 +10,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 (unreleased)=
 ## [Unreleased](https://github.com/jeertmans/manim-slides/compare/v5.5.2...HEAD)
 
+(unreleased-changed)=
+### Changed
+
+- Sort the scenes alphabetically when listing scenes
+  (e.g., when prompting for scenes with `manim-slides present`).
+  [@msaadsbr](https://github.com/msaadsbr) [#573](https://github.com/jeertmans/manim-slides/pull/573)
+
 (unreleased-chore)=
 ### Chore
 
