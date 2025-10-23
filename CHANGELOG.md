@@ -29,7 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Fixed black videos on macOS. manim-slides player now uses absolute paths for videos.
-  [@albertocasagrande](https://github.com/albertocasagrande) [#575](https://github.com/jeertmans/manim-slides/pull/575) 
+  [@albertocasagrande](https://github.com/albertocasagrande) [#575](https://github.com/jeertmans/manim-slides/pull/575)
 
 (v5.5.2)=
 ## [v5.5.2](https://github.com/jeertmans/manim-slides/compare/v5.5.1...v5.5.2)
