@@ -390,7 +390,7 @@ class Player(QMainWindow):  # type: ignore[misc]
     """
 
     def load_current_media(self, start_paused: bool = False) -> None:
-        url = QUrl.fromLocalFile(str(self.current_file))
+        url = QUrl.fromLocalFile(str(self.current_file.resolve(strict=True)))
         self.media_player.setSource(url)
 
         if self.playing_reversed_slide:
@@ -475,7 +475,7 @@ class Player(QMainWindow):  # type: ignore[misc]
 
     def preview_next_slide(self) -> None:
         if slide_config := self.next_slide_config:
-            url = QUrl.fromLocalFile(str(slide_config.file))
+            url = QUrl.fromLocalFile(str(slide_config.file.resolve(strict=True)))
             self.info.next_media_player.setSource(url)
             self.info.next_media_player.play()
 
