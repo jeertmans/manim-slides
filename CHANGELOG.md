@@ -25,6 +25,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Update the template in the *Customize your RevealJS slides* section.
   [#565](https://github.com/jeertmans/manim-slides/pull/565)
 
+(unreleased-fixed)=
+### Fixed
+
+- Fixed black videos on macOS. manim-slides player now uses absolute paths for videos.
+  [@albertocasagrande](https://github.com/albertocasagrande) [#575](https://github.com/jeertmans/manim-slides/pull/575) 
+
 (v5.5.2)=
 ## [v5.5.2](https://github.com/jeertmans/manim-slides/compare/v5.5.1...v5.5.2)
 
