@@ -1,7 +1,7 @@
 import hashlib
 import os
 import shutil
-import subprocess
+import subprocess  # nosec B404
 import tempfile
 from collections.abc import Iterator
 from multiprocessing import Pool
@@ -73,7 +73,7 @@ def extract_video_segment(src: Path, dest: Path, start: float, end: float) -> No
     ]
 
     # Execute with shell=False to prevent injection
-    process = subprocess.run(
+    process = subprocess.run(  # nosec B603
         command,
         capture_output=True,
         check=False,
