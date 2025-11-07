@@ -41,8 +41,8 @@ from . import templates
 from .commons import folder_path_option, verbosity_option
 from .config import PresentationConfig, SlideConfig, SubsectionConfig
 from .logger import logger
-from .utils import extract_video_segment, get_duration_ms, get_duration_seconds
 from .present import get_scenes_presentation_config
+from .utils import extract_video_segment, get_duration_ms, get_duration_seconds
 
 
 def open_with_default(file: Path) -> None:
@@ -734,11 +734,11 @@ class PDF(Converter):
 
         for i, presentation_config in enumerate(self.presentation_configs):
             for slide_config in tqdm(
-                    presentation_config.slides,
-                    desc=f"Generating video slides for config {i + 1}",
-                    leave=False,
-                ):
-                    images.extend(self._images_for_slide(slide_config))
+                presentation_config.slides,
+                desc=f"Generating video slides for config {i + 1}",
+                leave=False,
+            ):
+                images.extend(self._images_for_slide(slide_config))
 
         dest.parent.mkdir(parents=True, exist_ok=True)
 
@@ -755,7 +755,9 @@ class PDF(Converter):
             self.pdf_subsection_mode == PdfSubsectionMode.final
             and slide_config.subsections
         ):
-            return [self._frame_from_subsection(slide_config, slide_config.subsections[-1])]
+            return [
+                self._frame_from_subsection(slide_config, slide_config.subsections[-1])
+            ]
 
         frames = [self._frame_for_slide(slide_config)]
 
@@ -901,7 +903,10 @@ class PowerPoint(Converter):
             if subsection.end_time <= subsection.start_time:
                 continue
 
-            fragment_file = directory / f"{slide_config.file.stem}_sub_{index}{slide_config.file.suffix}"
+            fragment_file = (
+                directory
+                / f"{slide_config.file.stem}_sub_{index}{slide_config.file.suffix}"
+            )
             extract_video_segment(
                 slide_config.file,
                 fragment_file,
@@ -917,7 +922,9 @@ class PowerPoint(Converter):
 
         video_duration = get_duration_seconds(slide_config.file)
         if video_duration - last_end > 1e-3:
-            fragment_file = directory / f"{slide_config.file.stem}_tail{slide_config.file.suffix}"
+            fragment_file = (
+                directory / f"{slide_config.file.stem}_tail{slide_config.file.suffix}"
+            )
             extract_video_segment(
                 slide_config.file, fragment_file, last_end, video_duration
             )

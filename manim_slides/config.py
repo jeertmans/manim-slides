@@ -1,10 +1,11 @@
 import json
 import shutil
+from collections.abc import Sequence
 from functools import wraps
 from inspect import Parameter, signature
 from pathlib import Path
 from textwrap import dedent
-from typing import Any, Callable, Optional, Sequence
+from typing import Any, Callable, Optional
 
 import rtoml
 from pydantic import (
@@ -173,7 +174,9 @@ class SubsectionConfig(BaseModel):  # type: ignore[misc]
     @model_validator(mode="after")
     def animations_are_monotone(self) -> "SubsectionConfig":
         if self.end_animation < self.start_animation:
-            raise ValueError("end_animation must be greater or equal to start_animation")
+            raise ValueError(
+                "end_animation must be greater or equal to start_animation"
+            )
         if self.end_time < self.start_time:
             raise ValueError("end_time must be greater or equal to start_time")
         return self
