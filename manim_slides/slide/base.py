@@ -313,6 +313,21 @@ class BaseSlide:
         :param auto_next:
             If set, compatible presenters will automatically continue to the next
             subsection once this one completes.
+
+        Example::
+
+            class Example(Slide):
+                def construct(self):
+                    circle = Circle()
+                    square = Square()
+
+                    self.play(Create(circle))
+                    self.next_subsection()
+                    self.play(Transform(circle, square))
+                    self.next_slide()
+
+        When presenting with ``--subsections``, the presenter will pause after
+        creating the circle, then continue to the transformation when you advance.
         """
         relative_animation_index = self._current_animation - self._start_animation
         if relative_animation_index < 0:
