@@ -1024,6 +1024,71 @@ def show_template_option(function: Callable[..., Any]) -> Callable[..., Any]:
     )(function)
 
 
+def _determine_converter_class(to: str, dest: Path) -> type[Converter]:
+    """Determine the converter class from format string or destination path."""
+    if to == "auto":
+        fmt = dest.suffix[1:].lower()
+        try:
+            return Converter.from_string(fmt)
+        except KeyError:
+            logger.warning(
+                f"Could not guess conversion format from {dest!s}, defaulting to HTML."
+            )
+            return RevealJS
+    return Converter.from_string(to)
+
+
+def _apply_config_options(
+    cls: type[Converter],
+    config_options: dict[str, str],
+    one_file: bool,
+    offline: bool,
+    pdf_subsections: str,
+    pptx_subsections: str,
+    html_subsections: str,
+) -> None:
+    """Apply and validate configuration options for the converter."""
+    if (
+        one_file
+        and issubclass(cls, (RevealJS, HtmlZip))
+        and "one_file" not in config_options
+    ):
+        config_options["one_file"] = "true"
+
+    if "data_uri" in config_options:
+        warnings.warn(
+            "The 'data_uri' configuration option is deprecated and will be "
+            "removed in the next major version. Use 'one_file' instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        config_options["one_file"] = config_options.get(
+            "one_file"
+        ) or config_options.pop("data_uri")
+
+    if (
+        offline
+        and issubclass(cls, (RevealJS, HtmlZip))
+        and "offline" not in config_options
+    ):
+        config_options["offline"] = "true"
+
+    if issubclass(cls, RevealJS) and html_subsections:
+        config_options.setdefault("subsection_mode", html_subsections)
+
+    if issubclass(cls, PDF):
+        config_options.setdefault("pdf_subsection_mode", pdf_subsections)
+    elif pdf_subsections != "none":
+        raise click.BadParameter("--pdf-subsections can only be used with PDF exports.")
+
+    if issubclass(cls, PowerPoint):
+        config_options.setdefault("subsection_mode", pptx_subsections)
+    elif pptx_subsections != "off":
+        raise click.BadParameter(
+            "--pptx-subsections can only be used with PowerPoint exports."
+        )
+
+
 @click.command()
 @click.argument("scenes", nargs=-1)
 @folder_path_option
@@ -1092,71 +1157,6 @@ def show_template_option(function: Callable[..., Any]) -> Callable[..., Any]:
     show_default=True,
     help="Enable interactive subsections in HTML/Reveal presentations.",
 )
-def _determine_converter_class(to: str, dest: Path) -> type[Converter]:
-    """Determine the converter class from format string or destination path."""
-    if to == "auto":
-        fmt = dest.suffix[1:].lower()
-        try:
-            return Converter.from_string(fmt)
-        except KeyError:
-            logger.warning(
-                f"Could not guess conversion format from {dest!s}, defaulting to HTML."
-            )
-            return RevealJS
-    return Converter.from_string(to)
-
-
-def _apply_config_options(
-    cls: type[Converter],
-    config_options: dict[str, str],
-    one_file: bool,
-    offline: bool,
-    pdf_subsections: str,
-    pptx_subsections: str,
-    html_subsections: str,
-) -> None:
-    """Apply and validate configuration options for the converter."""
-    if (
-        one_file
-        and issubclass(cls, (RevealJS, HtmlZip))
-        and "one_file" not in config_options
-    ):
-        config_options["one_file"] = "true"
-
-    if "data_uri" in config_options:
-        warnings.warn(
-            "The 'data_uri' configuration option is deprecated and will be "
-            "removed in the next major version. Use 'one_file' instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        config_options["one_file"] = config_options.get(
-            "one_file"
-        ) or config_options.pop("data_uri")
-
-    if (
-        offline
-        and issubclass(cls, (RevealJS, HtmlZip))
-        and "offline" not in config_options
-    ):
-        config_options["offline"] = "true"
-
-    if issubclass(cls, RevealJS) and html_subsections:
-        config_options.setdefault("subsection_mode", html_subsections)
-
-    if issubclass(cls, PDF):
-        config_options.setdefault("pdf_subsection_mode", pdf_subsections)
-    elif pdf_subsections != "none":
-        raise click.BadParameter("--pdf-subsections can only be used with PDF exports.")
-
-    if issubclass(cls, PowerPoint):
-        config_options.setdefault("subsection_mode", pptx_subsections)
-    elif pptx_subsections != "off":
-        raise click.BadParameter(
-            "--pptx-subsections can only be used with PowerPoint exports."
-        )
-
-
 @show_template_option
 @show_config_options
 @verbosity_option
