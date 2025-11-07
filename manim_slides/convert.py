@@ -191,7 +191,7 @@ class PdfSubsectionMode(str, Enum):
     all = "all"
 
 
-class PowerPointSubsectionMode(str, Enum):
+class PowerPointSubsectionMode(StrEnum):
     off = "off"
     split = "split"
 
@@ -1095,7 +1095,7 @@ def show_template_option(function: Callable[..., Any]) -> Callable[..., Any]:
 @show_template_option
 @show_config_options
 @verbosity_option
-def convert(
+def convert(  # noqa: C901
     scenes: list[str],
     folder: Path,
     dest: Path,

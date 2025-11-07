@@ -41,7 +41,7 @@ class DummySlide(BaseSlide):
     def _start_at_animation_number(self) -> int | None:
         return None
 
-    def play(self, *args, **kwargs) -> None:  # type: ignore[override]
+    def play(self, *args: object, **kwargs: object) -> None:
         self._current_animation += 1
 
 

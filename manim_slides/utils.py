@@ -49,8 +49,7 @@ def extract_video_segment(src: Path, dest: Path, start: float, end: float) -> No
 
     process = subprocess.run(
         command,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
+        capture_output=True,
         check=False,
     )
     if process.returncode != 0:

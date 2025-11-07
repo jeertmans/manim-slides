@@ -35,8 +35,8 @@ from manim_slides.convert import (
     Transition,
     TransitionSpeed,
     file_to_data_uri,
-    get_duration_ms,
 )
+from manim_slides.utils import get_duration_ms
 
 
 def test_get_duration_ms(video_file: Path) -> None:
@@ -331,7 +331,7 @@ class TestConverter:
 
 
 def _make_slide_config(video_file: Path) -> SlideConfig:
-    return SlideConfig.model_validate(
+    return SlideConfig.model_validate(  # type: ignore[no-any-return]
         {
             "loop": False,
             "auto_next": False,
