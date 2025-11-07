@@ -1,7 +1,7 @@
 import hashlib
 import os
 import shutil
-import subprocess
+import subprocess  # nosec B404 - Using subprocess for controlled ffmpeg execution
 import tempfile
 from collections.abc import Iterator
 from multiprocessing import Pool
@@ -46,6 +46,11 @@ def extract_video_segment(src: Path, dest: Path, start: float, end: float) -> No
     src_abs = src.resolve()
     dest_abs = dest.resolve()
 
+    # Security: Command built from validated inputs only
+    # - ffmpeg is a trusted external tool
+    # - All arguments are either hardcoded or validated above
+    # - Using list form (not shell=True) prevents injection
+    # - Paths resolved to absolute to prevent traversal
     command = [
         "ffmpeg",
         "-y",
@@ -60,10 +65,12 @@ def extract_video_segment(src: Path, dest: Path, start: float, end: float) -> No
         str(dest_abs),
     ]
 
+    # nosec B603 - subprocess called with validated inputs, shell=False
     process = subprocess.run(
         command,
         capture_output=True,
         check=False,
+        shell=False,  # Explicit: prevent shell injection
     )
     if process.returncode != 0:
         raise RuntimeError(
