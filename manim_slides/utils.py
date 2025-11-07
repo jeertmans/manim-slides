@@ -1,7 +1,7 @@
 import hashlib
 import os
 import shutil
-import subprocess  # nosec B404 - Using subprocess for controlled ffmpeg execution
+import subprocess
 import tempfile
 from collections.abc import Iterator
 from multiprocessing import Pool
@@ -27,7 +27,16 @@ def get_duration_seconds(file: Path) -> float:
 
 
 def extract_video_segment(src: Path, dest: Path, start: float, end: float) -> None:
-    """Extract a [start, end] video segment (in seconds) into dest using ffmpeg."""
+    """
+    Extract a [start, end] video segment (in seconds) into dest using ffmpeg.
+
+    This function uses subprocess to call ffmpeg directly. While subprocess usage
+    can be a security concern, this implementation is safe because:
+    1. All inputs are validated before use
+    2. Arguments are passed as a list (not shell string)
+    3. shell=False prevents shell injection
+    4. ffmpeg path is resolved via shutil.which()
+    """
     if not src.exists():
         raise FileNotFoundError(f"Source video file does not exist: {src}")
     if not src.is_file():
@@ -43,35 +52,34 @@ def extract_video_segment(src: Path, dest: Path, start: float, end: float) -> No
     if start < 0.0 or end < 0.0:
         raise ValueError(f"Time values must be non-negative: start={start}, end={end}")
 
-    src_abs = src.resolve()
-    dest_abs = dest.resolve()
+    # Verify ffmpeg is available
+    ffmpeg_path = shutil.which("ffmpeg")
+    if not ffmpeg_path:
+        raise RuntimeError("ffmpeg not found in PATH")
 
-    # Security: Command built from validated inputs only
-    # - ffmpeg is a trusted external tool
-    # - All arguments are either hardcoded or validated above
-    # - Using list form (not shell=True) prevents injection
-    # - Paths resolved to absolute to prevent traversal
+    # Build command with validated, safe arguments
     command = [
-        "ffmpeg",
-        "-y",
+        ffmpeg_path,
+        "-y",  # Overwrite output file
         "-ss",
-        f"{start:.3f}",
+        f"{start:.3f}",  # Start time (validated float)
         "-i",
-        str(src_abs),
+        str(src.resolve()),  # Input file (validated Path)
         "-t",
-        f"{duration:.3f}",
+        f"{duration:.3f}",  # Duration (validated float)
         "-c",
-        "copy",
-        str(dest_abs),
+        "copy",  # Copy codec (no re-encoding)
+        str(dest.resolve()),  # Output file (validated Path)
     ]
 
-    # nosec B603 - subprocess called with validated inputs, shell=False
+    # Execute with shell=False to prevent injection
     process = subprocess.run(
         command,
         capture_output=True,
         check=False,
-        shell=False,  # Explicit: prevent shell injection
+        shell=False,
     )
+
     if process.returncode != 0:
         raise RuntimeError(
             f"ffmpeg failed to extract video segment:\n{process.stderr.decode().strip()}"
