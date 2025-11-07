@@ -28,10 +28,23 @@ def get_duration_seconds(file: Path) -> float:
 
 def extract_video_segment(src: Path, dest: Path, start: float, end: float) -> None:
     """Extract a [start, end] video segment (in seconds) into dest using ffmpeg."""
+    if not src.exists():
+        raise FileNotFoundError(f"Source video file does not exist: {src}")
+    if not src.is_file():
+        raise ValueError(f"Source path is not a file: {src}")
+
+    dest.parent.mkdir(parents=True, exist_ok=True)
+
     duration = max(end - start, 0.0)
     if duration <= 0.0:
         shutil.copy(src, dest)
         return
+
+    if start < 0.0 or end < 0.0:
+        raise ValueError(f"Time values must be non-negative: start={start}, end={end}")
+
+    src_abs = src.resolve()
+    dest_abs = dest.resolve()
 
     command = [
         "ffmpeg",
@@ -39,12 +52,12 @@ def extract_video_segment(src: Path, dest: Path, start: float, end: float) -> No
         "-ss",
         f"{start:.3f}",
         "-i",
-        str(src),
+        str(src_abs),
         "-t",
         f"{duration:.3f}",
         "-c",
         "copy",
-        str(dest),
+        str(dest_abs),
     ]
 
     process = subprocess.run(
