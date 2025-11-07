@@ -39,8 +39,9 @@ from tqdm import tqdm
 
 from . import templates
 from .commons import folder_path_option, verbosity_option
-from .config import PresentationConfig
+from .config import PresentationConfig, SlideConfig, SubsectionConfig
 from .logger import logger
+from .utils import extract_video_segment, get_duration_ms, get_duration_seconds
 from .present import get_scenes_presentation_config
 
 
@@ -81,14 +82,6 @@ def file_to_data_uri(file: Path) -> str:
     return f"data:{mime_type};base64,{b64}"
 
 
-def get_duration_ms(file: Path) -> float:
-    """Read a video and return its duration in milliseconds."""
-    with av.open(str(file)) as container:
-        video = container.streams.video[0]
-
-        return float(1000 * video.duration * video.time_base)
-
-
 def read_image_from_video_file(file: Path, frame_index: "FrameIndex") -> Image:
     """Read a image from a video file at a given index."""
     with av.open(str(file)) as container:
@@ -100,6 +93,19 @@ def read_image_from_video_file(file: Path, frame_index: "FrameIndex") -> Image:
             frame = next(frames)
 
         return frame.to_image()
+
+
+def read_image_from_video_timestamp(file: Path, timestamp: float) -> Image:
+    """Read an image from a video file at a given timestamp (in seconds)."""
+    with av.open(str(file)) as container:
+        stream = container.streams.video[0]
+        seek_pts = int(max(timestamp, 0.0) / stream.time_base)
+        container.seek(seek_pts, stream=stream, any_frame=True, backward=True)
+        for frame in container.decode(video=0):
+            frame_time = frame.time or 0.0
+            if frame_time >= timestamp or timestamp == 0.0:
+                return frame.to_image()
+        return read_image_from_video_file(file, FrameIndex.last)
 
 
 class Converter(BaseModel):  # type: ignore
@@ -163,6 +169,31 @@ class StrEnum(Enum):
 
 
 Function = str  # Basically, anything
+
+
+class FrameIndex(str, Enum):
+    first = "first"
+    last = "last"
+
+    def __repr__(self) -> str:
+        return self.value
+
+
+class RevealSubsectionMode(str, Enum):
+    disabled = "disabled"
+    pause = "pause"
+    autoplay = "autoplay"
+
+
+class PdfSubsectionMode(str, Enum):
+    none = "none"
+    final = "final"
+    all = "all"
+
+
+class PowerPointSubsectionMode(str, Enum):
+    off = "off"
+    split = "split"
 
 
 class JsTrue(str, StrEnum):
@@ -536,6 +567,10 @@ class RevealJS(Converter):
         RevealTheme.black, description="RevealJS version."
     )
     title: str = Field("Manim Slides", description="Presentation title.")
+    subsection_mode: RevealSubsectionMode = Field(
+        RevealSubsectionMode.disabled,
+        description="Interactive subsection handling: 'disabled', 'pause', or 'autoplay'.",
+    )
     # Pydantic options
     model_config = ConfigDict(use_enum_values=True, extra="forbid")
 
@@ -679,14 +714,6 @@ class HtmlZip(RevealJS):
             shutil.make_archive(str(dest.with_suffix("")), "zip", directory_name)
 
 
-class FrameIndex(str, Enum):
-    first = "first"
-    last = "last"
-
-    def __repr__(self) -> str:
-        return self.value
-
-
 class PDF(Converter):
     frame_index: FrameIndex = Field(
         FrameIndex.last,
@@ -694,6 +721,10 @@ class PDF(Converter):
     )
     resolution: PositiveFloat = Field(
         100.0, description="Image resolution use for saving frames."
+    )
+    pdf_subsection_mode: PdfSubsectionMode = Field(
+        PdfSubsectionMode.none,
+        description="How subsections should be exported: 'none', 'final', or 'all'.",
     )
     model_config = ConfigDict(use_enum_values=True, extra="forbid")
 
@@ -703,13 +734,11 @@ class PDF(Converter):
 
         for i, presentation_config in enumerate(self.presentation_configs):
             for slide_config in tqdm(
-                presentation_config.slides,
-                desc=f"Generating video slides for config {i + 1}",
-                leave=False,
-            ):
-                images.append(
-                    read_image_from_video_file(slide_config.file, self.frame_index)
-                )
+                    presentation_config.slides,
+                    desc=f"Generating video slides for config {i + 1}",
+                    leave=False,
+                ):
+                    images.extend(self._images_for_slide(slide_config))
 
         dest.parent.mkdir(parents=True, exist_ok=True)
 
@@ -720,6 +749,34 @@ class PDF(Converter):
             save_all=True,
             append_images=images[1:],
         )
+
+    def _images_for_slide(self, slide_config: SlideConfig) -> list[Image]:
+        if (
+            self.pdf_subsection_mode == PdfSubsectionMode.final
+            and slide_config.subsections
+        ):
+            return [self._frame_from_subsection(slide_config, slide_config.subsections[-1])]
+
+        frames = [self._frame_for_slide(slide_config)]
+
+        if (
+            self.pdf_subsection_mode == PdfSubsectionMode.all
+            and slide_config.subsections
+        ):
+            frames.extend(
+                self._frame_from_subsection(slide_config, subsection)
+                for subsection in slide_config.subsections
+            )
+
+        return frames
+
+    def _frame_for_slide(self, slide_config: SlideConfig) -> Image:
+        return read_image_from_video_file(slide_config.file, self.frame_index)
+
+    def _frame_from_subsection(
+        self, slide_config: SlideConfig, subsection: SubsectionConfig
+    ) -> Image:
+        return read_image_from_video_timestamp(slide_config.file, subsection.end_time)
 
 
 class PowerPoint(Converter):
@@ -744,6 +801,10 @@ class PowerPoint(Converter):
         None,
         description="Optional image to use when animations are not playing.\n"
         "By default, the first frame of each animation is used.\nThis is important to avoid blinking effects between slides.",
+    )
+    subsection_mode: PowerPointSubsectionMode = Field(
+        PowerPointSubsectionMode.off,
+        description="How subsections translate to PowerPoint slides: 'off' or 'split'.",
     )
     model_config = ConfigDict(use_enum_values=True, extra="forbid")
 
@@ -785,39 +846,86 @@ class PowerPoint(Converter):
                     desc=f"Generating video slides for config {i + 1}",
                     leave=False,
                 ):
-                    file = slide_config.file
-
-                    mime_type = mimetypes.guess_type(file)[0]
-
-                    if self.poster_frame_image is None:
-                        poster_frame_image = str(directory / f"{frame_number}.png")
-                        image = read_image_from_video_file(
-                            file, frame_index=FrameIndex.first
+                    fragments = self._iter_slide_fragments(slide_config, directory)
+                    for fragment_file, notes, loop_flag in fragments:
+                        mime_type = mimetypes.guess_type(fragment_file)[0]
+                        poster_frame_image = self._poster_frame_image_path(
+                            fragment_file, directory, frame_number
                         )
-                        image.save(poster_frame_image)
-
                         frame_number += 1
-                    else:
-                        poster_frame_image = str(self.poster_frame_image)
 
-                    slide = prs.slides.add_slide(layout)
-                    movie = slide.shapes.add_movie(
-                        str(file),
-                        self.left,
-                        self.top,
-                        self.width * 9525,
-                        self.height * 9525,
-                        poster_frame_image=poster_frame_image,
-                        mime_type=mime_type,
-                    )
-                    if slide_config.notes != "":
-                        slide.notes_slide.notes_text_frame.text = slide_config.notes
+                        slide = prs.slides.add_slide(layout)
+                        movie = slide.shapes.add_movie(
+                            str(fragment_file),
+                            self.left,
+                            self.top,
+                            self.width * 9525,
+                            self.height * 9525,
+                            poster_frame_image=poster_frame_image,
+                            mime_type=mime_type,
+                        )
+                        if notes:
+                            slide.notes_slide.notes_text_frame.text = notes
 
-                    if self.auto_play_media:
-                        auto_play_media(movie, loop=slide_config.loop)
+                        if self.auto_play_media:
+                            auto_play_media(movie, loop=loop_flag)
 
             dest.parent.mkdir(parents=True, exist_ok=True)
             prs.save(dest)
+
+    def _poster_frame_image_path(
+        self, file: Path, directory: Path, frame_number: int
+    ) -> str:
+        if self.poster_frame_image is not None:
+            return str(self.poster_frame_image)
+
+        poster_frame_image = str(directory / f"{frame_number}.png")
+        image = read_image_from_video_file(file, frame_index=FrameIndex.first)
+        image.save(poster_frame_image)
+        return poster_frame_image
+
+    def _iter_slide_fragments(
+        self, slide_config: SlideConfig, directory: Path
+    ) -> list[tuple[Path, str, bool]]:
+        if (
+            self.subsection_mode == PowerPointSubsectionMode.off
+            or not slide_config.subsections
+        ):
+            return [(slide_config.file, slide_config.notes, slide_config.loop)]
+
+        fragments: list[tuple[Path, str, bool]] = []
+        base_notes = slide_config.notes.strip()
+        last_end = 0.0
+
+        for index, subsection in enumerate(slide_config.subsections):
+            if subsection.end_time <= subsection.start_time:
+                continue
+
+            fragment_file = directory / f"{slide_config.file.stem}_sub_{index}{slide_config.file.suffix}"
+            extract_video_segment(
+                slide_config.file,
+                fragment_file,
+                subsection.start_time,
+                subsection.end_time,
+            )
+
+            label = subsection.name or f"Subsection {index + 1}"
+            notes_parts = [part for part in (base_notes, label) if part]
+            notes_text = "\n\n".join(notes_parts)
+            fragments.append((fragment_file, notes_text, False))
+            last_end = subsection.end_time
+
+        video_duration = get_duration_seconds(slide_config.file)
+        if video_duration - last_end > 1e-3:
+            fragment_file = directory / f"{slide_config.file.stem}_tail{slide_config.file.suffix}"
+            extract_video_segment(
+                slide_config.file, fragment_file, last_end, video_duration
+            )
+            fragments.append((fragment_file, slide_config.notes, slide_config.loop))
+        elif not fragments:
+            fragments.append((slide_config.file, slide_config.notes, slide_config.loop))
+
+        return fragments
 
 
 def show_config_options(function: Callable[..., Any]) -> Callable[..., Any]:
@@ -956,6 +1064,27 @@ def show_template_option(function: Callable[..., Any]) -> Callable[..., Any]:
     help="Download any remote content and store it in the assets folder. "
     "The is a convenient alias to '-coffline=true'.",
 )
+@click.option(
+    "--pdf-subsections",
+    type=click.Choice(["none", "final", "all"], case_sensitive=False),
+    default="none",
+    show_default=True,
+    help="Control how subsections are rendered when converting to PDF.",
+)
+@click.option(
+    "--pptx-subsections",
+    type=click.Choice(["off", "split"], case_sensitive=False),
+    default="off",
+    show_default=True,
+    help="Duplicate slides per subsection when converting to PowerPoint.",
+)
+@click.option(
+    "--html-subsections",
+    type=click.Choice(["disabled", "pause", "autoplay"], case_sensitive=False),
+    default="disabled",
+    show_default=True,
+    help="Enable interactive subsections in HTML/Reveal presentations.",
+)
 @show_template_option
 @show_config_options
 @verbosity_option
@@ -969,6 +1098,9 @@ def convert(
     template: Optional[Path],
     offline: bool,
     one_file: bool,
+    pdf_subsections: str,
+    pptx_subsections: str,
+    html_subsections: str,
 ) -> None:
     """Convert SCENE(s) into a given format and writes the result in DEST."""
     presentation_configs = get_scenes_presentation_config(scenes, folder)
@@ -1014,6 +1146,21 @@ def convert(
             and "offline" not in config_options
         ):
             config_options["offline"] = "true"
+
+        if issubclass(cls, RevealJS) and html_subsections:
+            config_options.setdefault("subsection_mode", html_subsections)
+        if issubclass(cls, PDF):
+            config_options.setdefault("pdf_subsection_mode", pdf_subsections)
+        elif pdf_subsections != "none":
+            raise click.BadParameter(
+                "--pdf-subsections can only be used with PDF exports."
+            )
+        if issubclass(cls, PowerPoint):
+            config_options.setdefault("subsection_mode", pptx_subsections)
+        elif pptx_subsections != "off":
+            raise click.BadParameter(
+                "--pptx-subsections can only be used with PowerPoint exports."
+            )
 
         converter = cls(
             presentation_configs=presentation_configs,

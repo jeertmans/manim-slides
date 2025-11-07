@@ -4,13 +4,14 @@ from functools import wraps
 from inspect import Parameter, signature
 from pathlib import Path
 from textwrap import dedent
-from typing import Any, Callable, Optional
+from typing import Any, Callable, Optional, Sequence
 
 import rtoml
 from pydantic import (
     BaseModel,
     Field,
     FilePath,
+    NonNegativeInt,
     PositiveInt,
     PrivateAttr,
     conset,
@@ -151,6 +152,33 @@ class Config(BaseModel):  # type: ignore[misc]
         return self
 
 
+class SubsectionMarker(BaseModel):  # type: ignore[misc]
+    """User-authored subsection boundary recorded before rendering."""
+
+    animation_index: NonNegativeInt
+    name: str = ""
+    auto_next: bool = False
+
+
+class SubsectionConfig(BaseModel):  # type: ignore[misc]
+    """Fully resolved subsection configuration stored after rendering."""
+
+    name: str = ""
+    auto_next: bool = False
+    start_animation: NonNegativeInt
+    end_animation: NonNegativeInt
+    start_time: float = Field(0.0, ge=0.0)
+    end_time: float = Field(0.0, ge=0.0)
+
+    @model_validator(mode="after")
+    def animations_are_monotone(self) -> "SubsectionConfig":
+        if self.end_animation < self.start_animation:
+            raise ValueError("end_animation must be greater or equal to start_animation")
+        if self.end_time < self.start_time:
+            raise ValueError("end_time must be greater or equal to start_time")
+        return self
+
+
 class BaseSlideConfig(BaseModel):  # type: ignore
     """Base class for slide config."""
 
@@ -220,6 +248,7 @@ class PreSlideConfig(BaseSlideConfig):
 
     start_animation: int
     end_animation: int
+    subsection_markers: tuple[SubsectionMarker, ...] = Field(default_factory=tuple)
 
     @classmethod
     def from_base_slide_config_and_animation_indices(
@@ -227,10 +256,13 @@ class PreSlideConfig(BaseSlideConfig):
         base_slide_config: BaseSlideConfig,
         start_animation: int,
         end_animation: int,
+        *,
+        subsection_markers: Sequence[SubsectionMarker] = (),
     ) -> "PreSlideConfig":
         return cls(
             start_animation=start_animation,
             end_animation=end_animation,
+            subsection_markers=tuple(subsection_markers),
             **base_slide_config.model_dump(),
         )
 
@@ -280,12 +312,23 @@ class SlideConfig(BaseSlideConfig):
 
     file: FilePath
     rev_file: FilePath
+    subsections: tuple[SubsectionConfig, ...] = Field(default_factory=tuple)
 
     @classmethod
     def from_pre_slide_config_and_files(
-        cls, pre_slide_config: PreSlideConfig, file: Path, rev_file: Path
+        cls,
+        pre_slide_config: PreSlideConfig,
+        file: Path,
+        rev_file: Path,
+        *,
+        subsections: Sequence[SubsectionConfig] = (),
     ) -> "SlideConfig":
-        return cls(file=file, rev_file=rev_file, **pre_slide_config.model_dump())
+        return cls(
+            file=file,
+            rev_file=rev_file,
+            subsections=tuple(subsections),
+            **pre_slide_config.model_dump(exclude={"subsection_markers"}),
+        )
 
 
 class PresentationConfig(BaseModel):  # type: ignore[misc]

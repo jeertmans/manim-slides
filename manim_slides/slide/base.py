@@ -15,10 +15,22 @@ from typing import (
 import numpy as np
 from tqdm import tqdm
 
-from ..config import BaseSlideConfig, PresentationConfig, PreSlideConfig, SlideConfig
+from ..config import (
+    BaseSlideConfig,
+    PresentationConfig,
+    PreSlideConfig,
+    SlideConfig,
+    SubsectionConfig,
+    SubsectionMarker,
+)
 from ..defaults import FOLDER_PATH
 from ..logger import logger
-from ..utils import concatenate_video_files, merge_basenames, reverse_video_file
+from ..utils import (
+    concatenate_video_files,
+    get_duration_seconds,
+    merge_basenames,
+    reverse_video_file,
+)
 from . import MANIM
 
 if TYPE_CHECKING:
@@ -52,6 +64,7 @@ class BaseSlide:
         self._canvas: MutableMapping[str, Mobject] = {}
         self._wait_time_between_slides = 0.0
         self._skip_animations = False
+        self._pending_subsection_markers: list[SubsectionMarker] = []
 
     @property
     @abstractmethod
@@ -284,6 +297,39 @@ class BaseSlide:
         super().play(*args, **kwargs)  # type: ignore[misc]
         self._current_animation += 1
 
+    def next_subsection(
+        self,
+        name: str = "",
+        *,
+        auto_next: bool = False,
+    ) -> None:
+        """
+        Mark an intra-slide subsection boundary.
+
+        Subsections do not create new slides; they are stored as metadata that can be
+        consumed by converters or presenters.
+
+        :param name: Optional label for the subsection.
+        :param auto_next:
+            If set, compatible presenters will automatically continue to the next
+            subsection once this one completes.
+        """
+        relative_animation_index = self._current_animation - self._start_animation
+        if relative_animation_index < 0:
+            relative_animation_index = 0
+
+        marker = SubsectionMarker(
+            animation_index=relative_animation_index,
+            name=name,
+            auto_next=auto_next,
+        )
+        self._pending_subsection_markers.append(marker)
+
+    def _consume_subsection_markers(self) -> tuple[SubsectionMarker, ...]:
+        markers = tuple(self._pending_subsection_markers)
+        self._pending_subsection_markers.clear()
+        return markers
+
     @BaseSlideConfig.wrapper("base_slide_config")
     def next_slide(
         self,
@@ -471,6 +517,7 @@ class BaseSlide:
                     self._base_slide_config,
                     self._start_animation,
                     self._current_animation,
+                    subsection_markers=self._consume_subsection_markers(),
                 )
             )
 
@@ -482,6 +529,7 @@ class BaseSlide:
                     base_slide_config,
                     self._current_animation,
                     self._current_animation,
+                    subsection_markers=(),
                 )
             )
 
@@ -507,8 +555,48 @@ class BaseSlide:
                 self._base_slide_config,
                 self._start_animation,
                 self._current_animation,
+                subsection_markers=self._consume_subsection_markers(),
             )
         )
+
+    def _build_subsection_configs(
+        self,
+        pre_slide_config: PreSlideConfig,
+        animation_durations: Sequence[float],
+    ) -> tuple[SubsectionConfig, ...]:
+        """Return resolved subsection configs for a given slide."""
+        subsections: list[SubsectionConfig] = []
+        prefix_durations: list[float] = [0.0]
+        for duration in animation_durations:
+            prefix_durations.append(prefix_durations[-1] + duration)
+
+        max_animations = len(animation_durations)
+        previous_boundary = 0
+
+        for marker in pre_slide_config.subsection_markers:
+            boundary = marker.animation_index
+            if boundary > max_animations:
+                raise ValueError(
+                    "Subsection boundary exceeds animation count for slide "
+                    f"(boundary={boundary}, animations={max_animations})."
+                )
+            start_animation = previous_boundary
+            end_animation = boundary
+            start_time = prefix_durations[start_animation]
+            end_time = prefix_durations[end_animation]
+            subsections.append(
+                SubsectionConfig(
+                    name=marker.name,
+                    auto_next=marker.auto_next,
+                    start_animation=start_animation,
+                    end_animation=end_animation,
+                    start_time=start_time,
+                    end_time=end_time,
+                )
+            )
+            previous_boundary = boundary
+
+        return tuple(subsections)
 
     def _save_slides(  # noqa: C901
         self,
@@ -562,6 +650,21 @@ class BaseSlide:
             else:
                 slide_files = files[pre_slide_config.slides_slice]
 
+            if pre_slide_config.src and pre_slide_config.subsection_markers:
+                raise ValueError(
+                    "next_subsection cannot be used together with slides created via 'src'."
+                )
+
+            subsection_configs: tuple[SubsectionConfig, ...] = ()
+            if pre_slide_config.subsection_markers:
+                animation_durations = [
+                    get_duration_seconds(file) for file in slide_files
+                ]
+                subsection_configs = self._build_subsection_configs(
+                    pre_slide_config,
+                    animation_durations,
+                )
+
             try:
                 file = merge_basenames(slide_files)
             except ValueError as e:
@@ -592,7 +695,10 @@ class BaseSlide:
 
             slides.append(
                 SlideConfig.from_pre_slide_config_and_files(
-                    pre_slide_config, dst_file, rev_file
+                    pre_slide_config,
+                    dst_file,
+                    rev_file,
+                    subsections=subsection_configs,
                 )
             )
 

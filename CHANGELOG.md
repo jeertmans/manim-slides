@@ -10,6 +10,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 (unreleased)=
 ## [Unreleased](https://github.com/jeertmans/manim-slides/compare/v5.5.2...HEAD)
 
+(unreleased-added)=
+### Added
+
+- Introduced `Slide.next_subsection()` to record intra-slide checkpoints. New
+  presenter/convert flags (`--subsections`, `--html-subsections`,
+  `--pdf-subsections`, and `--pptx-subsections`) allow the Qt/HTML presenters,
+  PDF exporter, and PowerPoint converter to pause at those subsections or split
+  slides when explicitly requested.
+
 (unreleased-changed)=
 ### Changed
 

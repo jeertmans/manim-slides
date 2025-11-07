@@ -186,6 +186,10 @@ frame of each slide. This allows for smooth transitions.
 In the future, we hope to provide more features to this format,
 so feel free to suggest new features too!
 
+If you authored subsections, pass `--pptx-subsections=split` to duplicate the
+slide once per subsection so clickers pause exactly where they do in the Qt/HTML
+presenters.
+
 ### Static PDF presentation
 
 If you ever need backup slides, that are only made of PDF pages
@@ -198,4 +202,8 @@ manim-slides convert --to=pdf BasicExample basic_example.pdf
 Note that you will lose all the benefits from animated slides. Therefore,
 this is only recommended to be used as a backup plan. By default, the last frame
 of each slide will be printed. This can be changed to be the first one with
-`-cframe_index=first`.
+`-cframe_index=first`.  
+When slides contain subsections (`self.next_subsection()`), you can opt in to
+extra PDF pages per subsection with `--pdf-subsections=all`, or keep a single
+page per slide but capture the last subsection state using
+`--pdf-subsections=final`.

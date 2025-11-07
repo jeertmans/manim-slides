@@ -39,6 +39,9 @@
           {% if slide_config.auto_next %}
           data-autoslide="{{ get_duration_ms(slide_config.file) }}"
           {% endif %}
+          {% if slide_config.subsections %}
+          data-manim-subsections='{{ slide_config.subsections | tojson }}'
+          {% endif %}
           >
           {% if slide_config.notes != "" %}
             <aside class="notes" data-markdown>{{ slide_config.notes }}</aside>
@@ -279,6 +282,151 @@
           }
         }
       );
+      const manimSubsectionMode = '{{ subsection_mode }}';
+      if (manimSubsectionMode !== 'disabled') {
+        setupManimSubsections(manimSubsectionMode);
+      }
+
+      function setupManimSubsections(mode) {
+        const subsectionState = new WeakMap();
+        const forwardKeys = new Set(['ArrowRight', 'PageDown', ' '] );
+        const backwardKeys = new Set(['ArrowLeft', 'PageUp']);
+
+        document.addEventListener('keydown', (event) => {
+          if (forwardKeys.has(event.key)) {
+            if (advanceSubsection(mode)) {
+              event.preventDefault();
+              event.stopImmediatePropagation();
+            }
+          } else if (backwardKeys.has(event.key)) {
+            if (rewindSubsection()) {
+              event.preventDefault();
+              event.stopImmediatePropagation();
+            }
+          }
+        }, true);
+
+        Reveal.on('ready', event => initSlide(event.currentSlide));
+        Reveal.on('slidechanged', event => initSlide(event.currentSlide));
+
+        function initSlide(slide) {
+          const raw = slide.dataset.manimSubsections;
+          if (!raw) {
+            subsectionState.delete(slide);
+            return;
+          }
+          const data = JSON.parse(raw);
+          if (!data.length) {
+            subsectionState.delete(slide);
+            return;
+          }
+          subsectionState.set(slide, { data: data, index: -1, pending: null });
+          const video = getSlideVideo(slide);
+          if (video && !video.dataset.manimSubsectionsBound) {
+            video.addEventListener('timeupdate', () => handleTime(slide, video, mode));
+            video.dataset.manimSubsectionsBound = 'true';
+          }
+          if (video) {
+            video.pause();
+            video.currentTime = data[0].start_time || 0;
+          }
+        }
+
+        function getSlideVideo(slide) {
+          const bg = slide.slideBackgroundContentElement;
+          if (!bg) return null;
+          const videos = bg.getElementsByTagName('video');
+          return videos.length ? videos[0] : null;
+        }
+
+        function currentInfo() {
+          const slide = Reveal.getCurrentSlide();
+          return [slide, subsectionState.get(slide)];
+        }
+
+        function advanceSubsection(mode) {
+          const [slide, info] = currentInfo();
+          if (!info) return false;
+          const video = getSlideVideo(slide);
+          if (!video) return false;
+          if (info.pending !== null) {
+            skipPending(slide, info, video, mode);
+            return true;
+          }
+          if (info.index >= info.data.length - 1) {
+            subsectionState.delete(slide);
+            return false;
+          }
+          startSubsection(slide, info, video, info.index + 1);
+          return true;
+        }
+
+        function rewindSubsection() {
+          const [slide, info] = currentInfo();
+          if (!info) return false;
+          const video = getSlideVideo(slide);
+          if (!video) return false;
+          if (info.pending !== null) {
+            const idx = info.pending;
+            info.pending = null;
+            info.index = idx - 1;
+            video.pause();
+            video.currentTime = info.data[idx].start_time || 0;
+            return true;
+          }
+          if (info.index >= 0) {
+            const idx = info.index;
+            info.index = idx - 1;
+            video.pause();
+            video.currentTime = info.data[idx].start_time || 0;
+            return true;
+          }
+          return false;
+        }
+
+        function startSubsection(slide, info, video, index) {
+          if (!(0 <= index && index < info.data.length)) return;
+          info.pending = index;
+          const subsection = info.data[index];
+          video.currentTime = subsection.start_time || 0;
+          video.play();
+        }
+
+        function skipPending(slide, info, video, mode) {
+          if (info.pending === null) return;
+          const subsection = info.data[info.pending];
+          video.currentTime = subsection.end_time;
+          finishSubsection(slide, info, video, subsection, mode);
+        }
+
+        function finishSubsection(slide, info, video, subsection, mode) {
+          if (info.pending !== null) {
+            info.index = info.pending;
+          }
+          info.pending = null;
+          if (mode === 'pause' && !subsection.auto_next) {
+            video.pause();
+          }
+          if (subsection.auto_next) {
+            if (info.index < info.data.length - 1) {
+              startSubsection(slide, info, video, info.index + 1);
+            } else {
+              Reveal.navigateNext();
+            }
+          } else if (mode === 'pause' && info.index < info.data.length - 1) {
+            video.pause();
+          }
+        }
+
+        function handleTime(slide, video, mode) {
+          const info = subsectionState.get(slide);
+          if (!info || info.pending === null) return;
+          const subsection = info.data[info.pending];
+          if (video.currentTime >= subsection.end_time) {
+            finishSubsection(slide, info, video, subsection, mode);
+          }
+        }
+      }
       {% if one_file %}
       // Fix found by @t-fritsch and @Rapsssito on GitHub
       // see: https://github.com/hakimel/reveal.js/discussions/3362#discussioncomment-11733074.

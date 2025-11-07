@@ -6,7 +6,7 @@ import pytest
 import requests
 from bs4 import BeautifulSoup
 
-from manim_slides.config import PresentationConfig
+from manim_slides.config import PresentationConfig, SlideConfig
 from manim_slides.convert import (
     PDF,
     AutoAnimateEasing,
@@ -328,3 +328,57 @@ class TestConverter:
         out_file = tmp_path / "slides.pptx"
         PowerPoint(presentation_configs=[presentation_config]).convert_to(out_file)
         assert out_file.exists()
+
+
+def _make_slide_config(video_file: Path) -> SlideConfig:
+    return SlideConfig.model_validate(
+        {
+            "loop": False,
+            "auto_next": False,
+            "playback_rate": 1.0,
+            "reversed_playback_rate": 1.0,
+            "notes": "",
+            "dedent_notes": True,
+            "skip_animations": False,
+            "src": None,
+            "file": video_file,
+            "rev_file": video_file,
+            "start_animation": 0,
+            "end_animation": 1,
+            "subsections": [
+                {
+                    "name": "Stage 1",
+                    "auto_next": False,
+                    "start_animation": 0,
+                    "end_animation": 1,
+                    "start_time": 0.0,
+                    "end_time": 1.0,
+                }
+            ],
+        }
+    )
+
+
+def test_pdf_subsections_all(tmp_path: Path, video_file: Path) -> None:
+    slide = _make_slide_config(video_file)
+    presentation = PresentationConfig(slides=[slide])
+    out_file = tmp_path / "subsections.pdf"
+    PDF(
+        presentation_configs=[presentation],
+        pdf_subsection_mode="all",
+    ).convert_to(out_file)
+    assert out_file.exists()
+
+
+@pytest.mark.skipif(shutil.which("ffmpeg") is None, reason="ffmpeg is required")
+def test_pptx_subsections_split(tmp_path: Path, video_file: Path) -> None:
+    slide = _make_slide_config(video_file)
+    presentation = PresentationConfig(slides=[slide])
+    out_file = tmp_path / "subsections.pptx"
+    PowerPoint(
+        presentation_configs=[presentation],
+        subsection_mode="split",
+        width=640,
+        height=360,
+    ).convert_to(out_file)
+    assert out_file.exists()

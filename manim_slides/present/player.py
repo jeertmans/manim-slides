@@ -1,4 +1,5 @@
 from datetime import datetime
+from enum import Enum
 from pathlib import Path
 from typing import Optional
 
@@ -14,11 +15,17 @@ from qtpy.QtWidgets import (
     QWidget,
 )
 
-from ..config import Config, PresentationConfig, SlideConfig
+from ..config import Config, PresentationConfig, SlideConfig, SubsectionConfig
 from ..logger import logger
 from ..resources import *  # noqa: F403
 
 WINDOW_NAME = "Manim Slides"
+
+
+class SubsectionMode(Enum):
+    OFF = "off"
+    PAUSE = "pause"
+    AUTOPLAY = "autoplay"
 
 
 class Info(QWidget):  # type: ignore[misc]
@@ -180,12 +187,14 @@ class Player(QMainWindow):  # type: ignore[misc]
         next_terminates_loop: bool = False,
         hide_info_window: bool = False,
         info_window_screen: Optional[QScreen] = None,
+        subsection_mode: str = SubsectionMode.OFF.value,
     ):
         super().__init__()
 
         # Wizard's config
 
         self.config = config
+        self.subsection_mode = SubsectionMode(subsection_mode)
 
         # Presentation configs
 
@@ -197,6 +206,9 @@ class Player(QMainWindow):  # type: ignore[misc]
         self.current_slide_index = slide_index
 
         self.__current_file: Path = self.current_slide_config.file
+        self._active_subsections: list[SubsectionConfig] = []
+        self._current_subsection_index = -1
+        self._pending_subsection_index: Optional[int] = None
 
         self.__playing_reversed_slide = False
 
@@ -233,6 +245,7 @@ class Player(QMainWindow):  # type: ignore[misc]
         self.media_player = QMediaPlayer(self)
         self.media_player.setAudioOutput(self.audio_output)
         self.media_player.setVideoOutput(self.video_widget)
+        self.media_player.positionChanged.connect(self._position_changed)
         self.playback_rate = playback_rate
 
         self.presentation_changed.connect(self.presentation_changed_callback)
@@ -264,6 +277,7 @@ class Player(QMainWindow):  # type: ignore[misc]
 
         self.exit_after_last_slide = exit_after_last_slide
         self.next_terminates_loop = next_terminates_loop
+        self.skip_all = skip_all
 
         # Setting-up everything
 
@@ -287,10 +301,9 @@ class Player(QMainWindow):  # type: ignore[misc]
 
             self.media_player.mediaStatusChanged.connect(media_status_changed)
 
-        if self.current_slide_config.loop:
-            self.media_player.setLoops(-1)
-
-        self.load_current_media(start_paused=start_paused)
+        self.load_current_slide()
+        if start_paused:
+            self.media_player.pause()
 
         self.presentation_changed.emit()
         self.slide_changed.emit()
@@ -409,6 +422,7 @@ class Player(QMainWindow):  # type: ignore[misc]
 
     def load_current_slide(self) -> None:
         slide_config = self.current_slide_config
+        use_subsections = self._reset_subsections()
         self.current_file = slide_config.file
 
         if slide_config.loop:
@@ -416,7 +430,10 @@ class Player(QMainWindow):  # type: ignore[misc]
         else:
             self.media_player.setLoops(1)
 
-        self.load_current_media()
+        start_paused = use_subsections and self.subsection_mode == SubsectionMode.PAUSE
+        self.load_current_media(start_paused=start_paused)
+        if use_subsections:
+            self.media_player.setPosition(0)
 
     def load_previous_slide(self) -> None:
         self.playing_reversed_slide = False
@@ -454,6 +471,117 @@ class Player(QMainWindow):  # type: ignore[misc]
         self.playing_reversed_slide = True
         self.current_file = self.current_slide_config.rev_file
         self.load_current_media()
+
+    def _should_use_subsections(self, slide_config: SlideConfig) -> bool:
+        return (
+            self.subsection_mode is not SubsectionMode.OFF
+            and not self.skip_all
+            and not self.playing_reversed_slide
+            and bool(slide_config.subsections)
+        )
+
+    def _reset_subsections(self) -> bool:
+        if self._should_use_subsections(self.current_slide_config):
+            self._active_subsections = list(self.current_slide_config.subsections)
+            self._current_subsection_index = -1
+            self._pending_subsection_index = None
+            return True
+
+        self._active_subsections = []
+        self._current_subsection_index = -1
+        self._pending_subsection_index = None
+        return False
+
+    def _advance_subsection(self) -> bool:
+        if not self._should_use_subsections(self.current_slide_config):
+            return False
+        if not self._active_subsections:
+            return False
+        if self._pending_subsection_index is not None:
+            self._skip_pending_subsection()
+            return True
+        if self._current_subsection_index >= len(self._active_subsections) - 1:
+            self._clear_subsections()
+            return False
+
+        self._start_subsection(self._current_subsection_index + 1)
+        return True
+
+    def _rewind_subsection(self) -> bool:
+        if not self._should_use_subsections(self.current_slide_config):
+            return False
+
+        if self._pending_subsection_index is not None:
+            index = self._pending_subsection_index
+            self._pending_subsection_index = None
+            self._current_subsection_index = index - 1
+            target_time = (
+                self._active_subsections[index].start_time
+                if 0 <= index < len(self._active_subsections)
+                else 0.0
+            )
+            self.media_player.pause()
+            self.media_player.setPosition(int(target_time * 1000))
+            return True
+
+        if self._current_subsection_index >= 0:
+            index = self._current_subsection_index
+            self._current_subsection_index -= 1
+            target_time = self._active_subsections[index].start_time
+            self.media_player.pause()
+            self.media_player.setPosition(int(target_time * 1000))
+            return True
+
+        return False
+
+    def _start_subsection(self, index: int) -> None:
+        if not (0 <= index < len(self._active_subsections)):
+            return
+        subsection = self._active_subsections[index]
+        self._pending_subsection_index = index
+        self.media_player.setPosition(int(subsection.start_time * 1000))
+        self.media_player.play()
+
+    def _skip_pending_subsection(self) -> None:
+        if self._pending_subsection_index is None:
+            return
+        subsection = self._active_subsections[self._pending_subsection_index]
+        self.media_player.setPosition(int(subsection.end_time * 1000))
+        self._finish_subsection(subsection)
+
+    def _finish_subsection(self, subsection: SubsectionConfig) -> None:
+        if self._pending_subsection_index is not None:
+            self._current_subsection_index = self._pending_subsection_index
+        self._pending_subsection_index = None
+
+        if self.subsection_mode == SubsectionMode.PAUSE and not subsection.auto_next:
+            self.media_player.pause()
+
+        if subsection.auto_next:
+            if self._current_subsection_index < len(self._active_subsections) - 1:
+                self._start_subsection(self._current_subsection_index + 1)
+            else:
+                self.load_next_slide()
+        elif (
+            self.subsection_mode == SubsectionMode.PAUSE
+            and self._current_subsection_index < len(self._active_subsections) - 1
+        ):
+            self.media_player.pause()
+
+    def _clear_subsections(self) -> None:
+        self._active_subsections = []
+        self._current_subsection_index = -1
+        self._pending_subsection_index = None
+
+    def _position_changed(self, position: int) -> None:
+        if self._pending_subsection_index is None:
+            return
+        if not (0 <= self._pending_subsection_index < len(self._active_subsections)):
+            return
+        subsection = self._active_subsections[self._pending_subsection_index]
+        end_ms = int(subsection.end_time * 1000)
+        if position >= end_ms:
+            self._finish_subsection(subsection)
 
     """
     Key callbacks and slots
@@ -510,6 +638,9 @@ class Player(QMainWindow):  # type: ignore[misc]
 
     @Slot()
     def next(self) -> None:
+        if self._advance_subsection():
+            return
+
         if self.media_player.playbackState() == QMediaPlayer.PlaybackState.PausedState:
             self.media_player.play()
         elif self.next_terminates_loop and self.media_player.loops() != 1:
@@ -523,6 +654,9 @@ class Player(QMainWindow):  # type: ignore[misc]
 
     @Slot()
     def previous(self) -> None:
+        if self._rewind_subsection():
+            return
+
         self.load_previous_slide()
 
     @Slot()

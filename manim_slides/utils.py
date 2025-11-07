@@ -1,6 +1,7 @@
 import hashlib
 import os
 import shutil
+import subprocess
 import tempfile
 from collections.abc import Iterator
 from multiprocessing import Pool
@@ -11,6 +12,51 @@ import av
 from tqdm import tqdm
 
 from .logger import logger
+
+
+def get_duration_ms(file: Path) -> float:
+    """Return video duration in milliseconds."""
+    with av.open(str(file)) as container:
+        video = container.streams.video[0]
+        return float(1000 * video.duration * video.time_base)
+
+
+def get_duration_seconds(file: Path) -> float:
+    """Return video duration in seconds."""
+    return get_duration_ms(file) / 1000.0
+
+
+def extract_video_segment(src: Path, dest: Path, start: float, end: float) -> None:
+    """Extract a [start, end] video segment (in seconds) into dest using ffmpeg."""
+    duration = max(end - start, 0.0)
+    if duration <= 0.0:
+        shutil.copy(src, dest)
+        return
+
+    command = [
+        "ffmpeg",
+        "-y",
+        "-ss",
+        f"{start:.3f}",
+        "-i",
+        str(src),
+        "-t",
+        f"{duration:.3f}",
+        "-c",
+        "copy",
+        str(dest),
+    ]
+
+    process = subprocess.run(
+        command,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        check=False,
+    )
+    if process.returncode != 0:
+        raise RuntimeError(
+            f"ffmpeg failed to extract video segment:\n{process.stderr.decode().strip()}"
+        )
 
 
 def concatenate_video_files(files: list[Path], dest: Path) -> None:

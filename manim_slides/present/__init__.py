@@ -241,6 +241,13 @@ def start_at_callback(
     "If there is more than one screen, it will by default put the info window "
     "on a different screen than the main player.",
 )
+@click.option(
+    "--subsections",
+    type=click.Choice(["off", "pause", "autoplay"], case_sensitive=False),
+    default="off",
+    show_default=True,
+    help="Enable intra-slide subsections in the Qt presenter.",
+)
 @click.help_option("-h", "--help")
 @verbosity_option
 def present(  # noqa: C901
@@ -261,6 +268,7 @@ def present(  # noqa: C901
     next_terminates_loop: bool,
     hide_info_window: Optional[Literal["always", "never"]],
     info_window_screen_number: Optional[int],
+    subsections: str,
 ) -> None:
     """
     Present SCENE(s), one at a time, in order.
@@ -357,6 +365,7 @@ def present(  # noqa: C901
         next_terminates_loop=next_terminates_loop,
         hide_info_window=should_hide_info_window,
         info_window_screen=info_window_screen,
+        subsection_mode=subsections,
     )
 
     player.show(screens)
