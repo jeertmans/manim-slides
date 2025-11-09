@@ -941,16 +941,12 @@ class PowerPoint(Converter):
                 directory
                 / f"{slide_config.file.stem}_sub_{index}{slide_config.file.suffix}"
             )
-            # Extract a short segment ending at end_time to show final state
-            # Use 0.5 seconds to ensure smooth display without black flashes
-            segment_duration = 0.5
-            start_time = max(0.0, subsection.end_time - segment_duration)
-            end_time = subsection.end_time
+            # Extract from 0 to end_time to show accumulated content
             extract_video_segment(
                 slide_config.file,
                 fragment_file,
-                start_time,
-                end_time,
+                0.0,
+                subsection.end_time,
                 accurate=True,
             )
 
@@ -965,13 +961,9 @@ class PowerPoint(Converter):
             fragment_file = (
                 directory / f"{slide_config.file.stem}_tail{slide_config.file.suffix}"
             )
-            # Extract a short segment ending at end to show final state
-            # Use 0.5 seconds to ensure smooth display without black flashes
-            segment_duration = 0.5
-            start_time = max(0.0, video_duration - segment_duration)
-            end_time = video_duration
+            # Extract from 0 to end to show accumulated content
             extract_video_segment(
-                slide_config.file, fragment_file, start_time, end_time, accurate=True
+                slide_config.file, fragment_file, 0.0, video_duration, accurate=True
             )
             fragments.append((fragment_file, slide_config.notes, slide_config.loop))
         elif not fragments:
