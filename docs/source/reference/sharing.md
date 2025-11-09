@@ -14,11 +14,48 @@ In the next sections, we will assume your animations are described
 in `example.py`, and you have one presentation called `BasicExample`.
 :::
 
+## Understanding Subsections
+
+Before sharing slides, it's important to understand **subsections**. Subsections
+allow multiple pause points within a single slide, useful for step-by-step reveals:
+
+- `next_subsection()`: **Accumulates** content (keeps building on what's there)
+- `next_slide()`: **Clears** content (starts fresh)
+
+All presentation modes support subsections with the `--subsections` flag:
+
+- `--subsections=all` (default): Enable subsections (create pause points/separate pages)
+- `--subsections=none`: Ignore subsections (show final state only)
+
+For Qt presenter, additional modes control playback behavior:
+
+- `--subsections=pause` (default): Pause at each subsection
+- `--subsections=off`: Play through entire slide
+- `--subsections=autoplay`: Auto-advance through subsections
+
 ## With Manim Slides installed on the target machine
 
 If Manim Slides, Manim (or ManimGL), and their dependencies are installed, then
 using `manim-slides present` allows for the best presentations, with the most
 options available.
+
+### Controlling Subsection Behavior
+
+When presenting with the Qt GUI, you can control how subsections behave:
+
+```bash
+# Default: pause at each subsection, press key to advance
+manim-slides present BasicExample
+
+# Equivalent to default
+manim-slides present BasicExample --subsections=pause
+
+# Play through entire slide without pausing
+manim-slides present BasicExample --subsections=off
+
+# Auto-advance through subsections
+manim-slides present BasicExample --subsections=autoplay
+```
 
 ### Sharing your Python file(s)
 
@@ -85,7 +122,11 @@ First, you need to create the HTML file and its assets directory.
 Example:
 
 ```bash
+# Default: subsections create pause points (press arrow keys to advance)
 manim-slides convert BasicExample basic_example.html
+
+# Without subsections: play through entire slide
+manim-slides convert BasicExample basic_example.html --subsections=none
 ```
 
 Then, you need to copy the HTML files and its assets directory to target location,
@@ -172,10 +213,14 @@ A convenient conversion feature is to the PowerPoint format, thanks to the
 it is still considered in an *EXPERIMENTAL* status because we do not
 exactly know what versions of PowerPoint (or LibreOffice Impress) are supported.
 
-Basically, you can create a PowerPoint in a single command:
+You can create a PowerPoint in a single command:
 
 ```bash
+# Default: subsections become separate PowerPoint slides
 manim-slides convert --to=pptx BasicExample basic_example.pptx
+
+# Without subsections: one PowerPoint slide per manim slide
+manim-slides convert --to=pptx BasicExample basic_example.pptx --subsections=none
 ```
 
 All the videos and necessary files will be contained inside the `.pptx` file, so
@@ -183,12 +228,12 @@ you can safely share it with anyone. By default, the `poster_frame_image`, i.e.,
 what is displayed by PowerPoint when the video is not playing, is the first
 frame of each slide. This allows for smooth transitions.
 
+**Subsection handling:** By default (`--subsections=all`), each subsection becomes
+a separate PowerPoint slide, allowing you to step through the build-up. Use
+`--subsections=none` to export only the final state of each manim slide.
+
 In the future, we hope to provide more features to this format,
 so feel free to suggest new features too!
-
-Subsections are automatically split into separate PowerPoint slides by default
-(`--subsections=all`). Use `--subsections=none` to ignore subsections
-and create one slide per manim slide.
 
 ### Static PDF presentation
 
@@ -196,12 +241,18 @@ If you ever need backup slides, that are only made of PDF pages
 with static images, you can generate such a PDF with the following command:
 
 ```bash
+# Default: subsections become separate PDF pages
 manim-slides convert --to=pdf BasicExample basic_example.pdf
+
+# Without subsections: one page per manim slide, final state only
+manim-slides convert --to=pdf BasicExample basic_example.pdf --subsections=none
 ```
 
 Note that you will lose all the benefits from animated slides. Therefore,
-this is only recommended to be used as a backup plan. By default, subsections
-are exported as separate PDF pages (`--subsections=all`). Use
-`--subsections=none` to create one page per manim slide, ignoring subsections
-and showing the final state. The frame index option (`-cframe_index=first` or `last`)
-controls which frame is captured when subsections are not used.
+this is only recommended to be used as a backup plan.
+
+**Subsection handling:** By default (`--subsections=all`), each subsection becomes
+a separate PDF page, showing the progressive build-up. Use `--subsections=none`
+to create one page per manim slide showing only the final state. The frame index
+option (`-cframe_index=first` or `last`) controls which frame is captured when
+subsections are not used.
