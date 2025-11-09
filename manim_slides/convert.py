@@ -919,7 +919,7 @@ class PowerPoint(Converter):
             return str(self.poster_frame_image)
 
         poster_frame_image = str(directory / f"{frame_number}.png")
-        image = read_image_from_video_file(file, frame_index=FrameIndex.last)
+        image = read_image_from_video_file(file, frame_index=FrameIndex.first)
         image.save(poster_frame_image)
         return poster_frame_image
 
