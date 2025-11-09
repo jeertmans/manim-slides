@@ -596,7 +596,7 @@ class RevealJS(Converter):
                     "notes": f"{slide_config.notes}\n\n{subsection.name}"
                     if slide_config.notes and subsection.name
                     else subsection.name or slide_config.notes,
-                    "start_time": subsection.start_time,
+                    "start_time": 0.0,  # Always start from beginning to show accumulated content
                     "end_time": subsection.end_time,
                 }
             )
@@ -927,17 +927,18 @@ class PowerPoint(Converter):
         last_end = 0.0
 
         for index, subsection in enumerate(slide_config.subsections):
-            if subsection.end_time <= subsection.start_time:
+            if subsection.end_time <= 0:
                 continue
 
             fragment_file = (
                 directory
                 / f"{slide_config.file.stem}_sub_{index}{slide_config.file.suffix}"
             )
+            # Extract from 0 to end_time to show accumulated content
             extract_video_segment(
                 slide_config.file,
                 fragment_file,
-                subsection.start_time,
+                0.0,
                 subsection.end_time,
             )
 
