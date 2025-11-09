@@ -963,7 +963,11 @@ class PowerPoint(Converter):
             )
             # Extract tail segment from last_end to video_duration
             extract_video_segment(
-                slide_config.file, fragment_file, last_end, video_duration, accurate=True
+                slide_config.file,
+                fragment_file,
+                last_end,
+                video_duration,
+                accurate=True,
             )
             fragments.append((fragment_file, slide_config.notes, slide_config.loop))
         elif not fragments:
