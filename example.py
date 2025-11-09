@@ -230,7 +230,9 @@ class SubsectionExample(Slide):
         self.play(Write(title))
         self.next_slide()
 
-        subtitle = Text("Building a complex diagram step by step", font_size=24).next_to(title, DOWN)
+        subtitle = Text(
+            "Building a complex diagram step by step", font_size=24
+        ).next_to(title, DOWN)
         self.play(FadeIn(subtitle))
         self.next_subsection(name="Add shapes")
 
@@ -248,7 +250,10 @@ class SubsectionExample(Slide):
         self.next_subsection(name="Conclusion")
 
         conclusion = Text("This was one slide with four subsections!", font_size=24)
-        self.play(FadeOut(circle, square, circle_label, square_label, subtitle), Transform(title, conclusion))
+        self.play(
+            FadeOut(circle, square, circle_label, square_label, subtitle),
+            Transform(title, conclusion),
+        )
         self.next_slide()
 
 
