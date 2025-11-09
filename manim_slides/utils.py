@@ -49,8 +49,11 @@ def extract_video_segment(
 
     dest.parent.mkdir(parents=True, exist_ok=True)
 
-    duration = max(end - start, 0.0)
-    if duration <= 0.0:
+    # Add small epsilon to include the frame at end_time
+    # ffmpeg's -t duration excludes frames at exactly start+duration
+    epsilon = 0.001
+    duration = max(end - start + epsilon, 0.0)
+    if duration <= epsilon:
         shutil.copy(src, dest)
         return
 
