@@ -176,11 +176,13 @@ everything from previous subsections visible.
    :pyobject: SubsectionExample
 ```
 
-This example creates **one slide** with **four subsections**:
-1. First subsection adds a circle
-2. Second subsection adds a square (circle still visible)
-3. Third subsection adds labels (circle and square still visible)
-4. Fourth subsection adds an arrow connecting them (everything still visible)
+This example creates **two slides**:
+- **Slide 1**: Title slide showing "Subsections Demo"
+- **Slide 2**: Main content with **four subsections**:
+  1. First subsection adds a circle
+  2. Second subsection adds a square (circle still visible)
+  3. Third subsection adds labels (circle and square still visible)
+  4. Fourth subsection adds an arrow connecting them (everything still visible)
 
 Note that `auto_next=True` on the third subsection will automatically advance
 to the fourth subsection after animations complete.
