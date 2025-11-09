@@ -572,6 +572,38 @@ class RevealJS(Converter):
     def open(self, file: Path) -> None:
         webbrowser.open(file.absolute().as_uri())
 
+    def _iter_slide_sections(
+        self, slide_config: SlideConfig
+    ) -> list[dict[str, Any]]:
+        """Generate section data for template rendering."""
+        if self.subsection_mode == SubsectionMode.none or not slide_config.subsections:
+            return [
+                {
+                    "file": slide_config.file,
+                    "loop": slide_config.loop,
+                    "auto_next": slide_config.auto_next,
+                    "notes": slide_config.notes,
+                    "start_time": None,
+                    "end_time": None,
+                }
+            ]
+
+        sections = []
+        for subsection in slide_config.subsections:
+            sections.append(
+                {
+                    "file": slide_config.file,
+                    "loop": False,
+                    "auto_next": subsection.auto_next,
+                    "notes": f"{slide_config.notes}\n\n{subsection.name}"
+                    if slide_config.notes and subsection.name
+                    else subsection.name or slide_config.notes,
+                    "start_time": subsection.start_time,
+                    "end_time": subsection.end_time,
+                }
+            )
+        return sections
+
     def convert_to(self, dest: Path) -> None:  # noqa: C901
         """
         Convert this configuration into a RevealJS HTML presentation, saved to
@@ -626,16 +658,34 @@ class RevealJS(Converter):
             if assets_dir is not None:
                 options["assets_dir"] = assets_dir
 
+            # Build enriched presentation data with subsection expansion
+            enriched_presentations = []
+            for presentation_config in self.presentation_configs:
+                enriched_slides = []
+                for slide_config in presentation_config.slides:
+                    sections = self._iter_slide_sections(slide_config)
+                    enriched_slides.append(
+                        {"slide_config": slide_config, "sections": sections}
+                    )
+                enriched_presentations.append(
+                    {
+                        "presentation_config": presentation_config,
+                        "enriched_slides": enriched_slides,
+                    }
+                )
+
             has_notes = any(
-                slide_config.notes != ""
-                for presentation_config in self.presentation_configs
-                for slide_config in presentation_config.slides
+                section["notes"]
+                for pres in enriched_presentations
+                for slide in pres["enriched_slides"]
+                for section in slide["sections"]
             )
 
             content = revealjs_template.render(
                 file_to_data_uri=file_to_data_uri,
                 get_duration_ms=get_duration_ms,
                 has_notes=has_notes,
+                enriched_presentations=enriched_presentations,
                 env=os.environ,
                 prefix=prefix if not self.one_file else None,
                 **options,
