@@ -258,11 +258,11 @@ class SubsectionExample(Slide):
         self.play(Write(title))
         self.next_subsection(name="Show title")
 
-        dot = Dot(color=ORANGE)
+        dot = Dot(color=ORANGE).shift(DOWN)
         self.play(FadeIn(dot))
         self.next_subsection(name="Add dot")
 
-        triangle = Triangle(color=PURPLE).shift(UP * 2)
+        triangle = Triangle(color=PURPLE).shift(UP)
         self.play(Create(triangle))
         self.next_subsection(name="Add triangle")
 
