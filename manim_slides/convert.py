@@ -795,11 +795,6 @@ class PDF(Converter):
             )
             return frames
 
-        if slide_config.subsections and self.frame_index == FrameIndex.last:
-            return [
-                self._frame_from_subsection(slide_config, slide_config.subsections[-1])
-            ]
-
         return [self._frame_for_slide(slide_config)]
 
     def _frame_for_slide(self, slide_config: SlideConfig) -> Image:
