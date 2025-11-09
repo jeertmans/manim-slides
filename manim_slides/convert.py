@@ -950,9 +950,7 @@ class PowerPoint(Converter):
                 directory / f"{slide_config.file.stem}_tail{slide_config.file.suffix}"
             )
             # Extract from 0 to end to show all accumulated content including final animations
-            extract_video_segment(
-                slide_config.file, fragment_file, 0.0, video_duration
-            )
+            extract_video_segment(slide_config.file, fragment_file, 0.0, video_duration)
             fragments.append((fragment_file, slide_config.notes, slide_config.loop))
         elif not fragments:
             fragments.append((slide_config.file, slide_config.notes, slide_config.loop))
