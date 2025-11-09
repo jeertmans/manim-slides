@@ -557,7 +557,7 @@ class RevealJS(Converter):
     title: str = Field("Manim Slides", description="Presentation title.")
     subsection_mode: SubsectionMode = Field(
         SubsectionMode.all,
-        description="Subsection handling: 'none' or 'all'.",
+        description="How subsections should be handled: 'none' or 'all'.",
     )
     # Pydantic options
     model_config = ConfigDict(use_enum_values=True, extra="forbid")
