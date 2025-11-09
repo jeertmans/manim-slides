@@ -405,13 +405,29 @@ def test_pdf_subsections_all(tmp_path: Path, video_file: Path) -> None:
 
 
 @pytest.mark.skipif(shutil.which("ffmpeg") is None, reason="ffmpeg is required")
-def test_pptx_subsections_split(tmp_path: Path, video_file: Path) -> None:
+def test_pptx_subsections_all(tmp_path: Path, video_file: Path) -> None:
+    """Test that subsection_mode=all creates separate PowerPoint slides per subsection."""
     slide = _make_slide_config(video_file)
     presentation = PresentationConfig(slides=[slide])
     out_file = tmp_path / "subsections.pptx"
     PowerPoint(
         presentation_configs=[presentation],
-        subsection_mode="split",
+        subsection_mode="all",
+        width=640,
+        height=360,
+    ).convert_to(out_file)
+    assert out_file.exists()
+
+
+@pytest.mark.skipif(shutil.which("ffmpeg") is None, reason="ffmpeg is required")
+def test_pptx_subsections_none(tmp_path: Path, video_file: Path) -> None:
+    """Test that subsection_mode=none ignores subsections and creates one PowerPoint slide."""
+    slide = _make_slide_config(video_file)
+    presentation = PresentationConfig(slides=[slide])
+    out_file = tmp_path / "subsections_none.pptx"
+    PowerPoint(
+        presentation_configs=[presentation],
+        subsection_mode="none",
         width=640,
         height=360,
     ).convert_to(out_file)

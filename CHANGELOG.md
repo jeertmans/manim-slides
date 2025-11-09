@@ -22,10 +22,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 (unreleased-changed)=
 ### Changed
 
-- Changed default for `--subsections` from `off` to `pause` and `--html-subsections`
-  from `disabled` to `pause`. Subsections now work automatically when present in code,
-  while slides without subsections behave identically. Users can still disable with
-  `--subsections=off` or `--html-subsections=disabled` if needed.
+- Changed defaults for subsection handling to make subsections work automatically:
+  - `--subsections` changed from `off` to `pause` (Qt presenter)
+  - `--html-subsections` changed from `disabled` to `pause` (HTML/RevealJS)
+  - `--pdf-subsections` changed from `none` to `all` (PDF export)
+  - `--pptx-subsections` changed from `off` to `all` (PowerPoint export)
+- Unified subsection terminology: PowerPoint now uses `none`/`all` instead of `off`/`split`,
+  matching PDF convention. Removed `final` mode as it was redundant (use `none` with
+  `frame_index=last` for similar behavior).
 - Sort the scenes alphabetically when listing scenes
   (e.g., when prompting for scenes with `manim-slides present`).
   [@msaadsbr](https://github.com/msaadsbr) [#573](https://github.com/jeertmans/manim-slides/pull/573)
