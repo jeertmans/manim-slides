@@ -930,11 +930,13 @@ class PowerPoint(Converter):
                 directory
                 / f"{slide_config.file.stem}_sub_{index}{slide_config.file.suffix}"
             )
-            # Extract from 0 to end_time to show accumulated content
+            # Extract a short segment at end_time to show final state without full animation
+            frame_duration = 0.1  # Short video showing final frame
+            start_extract = max(0.0, subsection.end_time - frame_duration)
             extract_video_segment(
                 slide_config.file,
                 fragment_file,
-                0.0,
+                start_extract,
                 subsection.end_time,
             )
 
@@ -949,8 +951,10 @@ class PowerPoint(Converter):
             fragment_file = (
                 directory / f"{slide_config.file.stem}_tail{slide_config.file.suffix}"
             )
-            # Extract from 0 to end to show all accumulated content including final animations
-            extract_video_segment(slide_config.file, fragment_file, 0.0, video_duration)
+            # Extract a short segment at end to show final state
+            frame_duration = 0.1
+            start_extract = max(0.0, video_duration - frame_duration)
+            extract_video_segment(slide_config.file, fragment_file, start_extract, video_duration)
             fragments.append((fragment_file, slide_config.notes, slide_config.loop))
         elif not fragments:
             fragments.append((slide_config.file, slide_config.notes, slide_config.loop))
