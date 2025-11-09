@@ -759,7 +759,10 @@ class PDF(Converter):
                 self._frame_from_subsection(slide_config, slide_config.subsections[-1])
             ]
 
-        if self.pdf_subsection_mode == PdfSubsectionMode.all and slide_config.subsections:
+        if (
+            self.pdf_subsection_mode == PdfSubsectionMode.all
+            and slide_config.subsections
+        ):
             frames = [self._frame_for_slide(slide_config)]
             frames.extend(
                 self._frame_from_subsection(slide_config, subsection)
