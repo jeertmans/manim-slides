@@ -877,10 +877,7 @@ class PowerPoint(Converter):
     def _iter_slide_fragments(
         self, slide_config: SlideConfig, directory: Path
     ) -> list[tuple[Path, str, bool]]:
-        if (
-            self.subsection_mode == SubsectionMode.none
-            or not slide_config.subsections
-        ):
+        if self.subsection_mode == SubsectionMode.none or not slide_config.subsections:
             return [(slide_config.file, slide_config.notes, slide_config.loop)]
 
         fragments: list[tuple[Path, str, bool]] = []
