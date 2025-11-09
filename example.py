@@ -253,6 +253,22 @@ class SubsectionExample(Slide):
         self.play(Create(arrow), Write(arrow_label))
         self.next_slide()
 
+        self.clear()
+        title = Text("Transformations", color=YELLOW).to_edge(UP)
+        self.play(FadeIn(title))
+        self.next_subsection(name="Show title")
+
+        dot = Dot(color=ORANGE)
+        self.play(FadeIn(dot))
+        self.next_subsection(name="Add dot")
+
+        triangle = Triangle(color=PURPLE).shift(UP * 2)
+        self.play(Create(triangle))
+        self.next_subsection(name="Add triangle")
+
+        self.play(dot.animate.move_to(triangle.get_center()))
+        self.next_slide()
+
 
 # For ThreeDExample, things are different
 
