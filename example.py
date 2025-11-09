@@ -230,6 +230,7 @@ class SubsectionExample(Slide):
         self.play(Write(title))
         self.next_slide()
 
+        self.clear()
         subtitle = Text("Building a diagram step by step", font_size=24).to_edge(UP)
         self.play(FadeIn(subtitle))
         self.next_subsection(name="Show subtitle")
