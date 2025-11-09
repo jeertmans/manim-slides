@@ -942,13 +942,11 @@ class PowerPoint(Converter):
                 / f"{slide_config.file.stem}_sub_{index}{slide_config.file.suffix}"
             )
             # Extract from start_time to end_time for this subsection
-            # Add one frame to ensure the final frame is included
-            frame_duration = 1.0 / 60.0
             extract_video_segment(
                 slide_config.file,
                 fragment_file,
                 subsection.start_time,
-                subsection.end_time + frame_duration,
+                subsection.end_time,
                 accurate=True,
             )
 
@@ -964,13 +962,11 @@ class PowerPoint(Converter):
                 directory / f"{slide_config.file.stem}_tail{slide_config.file.suffix}"
             )
             # Extract tail segment from last_end to video_duration
-            # Add one frame to ensure the final frame is included
-            frame_duration = 1.0 / 60.0
             extract_video_segment(
                 slide_config.file,
                 fragment_file,
                 last_end,
-                video_duration + frame_duration,
+                video_duration,
                 accurate=True,
             )
             fragments.append((fragment_file, slide_config.notes, slide_config.loop))
