@@ -178,11 +178,15 @@ everything from previous subsections visible.
 
 This example creates **two slides**:
 - **Slide 1**: Title slide showing "Subsections Demo"
-- **Slide 2**: Main content with **four subsections**:
-  1. First subsection adds a circle
-  2. Second subsection adds a square (circle still visible)
-  3. Third subsection adds labels (circle and square still visible)
-  4. Fourth subsection adds an arrow connecting them (everything still visible)
+- **Slide 2**: Starts with title and subtitle, then has **four subsections** that build the diagram:
+  1. Subsection "Add circle": adds a circle
+  2. Subsection "Add square": adds a square (circle still visible)
+  3. Subsection "Add labels": adds labels (circle and square still visible)
+  4. Subsection "Add arrows": adds an arrow connecting them (everything still visible)
+
+The key point: the subtitle appears **before** the first subsection, so it's part of the
+base slide content. Each subsection then adds more elements while keeping all previous
+content visible.
 
 Note that `auto_next=True` on the third subsection will automatically advance
 to the fourth subsection after animations complete.
