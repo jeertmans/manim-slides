@@ -231,9 +231,9 @@ class SubsectionExample(Slide):
         self.next_slide()
 
         self.clear()
-        subtitle = Text("Building a diagram step by step", font_size=24).to_edge(UP)
-        self.play(FadeIn(subtitle))
-        self.next_subsection(name="Show subtitle")
+        title = Text("Building a Diagram", color=YELLOW).to_edge(UP)
+        self.play(FadeIn(title))
+        self.next_subsection(name="Show title")
 
         circle = Circle(radius=1, color=BLUE).shift(LEFT * 2)
         self.play(Create(circle))
