@@ -230,9 +230,9 @@ class SubsectionExample(Slide):
         self.play(Write(title))
         self.next_slide()
 
-        subtitle = Text(
-            "Building a diagram step by step", font_size=24
-        ).next_to(title, DOWN)
+        subtitle = Text("Building a diagram step by step", font_size=24).next_to(
+            title, DOWN
+        )
         self.play(FadeIn(subtitle))
         self.next_subsection(name="Add circle")
 
