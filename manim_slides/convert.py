@@ -941,10 +941,10 @@ class PowerPoint(Converter):
                 directory
                 / f"{slide_config.file.stem}_sub_{index}{slide_config.file.suffix}"
             )
-            # Extract a single frame at end_time to show final state
-            # Use 1 frame duration (assuming 60fps = 0.0167s per frame)
-            frame_duration = 1.0 / 60.0
-            start_time = max(0.0, subsection.end_time - frame_duration)
+            # Extract a short segment ending at end_time to show final state
+            # Use 0.5 seconds to ensure smooth display without black flashes
+            segment_duration = 0.5
+            start_time = max(0.0, subsection.end_time - segment_duration)
             end_time = subsection.end_time
             extract_video_segment(
                 slide_config.file,
@@ -965,9 +965,10 @@ class PowerPoint(Converter):
             fragment_file = (
                 directory / f"{slide_config.file.stem}_tail{slide_config.file.suffix}"
             )
-            # Extract a single frame at end to show final state
-            frame_duration = 1.0 / 60.0
-            start_time = max(0.0, video_duration - frame_duration)
+            # Extract a short segment ending at end to show final state
+            # Use 0.5 seconds to ensure smooth display without black flashes
+            segment_duration = 0.5
+            start_time = max(0.0, video_duration - segment_duration)
             end_time = video_duration
             extract_video_segment(
                 slide_config.file, fragment_file, start_time, end_time, accurate=True
