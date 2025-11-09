@@ -886,8 +886,12 @@ class PowerPoint(Converter):
 
                         # Disable slide transitions to avoid black flashes
                         # Add transition element with no transition
-                        nsmap = {"p": "http://schemas.openxmlformats.org/presentationml/2006/main"}
-                        transition = etree.SubElement(slide.element, "{%s}transition" % nsmap["p"])
+                        nsmap = {
+                            "p": "http://schemas.openxmlformats.org/presentationml/2006/main"
+                        }
+                        transition = etree.SubElement(
+                            slide.element, "{%s}transition" % nsmap["p"]
+                        )
                         etree.SubElement(transition, "{%s}cut" % nsmap["p"])
 
                         movie = slide.shapes.add_movie(
