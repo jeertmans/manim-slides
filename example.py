@@ -231,8 +231,8 @@ class SubsectionExample(Slide):
         self.next_slide()
 
         self.clear()
-        title = Text("Building a Diagram", color=YELLOW).to_edge(UP)
-        self.play(FadeIn(title))
+        title = Text("Building a Diagram", font_size=36, color=YELLOW).to_edge(UP)
+        self.play(Write(title))
         self.next_subsection(name="Show title")
 
         circle = Circle(radius=1, color=BLUE).shift(LEFT * 2)
@@ -254,8 +254,8 @@ class SubsectionExample(Slide):
         self.next_slide()
 
         self.clear()
-        title = Text("Transformations", color=YELLOW).to_edge(UP)
-        self.play(FadeIn(title))
+        title = Text("Transformations", font_size=36, color=YELLOW).to_edge(UP)
+        self.play(Write(title))
         self.next_subsection(name="Show title")
 
         dot = Dot(color=ORANGE)
