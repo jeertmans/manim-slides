@@ -24,14 +24,8 @@ allow multiple pause points within a single slide, useful for step-by-step revea
 
 All presentation modes support subsections with the `--subsections` flag:
 
-- `--subsections=all` (default): Enable subsections (create pause points/separate pages)
-- `--subsections=none`: Ignore subsections (show final state only)
-
-For Qt presenter, additional modes control playback behavior:
-
-- `--subsections=pause` (default): Pause at each subsection
-- `--subsections=off`: Play through entire slide
-- `--subsections=autoplay`: Auto-advance through subsections
+- `--subsections=all` (default): Enable subsections (pause at each subsection/create separate pages)
+- `--subsections=none`: Ignore subsections (play through/show final state only)
 
 ## With Manim Slides installed on the target machine
 
@@ -47,14 +41,11 @@ When presenting with the Qt GUI, you can control how subsections behave:
 # Default: pause at each subsection, press key to advance
 manim-slides present BasicExample
 
-# Equivalent to default
-manim-slides present BasicExample --subsections=pause
+# Explicit (same as default)
+manim-slides present BasicExample --subsections=all
 
-# Play through entire slide without pausing
-manim-slides present BasicExample --subsections=off
-
-# Auto-advance through subsections
-manim-slides present BasicExample --subsections=autoplay
+# Play through entire slide without pausing at subsections
+manim-slides present BasicExample --subsections=none
 ```
 
 ### Sharing your Python file(s)

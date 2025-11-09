@@ -243,10 +243,10 @@ def start_at_callback(
 )
 @click.option(
     "--subsections",
-    type=click.Choice(["off", "pause", "autoplay"], case_sensitive=False),
-    default="pause",
+    type=click.Choice(["none", "all"], case_sensitive=False),
+    default="all",
     show_default=True,
-    help="Control intra-slide subsections in the Qt presenter.",
+    help="Control subsections: 'none' disables, 'all' enables with pause at each subsection.",
 )
 @click.help_option("-h", "--help")
 @verbosity_option

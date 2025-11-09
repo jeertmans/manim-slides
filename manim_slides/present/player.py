@@ -23,9 +23,8 @@ WINDOW_NAME = "Manim Slides"
 
 
 class SubsectionMode(Enum):
-    OFF = "off"
-    PAUSE = "pause"
-    AUTOPLAY = "autoplay"
+    none = "none"
+    all = "all"
 
 
 class Info(QWidget):  # type: ignore[misc]
@@ -187,7 +186,7 @@ class Player(QMainWindow):  # type: ignore[misc]
         next_terminates_loop: bool = False,
         hide_info_window: bool = False,
         info_window_screen: Optional[QScreen] = None,
-        subsection_mode: str = SubsectionMode.OFF.value,
+        subsection_mode: str = SubsectionMode.all.value,
     ):
         super().__init__()
 
@@ -430,7 +429,7 @@ class Player(QMainWindow):  # type: ignore[misc]
         else:
             self.media_player.setLoops(1)
 
-        start_paused = use_subsections and self.subsection_mode == SubsectionMode.PAUSE
+        start_paused = use_subsections and self.subsection_mode == SubsectionMode.all
         self.load_current_media(start_paused=start_paused)
         if use_subsections:
             self.media_player.setPosition(0)
@@ -474,7 +473,7 @@ class Player(QMainWindow):  # type: ignore[misc]
 
     def _should_use_subsections(self, slide_config: SlideConfig) -> bool:
         return (
-            self.subsection_mode is not SubsectionMode.OFF
+            self.subsection_mode == SubsectionMode.all
             and not self.skip_all
             and not self.playing_reversed_slide
             and bool(slide_config.subsections)
@@ -554,18 +553,12 @@ class Player(QMainWindow):  # type: ignore[misc]
             self._current_subsection_index = self._pending_subsection_index
         self._pending_subsection_index = None
 
-        if self.subsection_mode == SubsectionMode.PAUSE and not subsection.auto_next:
-            self.media_player.pause()
-
         if subsection.auto_next:
             if self._current_subsection_index < len(self._active_subsections) - 1:
                 self._start_subsection(self._current_subsection_index + 1)
             else:
                 self.load_next_slide()
-        elif (
-            self.subsection_mode == SubsectionMode.PAUSE
-            and self._current_subsection_index < len(self._active_subsections) - 1
-        ):
+        else:
             self.media_player.pause()
 
     def _clear_subsections(self) -> None:
