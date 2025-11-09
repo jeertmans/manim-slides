@@ -179,12 +179,6 @@ class FrameIndex(str, Enum):
         return self.value
 
 
-class RevealSubsectionMode(str, Enum):
-    disabled = "disabled"
-    pause = "pause"
-    autoplay = "autoplay"
-
-
 class SubsectionMode(str, Enum):
     none = "none"
     all = "all"
@@ -561,9 +555,9 @@ class RevealJS(Converter):
         RevealTheme.black, description="RevealJS version."
     )
     title: str = Field("Manim Slides", description="Presentation title.")
-    subsection_mode: RevealSubsectionMode = Field(
-        RevealSubsectionMode.disabled,
-        description="Interactive subsection handling: 'disabled', 'pause', or 'autoplay'.",
+    subsection_mode: SubsectionMode = Field(
+        SubsectionMode.all,
+        description="Subsection handling: 'none' or 'all'.",
     )
     # Pydantic options
     model_config = ConfigDict(use_enum_values=True, extra="forbid")
@@ -1029,7 +1023,6 @@ def _apply_config_options(
     one_file: bool,
     offline: bool,
     subsections: str,
-    html_subsections: str,
 ) -> None:
     """Apply and validate configuration options for the converter."""
     if (
@@ -1057,10 +1050,7 @@ def _apply_config_options(
     ):
         config_options["offline"] = "true"
 
-    if issubclass(cls, RevealJS) and html_subsections:
-        config_options.setdefault("subsection_mode", html_subsections)
-
-    if issubclass(cls, (PDF, PowerPoint)):
+    if issubclass(cls, (RevealJS, PDF, PowerPoint)):
         config_options.setdefault("subsection_mode", subsections)
 
 
@@ -1116,14 +1106,7 @@ def _apply_config_options(
     type=click.Choice(["none", "all"], case_sensitive=False),
     default="all",
     show_default=True,
-    help="Control how subsections are rendered when converting to PDF or PowerPoint.",
-)
-@click.option(
-    "--html-subsections",
-    type=click.Choice(["disabled", "pause", "autoplay"], case_sensitive=False),
-    default="pause",
-    show_default=True,
-    help="Control interactive subsections in HTML/Reveal presentations.",
+    help="Control how subsections are rendered: 'none' ignores subsections, 'all' creates separate slides/pages per subsection.",
 )
 @show_template_option
 @show_config_options
@@ -1139,7 +1122,6 @@ def convert(
     offline: bool,
     one_file: bool,
     subsections: str,
-    html_subsections: str,
 ) -> None:
     """Convert SCENE(s) into a given format and writes the result in DEST."""
     presentation_configs = get_scenes_presentation_config(scenes, folder)
@@ -1152,7 +1134,6 @@ def convert(
             one_file,
             offline,
             subsections,
-            html_subsections,
         )
 
         converter = cls(

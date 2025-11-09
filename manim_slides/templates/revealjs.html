@@ -283,18 +283,18 @@
         }
       );
       const manimSubsectionMode = '{{ subsection_mode }}';
-      if (manimSubsectionMode !== 'disabled') {
-        setupManimSubsections(manimSubsectionMode);
+      if (manimSubsectionMode === 'all') {
+        setupManimSubsections();
       }
 
-      function setupManimSubsections(mode) {
+      function setupManimSubsections() {
         const subsectionState = new WeakMap();
         const forwardKeys = new Set(['ArrowRight', 'PageDown', ' '] );
         const backwardKeys = new Set(['ArrowLeft', 'PageUp']);
 
         document.addEventListener('keydown', (event) => {
           if (forwardKeys.has(event.key)) {
-            if (advanceSubsection(mode)) {
+            if (advanceSubsection()) {
               event.preventDefault();
               event.stopImmediatePropagation();
             }
@@ -323,7 +323,7 @@
           subsectionState.set(slide, { data: data, index: -1, pending: null });
           const video = getSlideVideo(slide);
           if (video && !video.dataset.manimSubsectionsBound) {
-            video.addEventListener('timeupdate', () => handleTime(slide, video, mode));
+            video.addEventListener('timeupdate', () => handleTime(slide, video));
             video.dataset.manimSubsectionsBound = 'true';
           }
           if (video) {
@@ -344,13 +344,13 @@
           return [slide, subsectionState.get(slide)];
         }
 
-        function advanceSubsection(mode) {
+        function advanceSubsection() {
           const [slide, info] = currentInfo();
           if (!info) return false;
           const video = getSlideVideo(slide);
           if (!video) return false;
           if (info.pending !== null) {
-            skipPending(slide, info, video, mode);
+            skipPending(slide, info, video);
             return true;
           }
           if (info.index >= info.data.length - 1) {
@@ -392,38 +392,35 @@
           video.play();
         }
 
-        function skipPending(slide, info, video, mode) {
+        function skipPending(slide, info, video) {
           if (info.pending === null) return;
           const subsection = info.data[info.pending];
           video.currentTime = subsection.end_time;
-          finishSubsection(slide, info, video, subsection, mode);
+          finishSubsection(slide, info, video, subsection);
         }
 
-        function finishSubsection(slide, info, video, subsection, mode) {
+        function finishSubsection(slide, info, video, subsection) {
           if (info.pending !== null) {
             info.index = info.pending;
           }
           info.pending = null;
-          if (mode === 'pause' && !subsection.auto_next) {
-            video.pause();
-          }
           if (subsection.auto_next) {
             if (info.index < info.data.length - 1) {
               startSubsection(slide, info, video, info.index + 1);
             } else {
               Reveal.navigateNext();
             }
-          } else if (mode === 'pause' && info.index < info.data.length - 1) {
+          } else {
             video.pause();
           }
         }
 
-        function handleTime(slide, video, mode) {
+        function handleTime(slide, video) {
           const info = subsectionState.get(slide);
           if (!info || info.pending === null) return;
           const subsection = info.data[info.pending];
           if (video.currentTime >= subsection.end_time) {
-            finishSubsection(slide, info, video, subsection, mode);
+            finishSubsection(slide, info, video, subsection);
           }
         }
       }
