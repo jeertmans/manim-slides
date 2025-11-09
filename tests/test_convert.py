@@ -360,6 +360,8 @@ def _make_slide_config(video_file: Path) -> SlideConfig:
 
 
 def test_pdf_subsections_none(tmp_path: Path, video_file: Path) -> None:
+    """Test that with pdf_subsection_mode=none, slides with subsections
+    capture the final frame showing all subsections completed."""
     slide_with_subsections = _make_slide_config(video_file)
     slide_without_subsections = SlideConfig.model_validate(
         {

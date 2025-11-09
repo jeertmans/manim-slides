@@ -759,18 +759,20 @@ class PDF(Converter):
                 self._frame_from_subsection(slide_config, slide_config.subsections[-1])
             ]
 
-        frames = [self._frame_for_slide(slide_config)]
-
-        if (
-            self.pdf_subsection_mode == PdfSubsectionMode.all
-            and slide_config.subsections
-        ):
+        if self.pdf_subsection_mode == PdfSubsectionMode.all and slide_config.subsections:
+            frames = [self._frame_for_slide(slide_config)]
             frames.extend(
                 self._frame_from_subsection(slide_config, subsection)
                 for subsection in slide_config.subsections
             )
+            return frames
 
-        return frames
+        if slide_config.subsections and self.frame_index == FrameIndex.last:
+            return [
+                self._frame_from_subsection(slide_config, slide_config.subsections[-1])
+            ]
+
+        return [self._frame_for_slide(slide_config)]
 
     def _frame_for_slide(self, slide_config: SlideConfig) -> Image:
         return read_image_from_video_file(slide_config.file, self.frame_index)
