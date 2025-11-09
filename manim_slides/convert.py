@@ -572,9 +572,7 @@ class RevealJS(Converter):
     def open(self, file: Path) -> None:
         webbrowser.open(file.absolute().as_uri())
 
-    def _iter_slide_sections(
-        self, slide_config: SlideConfig
-    ) -> list[dict[str, Any]]:
+    def _iter_slide_sections(self, slide_config: SlideConfig) -> list[dict[str, Any]]:
         """Generate section data for template rendering."""
         if self.subsection_mode == SubsectionMode.none or not slide_config.subsections:
             return [
