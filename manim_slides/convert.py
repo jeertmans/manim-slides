@@ -941,11 +941,11 @@ class PowerPoint(Converter):
                 directory
                 / f"{slide_config.file.stem}_sub_{index}{slide_config.file.suffix}"
             )
-            # Extract from 0 to end_time to show accumulated content
+            # Extract from start_time to end_time for this subsection
             extract_video_segment(
                 slide_config.file,
                 fragment_file,
-                0.0,
+                subsection.start_time,
                 subsection.end_time,
                 accurate=True,
             )
@@ -961,9 +961,9 @@ class PowerPoint(Converter):
             fragment_file = (
                 directory / f"{slide_config.file.stem}_tail{slide_config.file.suffix}"
             )
-            # Extract from 0 to end to show accumulated content
+            # Extract tail segment from last_end to video_duration
             extract_video_segment(
-                slide_config.file, fragment_file, 0.0, video_duration, accurate=True
+                slide_config.file, fragment_file, last_end, video_duration, accurate=True
             )
             fragments.append((fragment_file, slide_config.notes, slide_config.loop))
         elif not fragments:
