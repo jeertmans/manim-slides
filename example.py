@@ -231,14 +231,14 @@ class SubsectionExample(Slide):
         self.next_slide()
 
         subtitle = Text(
-            "Building a complex diagram step by step", font_size=24
+            "Building a diagram step by step", font_size=24
         ).next_to(title, DOWN)
         self.play(FadeIn(subtitle))
-        self.next_subsection(name="Add shapes")
+        self.next_subsection(name="Add circle")
 
         circle = Circle(radius=1, color=BLUE).shift(LEFT * 2)
         self.play(Create(circle))
-        self.next_subsection(name="Add more shapes")
+        self.next_subsection(name="Add square")
 
         square = Square(side_length=2, color=RED).shift(RIGHT * 2)
         self.play(Create(square))
@@ -247,13 +247,11 @@ class SubsectionExample(Slide):
         circle_label = Text("Circle", font_size=20).next_to(circle, DOWN)
         square_label = Text("Square", font_size=20).next_to(square, DOWN)
         self.play(Write(circle_label), Write(square_label))
-        self.next_subsection(name="Conclusion")
+        self.next_subsection(name="Add arrows")
 
-        conclusion = Text("This was one slide with four subsections!", font_size=24)
-        self.play(
-            FadeOut(circle, square, circle_label, square_label, subtitle),
-            Transform(title, conclusion),
-        )
+        arrow = Arrow(circle.get_right(), square.get_left(), buff=0.1, color=GREEN)
+        arrow_label = Text("Connection", font_size=16).next_to(arrow, UP)
+        self.play(Create(arrow), Write(arrow_label))
         self.next_slide()
 
 

@@ -159,8 +159,11 @@ directly write the `construct` method in the body of `MovingCameraSlide`.
 ## Subsection Example
 
 Example demonstrating the use of subsections within a single slide.
-Subsections allow multiple pause points within one slide, useful for
-step-by-step reveals similar to Beamer overlays.
+
+**Key concept**: `next_subsection()` keeps building on existing content (accumulates),
+while `next_slide()` starts fresh (clears the screen). This example shows a diagram
+being built step by step, with each subsection adding more elements while keeping
+everything from previous subsections visible.
 
 ```{eval-rst}
 .. manim-slides:: ../../../example.py:SubsectionExample
@@ -173,9 +176,14 @@ step-by-step reveals similar to Beamer overlays.
    :pyobject: SubsectionExample
 ```
 
-Note that the `auto_next=True` parameter on the third subsection will
-automatically advance to the next subsection when compatible presenters
-are used.
+This example creates **one slide** with **four subsections**:
+1. First subsection adds a circle
+2. Second subsection adds a square (circle still visible)
+3. Third subsection adds labels (circle and square still visible)
+4. Fourth subsection adds an arrow connecting them (everything still visible)
+
+Note that `auto_next=True` on the third subsection will automatically advance
+to the fourth subsection after animations complete.
 
 ## Advanced Example
 
