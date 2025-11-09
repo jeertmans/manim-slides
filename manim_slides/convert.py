@@ -930,13 +930,16 @@ class PowerPoint(Converter):
                 directory
                 / f"{slide_config.file.stem}_sub_{index}{slide_config.file.suffix}"
             )
-            # Extract from 0 to end_time to show accumulated content with animations
-            # Use accurate=True for frame-perfect cuts
+            # Extract a single frame at end_time to show final state
+            # Use 1 frame duration (assuming 60fps = 0.0167s per frame)
+            frame_duration = 1.0 / 60.0
+            start_time = max(0.0, subsection.end_time - frame_duration)
+            end_time = subsection.end_time
             extract_video_segment(
                 slide_config.file,
                 fragment_file,
-                0.0,
-                subsection.end_time,
+                start_time,
+                end_time,
                 accurate=True,
             )
 
@@ -951,10 +954,12 @@ class PowerPoint(Converter):
             fragment_file = (
                 directory / f"{slide_config.file.stem}_tail{slide_config.file.suffix}"
             )
-            # Extract from 0 to end to show all accumulated content with animations
-            # Use accurate=True for frame-perfect cuts
+            # Extract a single frame at end to show final state
+            frame_duration = 1.0 / 60.0
+            start_time = max(0.0, video_duration - frame_duration)
+            end_time = video_duration
             extract_video_segment(
-                slide_config.file, fragment_file, 0.0, video_duration, accurate=True
+                slide_config.file, fragment_file, start_time, end_time, accurate=True
             )
             fragments.append((fragment_file, slide_config.notes, slide_config.loop))
         elif not fragments:
