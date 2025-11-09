@@ -883,6 +883,13 @@ class PowerPoint(Converter):
                         frame_number += 1
 
                         slide = prs.slides.add_slide(layout)
+
+                        # Disable slide transitions to avoid black flashes
+                        # Add transition element with no transition
+                        nsmap = {"p": "http://schemas.openxmlformats.org/presentationml/2006/main"}
+                        transition = etree.SubElement(slide.element, "{%s}transition" % nsmap["p"])
+                        etree.SubElement(transition, "{%s}cut" % nsmap["p"])
+
                         movie = slide.shapes.add_movie(
                             str(fragment_file),
                             self.left,
