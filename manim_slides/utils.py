@@ -26,7 +26,9 @@ def get_duration_seconds(file: Path) -> float:
     return get_duration_ms(file) / 1000.0
 
 
-def extract_video_segment(src: Path, dest: Path, start: float, end: float) -> None:
+def extract_video_segment(
+    src: Path, dest: Path, start: float, end: float, *, accurate: bool = False
+) -> None:
     """
     Extract a [start, end] video segment (in seconds) into dest using ffmpeg.
 
@@ -36,6 +38,9 @@ def extract_video_segment(src: Path, dest: Path, start: float, end: float) -> No
     2. Arguments are passed as a list (not shell string)
     3. shell=False prevents shell injection
     4. ffmpeg path is resolved via shutil.which()
+
+    :param accurate: If True, re-encodes for frame-accurate cuts. If False, uses
+        codec copy which is faster but cuts only at keyframes.
     """
     if not src.exists():
         raise FileNotFoundError(f"Source video file does not exist: {src}")
@@ -58,19 +63,38 @@ def extract_video_segment(src: Path, dest: Path, start: float, end: float) -> No
         raise RuntimeError("ffmpeg not found in PATH")
 
     # Build command with validated, safe arguments
-    command = [
-        ffmpeg_path,
-        "-y",  # Overwrite output file
-        "-ss",
-        f"{start:.3f}",  # Start time (validated float)
-        "-i",
-        str(src.resolve()),  # Input file (validated Path)
-        "-t",
-        f"{duration:.3f}",  # Duration (validated float)
-        "-c",
-        "copy",  # Copy codec (no re-encoding)
-        str(dest.resolve()),  # Output file (validated Path)
-    ]
+    if accurate:
+        # Re-encode for frame-accurate cuts
+        command = [
+            ffmpeg_path,
+            "-y",  # Overwrite output file
+            "-ss",
+            f"{start:.3f}",  # Start time (validated float)
+            "-i",
+            str(src.resolve()),  # Input file (validated Path)
+            "-t",
+            f"{duration:.3f}",  # Duration (validated float)
+            "-c:v",
+            "libx264",  # Re-encode video
+            "-c:a",
+            "aac",  # Re-encode audio
+            str(dest.resolve()),  # Output file (validated Path)
+        ]
+    else:
+        # Fast copy without re-encoding (keyframe cuts only)
+        command = [
+            ffmpeg_path,
+            "-y",  # Overwrite output file
+            "-ss",
+            f"{start:.3f}",  # Start time (validated float)
+            "-i",
+            str(src.resolve()),  # Input file (validated Path)
+            "-t",
+            f"{duration:.3f}",  # Duration (validated float)
+            "-c",
+            "copy",  # Copy codec (no re-encoding)
+            str(dest.resolve()),  # Output file (validated Path)
+        ]
 
     # Execute with shell=False to prevent injection
     process = subprocess.run(  # nosec B603
