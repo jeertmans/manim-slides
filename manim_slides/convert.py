@@ -954,7 +954,9 @@ class PowerPoint(Converter):
             # Extract a short segment at end to show final state
             frame_duration = 0.1
             start_extract = max(0.0, video_duration - frame_duration)
-            extract_video_segment(slide_config.file, fragment_file, start_extract, video_duration)
+            extract_video_segment(
+                slide_config.file, fragment_file, start_extract, video_duration
+            )
             fragments.append((fragment_file, slide_config.notes, slide_config.loop))
         elif not fragments:
             fragments.append((slide_config.file, slide_config.notes, slide_config.loop))
