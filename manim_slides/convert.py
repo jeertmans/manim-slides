@@ -185,15 +185,9 @@ class RevealSubsectionMode(str, Enum):
     autoplay = "autoplay"
 
 
-class PdfSubsectionMode(str, Enum):
+class SubsectionMode(str, Enum):
     none = "none"
-    final = "final"
     all = "all"
-
-
-class PowerPointSubsectionMode(StrEnum):
-    off = "off"
-    split = "split"
 
 
 class JsTrue(str, StrEnum):
@@ -722,9 +716,9 @@ class PDF(Converter):
     resolution: PositiveFloat = Field(
         100.0, description="Image resolution use for saving frames."
     )
-    pdf_subsection_mode: PdfSubsectionMode = Field(
-        PdfSubsectionMode.none,
-        description="How subsections should be exported: 'none', 'final', or 'all'.",
+    subsection_mode: SubsectionMode = Field(
+        SubsectionMode.all,
+        description="How subsections should be exported: 'none' or 'all'.",
     )
     model_config = ConfigDict(use_enum_values=True, extra="forbid")
 
@@ -751,18 +745,7 @@ class PDF(Converter):
         )
 
     def _images_for_slide(self, slide_config: SlideConfig) -> list[Image]:
-        if (
-            self.pdf_subsection_mode == PdfSubsectionMode.final
-            and slide_config.subsections
-        ):
-            return [
-                self._frame_from_subsection(slide_config, slide_config.subsections[-1])
-            ]
-
-        if (
-            self.pdf_subsection_mode == PdfSubsectionMode.all
-            and slide_config.subsections
-        ):
+        if self.subsection_mode == SubsectionMode.all and slide_config.subsections:
             frames = [self._frame_for_slide(slide_config)]
             frames.extend(
                 self._frame_from_subsection(slide_config, subsection)
@@ -809,9 +792,9 @@ class PowerPoint(Converter):
         description="Optional image to use when animations are not playing.\n"
         "By default, the first frame of each animation is used.\nThis is important to avoid blinking effects between slides.",
     )
-    subsection_mode: PowerPointSubsectionMode = Field(
-        PowerPointSubsectionMode.off,
-        description="How subsections translate to PowerPoint slides: 'off' or 'split'.",
+    subsection_mode: SubsectionMode = Field(
+        SubsectionMode.all,
+        description="How subsections translate to PowerPoint slides: 'none' or 'all'.",
     )
     model_config = ConfigDict(use_enum_values=True, extra="forbid")
 
@@ -895,7 +878,7 @@ class PowerPoint(Converter):
         self, slide_config: SlideConfig, directory: Path
     ) -> list[tuple[Path, str, bool]]:
         if (
-            self.subsection_mode == PowerPointSubsectionMode.off
+            self.subsection_mode == SubsectionMode.none
             or not slide_config.subsections
         ):
             return [(slide_config.file, slide_config.notes, slide_config.loop)]
@@ -1048,8 +1031,7 @@ def _apply_config_options(
     config_options: dict[str, str],
     one_file: bool,
     offline: bool,
-    pdf_subsections: str,
-    pptx_subsections: str,
+    subsections: str,
     html_subsections: str,
 ) -> None:
     """Apply and validate configuration options for the converter."""
@@ -1081,17 +1063,8 @@ def _apply_config_options(
     if issubclass(cls, RevealJS) and html_subsections:
         config_options.setdefault("subsection_mode", html_subsections)
 
-    if issubclass(cls, PDF):
-        config_options.setdefault("pdf_subsection_mode", pdf_subsections)
-    elif pdf_subsections != "none":
-        raise click.BadParameter("--pdf-subsections can only be used with PDF exports.")
-
-    if issubclass(cls, PowerPoint):
-        config_options.setdefault("subsection_mode", pptx_subsections)
-    elif pptx_subsections != "off":
-        raise click.BadParameter(
-            "--pptx-subsections can only be used with PowerPoint exports."
-        )
+    if issubclass(cls, (PDF, PowerPoint)):
+        config_options.setdefault("subsection_mode", subsections)
 
 
 @click.command()
@@ -1142,18 +1115,11 @@ def _apply_config_options(
     "The is a convenient alias to '-coffline=true'.",
 )
 @click.option(
-    "--pdf-subsections",
-    type=click.Choice(["none", "final", "all"], case_sensitive=False),
-    default="none",
+    "--subsections",
+    type=click.Choice(["none", "all"], case_sensitive=False),
+    default="all",
     show_default=True,
-    help="Control how subsections are rendered when converting to PDF.",
-)
-@click.option(
-    "--pptx-subsections",
-    type=click.Choice(["off", "split"], case_sensitive=False),
-    default="off",
-    show_default=True,
-    help="Duplicate slides per subsection when converting to PowerPoint.",
+    help="Control how subsections are rendered when converting to PDF or PowerPoint.",
 )
 @click.option(
     "--html-subsections",
@@ -1175,8 +1141,7 @@ def convert(
     template: Optional[Path],
     offline: bool,
     one_file: bool,
-    pdf_subsections: str,
-    pptx_subsections: str,
+    subsections: str,
     html_subsections: str,
 ) -> None:
     """Convert SCENE(s) into a given format and writes the result in DEST."""
@@ -1189,8 +1154,7 @@ def convert(
             config_options,
             one_file,
             offline,
-            pdf_subsections,
-            pptx_subsections,
+            subsections,
             html_subsections,
         )
 

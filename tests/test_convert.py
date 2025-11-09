@@ -388,7 +388,7 @@ def test_pdf_subsections_none(tmp_path: Path, video_file: Path) -> None:
     out_file = tmp_path / "subsections_none.pdf"
     PDF(
         presentation_configs=[presentation],
-        pdf_subsection_mode="none",
+        subsection_mode="none",
     ).convert_to(out_file)
     assert out_file.exists()
 
@@ -399,7 +399,7 @@ def test_pdf_subsections_all(tmp_path: Path, video_file: Path) -> None:
     out_file = tmp_path / "subsections.pdf"
     PDF(
         presentation_configs=[presentation],
-        pdf_subsection_mode="all",
+        subsection_mode="all",
     ).convert_to(out_file)
     assert out_file.exists()
 

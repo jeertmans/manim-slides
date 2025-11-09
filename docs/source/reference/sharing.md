@@ -187,7 +187,7 @@ In the future, we hope to provide more features to this format,
 so feel free to suggest new features too!
 
 Subsections are automatically split into separate PowerPoint slides by default
-(`--pptx-subsections=all`). Use `--pptx-subsections=none` to ignore subsections
+(`--subsections=all`). Use `--subsections=none` to ignore subsections
 and create one slide per manim slide.
 
 ### Static PDF presentation
@@ -201,7 +201,7 @@ manim-slides convert --to=pdf BasicExample basic_example.pdf
 
 Note that you will lose all the benefits from animated slides. Therefore,
 this is only recommended to be used as a backup plan. By default, subsections
-are exported as separate PDF pages (`--pdf-subsections=all`). Use
-`--pdf-subsections=none` to create one page per manim slide, ignoring subsections
+are exported as separate PDF pages (`--subsections=all`). Use
+`--subsections=none` to create one page per manim slide, ignoring subsections
 and showing the final state. The frame index option (`-cframe_index=first` or `last`)
 controls which frame is captured when subsections are not used.
