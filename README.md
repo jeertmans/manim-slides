@@ -63,9 +63,9 @@ Call `self.next_slide()` every time you want to create a pause between
 animations, and `self.next_slide(loop=True)` if you want the next slide to loop
 over animations until the user presses continue.
 Use `self.next_subsection()` when you need multiple presenter-controlled pause
-points inside a single slide (for example, Beamer overlays). Subsections keep
-the slide active, but allow the Qt/HTML presenters, PDF exports, and PowerPoint
-conversion (when requested) to pause at those intermediate states:
+points inside a single slide (similar to Beamer overlays). Subsections
+automatically work in the Qt/HTML presenters and can be exported to PDF or
+PowerPoint with additional flags:
 
 ```python
 from manim import *  # or: from manimlib import *

@@ -224,6 +224,34 @@ class Example(Slide):
         self.play(Transform(square, learn_more_text))
 
 
+class SubsectionExample(Slide):
+    def construct(self):
+        title = Text("Subsections Demo", color=YELLOW).to_edge(UP)
+        self.play(Write(title))
+        self.next_slide()
+
+        subtitle = Text("Building a complex diagram step by step", font_size=24).next_to(title, DOWN)
+        self.play(FadeIn(subtitle))
+        self.next_subsection(name="Add shapes")
+
+        circle = Circle(radius=1, color=BLUE).shift(LEFT * 2)
+        self.play(Create(circle))
+        self.next_subsection(name="Add more shapes")
+
+        square = Square(side_length=2, color=RED).shift(RIGHT * 2)
+        self.play(Create(square))
+        self.next_subsection(name="Add labels", auto_next=True)
+
+        circle_label = Text("Circle", font_size=20).next_to(circle, DOWN)
+        square_label = Text("Square", font_size=20).next_to(square, DOWN)
+        self.play(Write(circle_label), Write(square_label))
+        self.next_subsection(name="Conclusion")
+
+        conclusion = Text("This was one slide with four subsections!", font_size=24)
+        self.play(FadeOut(circle, square, circle_label, square_label, subtitle), Transform(title, conclusion))
+        self.next_slide()
+
+
 # For ThreeDExample, things are different
 
 if not MANIMGL:

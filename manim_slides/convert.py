@@ -1153,9 +1153,9 @@ def _apply_config_options(
 @click.option(
     "--html-subsections",
     type=click.Choice(["disabled", "pause", "autoplay"], case_sensitive=False),
-    default="disabled",
+    default="pause",
     show_default=True,
-    help="Enable interactive subsections in HTML/Reveal presentations.",
+    help="Control interactive subsections in HTML/Reveal presentations.",
 )
 @show_template_option
 @show_config_options

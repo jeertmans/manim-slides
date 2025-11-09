@@ -359,6 +359,36 @@ def _make_slide_config(video_file: Path) -> SlideConfig:
     )
 
 
+def test_pdf_subsections_none(tmp_path: Path, video_file: Path) -> None:
+    slide_with_subsections = _make_slide_config(video_file)
+    slide_without_subsections = SlideConfig.model_validate(
+        {
+            "loop": False,
+            "auto_next": False,
+            "playback_rate": 1.0,
+            "reversed_playback_rate": 1.0,
+            "notes": "",
+            "dedent_notes": True,
+            "skip_animations": False,
+            "src": None,
+            "file": video_file,
+            "rev_file": video_file,
+            "start_animation": 0,
+            "end_animation": 1,
+            "subsections": [],
+        }
+    )
+    presentation = PresentationConfig(
+        slides=[slide_without_subsections, slide_with_subsections]
+    )
+    out_file = tmp_path / "subsections_none.pdf"
+    PDF(
+        presentation_configs=[presentation],
+        pdf_subsection_mode="none",
+    ).convert_to(out_file)
+    assert out_file.exists()
+
+
 def test_pdf_subsections_all(tmp_path: Path, video_file: Path) -> None:
     slide = _make_slide_config(video_file)
     presentation = PresentationConfig(slides=[slide])

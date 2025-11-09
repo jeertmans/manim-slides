@@ -186,9 +186,9 @@ frame of each slide. This allows for smooth transitions.
 In the future, we hope to provide more features to this format,
 so feel free to suggest new features too!
 
-If you authored subsections, pass `--pptx-subsections=split` to duplicate the
-slide once per subsection so clickers pause exactly where they do in the Qt/HTML
-presenters.
+If you authored subsections and want to split them into separate PowerPoint
+slides, pass `--pptx-subsections=split` to duplicate the slide once per
+subsection.
 
 ### Static PDF presentation
 

@@ -244,9 +244,9 @@ def start_at_callback(
 @click.option(
     "--subsections",
     type=click.Choice(["off", "pause", "autoplay"], case_sensitive=False),
-    default="off",
+    default="pause",
     show_default=True,
-    help="Enable intra-slide subsections in the Qt presenter.",
+    help="Control intra-slide subsections in the Qt presenter.",
 )
 @click.help_option("-h", "--help")
 @verbosity_option

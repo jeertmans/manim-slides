@@ -156,6 +156,27 @@ directly write the `construct` method in the body of `MovingCameraSlide`.
             self.wait()
 ```
 
+## Subsection Example
+
+Example demonstrating the use of subsections within a single slide.
+Subsections allow multiple pause points within one slide, useful for
+step-by-step reveals similar to Beamer overlays.
+
+```{eval-rst}
+.. manim-slides:: ../../../example.py:SubsectionExample
+    :hide_source:
+    :quality: high
+
+.. literalinclude:: ../../../example.py
+   :language: python
+   :linenos:
+   :pyobject: SubsectionExample
+```
+
+Note that the `auto_next=True` parameter on the third subsection will
+automatically advance to the next subsection when compatible presenters
+are used.
+
 ## Advanced Example
 
 A more advanced example is `ConvertExample`, which is used as demo slide and tutorial.
