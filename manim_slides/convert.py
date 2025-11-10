@@ -830,9 +830,18 @@ class PDF(Converter):
     def _images_for_slide(self, slide_config: SlideConfig) -> list[Image]:
         if self.subsection_mode == SubsectionMode.all and slide_config.subsections:
             frames = []
-            for subsection in slide_config.subsections:
+            for index, subsection in enumerate(slide_config.subsections):
                 if subsection.file:
-                    frames.append(read_image_from_video_file(subsection.file, self.frame_index))
+                    # Use first frame of NEXT subsection to show completion of current
+                    # (Manim bug: last frame only shows ~93% of animation)
+                    if index + 1 < len(slide_config.subsections) and slide_config.subsections[index + 1].file:
+                        # Next subsection exists: use its first frame
+                        frames.append(read_image_from_video_file(
+                            slide_config.subsections[index + 1].file, FrameIndex.first
+                        ))
+                    else:
+                        # Last subsection: use slide's first/last frame based on user preference
+                        frames.append(self._frame_for_slide(slide_config))
             if not frames:
                 frames.append(self._frame_for_slide(slide_config))
             return frames
