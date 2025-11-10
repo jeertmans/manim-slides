@@ -1012,13 +1012,17 @@ class PowerPoint(Converter):
                     if movies:
                         notes_parts = [n for _, n, _ in movies if n]
                         if notes_parts:
-                            slide.notes_slide.notes_text_frame.text = "\n\n".join(notes_parts)
+                            slide.notes_slide.notes_text_frame.text = "\n\n".join(
+                                notes_parts
+                            )
 
                         if self.auto_play_media:
                             auto_play_media(movies[0][0], loop=movies[0][2])
                             next_ctn_id = 3
                             for movie, _, _ in movies[1:]:
-                                video_id = xpath(movie.element, ".//p:cNvPr")[0].attrib["id"]
+                                video_id = xpath(movie.element, ".//p:cNvPr")[0].attrib[
+                                    "id"
+                                ]
                                 next_ctn_id = add_click_effect_to_video(
                                     slide.element, video_id, next_ctn_id
                                 )
