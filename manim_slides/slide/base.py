@@ -333,11 +333,9 @@ class BaseSlide:
         if relative_animation_index < 0:
             relative_animation_index = 0
 
-        # WORKAROUND: Add wait() to show completed animation state.
-        # Manim animations stop at approximately 93% completion (alpha never reaches 1.0).
-        # The wait() creates a separate partial animation file showing the completed state.
-        # This matches next_slide() behavior and fixes incomplete frames in all backends.
-        if self.wait_time_between_slides > 0.0:
+        # Only add wait() if there were animations before this subsection marker.
+        # This matches next_slide() logic and avoids adding unnecessary frames.
+        if relative_animation_index > 0 and self.wait_time_between_slides > 0.0:
             self.wait(self.wait_time_between_slides)  # type: ignore[attr-defined]
 
         marker = SubsectionMarker(
