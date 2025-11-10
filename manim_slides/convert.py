@@ -663,7 +663,9 @@ class RevealJS(Converter):
                 for i, presentation_config in enumerate(self.presentation_configs):
                     for slide_config in presentation_config.slides:
                         if slide_config.subsections:
-                            for index, subsection in enumerate(slide_config.subsections):
+                            for index, subsection in enumerate(
+                                slide_config.subsections
+                            ):
                                 fragment_file = full_assets_dir / (
                                     prefix(i)
                                     + f"{slide_config.file.stem}_sub_{index}{slide_config.file.suffix}"
@@ -691,7 +693,9 @@ class RevealJS(Converter):
                                     accurate=True,
                                 )
                         else:
-                            dest_file = full_assets_dir / (prefix(i) + slide_config.file.name)
+                            dest_file = full_assets_dir / (
+                                prefix(i) + slide_config.file.name
+                            )
                             if not dest_file.exists():
                                 shutil.copy(slide_config.file, dest_file)
             else:
