@@ -450,7 +450,6 @@ class Player(QMainWindow):  # type: ignore[misc]
         self.load_current_slide()
 
     def load_next_slide(self) -> None:
-        self._freeze_current_frame()
         if self.playing_reversed_slide:
             self.playing_reversed_slide = False
             self.preview_next_slide()  # Slide number did not change, but next did
