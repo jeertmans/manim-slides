@@ -25,7 +25,6 @@ def get_duration_seconds(file: Path) -> float:
     return get_duration_ms(file) / 1000.0
 
 
-
 def concatenate_video_files(files: list[Path], dest: Path) -> None:
     """Concatenate multiple video files into one."""
     if len(files) == 1:

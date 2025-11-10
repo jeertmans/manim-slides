@@ -39,7 +39,7 @@ from tqdm import tqdm
 
 from . import templates
 from .commons import folder_path_option, verbosity_option
-from .config import PresentationConfig, SlideConfig, SubsectionConfig
+from .config import PresentationConfig, SlideConfig
 from .logger import logger
 from .present import get_scenes_presentation_config
 from .utils import get_duration_ms, get_duration_seconds
@@ -834,11 +834,17 @@ class PDF(Converter):
                 if subsection.file:
                     # Use first frame of NEXT subsection to show completion of current
                     # (Manim bug: last frame only shows ~93% of animation)
-                    if index + 1 < len(slide_config.subsections) and slide_config.subsections[index + 1].file:
+                    if (
+                        index + 1 < len(slide_config.subsections)
+                        and slide_config.subsections[index + 1].file
+                    ):
                         # Next subsection exists: use its first frame
-                        frames.append(read_image_from_video_file(
-                            slide_config.subsections[index + 1].file, FrameIndex.first
-                        ))
+                        frames.append(
+                            read_image_from_video_file(
+                                slide_config.subsections[index + 1].file,
+                                FrameIndex.first,
+                            )
+                        )
                     else:
                         # Last subsection: use slide's first/last frame based on user preference
                         frames.append(self._frame_for_slide(slide_config))

@@ -608,7 +608,9 @@ class BaseSlide:
 
             # Map subsection to its corresponding partial file(s)
             subsection_files = partial_files[start_animation:end_animation]
-            subsection_file = subsection_files[0] if len(subsection_files) == 1 else None
+            subsection_file = (
+                subsection_files[0] if len(subsection_files) == 1 else None
+            )
 
             subsections.append(
                 SubsectionConfig(
