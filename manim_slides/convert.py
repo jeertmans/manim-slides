@@ -865,6 +865,109 @@ class PowerPoint(Converter):
             nsmap = {"p": "http://schemas.openxmlformats.org/presentationml/2006/main"}
             return etree.ElementBase.xpath(el, query, namespaces=nsmap)
 
+        def add_click_effect_to_video(
+            slide_element: etree.Element, video_id: str, next_ctn_id: int
+        ) -> int:
+            nsmap = {"p": "http://schemas.openxmlformats.org/presentationml/2006/main"}
+            p_ns = "{%s}" % nsmap["p"]
+
+            timing = xpath(slide_element, ".//p:timing")[0]
+            tnLst = xpath(timing, ".//p:tnLst")[0]
+            par = xpath(tnLst, ".//p:par")[0]
+            root_cTn = xpath(par, ".//p:cTn[@nodeType='tmRoot']")[0]
+            childTnLst = xpath(root_cTn, ".//p:childTnLst")[0]
+
+            seq = xpath(childTnLst, ".//p:seq")
+            if not seq:
+                seq_elem = etree.Element(f"{p_ns}seq")
+                mainSeq_cTn = etree.SubElement(seq_elem, f"{p_ns}cTn")
+                mainSeq_cTn.set("id", str(next_ctn_id))
+                mainSeq_cTn.set("dur", "indefinite")
+                mainSeq_cTn.set("nodeType", "mainSeq")
+                next_ctn_id += 1
+
+                mainSeq_childTnLst = etree.SubElement(mainSeq_cTn, f"{p_ns}childTnLst")
+
+                prevCondLst = etree.SubElement(seq_elem, f"{p_ns}prevCondLst")
+                cond_prev = etree.SubElement(prevCondLst, f"{p_ns}cond")
+                cond_prev.set("evt", "onPrev")
+                tgtEl_prev = etree.SubElement(cond_prev, f"{p_ns}tgtEl")
+                etree.SubElement(tgtEl_prev, f"{p_ns}sldTgt")
+
+                nextCondLst = etree.SubElement(seq_elem, f"{p_ns}nextCondLst")
+                cond_next = etree.SubElement(nextCondLst, f"{p_ns}cond")
+                cond_next.set("evt", "onNext")
+                tgtEl_next = etree.SubElement(cond_next, f"{p_ns}tgtEl")
+                etree.SubElement(tgtEl_next, f"{p_ns}sldTgt")
+
+                childTnLst.append(seq_elem)
+            else:
+                mainSeq_cTn = xpath(seq[0], ".//p:cTn[@nodeType='mainSeq']")[0]
+                mainSeq_childTnLst = xpath(mainSeq_cTn, ".//p:childTnLst")[0]
+
+            par_wrapper = etree.Element(f"{p_ns}par")
+            cTn_wrapper = etree.SubElement(par_wrapper, f"{p_ns}cTn")
+            cTn_wrapper.set("id", str(next_ctn_id))
+            cTn_wrapper.set("fill", "hold")
+            next_ctn_id += 1
+
+            stCondLst = etree.SubElement(cTn_wrapper, f"{p_ns}stCondLst")
+            cond = etree.SubElement(stCondLst, f"{p_ns}cond")
+            cond.set("delay", "indefinite")
+
+            childTnLst_inner = etree.SubElement(cTn_wrapper, f"{p_ns}childTnLst")
+            par_inner = etree.SubElement(childTnLst_inner, f"{p_ns}par")
+            cTn_inner = etree.SubElement(par_inner, f"{p_ns}cTn")
+            cTn_inner.set("id", str(next_ctn_id))
+            cTn_inner.set("fill", "hold")
+            next_ctn_id += 1
+
+            stCondLst_inner = etree.SubElement(cTn_inner, f"{p_ns}stCondLst")
+            cond_inner = etree.SubElement(stCondLst_inner, f"{p_ns}cond")
+            cond_inner.set("delay", "0")
+
+            childTnLst_effect = etree.SubElement(cTn_inner, f"{p_ns}childTnLst")
+            par_effect = etree.SubElement(childTnLst_effect, f"{p_ns}par")
+            cTn_effect = etree.SubElement(par_effect, f"{p_ns}cTn")
+            cTn_effect.set("id", str(next_ctn_id))
+            cTn_effect.set("nodeType", "clickEffect")
+            cTn_effect.set("fill", "hold")
+            cTn_effect.set("presetClass", "entr")
+            cTn_effect.set("presetID", "1")
+            next_ctn_id += 1
+
+            stCondLst_effect = etree.SubElement(cTn_effect, f"{p_ns}stCondLst")
+            cond_effect = etree.SubElement(stCondLst_effect, f"{p_ns}cond")
+            cond_effect.set("delay", "0")
+
+            childTnLst_set = etree.SubElement(cTn_effect, f"{p_ns}childTnLst")
+            set_elem = etree.SubElement(childTnLst_set, f"{p_ns}set")
+            cBhvr = etree.SubElement(set_elem, f"{p_ns}cBhvr")
+            cTn_bhvr = etree.SubElement(cBhvr, f"{p_ns}cTn")
+            cTn_bhvr.set("id", str(next_ctn_id))
+            cTn_bhvr.set("dur", "1")
+            cTn_bhvr.set("fill", "hold")
+            next_ctn_id += 1
+
+            stCondLst_bhvr = etree.SubElement(cTn_bhvr, f"{p_ns}stCondLst")
+            cond_bhvr = etree.SubElement(stCondLst_bhvr, f"{p_ns}cond")
+            cond_bhvr.set("delay", "0")
+
+            tgtEl = etree.SubElement(cBhvr, f"{p_ns}tgtEl")
+            spTgt = etree.SubElement(tgtEl, f"{p_ns}spTgt")
+            spTgt.set("spid", video_id)
+
+            attrNameLst = etree.SubElement(cBhvr, f"{p_ns}attrNameLst")
+            attrName = etree.SubElement(attrNameLst, f"{p_ns}attrName")
+            attrName.text = "style.visibility"
+
+            to_elem = etree.SubElement(set_elem, f"{p_ns}to")
+            strVal = etree.SubElement(to_elem, f"{p_ns}strVal")
+            strVal.set("val", "visible")
+
+            mainSeq_childTnLst.append(par_wrapper)
+            return next_ctn_id
+
         with tempfile.TemporaryDirectory() as directory_name:
             directory = Path(directory_name)
             frame_number = 0
@@ -875,24 +978,25 @@ class PowerPoint(Converter):
                     leave=False,
                 ):
                     fragments = self._iter_slide_fragments(slide_config, directory)
+
+                    slide = prs.slides.add_slide(layout)
+
+                    # Disable slide transitions to avoid black flashes
+                    nsmap = {
+                        "p": "http://schemas.openxmlformats.org/presentationml/2006/main"
+                    }
+                    transition = etree.SubElement(
+                        slide.element, "{%s}transition" % nsmap["p"]
+                    )
+                    etree.SubElement(transition, "{%s}cut" % nsmap["p"])
+
+                    movies = []
                     for fragment_file, notes, loop_flag in fragments:
                         mime_type = mimetypes.guess_type(fragment_file)[0]
                         poster_frame_image = self._poster_frame_image_path(
                             fragment_file, directory, frame_number
                         )
                         frame_number += 1
-
-                        slide = prs.slides.add_slide(layout)
-
-                        # Disable slide transitions to avoid black flashes
-                        # Add transition element with no transition
-                        nsmap = {
-                            "p": "http://schemas.openxmlformats.org/presentationml/2006/main"
-                        }
-                        transition = etree.SubElement(
-                            slide.element, "{%s}transition" % nsmap["p"]
-                        )
-                        etree.SubElement(transition, "{%s}cut" % nsmap["p"])
 
                         movie = slide.shapes.add_movie(
                             str(fragment_file),
@@ -903,11 +1007,21 @@ class PowerPoint(Converter):
                             poster_frame_image=poster_frame_image,
                             mime_type=mime_type,
                         )
-                        if notes:
-                            slide.notes_slide.notes_text_frame.text = notes
+                        movies.append((movie, notes, loop_flag))
+
+                    if movies:
+                        notes_parts = [n for _, n, _ in movies if n]
+                        if notes_parts:
+                            slide.notes_slide.notes_text_frame.text = "\n\n".join(notes_parts)
 
                         if self.auto_play_media:
-                            auto_play_media(movie, loop=loop_flag)
+                            auto_play_media(movies[0][0], loop=movies[0][2])
+                            next_ctn_id = 3
+                            for movie, _, _ in movies[1:]:
+                                video_id = xpath(movie.element, ".//p:cNvPr")[0].attrib["id"]
+                                next_ctn_id = add_click_effect_to_video(
+                                    slide.element, video_id, next_ctn_id
+                                )
 
             dest.parent.mkdir(parents=True, exist_ok=True)
             prs.save(dest)
