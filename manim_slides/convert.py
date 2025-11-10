@@ -1024,10 +1024,15 @@ class PowerPoint(Converter):
                                 auto_play_media(movies[0][0], loop=movies[0][2])
 
                             for movie, _, _ in movies[1:]:
-                                video_id = xpath(movie.element, ".//p:cNvPr")[0].attrib["id"]
+                                video_id = xpath(movie.element, ".//p:cNvPr")[0].attrib[
+                                    "id"
+                                ]
                                 timing = xpath(slide.element, ".//p:timing")[0]
                                 childTnLst = xpath(timing, ".//p:childTnLst")[0]
-                                video_nodes = xpath(childTnLst, f'.//p:video//p:spTgt[@spid="{video_id}"]/..')
+                                video_nodes = xpath(
+                                    childTnLst,
+                                    f'.//p:video//p:spTgt[@spid="{video_id}"]/..',
+                                )
                                 for video_node in video_nodes:
                                     parent = video_node.getparent()
                                     if parent is not None:
@@ -1037,7 +1042,9 @@ class PowerPoint(Converter):
 
                             next_ctn_id = 3
                             for movie, _, _ in movies[1:]:
-                                video_id = xpath(movie.element, ".//p:cNvPr")[0].attrib["id"]
+                                video_id = xpath(movie.element, ".//p:cNvPr")[0].attrib[
+                                    "id"
+                                ]
                                 next_ctn_id = add_click_effect_to_video(
                                     slide.element, video_id, next_ctn_id
                                 )
