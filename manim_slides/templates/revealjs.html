@@ -26,9 +26,9 @@
             {% for section in enriched_slide.sections %}
               {%- set section_loop = loop %}
               {% if one_file %}
-                {% set file = file_to_data_uri(slide_config.file) %}
+                {% set file = file_to_data_uri(section.file) %}
               {% else %}
-                {% set file = assets_dir / (prefix(outer_loop.index0) + slide_config.file.name) %}
+                {% set file = assets_dir / (prefix(outer_loop.index0) + section.file.name) %}
               {% endif %}
         <section
           data-background-size={{ background_size }}

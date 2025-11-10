@@ -588,31 +588,35 @@ class RevealJS(Converter):
 
         sections = []
         last_end = 0.0
-        for subsection in slide_config.subsections:
+        for index, subsection in enumerate(slide_config.subsections):
+            fragment_file = Path(
+                f"{slide_config.file.stem}_sub_{index}{slide_config.file.suffix}"
+            )
             sections.append(
                 {
-                    "file": slide_config.file,
+                    "file": fragment_file,
                     "loop": False,
                     "auto_next": subsection.auto_next,
                     "notes": f"{slide_config.notes}\n\n{subsection.name}"
                     if slide_config.notes and subsection.name
                     else subsection.name or slide_config.notes,
-                    "start_time": subsection.start_time,
-                    "end_time": subsection.end_time,
+                    "start_time": None,
+                    "end_time": None,
                 }
             )
             last_end = subsection.end_time
 
         video_duration = get_duration_seconds(slide_config.file)
         if video_duration - last_end > 1e-3:
+            tail_file = Path(f"{slide_config.file.stem}_tail{slide_config.file.suffix}")
             sections.append(
                 {
-                    "file": slide_config.file,
+                    "file": tail_file,
                     "loop": slide_config.loop,
                     "auto_next": False,
                     "notes": slide_config.notes,
-                    "start_time": last_end,
-                    "end_time": video_duration,
+                    "start_time": None,
+                    "end_time": None,
                 }
             )
         return sections
@@ -654,10 +658,47 @@ class RevealJS(Converter):
                     return ""
 
             full_assets_dir.mkdir(parents=True, exist_ok=True)
-            for i, presentation_config in enumerate(self.presentation_configs):
-                presentation_config.copy_to(
-                    full_assets_dir, include_reversed=False, prefix=prefix(i)
-                )
+
+            if self.subsection_mode == SubsectionMode.all:
+                for i, presentation_config in enumerate(self.presentation_configs):
+                    for slide_config in presentation_config.slides:
+                        if slide_config.subsections:
+                            for index, subsection in enumerate(slide_config.subsections):
+                                fragment_file = full_assets_dir / (
+                                    prefix(i)
+                                    + f"{slide_config.file.stem}_sub_{index}{slide_config.file.suffix}"
+                                )
+                                extract_video_segment(
+                                    slide_config.file,
+                                    fragment_file,
+                                    subsection.start_time,
+                                    subsection.end_time,
+                                    accurate=True,
+                                )
+
+                            video_duration = get_duration_seconds(slide_config.file)
+                            last_end = slide_config.subsections[-1].end_time
+                            if video_duration - last_end > 1e-3:
+                                fragment_file = full_assets_dir / (
+                                    prefix(i)
+                                    + f"{slide_config.file.stem}_tail{slide_config.file.suffix}"
+                                )
+                                extract_video_segment(
+                                    slide_config.file,
+                                    fragment_file,
+                                    last_end,
+                                    video_duration,
+                                    accurate=True,
+                                )
+                        else:
+                            dest_file = full_assets_dir / (prefix(i) + slide_config.file.name)
+                            if not dest_file.exists():
+                                shutil.copy(slide_config.file, dest_file)
+            else:
+                for i, presentation_config in enumerate(self.presentation_configs):
+                    presentation_config.copy_to(
+                        full_assets_dir, include_reversed=False, prefix=prefix(i)
+                    )
 
         dest.parent.mkdir(parents=True, exist_ok=True)
 
