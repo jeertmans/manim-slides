@@ -340,6 +340,10 @@ class BaseSlide:
         )
         self._pending_subsection_markers.append(marker)
 
+        # Call Manim's next_section to create separate video files
+        if hasattr(self, 'next_section'):
+            self.next_section(name=name or f"subsection_{len(self._pending_subsection_markers)}")
+
     def _consume_subsection_markers(self) -> tuple[SubsectionMarker, ...]:
         markers = tuple(self._pending_subsection_markers)
         self._pending_subsection_markers.clear()
