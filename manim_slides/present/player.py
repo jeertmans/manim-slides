@@ -429,10 +429,11 @@ class Player(QMainWindow):  # type: ignore[misc]
         else:
             self.media_player.setLoops(1)
 
-        start_paused = use_subsections and self.subsection_mode == SubsectionMode.all
-        self.load_current_media(start_paused=start_paused)
-        if use_subsections:
+        # Always start playing to load the first frame, then pause if needed
+        self.load_current_media(start_paused=False)
+        if use_subsections and self.subsection_mode == SubsectionMode.all:
             self.media_player.setPosition(0)
+            self.media_player.pause()
 
     def load_previous_slide(self) -> None:
         self.playing_reversed_slide = False
