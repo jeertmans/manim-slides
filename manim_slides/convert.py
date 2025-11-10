@@ -587,6 +587,7 @@ class RevealJS(Converter):
             ]
 
         sections = []
+        last_end = 0.0
         for subsection in slide_config.subsections:
             sections.append(
                 {
@@ -596,8 +597,22 @@ class RevealJS(Converter):
                     "notes": f"{slide_config.notes}\n\n{subsection.name}"
                     if slide_config.notes and subsection.name
                     else subsection.name or slide_config.notes,
-                    "start_time": 0.0,  # Always start from beginning to show accumulated content
+                    "start_time": subsection.start_time,
                     "end_time": subsection.end_time,
+                }
+            )
+            last_end = subsection.end_time
+
+        video_duration = get_duration_seconds(slide_config.file)
+        if video_duration - last_end > 1e-3:
+            sections.append(
+                {
+                    "file": slide_config.file,
+                    "loop": slide_config.loop,
+                    "auto_next": False,
+                    "notes": slide_config.notes,
+                    "start_time": last_end,
+                    "end_time": video_duration,
                 }
             )
         return sections
