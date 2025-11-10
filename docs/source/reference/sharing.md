@@ -120,6 +120,11 @@ manim-slides convert BasicExample basic_example.html
 manim-slides convert BasicExample basic_example.html --subsections=none
 ```
 
+**Limitation:** When you skim backwards through subsections in HTML/RevealJS,
+each subsection clip restarts from its beginning. Unlike the Qt presenter, the
+final accumulated state is not frozen when rewinding, so expect a short replay
+when stepping back.
+
 Then, you need to copy the HTML files and its assets directory to target location,
 while keeping the relative path between the HTML and the assets the same. The
 easiest solution is to compress both the file and the directory into one ZIP,
@@ -207,10 +212,10 @@ exactly know what versions of PowerPoint (or LibreOffice Impress) are supported.
 You can create a PowerPoint in a single command:
 
 ```bash
-# Default: subsections become separate PowerPoint slides
+# PowerPoint currently exports one slide per manim slide (subsections disabled)
 manim-slides convert --to=pptx BasicExample basic_example.pptx
 
-# Without subsections: one PowerPoint slide per manim slide
+# Explicitly silence the warning by disabling subsections yourself
 manim-slides convert --to=pptx BasicExample basic_example.pptx --subsections=none
 ```
 
@@ -219,9 +224,10 @@ you can safely share it with anyone. By default, the `poster_frame_image`, i.e.,
 what is displayed by PowerPoint when the video is not playing, is the first
 frame of each slide. This allows for smooth transitions.
 
-**Subsection handling:** By default (`--subsections=all`), each subsection becomes
-a separate PowerPoint slide, allowing you to step through the build-up. Use
-`--subsections=none` to export only the final state of each manim slide.
+**Subsection handling:** PowerPoint export currently forces `--subsections=none`.
+Passing `--subsections=all` logs a warning and behaves the same. The HTML/RevealJS
+and PDF exporters still honor `--subsections=all`, so use those formats when you
+need to step through subsections.
 
 In the future, we hope to provide more features to this format,
 so feel free to suggest new features too!

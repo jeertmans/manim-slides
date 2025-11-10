@@ -5,6 +5,7 @@ from pathlib import Path
 import pytest
 import requests
 from bs4 import BeautifulSoup
+from pptx import Presentation
 
 from manim_slides.config import PresentationConfig, SlideConfig
 from manim_slides.convert import (
@@ -30,6 +31,7 @@ from manim_slides.convert import (
     PreloadIframes,
     RevealJS,
     RevealTheme,
+    SubsectionMode,
     ShowSlideNumber,
     SlideNumber,
     Transition,
@@ -405,18 +407,24 @@ def test_pdf_subsections_all(tmp_path: Path, video_file: Path) -> None:
 
 
 @pytest.mark.skipif(shutil.which("ffmpeg") is None, reason="ffmpeg is required")
-def test_pptx_subsections_all(tmp_path: Path, video_file: Path) -> None:
-    """Test that subsection_mode=all creates separate PowerPoint slides per subsection."""
+def test_pptx_subsections_all_falls_back_to_none(
+    tmp_path: Path, video_file: Path
+) -> None:
+    """PowerPoint ignores subsection_mode=all until subsections are implemented."""
     slide = _make_slide_config(video_file)
     presentation = PresentationConfig(slides=[slide])
     out_file = tmp_path / "subsections.pptx"
-    PowerPoint(
+    converter = PowerPoint(
         presentation_configs=[presentation],
         subsection_mode="all",
         width=640,
         height=360,
-    ).convert_to(out_file)
+    )
+    converter.convert_to(out_file)
     assert out_file.exists()
+    assert converter.subsection_mode == SubsectionMode.none
+    prs = Presentation(out_file)
+    assert len(prs.slides) == len(presentation.slides)
 
 
 @pytest.mark.skipif(shutil.which("ffmpeg") is None, reason="ffmpeg is required")

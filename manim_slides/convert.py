@@ -888,6 +888,14 @@ class PowerPoint(Converter):
     )
     model_config = ConfigDict(use_enum_values=True, extra="forbid")
 
+    def model_post_init(self, __context: Any) -> None:  # pragma: no cover - pydantic hook
+        """Force subsection_mode to 'none' until subsections are supported for PPTX."""
+        if self.subsection_mode == SubsectionMode.all:
+            logger.warning(
+                "PowerPoint export does not yet support subsection_mode='all'; falling back to 'none'."
+            )
+            object.__setattr__(self, "subsection_mode", SubsectionMode.none)
+
     def convert_to(self, dest: Path) -> None:
         """Convert this configuration into a PowerPoint presentation, saved to DEST."""
         prs = pptx.Presentation()

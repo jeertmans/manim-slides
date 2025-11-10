@@ -31,6 +31,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Single `--subsections` flag now controls both PDF and PowerPoint exports
   - Simplified modes to `none` and `all` (removed `final` and `split` as redundant)
   - Consistent terminology across all export formats
+- PowerPoint exports temporarily force `--subsections=none` and emit a warning when
+  `--subsections=all` is requested, since per-subsection slide splitting is not yet
+  implemented for PPTX.
+- Qt presenter now freezes the last rendered frame when slides or subsections end
+  to avoid flashing to black between steps.
+- Documented the RevealJS limitation where rewinding subsections replays their
+  clip instead of showing the final accumulated state immediately.
 - Sort the scenes alphabetically when listing scenes
   (e.g., when prompting for scenes with `manim-slides present`).
   [@msaadsbr](https://github.com/msaadsbr) [#573](https://github.com/jeertmans/manim-slides/pull/573)

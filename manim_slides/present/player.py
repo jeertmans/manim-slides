@@ -283,8 +283,9 @@ class Player(QMainWindow):  # type: ignore[misc]
         if skip_all:
 
             def media_status_changed(status: QMediaPlayer.MediaStatus) -> None:
-                self.media_player.setLoops(1)  # Otherwise looping slides never end
                 if status == QMediaPlayer.MediaStatus.EndOfMedia:
+                    self._freeze_current_frame()
+                    self.media_player.setLoops(1)  # Otherwise looping slides never end
                     self.load_next_slide()
 
             self.media_player.mediaStatusChanged.connect(media_status_changed)
@@ -292,11 +293,10 @@ class Player(QMainWindow):  # type: ignore[misc]
         else:
 
             def media_status_changed(status: QMediaPlayer.MediaStatus) -> None:
-                if (
-                    status == QMediaPlayer.MediaStatus.EndOfMedia
-                    and self.current_slide_config.auto_next
-                ):
-                    self.load_next_slide()
+                if status == QMediaPlayer.MediaStatus.EndOfMedia:
+                    self._freeze_current_frame()
+                    if self.current_slide_config.auto_next:
+                        self.load_next_slide()
 
             self.media_player.mediaStatusChanged.connect(media_status_changed)
 
@@ -420,6 +420,7 @@ class Player(QMainWindow):  # type: ignore[misc]
             self.media_player.play()
 
     def load_current_slide(self) -> None:
+        self._freeze_current_frame()
         slide_config = self.current_slide_config
         use_subsections = self._reset_subsections()
         self.current_file = slide_config.file
@@ -450,6 +451,7 @@ class Player(QMainWindow):  # type: ignore[misc]
         self.load_current_slide()
 
     def load_next_slide(self) -> None:
+        self._freeze_current_frame()
         if self.playing_reversed_slide:
             self.playing_reversed_slide = False
             self.preview_next_slide()  # Slide number did not change, but next did
@@ -561,6 +563,7 @@ class Player(QMainWindow):  # type: ignore[misc]
                 self.load_next_slide()
         else:
             self.media_player.pause()
+            self._freeze_current_frame()
 
     def _clear_subsections(self) -> None:
         self._active_subsections = []
@@ -725,3 +728,10 @@ class Player(QMainWindow):  # type: ignore[misc]
         key = event.key()
         self.dispatch(key)
         event.accept()
+
+    def _freeze_current_frame(self) -> None:
+        if not self.frame.isValid():
+            return
+
+        self.video_sink.setVideoFrame(self.frame)
+        self.info.video_sink.setVideoFrame(self.frame)
