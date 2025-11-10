@@ -829,23 +829,18 @@ class PDF(Converter):
 
     def _images_for_slide(self, slide_config: SlideConfig) -> list[Image]:
         if self.subsection_mode == SubsectionMode.all and slide_config.subsections:
-            frames = [
-                self._frame_from_subsection(slide_config, subsection)
-                for subsection in slide_config.subsections
-            ]
-            # Add final frame if there's content after last subsection
-            frames.append(self._frame_for_slide(slide_config))
+            frames = []
+            for subsection in slide_config.subsections:
+                if subsection.file:
+                    frames.append(read_image_from_video_file(subsection.file, self.frame_index))
+            if not frames:
+                frames.append(self._frame_for_slide(slide_config))
             return frames
 
         return [self._frame_for_slide(slide_config)]
 
     def _frame_for_slide(self, slide_config: SlideConfig) -> Image:
         return read_image_from_video_file(slide_config.file, self.frame_index)
-
-    def _frame_from_subsection(
-        self, slide_config: SlideConfig, subsection: SubsectionConfig
-    ) -> Image:
-        return read_image_from_video_timestamp(slide_config.file, subsection.end_time)
 
 
 class PowerPoint(Converter):
