@@ -156,6 +156,43 @@ directly write the `construct` method in the body of `MovingCameraSlide`.
             self.wait()
 ```
 
+## Subsection Example
+
+Example demonstrating the use of subsections to create vertical slides in HTML presentations.
+
+**Key concept**: Subsections create **vertical navigation** in RevealJS presentations.
+Use `next_slide()` to move horizontally between main topics, and `next_subsection()`
+to create vertical steps within a single topic. This provides hierarchical structure
+to your presentations.
+
+```{eval-rst}
+.. manim-slides:: ../../../example.py:SubsectionExample
+    :hide_source:
+    :quality: high
+
+.. literalinclude:: ../../../example.py
+   :language: python
+   :linenos:
+   :pyobject: SubsectionExample
+```
+
+This example creates **three horizontal slides**:
+- **Slide 1**: Title slide (use RIGHT arrow to advance)
+- **Slide 2**: Building a Diagram topic with **four vertical subsections** (use DOWN arrow):
+  1. Shows the title
+  2. Adds a circle
+  3. Adds a square
+  4. Adds labels with `auto_next=True` to auto-advance
+  5. Final state after all animations
+- **Slide 3**: Transformations topic with **three vertical subsections**
+
+In HTML export, subsections become **vertical slides** that you navigate with UP/DOWN
+arrows, while regular slides remain horizontal (LEFT/RIGHT arrows). This creates a
+2D presentation structure where subsections group related content under a main slide.
+
+Note: In the Qt presenter and other formats, subsections create pause points instead
+of vertical navigation.
+
 ## Advanced Example
 
 A more advanced example is `ConvertExample`, which is used as demo slide and tutorial.

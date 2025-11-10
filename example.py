@@ -224,6 +224,54 @@ class Example(Slide):
         self.play(Transform(square, learn_more_text))
 
 
+class SubsectionExample(Slide):
+    def construct(self):
+        self.wait_time_between_slides = 0.1  # Show completed frames
+
+        title = Text("Subsections Demo", color=YELLOW)
+        self.play(Write(title))
+        self.next_slide()
+
+        self.clear()
+        title = Text("Building a Diagram", font_size=36, color=YELLOW).to_edge(UP)
+        self.play(Write(title))
+        self.next_subsection(name="Show title")
+
+        circle = Circle(radius=1, color=BLUE).shift(LEFT * 2)
+        self.play(Create(circle))
+        self.next_subsection(name="Add circle")
+
+        square = Square(side_length=2, color=RED).shift(RIGHT * 2)
+        self.play(Create(square))
+        self.next_subsection(name="Add square")
+
+        circle_label = Text("Circle", font_size=20).next_to(circle, DOWN)
+        square_label = Text("Square", font_size=20).next_to(square, DOWN)
+        self.play(Write(circle_label), Write(square_label))
+        self.next_subsection(name="Add labels", auto_next=True)
+
+        arrow = Arrow(circle.get_right(), square.get_left(), buff=0.1, color=GREEN)
+        arrow_label = Text("Connection", font_size=16).next_to(arrow, UP)
+        self.play(Create(arrow), Write(arrow_label))
+        self.next_slide()
+
+        self.clear()
+        title = Text("Transformations", font_size=36, color=YELLOW).to_edge(UP)
+        self.play(Write(title))
+        self.next_subsection(name="Show title")
+
+        dot = Dot(color=ORANGE).shift(DOWN)
+        self.play(FadeIn(dot))
+        self.next_subsection(name="Add dot")
+
+        triangle = Triangle(color=PURPLE).shift(UP)
+        self.play(Create(triangle))
+        self.next_subsection(name="Add triangle")
+
+        self.play(dot.animate.move_to(triangle.get_center()))
+        self.next_slide()
+
+
 # For ThreeDExample, things are different
 
 if not MANIMGL:

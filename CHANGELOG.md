@@ -10,9 +10,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 (unreleased)=
 ## [Unreleased](https://github.com/jeertmans/manim-slides/compare/v5.5.2...HEAD)
 
+(unreleased-added)=
+### Added
+
+- Introduced `Slide.next_subsection()` to record intra-slide checkpoints within slides.
+  Subsections create vertical navigation in HTML/RevealJS presentations and pause points
+  in the Qt presenter and other formats.
+- Added `--subsections [none|all]` flag to `manim-slides present` and
+  `manim-slides convert` commands. Default is `all`, which enables subsection
+  handling. Use `none` to disable subsections and treat them as regular slides.
+- HTML/RevealJS exports now create nested vertical slides for subsections, providing
+  hierarchical 2D navigation (horizontal for slides, vertical for subsections).
+
 (unreleased-changed)=
 ### Changed
-
 - Sort the scenes alphabetically when listing scenes
   (e.g., when prompting for scenes with `manim-slides present`).
   [@msaadsbr](https://github.com/msaadsbr) [#573](https://github.com/jeertmans/manim-slides/pull/573)

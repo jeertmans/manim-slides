@@ -39,9 +39,10 @@ from tqdm import tqdm
 
 from . import templates
 from .commons import folder_path_option, verbosity_option
-from .config import PresentationConfig
+from .config import PresentationConfig, SlideConfig
 from .logger import logger
 from .present import get_scenes_presentation_config
+from .utils import get_duration_ms, get_duration_seconds
 
 
 def open_with_default(file: Path) -> None:
@@ -81,14 +82,6 @@ def file_to_data_uri(file: Path) -> str:
     return f"data:{mime_type};base64,{b64}"
 
 
-def get_duration_ms(file: Path) -> float:
-    """Read a video and return its duration in milliseconds."""
-    with av.open(str(file)) as container:
-        video = container.streams.video[0]
-
-        return float(1000 * video.duration * video.time_base)
-
-
 def read_image_from_video_file(file: Path, frame_index: "FrameIndex") -> Image:
     """Read a image from a video file at a given index."""
     with av.open(str(file)) as container:
@@ -100,6 +93,19 @@ def read_image_from_video_file(file: Path, frame_index: "FrameIndex") -> Image:
             frame = next(frames)
 
         return frame.to_image()
+
+
+def read_image_from_video_timestamp(file: Path, timestamp: float) -> Image:
+    """Read an image from a video file at a given timestamp (in seconds)."""
+    with av.open(str(file)) as container:
+        stream = container.streams.video[0]
+        seek_pts = int(max(timestamp, 0.0) / stream.time_base)
+        container.seek(seek_pts, stream=stream, any_frame=True, backward=True)
+        for frame in container.decode(video=0):
+            frame_time = frame.time or 0.0
+            if frame_time >= timestamp or timestamp == 0.0:
+                return frame.to_image()
+        return read_image_from_video_file(file, FrameIndex.last)
 
 
 class Converter(BaseModel):  # type: ignore
@@ -163,6 +169,19 @@ class StrEnum(Enum):
 
 
 Function = str  # Basically, anything
+
+
+class FrameIndex(str, Enum):
+    first = "first"
+    last = "last"
+
+    def __repr__(self) -> str:
+        return self.value
+
+
+class SubsectionMode(str, Enum):
+    none = "none"
+    all = "all"
 
 
 class JsTrue(str, StrEnum):
@@ -536,6 +555,10 @@ class RevealJS(Converter):
         RevealTheme.black, description="RevealJS version."
     )
     title: str = Field("Manim Slides", description="Presentation title.")
+    subsection_mode: SubsectionMode = Field(
+        SubsectionMode.all,
+        description="How subsections should be handled: 'none' or 'all'.",
+    )
     # Pydantic options
     model_config = ConfigDict(use_enum_values=True, extra="forbid")
 
@@ -548,6 +571,55 @@ class RevealJS(Converter):
 
     def open(self, file: Path) -> None:
         webbrowser.open(file.absolute().as_uri())
+
+    def _iter_slide_sections(self, slide_config: SlideConfig) -> list[dict[str, Any]]:
+        """Generate section data for template rendering."""
+        if self.subsection_mode == SubsectionMode.none or not slide_config.subsections:
+            return [
+                {
+                    "file": slide_config.file,
+                    "loop": slide_config.loop,
+                    "auto_next": slide_config.auto_next,
+                    "notes": slide_config.notes,
+                    "start_time": None,
+                    "end_time": None,
+                }
+            ]
+
+        sections = []
+        last_end = 0.0
+        for index, subsection in enumerate(slide_config.subsections):
+            fragment_file = Path(
+                f"{slide_config.file.stem}_sub_{index}{slide_config.file.suffix}"
+            )
+            sections.append(
+                {
+                    "file": fragment_file,
+                    "loop": False,
+                    "auto_next": subsection.auto_next,
+                    "notes": f"{slide_config.notes}\n\n{subsection.name}"
+                    if slide_config.notes and subsection.name
+                    else subsection.name or slide_config.notes,
+                    "start_time": None,
+                    "end_time": None,
+                }
+            )
+            last_end = subsection.end_time
+
+        video_duration = get_duration_seconds(slide_config.file)
+        if video_duration - last_end > 1e-3:
+            tail_file = Path(f"{slide_config.file.stem}_tail{slide_config.file.suffix}")
+            sections.append(
+                {
+                    "file": tail_file,
+                    "loop": slide_config.loop,
+                    "auto_next": False,
+                    "notes": slide_config.notes,
+                    "start_time": None,
+                    "end_time": None,
+                }
+            )
+        return sections
 
     def convert_to(self, dest: Path) -> None:  # noqa: C901
         """
@@ -586,10 +658,62 @@ class RevealJS(Converter):
                     return ""
 
             full_assets_dir.mkdir(parents=True, exist_ok=True)
-            for i, presentation_config in enumerate(self.presentation_configs):
-                presentation_config.copy_to(
-                    full_assets_dir, include_reversed=False, prefix=prefix(i)
-                )
+
+            if self.subsection_mode == SubsectionMode.all:
+                for i, presentation_config in enumerate(self.presentation_configs):
+                    for slide_config in presentation_config.slides:
+                        if slide_config.subsections:
+                            for index, subsection in enumerate(
+                                slide_config.subsections
+                            ):
+                                if subsection.file:
+                                    dest_file = full_assets_dir / (
+                                        prefix(i)
+                                        + f"{slide_config.file.stem}_sub_{index}{subsection.file.suffix}"
+                                    )
+                                    if not dest_file.exists():
+                                        shutil.copy(subsection.file, dest_file)
+
+                            # Extract tail segment (remaining content after last subsection)
+                            last_subsection = slide_config.subsections[-1]
+                            video_duration = get_duration_seconds(slide_config.file)
+                            if video_duration - last_subsection.end_time > 1e-3:
+                                tail_file = full_assets_dir / (
+                                    prefix(i)
+                                    + f"{slide_config.file.stem}_tail{slide_config.file.suffix}"
+                                )
+                                if not tail_file.exists():
+                                    # Use ffmpeg to extract tail segment (re-encode for accurate timing)
+                                    subprocess.run(
+                                        [
+                                            "ffmpeg",
+                                            "-i",
+                                            str(slide_config.file),
+                                            "-ss",
+                                            str(last_subsection.end_time),
+                                            "-c:v",
+                                            "libx264",
+                                            "-preset",
+                                            "fast",
+                                            "-crf",
+                                            "23",
+                                            "-y",
+                                            str(tail_file),
+                                        ],
+                                        check=True,
+                                        capture_output=True,
+                                    )
+                        else:
+                            dest_file = full_assets_dir / (
+                                prefix(i) + slide_config.file.name
+                            )
+                            if not dest_file.exists():
+                                shutil.copy(slide_config.file, dest_file)
+            else:
+                for i, presentation_config in enumerate(self.presentation_configs):
+                    presentation_config.copy_to(
+                        full_assets_dir, include_reversed=False, prefix=prefix(i)
+                    )
 
         dest.parent.mkdir(parents=True, exist_ok=True)
 
@@ -603,16 +727,34 @@ class RevealJS(Converter):
             if assets_dir is not None:
                 options["assets_dir"] = assets_dir
 
+            # Build enriched presentation data with subsection expansion
+            enriched_presentations = []
+            for presentation_config in self.presentation_configs:
+                enriched_slides = []
+                for slide_config in presentation_config.slides:
+                    sections = self._iter_slide_sections(slide_config)
+                    enriched_slides.append(
+                        {"slide_config": slide_config, "sections": sections}
+                    )
+                enriched_presentations.append(
+                    {
+                        "presentation_config": presentation_config,
+                        "enriched_slides": enriched_slides,
+                    }
+                )
+
             has_notes = any(
-                slide_config.notes != ""
-                for presentation_config in self.presentation_configs
-                for slide_config in presentation_config.slides
+                section["notes"]
+                for pres in enriched_presentations
+                for slide in pres["enriched_slides"]
+                for section in slide["sections"]
             )
 
             content = revealjs_template.render(
                 file_to_data_uri=file_to_data_uri,
                 get_duration_ms=get_duration_ms,
                 has_notes=has_notes,
+                enriched_presentations=enriched_presentations,
                 env=os.environ,
                 prefix=prefix if not self.one_file else None,
                 **options,
@@ -679,14 +821,6 @@ class HtmlZip(RevealJS):
             shutil.make_archive(str(dest.with_suffix("")), "zip", directory_name)
 
 
-class FrameIndex(str, Enum):
-    first = "first"
-    last = "last"
-
-    def __repr__(self) -> str:
-        return self.value
-
-
 class PDF(Converter):
     frame_index: FrameIndex = Field(
         FrameIndex.last,
@@ -694,6 +828,10 @@ class PDF(Converter):
     )
     resolution: PositiveFloat = Field(
         100.0, description="Image resolution use for saving frames."
+    )
+    subsection_mode: SubsectionMode = Field(
+        SubsectionMode.all,
+        description="How subsections should be exported: 'none' or 'all'.",
     )
     model_config = ConfigDict(use_enum_values=True, extra="forbid")
 
@@ -707,9 +845,7 @@ class PDF(Converter):
                 desc=f"Generating video slides for config {i + 1}",
                 leave=False,
             ):
-                images.append(
-                    read_image_from_video_file(slide_config.file, self.frame_index)
-                )
+                images.extend(self._images_for_slide(slide_config))
 
         dest.parent.mkdir(parents=True, exist_ok=True)
 
@@ -720,6 +856,37 @@ class PDF(Converter):
             save_all=True,
             append_images=images[1:],
         )
+
+    def _images_for_slide(self, slide_config: SlideConfig) -> list[Image]:
+        if self.subsection_mode == SubsectionMode.all and slide_config.subsections:
+            frames = []
+            for index, subsection in enumerate(slide_config.subsections):
+                if subsection.file:
+                    # WORKAROUND: Use first frame of NEXT subsection to show completion.
+                    # Manim animations stop at ~93% completion, so last frame shows incomplete state.
+                    # The wait() call in next_subsection() creates the completion frame as the next file.
+                    if (
+                        index + 1 < len(slide_config.subsections)
+                        and slide_config.subsections[index + 1].file
+                    ):
+                        # Use first frame of next subsection (completion frame from wait())
+                        frames.append(
+                            read_image_from_video_file(
+                                slide_config.subsections[index + 1].file,
+                                FrameIndex.first,
+                            )
+                        )
+                    else:
+                        # Last subsection: use slide's first/last frame per user preference
+                        frames.append(self._frame_for_slide(slide_config))
+            if not frames:
+                frames.append(self._frame_for_slide(slide_config))
+            return frames
+
+        return [self._frame_for_slide(slide_config)]
+
+    def _frame_for_slide(self, slide_config: SlideConfig) -> Image:
+        return read_image_from_video_file(slide_config.file, self.frame_index)
 
 
 class PowerPoint(Converter):
@@ -745,7 +912,21 @@ class PowerPoint(Converter):
         description="Optional image to use when animations are not playing.\n"
         "By default, the first frame of each animation is used.\nThis is important to avoid blinking effects between slides.",
     )
+    subsection_mode: SubsectionMode = Field(
+        SubsectionMode.all,
+        description="How subsections translate to PowerPoint slides: 'none' or 'all'.",
+    )
     model_config = ConfigDict(use_enum_values=True, extra="forbid")
+
+    def model_post_init(
+        self, __context: Any
+    ) -> None:  # pragma: no cover - pydantic hook
+        """Force subsection_mode to 'none' until subsections are supported for PPTX."""
+        if self.subsection_mode == SubsectionMode.all:
+            logger.warning(
+                "PowerPoint export does not yet support subsection_mode='all'; falling back to 'none'."
+            )
+            object.__setattr__(self, "subsection_mode", SubsectionMode.none)
 
     def convert_to(self, dest: Path) -> None:
         """Convert this configuration into a PowerPoint presentation, saved to DEST."""
@@ -776,6 +957,109 @@ class PowerPoint(Converter):
             nsmap = {"p": "http://schemas.openxmlformats.org/presentationml/2006/main"}
             return etree.ElementBase.xpath(el, query, namespaces=nsmap)
 
+        def add_click_effect_to_video(
+            slide_element: etree.Element, video_id: str, next_ctn_id: int
+        ) -> int:
+            nsmap = {"p": "http://schemas.openxmlformats.org/presentationml/2006/main"}
+            p_ns = "{%s}" % nsmap["p"]
+
+            timing = xpath(slide_element, ".//p:timing")[0]
+            tnLst = xpath(timing, ".//p:tnLst")[0]
+            par = xpath(tnLst, ".//p:par")[0]
+            root_cTn = xpath(par, ".//p:cTn[@nodeType='tmRoot']")[0]
+            childTnLst = xpath(root_cTn, ".//p:childTnLst")[0]
+
+            seq = xpath(childTnLst, ".//p:seq")
+            if not seq:
+                seq_elem = etree.Element(f"{p_ns}seq")
+                mainSeq_cTn = etree.SubElement(seq_elem, f"{p_ns}cTn")
+                mainSeq_cTn.set("id", str(next_ctn_id))
+                mainSeq_cTn.set("dur", "indefinite")
+                mainSeq_cTn.set("nodeType", "mainSeq")
+                next_ctn_id += 1
+
+                mainSeq_childTnLst = etree.SubElement(mainSeq_cTn, f"{p_ns}childTnLst")
+
+                prevCondLst = etree.SubElement(seq_elem, f"{p_ns}prevCondLst")
+                cond_prev = etree.SubElement(prevCondLst, f"{p_ns}cond")
+                cond_prev.set("evt", "onPrev")
+                tgtEl_prev = etree.SubElement(cond_prev, f"{p_ns}tgtEl")
+                etree.SubElement(tgtEl_prev, f"{p_ns}sldTgt")
+
+                nextCondLst = etree.SubElement(seq_elem, f"{p_ns}nextCondLst")
+                cond_next = etree.SubElement(nextCondLst, f"{p_ns}cond")
+                cond_next.set("evt", "onNext")
+                tgtEl_next = etree.SubElement(cond_next, f"{p_ns}tgtEl")
+                etree.SubElement(tgtEl_next, f"{p_ns}sldTgt")
+
+                childTnLst.append(seq_elem)
+            else:
+                mainSeq_cTn = xpath(seq[0], ".//p:cTn[@nodeType='mainSeq']")[0]
+                mainSeq_childTnLst = xpath(mainSeq_cTn, ".//p:childTnLst")[0]
+
+            par_wrapper = etree.Element(f"{p_ns}par")
+            cTn_wrapper = etree.SubElement(par_wrapper, f"{p_ns}cTn")
+            cTn_wrapper.set("id", str(next_ctn_id))
+            cTn_wrapper.set("fill", "hold")
+            next_ctn_id += 1
+
+            stCondLst = etree.SubElement(cTn_wrapper, f"{p_ns}stCondLst")
+            cond = etree.SubElement(stCondLst, f"{p_ns}cond")
+            cond.set("delay", "indefinite")
+
+            childTnLst_inner = etree.SubElement(cTn_wrapper, f"{p_ns}childTnLst")
+            par_inner = etree.SubElement(childTnLst_inner, f"{p_ns}par")
+            cTn_inner = etree.SubElement(par_inner, f"{p_ns}cTn")
+            cTn_inner.set("id", str(next_ctn_id))
+            cTn_inner.set("fill", "hold")
+            next_ctn_id += 1
+
+            stCondLst_inner = etree.SubElement(cTn_inner, f"{p_ns}stCondLst")
+            cond_inner = etree.SubElement(stCondLst_inner, f"{p_ns}cond")
+            cond_inner.set("delay", "0")
+
+            childTnLst_effect = etree.SubElement(cTn_inner, f"{p_ns}childTnLst")
+            par_effect = etree.SubElement(childTnLst_effect, f"{p_ns}par")
+            cTn_effect = etree.SubElement(par_effect, f"{p_ns}cTn")
+            cTn_effect.set("id", str(next_ctn_id))
+            cTn_effect.set("nodeType", "clickEffect")
+            cTn_effect.set("fill", "hold")
+            cTn_effect.set("presetClass", "entr")
+            cTn_effect.set("presetID", "1")
+            next_ctn_id += 1
+
+            stCondLst_effect = etree.SubElement(cTn_effect, f"{p_ns}stCondLst")
+            cond_effect = etree.SubElement(stCondLst_effect, f"{p_ns}cond")
+            cond_effect.set("delay", "0")
+
+            childTnLst_set = etree.SubElement(cTn_effect, f"{p_ns}childTnLst")
+            set_elem = etree.SubElement(childTnLst_set, f"{p_ns}set")
+            cBhvr = etree.SubElement(set_elem, f"{p_ns}cBhvr")
+            cTn_bhvr = etree.SubElement(cBhvr, f"{p_ns}cTn")
+            cTn_bhvr.set("id", str(next_ctn_id))
+            cTn_bhvr.set("dur", "1")
+            cTn_bhvr.set("fill", "hold")
+            next_ctn_id += 1
+
+            stCondLst_bhvr = etree.SubElement(cTn_bhvr, f"{p_ns}stCondLst")
+            cond_bhvr = etree.SubElement(stCondLst_bhvr, f"{p_ns}cond")
+            cond_bhvr.set("delay", "0")
+
+            tgtEl = etree.SubElement(cBhvr, f"{p_ns}tgtEl")
+            spTgt = etree.SubElement(tgtEl, f"{p_ns}spTgt")
+            spTgt.set("spid", video_id)
+
+            attrNameLst = etree.SubElement(cBhvr, f"{p_ns}attrNameLst")
+            attrName = etree.SubElement(attrNameLst, f"{p_ns}attrName")
+            attrName.text = "style.visibility"
+
+            to_elem = etree.SubElement(set_elem, f"{p_ns}to")
+            strVal = etree.SubElement(to_elem, f"{p_ns}strVal")
+            strVal.set("val", "visible")
+
+            mainSeq_childTnLst.append(par_wrapper)
+            return next_ctn_id
+
         with tempfile.TemporaryDirectory() as directory_name:
             directory = Path(directory_name)
             frame_number = 0
@@ -785,39 +1069,122 @@ class PowerPoint(Converter):
                     desc=f"Generating video slides for config {i + 1}",
                     leave=False,
                 ):
-                    file = slide_config.file
-
-                    mime_type = mimetypes.guess_type(file)[0]
-
-                    if self.poster_frame_image is None:
-                        poster_frame_image = str(directory / f"{frame_number}.png")
-                        image = read_image_from_video_file(
-                            file, frame_index=FrameIndex.first
-                        )
-                        image.save(poster_frame_image)
-
-                        frame_number += 1
-                    else:
-                        poster_frame_image = str(self.poster_frame_image)
+                    fragments = self._iter_slide_fragments(slide_config, directory)
 
                     slide = prs.slides.add_slide(layout)
-                    movie = slide.shapes.add_movie(
-                        str(file),
-                        self.left,
-                        self.top,
-                        self.width * 9525,
-                        self.height * 9525,
-                        poster_frame_image=poster_frame_image,
-                        mime_type=mime_type,
-                    )
-                    if slide_config.notes != "":
-                        slide.notes_slide.notes_text_frame.text = slide_config.notes
 
-                    if self.auto_play_media:
-                        auto_play_media(movie, loop=slide_config.loop)
+                    # Disable slide transitions to avoid black flashes
+                    nsmap = {
+                        "p": "http://schemas.openxmlformats.org/presentationml/2006/main"
+                    }
+                    transition = etree.SubElement(
+                        slide.element, "{%s}transition" % nsmap["p"]
+                    )
+                    etree.SubElement(transition, "{%s}cut" % nsmap["p"])
+
+                    movies = []
+                    for fragment_file, notes, loop_flag in fragments:
+                        mime_type = mimetypes.guess_type(fragment_file)[0]
+                        poster_frame_image = self._poster_frame_image_path(
+                            fragment_file, directory, frame_number
+                        )
+                        frame_number += 1
+
+                        movie = slide.shapes.add_movie(
+                            str(fragment_file),
+                            self.left,
+                            self.top,
+                            self.width * 9525,
+                            self.height * 9525,
+                            poster_frame_image=poster_frame_image,
+                            mime_type=mime_type,
+                        )
+                        movies.append((movie, notes, loop_flag))
+
+                    if movies:
+                        notes_parts = [n for _, n, _ in movies if n]
+                        if notes_parts:
+                            slide.notes_slide.notes_text_frame.text = "\n\n".join(
+                                notes_parts
+                            )
+
+                        if len(movies) == 1:
+                            if self.auto_play_media:
+                                auto_play_media(movies[0][0], loop=movies[0][2])
+                        else:
+                            if self.auto_play_media:
+                                auto_play_media(movies[0][0], loop=movies[0][2])
+
+                            for movie, _, _ in movies[1:]:
+                                video_id = xpath(movie.element, ".//p:cNvPr")[0].attrib[
+                                    "id"
+                                ]
+                                timing = xpath(slide.element, ".//p:timing")[0]
+                                childTnLst = xpath(timing, ".//p:childTnLst")[0]
+                                video_nodes = xpath(
+                                    childTnLst,
+                                    f'.//p:video//p:spTgt[@spid="{video_id}"]/..',
+                                )
+                                for video_node in video_nodes:
+                                    parent = video_node.getparent()
+                                    if parent is not None:
+                                        grandparent = parent.getparent()
+                                        if grandparent is not None:
+                                            grandparent.remove(parent)
+
+                            next_ctn_id = 3
+                            for movie, _, _ in movies[1:]:
+                                video_id = xpath(movie.element, ".//p:cNvPr")[0].attrib[
+                                    "id"
+                                ]
+                                next_ctn_id = add_click_effect_to_video(
+                                    slide.element, video_id, next_ctn_id
+                                )
 
             dest.parent.mkdir(parents=True, exist_ok=True)
             prs.save(dest)
+
+    def _poster_frame_image_path(
+        self, file: Path, directory: Path, frame_number: int
+    ) -> str:
+        if self.poster_frame_image is not None:
+            return str(self.poster_frame_image)
+
+        poster_frame_image = str(directory / f"{frame_number}.png")
+        image = read_image_from_video_file(file, frame_index=FrameIndex.first)
+        image.save(poster_frame_image)
+        return poster_frame_image
+
+    def _iter_slide_fragments(
+        self, slide_config: SlideConfig, directory: Path
+    ) -> list[tuple[Path, str, bool]]:
+        if self.subsection_mode == SubsectionMode.none or not slide_config.subsections:
+            return [(slide_config.file, slide_config.notes, slide_config.loop)]
+
+        fragments: list[tuple[Path, str, bool]] = []
+        base_notes = slide_config.notes.strip()
+
+        for index, subsection in enumerate(slide_config.subsections):
+            if subsection.end_time <= 0:
+                continue
+
+            if subsection.file:
+                fragment_file = (
+                    directory
+                    / f"{slide_config.file.stem}_sub_{index}{subsection.file.suffix}"
+                )
+                if not fragment_file.exists():
+                    shutil.copy(subsection.file, fragment_file)
+
+                label = subsection.name or f"Subsection {index + 1}"
+                notes_parts = [part for part in (base_notes, label) if part]
+                notes_text = "\n\n".join(notes_parts)
+                fragments.append((fragment_file, notes_text, False))
+
+        if not fragments:
+            fragments.append((slide_config.file, slide_config.notes, slide_config.loop))
+
+        return fragments
 
 
 def show_config_options(function: Callable[..., Any]) -> Callable[..., Any]:
@@ -909,6 +1276,57 @@ def show_template_option(function: Callable[..., Any]) -> Callable[..., Any]:
     )(function)
 
 
+def _determine_converter_class(to: str, dest: Path) -> type[Converter]:
+    """Determine the converter class from format string or destination path."""
+    if to == "auto":
+        fmt = dest.suffix[1:].lower()
+        try:
+            return Converter.from_string(fmt)
+        except KeyError:
+            logger.warning(
+                f"Could not guess conversion format from {dest!s}, defaulting to HTML."
+            )
+            return RevealJS
+    return Converter.from_string(to)
+
+
+def _apply_config_options(
+    cls: type[Converter],
+    config_options: dict[str, str],
+    one_file: bool,
+    offline: bool,
+    subsections: str,
+) -> None:
+    """Apply and validate configuration options for the converter."""
+    if (
+        one_file
+        and issubclass(cls, (RevealJS, HtmlZip))
+        and "one_file" not in config_options
+    ):
+        config_options["one_file"] = "true"
+
+    if "data_uri" in config_options:
+        warnings.warn(
+            "The 'data_uri' configuration option is deprecated and will be "
+            "removed in the next major version. Use 'one_file' instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        config_options["one_file"] = config_options.get(
+            "one_file"
+        ) or config_options.pop("data_uri")
+
+    if (
+        offline
+        and issubclass(cls, (RevealJS, HtmlZip))
+        and "offline" not in config_options
+    ):
+        config_options["offline"] = "true"
+
+    if issubclass(cls, (RevealJS, PDF, PowerPoint)):
+        config_options.setdefault("subsection_mode", subsections)
+
+
 @click.command()
 @click.argument("scenes", nargs=-1)
 @folder_path_option
@@ -956,6 +1374,13 @@ def show_template_option(function: Callable[..., Any]) -> Callable[..., Any]:
     help="Download any remote content and store it in the assets folder. "
     "The is a convenient alias to '-coffline=true'.",
 )
+@click.option(
+    "--subsections",
+    type=click.Choice(["none", "all"], case_sensitive=False),
+    default="all",
+    show_default=True,
+    help="Control how subsections are rendered: 'none' ignores subsections, 'all' creates separate slides/pages per subsection.",
+)
 @show_template_option
 @show_config_options
 @verbosity_option
@@ -969,51 +1394,20 @@ def convert(
     template: Optional[Path],
     offline: bool,
     one_file: bool,
+    subsections: str,
 ) -> None:
     """Convert SCENE(s) into a given format and writes the result in DEST."""
     presentation_configs = get_scenes_presentation_config(scenes, folder)
 
     try:
-        if to == "auto":
-            fmt = dest.suffix[1:].lower()
-            try:
-                cls = Converter.from_string(fmt)
-            except KeyError:
-                logger.warning(
-                    f"Could not guess conversion format from {dest!s}, defaulting to HTML."
-                )
-                cls = RevealJS
-        else:
-            cls = Converter.from_string(to)
-
-        if (
-            one_file
-            and issubclass(cls, (RevealJS, HtmlZip))
-            and "one_file" not in config_options
-        ):
-            config_options["one_file"] = "true"
-
-        # Change data_uri to one_file and print a warning if present
-        if "data_uri" in config_options:
-            warnings.warn(
-                "The 'data_uri' configuration option is deprecated and will be "
-                "removed in the next major version. "
-                "Use 'one_file' instead.",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-            config_options["one_file"] = (
-                config_options["one_file"]
-                if "one_file" in config_options
-                else config_options.pop("data_uri")
-            )
-
-        if (
-            offline
-            and issubclass(cls, (RevealJS, HtmlZip))
-            and "offline" not in config_options
-        ):
-            config_options["offline"] = "true"
+        cls = _determine_converter_class(to, dest)
+        _apply_config_options(
+            cls,
+            config_options,
+            one_file,
+            offline,
+            subsections,
+        )
 
         converter = cls(
             presentation_configs=presentation_configs,

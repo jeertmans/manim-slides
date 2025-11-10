@@ -5,8 +5,9 @@ from pathlib import Path
 import pytest
 import requests
 from bs4 import BeautifulSoup
+from pptx import Presentation
 
-from manim_slides.config import PresentationConfig
+from manim_slides.config import PresentationConfig, SlideConfig
 from manim_slides.convert import (
     PDF,
     AutoAnimateEasing,
@@ -32,11 +33,12 @@ from manim_slides.convert import (
     RevealTheme,
     ShowSlideNumber,
     SlideNumber,
+    SubsectionMode,
     Transition,
     TransitionSpeed,
     file_to_data_uri,
-    get_duration_ms,
 )
+from manim_slides.utils import get_duration_ms
 
 
 def test_get_duration_ms(video_file: Path) -> None:
@@ -328,3 +330,113 @@ class TestConverter:
         out_file = tmp_path / "slides.pptx"
         PowerPoint(presentation_configs=[presentation_config]).convert_to(out_file)
         assert out_file.exists()
+
+
+def _make_slide_config(video_file: Path) -> SlideConfig:
+    return SlideConfig.model_validate(  # type: ignore[no-any-return]
+        {
+            "loop": False,
+            "auto_next": False,
+            "playback_rate": 1.0,
+            "reversed_playback_rate": 1.0,
+            "notes": "",
+            "dedent_notes": True,
+            "skip_animations": False,
+            "src": None,
+            "file": video_file,
+            "rev_file": video_file,
+            "start_animation": 0,
+            "end_animation": 1,
+            "subsections": [
+                {
+                    "name": "Stage 1",
+                    "auto_next": False,
+                    "start_animation": 0,
+                    "end_animation": 1,
+                    "start_time": 0.0,
+                    "end_time": 1.0,
+                }
+            ],
+        }
+    )
+
+
+def test_pdf_subsections_none(tmp_path: Path, video_file: Path) -> None:
+    """
+    Test that with pdf_subsection_mode=none, slides with subsections
+    capture the final frame showing all subsections completed.
+    """
+    slide_with_subsections = _make_slide_config(video_file)
+    slide_without_subsections = SlideConfig.model_validate(
+        {
+            "loop": False,
+            "auto_next": False,
+            "playback_rate": 1.0,
+            "reversed_playback_rate": 1.0,
+            "notes": "",
+            "dedent_notes": True,
+            "skip_animations": False,
+            "src": None,
+            "file": video_file,
+            "rev_file": video_file,
+            "start_animation": 0,
+            "end_animation": 1,
+            "subsections": [],
+        }
+    )
+    presentation = PresentationConfig(
+        slides=[slide_without_subsections, slide_with_subsections]
+    )
+    out_file = tmp_path / "subsections_none.pdf"
+    PDF(
+        presentation_configs=[presentation],
+        subsection_mode="none",
+    ).convert_to(out_file)
+    assert out_file.exists()
+
+
+def test_pdf_subsections_all(tmp_path: Path, video_file: Path) -> None:
+    slide = _make_slide_config(video_file)
+    presentation = PresentationConfig(slides=[slide])
+    out_file = tmp_path / "subsections.pdf"
+    PDF(
+        presentation_configs=[presentation],
+        subsection_mode="all",
+    ).convert_to(out_file)
+    assert out_file.exists()
+
+
+@pytest.mark.skipif(shutil.which("ffmpeg") is None, reason="ffmpeg is required")
+def test_pptx_subsections_all_falls_back_to_none(
+    tmp_path: Path, video_file: Path
+) -> None:
+    """PowerPoint ignores subsection_mode=all until subsections are implemented."""
+    slide = _make_slide_config(video_file)
+    presentation = PresentationConfig(slides=[slide])
+    out_file = tmp_path / "subsections.pptx"
+    converter = PowerPoint(
+        presentation_configs=[presentation],
+        subsection_mode="all",
+        width=640,
+        height=360,
+    )
+    converter.convert_to(out_file)
+    assert out_file.exists()
+    assert converter.subsection_mode == SubsectionMode.none
+    prs = Presentation(out_file)
+    assert len(prs.slides) == len(presentation.slides)
+
+
+@pytest.mark.skipif(shutil.which("ffmpeg") is None, reason="ffmpeg is required")
+def test_pptx_subsections_none(tmp_path: Path, video_file: Path) -> None:
+    """Test that subsection_mode=none ignores subsections and creates one PowerPoint slide."""
+    slide = _make_slide_config(video_file)
+    presentation = PresentationConfig(slides=[slide])
+    out_file = tmp_path / "subsections_none.pptx"
+    PowerPoint(
+        presentation_configs=[presentation],
+        subsection_mode="none",
+        width=640,
+        height=360,
+    ).convert_to(out_file)
+    assert out_file.exists()

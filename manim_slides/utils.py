@@ -13,6 +13,18 @@ from tqdm import tqdm
 from .logger import logger
 
 
+def get_duration_ms(file: Path) -> float:
+    """Return video duration in milliseconds."""
+    with av.open(str(file)) as container:
+        video = container.streams.video[0]
+        return float(1000 * video.duration * video.time_base)
+
+
+def get_duration_seconds(file: Path) -> float:
+    """Return video duration in seconds."""
+    return get_duration_ms(file) / 1000.0
+
+
 def concatenate_video_files(files: list[Path], dest: Path) -> None:
     """Concatenate multiple video files into one."""
     if len(files) == 1:

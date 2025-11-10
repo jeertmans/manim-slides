@@ -15,6 +15,7 @@ use, not the methods used internally when rendering.
         canvas,
         canvas_mobjects,
         mobjects_without_canvas,
+        next_subsection,
         next_section,
         next_slide,
         remove_from_canvas,
