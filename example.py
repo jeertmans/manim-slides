@@ -226,6 +226,8 @@ class Example(Slide):
 
 class SubsectionExample(Slide):
     def construct(self):
+        self.wait_time_between_slides = 0.1  # Show completed frames
+
         title = Text("Subsections Demo", color=YELLOW)
         self.play(Write(title))
         self.next_slide()
