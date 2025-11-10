@@ -420,7 +420,6 @@ class Player(QMainWindow):  # type: ignore[misc]
             self.media_player.play()
 
     def load_current_slide(self) -> None:
-        self._freeze_current_frame()
         slide_config = self.current_slide_config
         use_subsections = self._reset_subsections()
         self.current_file = slide_config.file
@@ -503,8 +502,12 @@ class Player(QMainWindow):  # type: ignore[misc]
             self._skip_pending_subsection()
             return True
         if self._current_subsection_index >= len(self._active_subsections) - 1:
+            # All subsections consumed; play remainder of slide to completion
             self._clear_subsections()
-            return False
+            last_subsection = self.current_slide_config.subsections[-1]
+            self.media_player.setPosition(int(last_subsection.end_time * 1000))
+            self.media_player.play()
+            return True
 
         self._start_subsection(self._current_subsection_index + 1)
         return True
