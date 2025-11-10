@@ -673,6 +673,31 @@ class RevealJS(Converter):
                                     )
                                     if not dest_file.exists():
                                         shutil.copy(subsection.file, dest_file)
+
+                            # Extract tail segment (remaining content after last subsection)
+                            last_subsection = slide_config.subsections[-1]
+                            video_duration = get_duration_seconds(slide_config.file)
+                            if video_duration - last_subsection.end_time > 1e-3:
+                                tail_file = full_assets_dir / (
+                                    prefix(i)
+                                    + f"{slide_config.file.stem}_tail{slide_config.file.suffix}"
+                                )
+                                if not tail_file.exists():
+                                    # Use ffmpeg to extract tail segment (re-encode for accurate timing)
+                                    subprocess.run(
+                                        [
+                                            "ffmpeg",
+                                            "-i", str(slide_config.file),
+                                            "-ss", str(last_subsection.end_time),
+                                            "-c:v", "libx264",
+                                            "-preset", "fast",
+                                            "-crf", "23",
+                                            "-y",
+                                            str(tail_file),
+                                        ],
+                                        check=True,
+                                        capture_output=True,
+                                    )
                         else:
                             dest_file = full_assets_dir / (
                                 prefix(i) + slide_config.file.name
