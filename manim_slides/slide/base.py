@@ -333,8 +333,10 @@ class BaseSlide:
         if relative_animation_index < 0:
             relative_animation_index = 0
 
-        # Add wait to show completed animation state (workaround for Manim bug where
-        # animations stop at ~93% completion). Same as next_slide() behavior.
+        # WORKAROUND: Add wait() to show completed animation state.
+        # Manim animations stop at approximately 93% completion (alpha never reaches 1.0).
+        # The wait() creates a separate partial animation file showing the completed state.
+        # This matches next_slide() behavior and fixes incomplete frames in all backends.
         if self.wait_time_between_slides > 0.0:
             self.wait(self.wait_time_between_slides)  # type: ignore[attr-defined]
 
@@ -606,7 +608,9 @@ class BaseSlide:
             start_time = prefix_durations[start_animation]
             end_time = prefix_durations[end_animation]
 
-            # Map subsection to its corresponding partial file(s)
+            # Map subsection to its corresponding partial animation file(s).
+            # Only set file if subsection contains exactly one animation (most common case).
+            # Multiple animations or zero animations result in None (subsection spans multiple files).
             subsection_files = partial_files[start_animation:end_animation]
             subsection_file = (
                 subsection_files[0] if len(subsection_files) == 1 else None

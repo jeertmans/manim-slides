@@ -170,7 +170,11 @@ class SubsectionConfig(BaseModel):  # type: ignore[misc]
     end_animation: NonNegativeInt
     start_time: float = Field(0.0, ge=0.0)
     end_time: float = Field(0.0, ge=0.0)
-    file: Optional[FilePath] = None
+    file: Optional[FilePath] = Field(
+        None,
+        description="Path to the partial animation file for this subsection. "
+        "Only set when subsection contains exactly one animation.",
+    )
 
     @model_validator(mode="after")
     def animations_are_monotone(self) -> "SubsectionConfig":

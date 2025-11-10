@@ -59,7 +59,14 @@ def test_build_subsection_configs(tmp_path: Path) -> None:
     )
 
     durations = [0.2, 0.3, 0.5]
-    subsections = slide._build_subsection_configs(pre_slide, durations)
+    # Create dummy animation files for validation
+    partial_files = []
+    for i in range(3):
+        file_path = tmp_path / f"anim_{i}.mp4"
+        file_path.touch()
+        partial_files.append(file_path)
+
+    subsections = slide._build_subsection_configs(pre_slide, durations, partial_files)
 
     assert len(subsections) == 2
     assert subsections[0].start_animation == 0
@@ -69,6 +76,9 @@ def test_build_subsection_configs(tmp_path: Path) -> None:
     assert subsections[1].end_animation == 3
     assert subsections[1].end_time == pytest.approx(1.0)
     assert subsections[1].auto_next
+    # Verify file field is populated correctly
+    assert subsections[0].file == partial_files[0]  # Single animation: file set
+    assert subsections[1].file is None  # Multiple animations: file is None
 
 
 def test_build_subsection_configs_bounds(tmp_path: Path) -> None:
@@ -81,5 +91,12 @@ def test_build_subsection_configs_bounds(tmp_path: Path) -> None:
         subsection_markers=(SubsectionMarker(animation_index=5),),
     )
 
+    # Create dummy animation files for validation
+    partial_files = []
+    for i in range(2):
+        file_path = tmp_path / f"anim_{i}.mp4"
+        file_path.touch()
+        partial_files.append(file_path)
+
     with pytest.raises(ValueError):
-        slide._build_subsection_configs(pre_slide, [0.1, 0.2])
+        slide._build_subsection_configs(pre_slide, [0.1, 0.2], partial_files)

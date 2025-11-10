@@ -832,13 +832,14 @@ class PDF(Converter):
             frames = []
             for index, subsection in enumerate(slide_config.subsections):
                 if subsection.file:
-                    # Use first frame of NEXT subsection to show completion of current
-                    # (Manim bug: last frame only shows ~93% of animation)
+                    # WORKAROUND: Use first frame of NEXT subsection to show completion.
+                    # Manim animations stop at ~93% completion, so last frame shows incomplete state.
+                    # The wait() call in next_subsection() creates the completion frame as the next file.
                     if (
                         index + 1 < len(slide_config.subsections)
                         and slide_config.subsections[index + 1].file
                     ):
-                        # Next subsection exists: use its first frame
+                        # Use first frame of next subsection (completion frame from wait())
                         frames.append(
                             read_image_from_video_file(
                                 slide_config.subsections[index + 1].file,
@@ -846,7 +847,7 @@ class PDF(Converter):
                             )
                         )
                     else:
-                        # Last subsection: use slide's first/last frame based on user preference
+                        # Last subsection: use slide's first/last frame per user preference
                         frames.append(self._frame_for_slide(slide_config))
             if not frames:
                 frames.append(self._frame_for_slide(slide_config))
