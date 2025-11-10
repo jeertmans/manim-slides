@@ -888,7 +888,9 @@ class PowerPoint(Converter):
     )
     model_config = ConfigDict(use_enum_values=True, extra="forbid")
 
-    def model_post_init(self, __context: Any) -> None:  # pragma: no cover - pydantic hook
+    def model_post_init(
+        self, __context: Any
+    ) -> None:  # pragma: no cover - pydantic hook
         """Force subsection_mode to 'none' until subsections are supported for PPTX."""
         if self.subsection_mode == SubsectionMode.all:
             logger.warning(
