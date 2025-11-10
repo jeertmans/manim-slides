@@ -170,6 +170,7 @@ class SubsectionConfig(BaseModel):  # type: ignore[misc]
     end_animation: NonNegativeInt
     start_time: float = Field(0.0, ge=0.0)
     end_time: float = Field(0.0, ge=0.0)
+    file: Optional[FilePath] = None
 
     @model_validator(mode="after")
     def animations_are_monotone(self) -> "SubsectionConfig":

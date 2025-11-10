@@ -340,10 +340,6 @@ class BaseSlide:
         )
         self._pending_subsection_markers.append(marker)
 
-        # Call Manim's next_section to create separate video files
-        if hasattr(self, 'next_section'):
-            self.next_section(name=name or f"subsection_{len(self._pending_subsection_markers)}")
-
     def _consume_subsection_markers(self) -> tuple[SubsectionMarker, ...]:
         markers = tuple(self._pending_subsection_markers)
         self._pending_subsection_markers.clear()
@@ -582,6 +578,7 @@ class BaseSlide:
         self,
         pre_slide_config: PreSlideConfig,
         animation_durations: Sequence[float],
+        partial_files: Sequence[Path],
     ) -> tuple[SubsectionConfig, ...]:
         """Return resolved subsection configs for a given slide."""
         subsections: list[SubsectionConfig] = []
@@ -603,6 +600,11 @@ class BaseSlide:
             end_animation = boundary
             start_time = prefix_durations[start_animation]
             end_time = prefix_durations[end_animation]
+
+            # Map subsection to its corresponding partial file(s)
+            subsection_files = partial_files[start_animation:end_animation]
+            subsection_file = subsection_files[0] if len(subsection_files) == 1 else None
+
             subsections.append(
                 SubsectionConfig(
                     name=marker.name,
@@ -611,6 +613,7 @@ class BaseSlide:
                     end_animation=end_animation,
                     start_time=start_time,
                     end_time=end_time,
+                    file=subsection_file,
                 )
             )
             previous_boundary = boundary
@@ -682,6 +685,7 @@ class BaseSlide:
                 subsection_configs = self._build_subsection_configs(
                     pre_slide_config,
                     animation_durations,
+                    slide_files,
                 )
 
             try:

@@ -1,7 +1,6 @@
 import hashlib
 import os
 import shutil
-import subprocess  # nosec B404
 import tempfile
 from collections.abc import Iterator
 from multiprocessing import Pool
@@ -25,92 +24,6 @@ def get_duration_seconds(file: Path) -> float:
     """Return video duration in seconds."""
     return get_duration_ms(file) / 1000.0
 
-
-def extract_video_segment(
-    src: Path, dest: Path, start: float, end: float, *, accurate: bool = False
-) -> None:
-    """
-    Extract a [start, end] video segment (in seconds) into dest using ffmpeg.
-
-    This function uses subprocess to call ffmpeg directly. While subprocess usage
-    can be a security concern, this implementation is safe because:
-    1. All inputs are validated before use
-    2. Arguments are passed as a list (not shell string)
-    3. shell=False prevents shell injection
-    4. ffmpeg path is resolved via shutil.which()
-
-    :param accurate: If True, re-encodes for frame-accurate cuts. If False, uses
-        codec copy which is faster but cuts only at keyframes.
-    """
-    if not src.exists():
-        raise FileNotFoundError(f"Source video file does not exist: {src}")
-    if not src.is_file():
-        raise ValueError(f"Source path is not a file: {src}")
-
-    dest.parent.mkdir(parents=True, exist_ok=True)
-
-    # Add small epsilon to include the frame at end_time
-    # ffmpeg's -t duration excludes frames at exactly start+duration
-    epsilon = 0.001
-    duration = max(end - start + epsilon, 0.0)
-    if duration <= epsilon:
-        shutil.copy(src, dest)
-        return
-
-    if start < 0.0 or end < 0.0:
-        raise ValueError(f"Time values must be non-negative: start={start}, end={end}")
-
-    # Verify ffmpeg is available
-    ffmpeg_path = shutil.which("ffmpeg")
-    if not ffmpeg_path:
-        raise RuntimeError("ffmpeg not found in PATH")
-
-    # Build command with validated, safe arguments
-    if accurate:
-        # Re-encode for frame-accurate cuts
-        command = [
-            ffmpeg_path,
-            "-y",  # Overwrite output file
-            "-ss",
-            f"{start:.3f}",  # Start time (validated float)
-            "-i",
-            str(src.resolve()),  # Input file (validated Path)
-            "-t",
-            f"{duration:.3f}",  # Duration (validated float)
-            "-c:v",
-            "libx264",  # Re-encode video
-            "-c:a",
-            "aac",  # Re-encode audio
-            str(dest.resolve()),  # Output file (validated Path)
-        ]
-    else:
-        # Fast copy without re-encoding (keyframe cuts only)
-        command = [
-            ffmpeg_path,
-            "-y",  # Overwrite output file
-            "-ss",
-            f"{start:.3f}",  # Start time (validated float)
-            "-i",
-            str(src.resolve()),  # Input file (validated Path)
-            "-t",
-            f"{duration:.3f}",  # Duration (validated float)
-            "-c",
-            "copy",  # Copy codec (no re-encoding)
-            str(dest.resolve()),  # Output file (validated Path)
-        ]
-
-    # Execute with shell=False to prevent injection
-    process = subprocess.run(  # nosec B603
-        command,
-        capture_output=True,
-        check=False,
-        shell=False,
-    )
-
-    if process.returncode != 0:
-        raise RuntimeError(
-            f"ffmpeg failed to extract video segment:\n{process.stderr.decode().strip()}"
-        )
 
 
 def concatenate_video_files(files: list[Path], dest: Path) -> None:

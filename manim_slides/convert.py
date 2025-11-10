@@ -42,7 +42,7 @@ from .commons import folder_path_option, verbosity_option
 from .config import PresentationConfig, SlideConfig, SubsectionConfig
 from .logger import logger
 from .present import get_scenes_presentation_config
-from .utils import extract_video_segment, get_duration_ms, get_duration_seconds
+from .utils import get_duration_ms, get_duration_seconds
 
 
 def open_with_default(file: Path) -> None:
@@ -666,32 +666,13 @@ class RevealJS(Converter):
                             for index, subsection in enumerate(
                                 slide_config.subsections
                             ):
-                                fragment_file = full_assets_dir / (
-                                    prefix(i)
-                                    + f"{slide_config.file.stem}_sub_{index}{slide_config.file.suffix}"
-                                )
-                                extract_video_segment(
-                                    slide_config.file,
-                                    fragment_file,
-                                    subsection.start_time,
-                                    subsection.end_time,
-                                    accurate=True,
-                                )
-
-                            video_duration = get_duration_seconds(slide_config.file)
-                            last_end = slide_config.subsections[-1].end_time
-                            if video_duration - last_end > 1e-3:
-                                fragment_file = full_assets_dir / (
-                                    prefix(i)
-                                    + f"{slide_config.file.stem}_tail{slide_config.file.suffix}"
-                                )
-                                extract_video_segment(
-                                    slide_config.file,
-                                    fragment_file,
-                                    last_end,
-                                    video_duration,
-                                    accurate=True,
-                                )
+                                if subsection.file:
+                                    dest_file = full_assets_dir / (
+                                        prefix(i)
+                                        + f"{slide_config.file.stem}_sub_{index}{subsection.file.suffix}"
+                                    )
+                                    if not dest_file.exists():
+                                        shutil.copy(subsection.file, dest_file)
                         else:
                             dest_file = full_assets_dir / (
                                 prefix(i) + slide_config.file.name
@@ -1131,46 +1112,25 @@ class PowerPoint(Converter):
 
         fragments: list[tuple[Path, str, bool]] = []
         base_notes = slide_config.notes.strip()
-        last_end = 0.0
 
         for index, subsection in enumerate(slide_config.subsections):
             if subsection.end_time <= 0:
                 continue
 
-            fragment_file = (
-                directory
-                / f"{slide_config.file.stem}_sub_{index}{slide_config.file.suffix}"
-            )
-            # Extract from start_time to end_time for this subsection
-            extract_video_segment(
-                slide_config.file,
-                fragment_file,
-                subsection.start_time,
-                subsection.end_time,
-                accurate=True,
-            )
+            if subsection.file:
+                fragment_file = (
+                    directory
+                    / f"{slide_config.file.stem}_sub_{index}{subsection.file.suffix}"
+                )
+                if not fragment_file.exists():
+                    shutil.copy(subsection.file, fragment_file)
 
-            label = subsection.name or f"Subsection {index + 1}"
-            notes_parts = [part for part in (base_notes, label) if part]
-            notes_text = "\n\n".join(notes_parts)
-            fragments.append((fragment_file, notes_text, False))
-            last_end = subsection.end_time
+                label = subsection.name or f"Subsection {index + 1}"
+                notes_parts = [part for part in (base_notes, label) if part]
+                notes_text = "\n\n".join(notes_parts)
+                fragments.append((fragment_file, notes_text, False))
 
-        video_duration = get_duration_seconds(slide_config.file)
-        if video_duration - last_end > 1e-3:
-            fragment_file = (
-                directory / f"{slide_config.file.stem}_tail{slide_config.file.suffix}"
-            )
-            # Extract tail segment from last_end to video_duration
-            extract_video_segment(
-                slide_config.file,
-                fragment_file,
-                last_end,
-                video_duration,
-                accurate=True,
-            )
-            fragments.append((fragment_file, slide_config.notes, slide_config.loop))
-        elif not fragments:
+        if not fragments:
             fragments.append((slide_config.file, slide_config.notes, slide_config.loop))
 
         return fragments
