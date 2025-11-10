@@ -23,38 +23,45 @@
           {%- set presentation_config = pres.presentation_config %}
           {% for enriched_slide in pres.enriched_slides %}
             {%- set slide_config = enriched_slide.slide_config %}
-            {% for section in enriched_slide.sections %}
+            {%- set sections = enriched_slide.sections %}
+            {% if sections|length > 1 %}
+        <section>
+            {% endif %}
+            {% for section in sections %}
               {%- set section_loop = loop %}
               {% if one_file %}
                 {% set file = file_to_data_uri(section.file) %}
               {% else %}
                 {% set file = assets_dir / (prefix(outer_loop.index0) + section.file.name) %}
               {% endif %}
-        <section
-          data-background-size={{ background_size }}
-          data-background-color="{{ presentation_config.background_color }}"
-          data-background-video="{{ file }}"
-          {% if section.start_time is not none %}
-          data-background-video-start="{{ section.start_time }}"
-          {% endif %}
-          {% if section.end_time is not none %}
-          data-background-video-end="{{ section.end_time }}"
-          {% endif %}
-          {% if outer_loop.index == 1 and loop.index == 1 and section_loop.index == 1 %}
-          data-background-video-muted
-          {% endif %}
-          {% if section.loop %}
-          data-background-video-loop
-          {% endif %}
-          {% if section.auto_next %}
-          data-autoslide="{{ (section.end_time - section.start_time) * 1000 if section.end_time and section.start_time else get_duration_ms(slide_config.file) }}"
-          {% endif %}
-          >
-          {% if section.notes %}
-            <aside class="notes" data-markdown>{{ section.notes }}</aside>
-          {% endif %}
-        </section>
+          <section
+            data-background-size={{ background_size }}
+            data-background-color="{{ presentation_config.background_color }}"
+            data-background-video="{{ file }}"
+            {% if section.start_time is not none %}
+            data-background-video-start="{{ section.start_time }}"
+            {% endif %}
+            {% if section.end_time is not none %}
+            data-background-video-end="{{ section.end_time }}"
+            {% endif %}
+            {% if outer_loop.index == 1 and loop.index == 1 and section_loop.index == 1 %}
+            data-background-video-muted
+            {% endif %}
+            {% if section.loop %}
+            data-background-video-loop
+            {% endif %}
+            {% if section.auto_next %}
+            data-autoslide="{{ (section.end_time - section.start_time) * 1000 if section.end_time and section.start_time else get_duration_ms(slide_config.file) }}"
+            {% endif %}
+            >
+            {% if section.notes %}
+              <aside class="notes" data-markdown>{{ section.notes }}</aside>
+            {% endif %}
+          </section>
             {% endfor %}
+            {% if sections|length > 1 %}
+        </section>
+            {% endif %}
           {% endfor %}
         {% endfor %}
       </div>

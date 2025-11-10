@@ -158,12 +158,12 @@ directly write the `construct` method in the body of `MovingCameraSlide`.
 
 ## Subsection Example
 
-Example demonstrating the use of subsections within a single slide.
+Example demonstrating the use of subsections to create vertical slides in HTML presentations.
 
-**Key concept**: `next_subsection()` keeps building on existing content (accumulates),
-while `next_slide()` starts fresh (clears the screen). This example shows a diagram
-being built step by step, with each subsection adding more elements while keeping
-everything from previous subsections visible.
+**Key concept**: Subsections create **vertical navigation** in RevealJS presentations.
+Use `next_slide()` to move horizontally between main topics, and `next_subsection()`
+to create vertical steps within a single topic. This provides hierarchical structure
+to your presentations.
 
 ```{eval-rst}
 .. manim-slides:: ../../../example.py:SubsectionExample
@@ -176,20 +176,22 @@ everything from previous subsections visible.
    :pyobject: SubsectionExample
 ```
 
-This example creates **two slides**:
-- **Slide 1**: Title slide showing "Subsections Demo"
-- **Slide 2**: Starts with title and subtitle, then has **four subsections** that build the diagram:
-  1. Subsection "Add circle": adds a circle
-  2. Subsection "Add square": adds a square (circle still visible)
-  3. Subsection "Add labels": adds labels (circle and square still visible)
-  4. Subsection "Add arrows": adds an arrow connecting them (everything still visible)
+This example creates **three horizontal slides**:
+- **Slide 1**: Title slide (use RIGHT arrow to advance)
+- **Slide 2**: Building a Diagram topic with **four vertical subsections** (use DOWN arrow):
+  1. Shows the title
+  2. Adds a circle
+  3. Adds a square
+  4. Adds labels with `auto_next=True` to auto-advance
+  5. Final state after all animations
+- **Slide 3**: Transformations topic with **three vertical subsections**
 
-The key point: the subtitle appears **before** the first subsection, so it's part of the
-base slide content. Each subsection then adds more elements while keeping all previous
-content visible.
+In HTML export, subsections become **vertical slides** that you navigate with UP/DOWN
+arrows, while regular slides remain horizontal (LEFT/RIGHT arrows). This creates a
+2D presentation structure where subsections group related content under a main slide.
 
-Note that `auto_next=True` on the third subsection will automatically advance
-to the fourth subsection after animations complete.
+Note: In the Qt presenter and other formats, subsections create pause points instead
+of vertical navigation.
 
 ## Advanced Example
 

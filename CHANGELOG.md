@@ -13,31 +13,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 (unreleased-added)=
 ### Added
 
-- Introduced `Slide.next_subsection()` to record intra-slide checkpoints. New
-  presenter/convert flags (`--subsections`, `--html-subsections`,
-  `--pdf-subsections`, and `--pptx-subsections`) allow the Qt/HTML presenters,
-  PDF exporter, and PowerPoint converter to pause at those subsections or split
-  slides when explicitly requested.
+- Introduced `Slide.next_subsection()` to record intra-slide checkpoints within slides.
+  Subsections create vertical navigation in HTML/RevealJS presentations and pause points
+  in the Qt presenter and other formats.
+- Added `--subsections [none|all]` flag to `manim-slides present` and
+  `manim-slides convert` commands. Default is `all`, which enables subsection
+  handling. Use `none` to disable subsections and treat them as regular slides.
+- HTML/RevealJS exports now create nested vertical slides for subsections, providing
+  hierarchical 2D navigation (horizontal for slides, vertical for subsections).
+- Qt presenter freezes the last rendered frame when slides or subsections end to avoid
+  flashing to black between steps.
 
 (unreleased-changed)=
 ### Changed
-
-- Changed defaults for subsection handling to make subsections work automatically:
-  - Qt presenter: `--subsections` changed from `off` to `pause`
-  - HTML/RevealJS: `--html-subsections` changed from `disabled` to `pause`
-  - PDF/PowerPoint: unified into single `--subsections` flag (default: `all`)
-- Unified subsection handling across formats:
-  - Removed separate `--pdf-subsections` and `--pptx-subsections` flags
-  - Single `--subsections` flag now controls both PDF and PowerPoint exports
-  - Simplified modes to `none` and `all` (removed `final` and `split` as redundant)
-  - Consistent terminology across all export formats
-- PowerPoint exports temporarily force `--subsections=none` and emit a warning when
-  `--subsections=all` is requested, since per-subsection slide splitting is not yet
-  implemented for PPTX.
-- Qt presenter now freezes the last rendered frame when slides or subsections end
-  to avoid flashing to black between steps.
-- Documented the RevealJS limitation where rewinding subsections replays their
-  clip instead of showing the final accumulated state immediately.
 - Sort the scenes alphabetically when listing scenes
   (e.g., when prompting for scenes with `manim-slides present`).
   [@msaadsbr](https://github.com/msaadsbr) [#573](https://github.com/jeertmans/manim-slides/pull/573)
