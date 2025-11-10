@@ -333,6 +333,11 @@ class BaseSlide:
         if relative_animation_index < 0:
             relative_animation_index = 0
 
+        # Add wait to show completed animation state (workaround for Manim bug where
+        # animations stop at ~93% completion). Same as next_slide() behavior.
+        if self.wait_time_between_slides > 0.0:
+            self.wait(self.wait_time_between_slides)  # type: ignore[attr-defined]
+
         marker = SubsectionMarker(
             animation_index=relative_animation_index,
             name=name,
