@@ -21,8 +21,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   handling. Use `none` to disable subsections and treat them as regular slides.
 - HTML/RevealJS exports now create nested vertical slides for subsections, providing
   hierarchical 2D navigation (horizontal for slides, vertical for subsections).
-- Qt presenter freezes the last rendered frame when slides or subsections end to avoid
-  flashing to black between steps.
 
 (unreleased-changed)=
 ### Changed
