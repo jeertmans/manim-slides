@@ -24,6 +24,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   [#560](https://github.com/jeertmans/manim-slides/pull/560)
 - Update the template in the *Customize your RevealJS slides* section.
   [#565](https://github.com/jeertmans/manim-slides/pull/565)
+- Fix spelling mistakes in the `installation.md` regarding Qt backend.
+  [@strniko](https://github.com/strniko) [#580](https://github.com/jeertmans/manim-slides/pull/580)
 
 (unreleased-fixed)=
 ### Fixed
