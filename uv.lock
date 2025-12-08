@@ -1531,7 +1531,7 @@ name = "importlib-metadata"
 version = "8.7.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "zipp" },
+    { name = "zipp", marker = "python_full_version < '3.10'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/76/66/650a33bd90f786193e4de4b3ad86ea60b53c89b669a5c7be931fac31cdb0/importlib_metadata-8.7.0.tar.gz", hash = "sha256:d13b81ad223b890aa16c5471f2ac3056cf76c5f10f82d6f9292f0b415f389000", size = 56641, upload-time = "2025-04-27T15:29:01.736Z" }
 wheels = [
@@ -2496,7 +2496,7 @@ dev = [
     { name = "pytest-missing-modules", specifier = ">=0.1.0" },
     { name = "pytest-qt", specifier = ">=4.2.0" },
     { name = "setuptools", specifier = ">=73.0.1" },
-    { name = "sphinx", specifier = ">=7.0.1" },
+    { name = "sphinx", specifier = ">=7.0.1,<9" },
     { name = "sphinx-click", specifier = ">=4.4.0" },
     { name = "sphinx-copybutton", specifier = ">=0.5.1" },
     { name = "sphinx-design", specifier = ">=0.6.1" },
@@ -2510,7 +2510,7 @@ docs = [
     { name = "myst-parser", specifier = ">=2.0.0" },
     { name = "nbsphinx", specifier = ">=0.9.2" },
     { name = "pandoc", specifier = ">=2.3" },
-    { name = "sphinx", specifier = ">=7.0.1" },
+    { name = "sphinx", specifier = ">=7.0.1,<9" },
     { name = "sphinx-click", specifier = ">=4.4.0" },
     { name = "sphinx-copybutton", specifier = ">=0.5.1" },
     { name = "sphinx-design", specifier = ">=0.6.1" },
