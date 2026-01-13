@@ -32,6 +32,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Fixed black videos on macOS (Qt player) by forcing absolute paths for video files.
   [@albertocasagrande](https://github.com/albertocasagrande) [#575](https://github.com/jeertmans/manim-slides/pull/575)
+- Pinned `sphinx` to `<9` to avoid breakage with `sphinx-click` and the Sphinx v9 release.
+  [#581](https://github.com/jeertmans/manim-slides/pull/581)
 
 (v5.5.2)=
 ## [v5.5.2](https://github.com/jeertmans/manim-slides/compare/v5.5.1...v5.5.2)
