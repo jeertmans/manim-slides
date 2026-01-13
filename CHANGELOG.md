@@ -30,6 +30,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Fixed black videos on macOS (Qt player) by forcing absolute paths for video files.
   [@albertocasagrande](https://github.com/albertocasagrande) [#575](https://github.com/jeertmans/manim-slides/pull/575)
+- Fixed bug cause when reading files from a path containing special characters.
+  [@candreuv](https://github.com/candreuv) [#572](https://github.com/jeertmans/manim-slides/pull/572)
 
 (v5.5.2)=
 ## [v5.5.2](https://github.com/jeertmans/manim-slides/compare/v5.5.1...v5.5.2)

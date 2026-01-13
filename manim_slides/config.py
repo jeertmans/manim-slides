@@ -313,7 +313,7 @@ class PresentationConfig(BaseModel):  # type: ignore[misc]
 
     def to_file(self, path: Path) -> None:
         """Dump the presentation configuration to a file."""
-        with open(path, "w") as f:
+        with open(path, "w", encoding="utf-8") as f:
             f.write(self.model_dump_json(indent=2))
 
     def copy_to(
