@@ -593,7 +593,7 @@ class RevealJS(Converter):
 
         dest.parent.mkdir(parents=True, exist_ok=True)
 
-        with open(dest, "w") as f:
+        with open(dest, "w", encoding="utf-8") as f:
             revealjs_template = Template(
                 self.load_template(), trim_blocks=True, lstrip_blocks=True
             )

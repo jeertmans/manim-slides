@@ -33,7 +33,9 @@ def concatenate_video_files(files: list[Path], dest: Path) -> None:
                         "https://github.com/jeertmans/manim-slides/issues/390."
                     )
 
-    with tempfile.NamedTemporaryFile(mode="w", suffix=".txt", delete=False) as f:
+    with tempfile.NamedTemporaryFile(
+        mode="w", suffix=".txt", delete=False, encoding="utf-8"
+    ) as f:
         f.writelines(f"file '{file}'\n" for file in _filter(files))
         tmp_file = f.name
 
