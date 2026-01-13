@@ -8,16 +8,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <!-- start changelog -->
 
 (unreleased)=
-## [Unreleased](https://github.com/jeertmans/manim-slides/compare/v5.5.2...HEAD)
+## [Unreleased](https://github.com/jeertmans/manim-slides/compare/v5.5.3...HEAD)
 
-(unreleased-changed)=
+(v5.5.3)=
+## [v5.5.3](https://github.com/jeertmans/manim-slides/compare/v5.5.2...v5.5.3)
+
+(v5.5.3-changed)=
 ### Changed
 
 - Sort the scenes alphabetically when listing scenes
   (e.g., when prompting for scenes with `manim-slides present`).
   [@msaadsbr](https://github.com/msaadsbr) [#573](https://github.com/jeertmans/manim-slides/pull/573)
 
-(unreleased-chore)=
+(v5.5.3-chore)=
 ### Chore
 
 - Update the comparison table in the README.
@@ -27,7 +30,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix spelling mistakes in the `installation.md` regarding Qt backend.
   [@strniko](https://github.com/strniko) [#580](https://github.com/jeertmans/manim-slides/pull/580)
 
-(unreleased-fixed)=
+(v5.5.3-fixed)=
 ### Fixed
 
 - Fixed black videos on macOS (Qt player) by forcing absolute paths for video files.
