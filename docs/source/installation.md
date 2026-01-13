@@ -153,12 +153,12 @@ Nix does not currently support `manimgl`.
 ## When you need a Qt backend
 
 Before `v5.1`, Manim Slides automatically included PySide6 as
-a Qt backend. As only `manim-slides present` and `manim-slides wizard`
-command need a graphical library, and installing PySide6 on all platforms
-and Python version can be sometimes complicated, Manim Slides chooses
-**not to include** any Qt backend.
+a Qt backend. As only the `manim-slides present` and `manim-slides wizard`
+commands need a graphical library, and installing PySide6 on all platforms
+and Python versions can sometimes be complicated, Manim Slides chooses
+**not to include** any Qt backends.
 
-The use can choose between PySide6 (best) and PyQt6, depending on their
+The user can choose between PySide6 (best) and PyQt6, depending on their
 availability and licensing rules.
 
 As of `v5.1`, you **need** to have Qt bindings installed to use

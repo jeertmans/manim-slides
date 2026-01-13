@@ -24,12 +24,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   [#560](https://github.com/jeertmans/manim-slides/pull/560)
 - Update the template in the *Customize your RevealJS slides* section.
   [#565](https://github.com/jeertmans/manim-slides/pull/565)
+- Fix spelling mistakes in the `installation.md` regarding Qt backend.
+  [@strniko](https://github.com/strniko) [#580](https://github.com/jeertmans/manim-slides/pull/580)
 
 (unreleased-fixed)=
 ### Fixed
 
 - Fixed black videos on macOS (Qt player) by forcing absolute paths for video files.
   [@albertocasagrande](https://github.com/albertocasagrande) [#575](https://github.com/jeertmans/manim-slides/pull/575)
+- Pinned `sphinx` to `<9` to avoid breakage with `sphinx-click` and the Sphinx v9 release.
+  [#581](https://github.com/jeertmans/manim-slides/pull/581)
 - Fixed bug cause when reading files from a path containing special characters.
   [@candreuv](https://github.com/candreuv) [#572](https://github.com/jeertmans/manim-slides/pull/572)
 
