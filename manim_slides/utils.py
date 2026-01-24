@@ -62,9 +62,7 @@ def _get_stream_rate(template_stream: av.stream.Stream) -> Optional[object]:
     return None
 
 
-def _safe_set_attr(
-    output_stream: av.stream.Stream, attr: str, value: object
-) -> None:
+def _safe_set_attr(output_stream: av.stream.Stream, attr: str, value: object) -> None:
     if value is None:
         return
     try:
@@ -86,9 +84,7 @@ def _copy_audio_attrs(
     for attr in ("layout", "channels", "format"):
         _safe_set_attr(output_stream, attr, getattr(template_stream, attr, None))
     _safe_set_attr(output_stream, "rate", getattr(template_stream, "rate", None))
-    _safe_set_attr(
-        output_stream, "rate", getattr(template_stream, "sample_rate", None)
-    )
+    _safe_set_attr(output_stream, "rate", getattr(template_stream, "sample_rate", None))
 
 
 def _add_stream_from_template(
