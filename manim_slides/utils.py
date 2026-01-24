@@ -28,7 +28,7 @@ def _add_stream_from_template(
                 "add_stream(template=...) failed; falling back to manual config.",
                 exc_info=exc,
             )
-    except (TypeError, ValueError, av.AVError) as exc:
+    except (TypeError, ValueError, av.error.FFmpegError) as exc:
         logger.debug(
             "add_stream_from_template failed; falling back to manual config.",
             exc_info=exc,
