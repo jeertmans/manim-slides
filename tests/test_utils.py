@@ -8,10 +8,10 @@ def test_add_stream_from_template_with_fallback(monkeypatch) -> None:
         def __init__(self) -> None:
             self.last_add_stream_args = None
 
-        def add_stream_from_template(self, template):  # noqa: ANN001
+        def add_stream_from_template(self, template):
             raise TypeError("Template not supported")
 
-        def add_stream(self, codec_name, rate=None):  # noqa: ANN001
+        def add_stream(self, codec_name, rate=None):
             self.last_add_stream_args = (codec_name, rate)
             return DummyStream()
 
@@ -40,7 +40,7 @@ def test_add_stream_from_template_with_fallback(monkeypatch) -> None:
 
     container = DummyOutputContainer()
 
-    def _fake_add_stream_from_template(container, template_stream):  # noqa: ANN001
+    def _fake_add_stream_from_template(container, template_stream):
         from manim_slides import utils
 
         return utils._add_stream_from_template(container, template_stream)
