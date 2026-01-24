@@ -44,14 +44,14 @@ def concatenate_video_files(files: list[Path], dest: Path) -> None:
         av.open(str(dest), mode="w") as output_container,
     ):
         input_video_stream = input_container.streams.video[0]
-        output_video_stream = output_container.add_stream(
-            template=input_video_stream,
+        output_video_stream = output_container.add_stream_from_template(
+            input_video_stream,
         )
 
         if len(input_container.streams.audio) > 0:
             input_audio_stream = input_container.streams.audio[0]
-            output_audio_stream = output_container.add_stream(
-                template=input_audio_stream,
+            output_audio_stream = output_container.add_stream_from_template(
+                input_audio_stream,
             )
 
         for packet in input_container.demux():
@@ -168,8 +168,8 @@ def reverse_video_file(
                 format="segment",
                 options={"segment_time": str(max_segment_duration)},
             ) as output_container:
-                output_stream = output_container.add_stream(
-                    template=input_stream,
+                output_stream = output_container.add_stream_from_template(
+                    input_stream,
                 )
 
                 for packet in input_container.demux(input_stream):
