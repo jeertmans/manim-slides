@@ -15,7 +15,9 @@ def test_add_stream_from_template_with_fallback() -> None:
             raise TypeError("Template not supported")
 
         def add_stream(
-            self, codec_name: str, rate: Optional[int] = None  # noqa: UP045
+            self,
+            codec_name: str,
+            rate: Optional[int] = None,  # noqa: UP045
         ) -> DummyStream:
             self.last_add_stream_args = (codec_name, rate)
             return DummyStream()
