@@ -18,9 +18,9 @@ class Module(ModuleType):
             )
             magic = getattr(module, name)
 
-            from IPython import get_ipython
+            from IPython import get_ipython  # type: ignore[attr-defined]
 
-            ipy = get_ipython()
+            ipy = get_ipython()  # type: ignore[no-untyped-call]
 
             if ipy is not None:
                 ipy.register_magics(magic)
