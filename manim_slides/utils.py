@@ -5,7 +5,7 @@ import tempfile
 from collections.abc import Iterator
 from multiprocessing import Pool
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any, Optional, cast
 
 import av
 from tqdm import tqdm
@@ -13,16 +13,15 @@ from tqdm import tqdm
 from .logger import logger
 
 
-def _add_stream_from_template(
+def _try_add_stream_from_template(
     container: av.container.OutputContainer, template_stream: av.stream.Stream
-) -> av.stream.Stream:
-    """Add an output stream that matches the template stream."""
+) -> Optional[av.stream.Stream]:
     try:
         return container.add_stream_from_template(template_stream)
     except AttributeError:
         # Older PyAV versions don't expose add_stream_from_template.
         try:
-            return container.add_stream(template=template_stream)
+            return cast(Any, container).add_stream(template=template_stream)
         except TypeError as exc:
             logger.debug(
                 "add_stream(template=...) failed; falling back to manual config.",
@@ -33,50 +32,84 @@ def _add_stream_from_template(
             "add_stream_from_template failed; falling back to manual config.",
             exc_info=exc,
         )
+    return None
 
+
+def _get_codec_name(template_stream: av.stream.Stream) -> str:
     codec_context = getattr(template_stream, "codec_context", None)
     codec_name = getattr(codec_context, "name", None) if codec_context else None
     if not codec_name:
         codec = getattr(template_stream, "codec", None)
         codec_name = getattr(codec, "name", None) if codec else None
-    if not codec_name:
-        codec_name = "libx264" if template_stream.type == "video" else "aac"
+    if codec_name:
+        return codec_name
+    return "libx264" if template_stream.type == "video" else "aac"
 
-    rate = None
+
+def _get_stream_rate(template_stream: av.stream.Stream) -> Optional[object]:
     if template_stream.type == "video":
-        rate = (
+        return (
             getattr(template_stream, "average_rate", None)
             or getattr(template_stream, "base_rate", None)
             or getattr(template_stream, "rate", None)
         )
-    elif template_stream.type == "audio":
-        rate = (
+    if template_stream.type == "audio":
+        return (
             getattr(template_stream, "rate", None)
             or getattr(template_stream, "sample_rate", None)
             or getattr(template_stream, "average_rate", None)
         )
+    return None
 
+
+def _safe_set_attr(
+    output_stream: av.stream.Stream, attr: str, value: object
+) -> None:
+    if value is None:
+        return
+    try:
+        setattr(output_stream, attr, value)
+    except (AttributeError, TypeError, ValueError):
+        return
+
+
+def _copy_video_attrs(
+    output_stream: av.stream.Stream, template_stream: av.stream.Stream
+) -> None:
+    for attr in ("width", "height", "pix_fmt", "time_base", "sample_aspect_ratio"):
+        _safe_set_attr(output_stream, attr, getattr(template_stream, attr, None))
+
+
+def _copy_audio_attrs(
+    output_stream: av.stream.Stream, template_stream: av.stream.Stream
+) -> None:
+    for attr in ("layout", "channels", "format"):
+        _safe_set_attr(output_stream, attr, getattr(template_stream, attr, None))
+    _safe_set_attr(output_stream, "rate", getattr(template_stream, "rate", None))
+    _safe_set_attr(
+        output_stream, "rate", getattr(template_stream, "sample_rate", None)
+    )
+
+
+def _add_stream_from_template(
+    container: av.container.OutputContainer, template_stream: av.stream.Stream
+) -> av.stream.Stream:
+    """Add an output stream that matches the template stream."""
+    output_stream = _try_add_stream_from_template(container, template_stream)
+    if output_stream is not None:
+        return output_stream
+
+    codec_name = _get_codec_name(template_stream)
+    rate = _get_stream_rate(template_stream)
     if rate is None:
         output_stream = container.add_stream(codec_name)
     else:
         output_stream = container.add_stream(codec_name, rate=rate)
 
-    def _safe_set(attr: str, value: object) -> None:
-        if value is None:
-            return
-        try:
-            setattr(output_stream, attr, value)
-        except (AttributeError, TypeError, ValueError):
-            return
-
     if template_stream.type == "video":
-        for attr in ("width", "height", "pix_fmt", "time_base", "sample_aspect_ratio"):
-            _safe_set(attr, getattr(template_stream, attr, None))
+        _copy_video_attrs(output_stream, template_stream)
     elif template_stream.type == "audio":
-        for attr in ("layout", "channels", "format"):
-            _safe_set(attr, getattr(template_stream, attr, None))
-        _safe_set("rate", getattr(template_stream, "rate", None))
-        _safe_set("rate", getattr(template_stream, "sample_rate", None))
+        _copy_audio_attrs(output_stream, template_stream)
 
     return output_stream
 

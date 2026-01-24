@@ -1,26 +1,27 @@
 from pathlib import Path
+from typing import Any
 
 from manim_slides.utils import merge_basenames
 
 
-def test_add_stream_from_template_with_fallback(monkeypatch) -> None:
+def test_add_stream_from_template_with_fallback() -> None:
     class DummyOutputContainer:
         def __init__(self) -> None:
-            self.last_add_stream_args = None
+            self.last_add_stream_args: tuple[str, int | None] | None = None
 
-        def add_stream_from_template(self, template):
+        def add_stream_from_template(self, template: Any) -> None:
             raise TypeError("Template not supported")
 
-        def add_stream(self, codec_name, rate=None):
+        def add_stream(self, codec_name: str, rate: int | None = None) -> "DummyStream":
             self.last_add_stream_args = (codec_name, rate)
             return DummyStream()
 
     class DummyStream:
-        width = None
-        height = None
-        pix_fmt = None
-        time_base = None
-        sample_aspect_ratio = None
+        width: int | None = None
+        height: int | None = None
+        pix_fmt: str | None = None
+        time_base: str | None = None
+        sample_aspect_ratio: str | None = None
 
     class DummyCodecContext:
         name = "libx264"
@@ -40,7 +41,9 @@ def test_add_stream_from_template_with_fallback(monkeypatch) -> None:
 
     container = DummyOutputContainer()
 
-    def _fake_add_stream_from_template(container, template_stream):
+    def _fake_add_stream_from_template(
+        container: DummyOutputContainer, template_stream: DummyTemplateStream
+    ) -> DummyStream:
         from manim_slides import utils
 
         return utils._add_stream_from_template(container, template_stream)
