@@ -13,6 +13,74 @@ from tqdm import tqdm
 from .logger import logger
 
 
+def _add_stream_from_template(
+    container: av.container.OutputContainer, template_stream: av.stream.Stream
+) -> av.stream.Stream:
+    """Add an output stream that matches the template stream."""
+    try:
+        return container.add_stream_from_template(template_stream)
+    except AttributeError:
+        # Older PyAV versions don't expose add_stream_from_template.
+        try:
+            return container.add_stream(template=template_stream)
+        except TypeError as exc:
+            logger.debug(
+                "add_stream(template=...) failed; falling back to manual config.",
+                exc_info=exc,
+            )
+    except (TypeError, ValueError, av.AVError) as exc:
+        logger.debug(
+            "add_stream_from_template failed; falling back to manual config.",
+            exc_info=exc,
+        )
+
+    codec_context = getattr(template_stream, "codec_context", None)
+    codec_name = getattr(codec_context, "name", None) if codec_context else None
+    if not codec_name:
+        codec = getattr(template_stream, "codec", None)
+        codec_name = getattr(codec, "name", None) if codec else None
+    if not codec_name:
+        codec_name = "libx264" if template_stream.type == "video" else "aac"
+
+    rate = None
+    if template_stream.type == "video":
+        rate = (
+            getattr(template_stream, "average_rate", None)
+            or getattr(template_stream, "base_rate", None)
+            or getattr(template_stream, "rate", None)
+        )
+    elif template_stream.type == "audio":
+        rate = (
+            getattr(template_stream, "rate", None)
+            or getattr(template_stream, "sample_rate", None)
+            or getattr(template_stream, "average_rate", None)
+        )
+
+    if rate is None:
+        output_stream = container.add_stream(codec_name)
+    else:
+        output_stream = container.add_stream(codec_name, rate=rate)
+
+    def _safe_set(attr: str, value: object) -> None:
+        if value is None:
+            return
+        try:
+            setattr(output_stream, attr, value)
+        except (AttributeError, TypeError, ValueError):
+            return
+
+    if template_stream.type == "video":
+        for attr in ("width", "height", "pix_fmt", "time_base", "sample_aspect_ratio"):
+            _safe_set(attr, getattr(template_stream, attr, None))
+    elif template_stream.type == "audio":
+        for attr in ("layout", "channels", "format"):
+            _safe_set(attr, getattr(template_stream, attr, None))
+        _safe_set("rate", getattr(template_stream, "rate", None))
+        _safe_set("rate", getattr(template_stream, "sample_rate", None))
+
+    return output_stream
+
+
 def concatenate_video_files(files: list[Path], dest: Path) -> None:
     """Concatenate multiple video files into one."""
     if len(files) == 1:
@@ -44,14 +112,14 @@ def concatenate_video_files(files: list[Path], dest: Path) -> None:
         av.open(str(dest), mode="w") as output_container,
     ):
         input_video_stream = input_container.streams.video[0]
-        output_video_stream = output_container.add_stream_from_template(
-            input_video_stream,
+        output_video_stream = _add_stream_from_template(
+            output_container, input_video_stream
         )
 
         if len(input_container.streams.audio) > 0:
             input_audio_stream = input_container.streams.audio[0]
-            output_audio_stream = output_container.add_stream_from_template(
-                input_audio_stream,
+            output_audio_stream = _add_stream_from_template(
+                output_container, input_audio_stream
             )
 
         for packet in input_container.demux():
@@ -168,8 +236,8 @@ def reverse_video_file(
                 format="segment",
                 options={"segment_time": str(max_segment_duration)},
             ) as output_container:
-                output_stream = output_container.add_stream_from_template(
-                    input_stream,
+                output_stream = _add_stream_from_template(
+                    output_container, input_stream
                 )
 
                 for packet in input_container.demux(input_stream):
