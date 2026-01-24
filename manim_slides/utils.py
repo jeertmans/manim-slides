@@ -20,7 +20,7 @@ def _try_add_stream_from_template(
     try:
         return cast(
             Optional[av.stream.Stream],
-            container.add_stream_from_template(template_stream),
+            cast(Any, container).add_stream_from_template(template_stream),
         )
     except AttributeError:
         # Older PyAV versions don't expose add_stream_from_template.
@@ -217,9 +217,9 @@ def reverse_video_file_in_one_chunk(src_and_dest: tuple[Path, Path]) -> None:
         output_stream = output_container.add_stream(
             codec_name="libx264", rate=input_stream.base_rate
         )
-        output_stream.width = input_stream.width
-        output_stream.height = input_stream.height
-        output_stream.pix_fmt = input_stream.pix_fmt
+        cast(Any, output_stream).width = cast(Any, input_stream).width
+        cast(Any, output_stream).height = cast(Any, input_stream).height
+        cast(Any, output_stream).pix_fmt = cast(Any, input_stream).pix_fmt
 
         graph = av.filter.Graph()
         link_nodes(
@@ -237,11 +237,11 @@ def reverse_video_file_in_one_chunk(src_and_dest: tuple[Path, Path]) -> None:
         graph.push(None)  # EOF: https://github.com/PyAV-Org/PyAV/issues/886.
 
         for _ in range(frames_count):
-            frame = cast(av.video.frame.VideoFrame, graph.pull())
-            frame.pict_type = "NONE"  # type: ignore[assignment]
-            output_container.mux(output_stream.encode(frame))
+            frame = cast(Any, graph.pull())
+            frame.pict_type = "NONE"  # type: ignore[assignment,unused-ignore]
+            output_container.mux(cast(Any, output_stream).encode(frame))
 
-        for packet in output_stream.encode():
+        for packet in cast(Any, output_stream).encode():
             output_container.mux(packet)
 
 
