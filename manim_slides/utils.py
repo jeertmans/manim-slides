@@ -3,9 +3,10 @@ import os
 import shutil
 import tempfile
 from collections.abc import Iterator
+from fractions import Fraction
 from multiprocessing import Pool
 from pathlib import Path
-from typing import Any, Optional, cast
+from typing import Any, Optional, Union, cast
 
 import av
 from tqdm import tqdm
@@ -13,14 +14,111 @@ from tqdm import tqdm
 from .logger import logger
 
 
+def _try_add_stream_from_template(
+    container: av.container.OutputContainer, template_stream: av.stream.Stream
+) -> Optional[av.stream.Stream]:
+    try:
+        return cast(
+            Optional[av.stream.Stream],
+            cast(Any, container).add_stream_from_template(template_stream),
+        )
+    except AttributeError:
+        # Older PyAV versions don't expose add_stream_from_template.
+        try:
+            return cast(
+                Optional[av.stream.Stream],
+                cast(Any, container).add_stream(template=template_stream),
+            )
+        except TypeError as exc:
+            logger.debug(
+                "add_stream(template=...) failed; falling back to manual config.",
+                exc_info=exc,
+            )
+    except (TypeError, ValueError, av.error.FFmpegError) as exc:
+        logger.debug(
+            "add_stream_from_template failed; falling back to manual config.",
+            exc_info=exc,
+        )
+    return None
+
+
+def _get_codec_name(template_stream: av.stream.Stream) -> str:
+    codec_context = getattr(template_stream, "codec_context", None)
+    codec_name = getattr(codec_context, "name", None) if codec_context else None
+    if not codec_name:
+        codec = getattr(template_stream, "codec", None)
+        codec_name = getattr(codec, "name", None) if codec else None
+    if codec_name:
+        return cast(str, codec_name)
+    return "libx264" if template_stream.type == "video" else "aac"
+
+
+def _get_stream_rate(
+    template_stream: av.stream.Stream,
+) -> Optional[Union[Fraction, int]]:
+    if template_stream.type == "video":
+        return cast(
+            Optional[Union[Fraction, int]],
+            getattr(template_stream, "average_rate", None)
+            or getattr(template_stream, "base_rate", None)
+            or getattr(template_stream, "rate", None),
+        )
+    if template_stream.type == "audio":
+        return cast(
+            Optional[Union[Fraction, int]],
+            getattr(template_stream, "rate", None)
+            or getattr(template_stream, "sample_rate", None)
+            or getattr(template_stream, "average_rate", None),
+        )
+    return None
+
+
+def _safe_set_attr(output_stream: av.stream.Stream, attr: str, value: object) -> None:
+    if value is None:
+        return
+    try:
+        setattr(output_stream, attr, value)
+    except (AttributeError, TypeError, ValueError):
+        return
+
+
+def _copy_video_attrs(
+    output_stream: av.stream.Stream, template_stream: av.stream.Stream
+) -> None:
+    for attr in ("width", "height", "pix_fmt", "time_base", "sample_aspect_ratio"):
+        _safe_set_attr(output_stream, attr, getattr(template_stream, attr, None))
+
+
+def _copy_audio_attrs(
+    output_stream: av.stream.Stream, template_stream: av.stream.Stream
+) -> None:
+    for attr in ("layout", "channels", "format"):
+        _safe_set_attr(output_stream, attr, getattr(template_stream, attr, None))
+    _safe_set_attr(output_stream, "rate", getattr(template_stream, "rate", None))
+    _safe_set_attr(output_stream, "rate", getattr(template_stream, "sample_rate", None))
+
+
 def _add_stream_from_template(
     container: av.container.OutputContainer, template_stream: av.stream.Stream
 ) -> av.stream.Stream:
     """Add an output stream that matches the template stream."""
-    return cast(
-        av.stream.Stream,
-        cast(Any, container).add_stream_from_template(template_stream),
-    )
+    output_stream = _try_add_stream_from_template(container, template_stream)
+    if output_stream is not None:
+        return output_stream
+
+    codec_name = _get_codec_name(template_stream)
+    rate = _get_stream_rate(template_stream)
+    if rate is None:
+        output_stream = container.add_stream(codec_name)
+    else:
+        output_stream = container.add_stream(codec_name, rate=rate)
+
+    if template_stream.type == "video":
+        _copy_video_attrs(output_stream, template_stream)
+    elif template_stream.type == "audio":
+        _copy_audio_attrs(output_stream, template_stream)
+
+    return output_stream
 
 
 def concatenate_video_files(files: list[Path], dest: Path) -> None:

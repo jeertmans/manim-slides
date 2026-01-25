@@ -30,6 +30,7 @@ class Module(ModuleType):
                 ipy.register_magics(magic)
 
             return magic
+
         return ModuleType.__getattribute__(self, name)
 
     def __dir__(self) -> list[str]:
