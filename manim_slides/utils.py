@@ -3,14 +3,122 @@ import os
 import shutil
 import tempfile
 from collections.abc import Iterator
+from fractions import Fraction
 from multiprocessing import Pool
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any, Optional, Union, cast
 
 import av
 from tqdm import tqdm
 
 from .logger import logger
+
+
+def _try_add_stream_from_template(
+    container: av.container.OutputContainer, template_stream: av.stream.Stream
+) -> Optional[av.stream.Stream]:
+    try:
+        return cast(
+            Optional[av.stream.Stream],
+            cast(Any, container).add_stream_from_template(template_stream),
+        )
+    except AttributeError:
+        # Older PyAV versions don't expose add_stream_from_template.
+        try:
+            return cast(
+                Optional[av.stream.Stream],
+                cast(Any, container).add_stream(template=template_stream),
+            )
+        except TypeError as exc:
+            logger.debug(
+                "add_stream(template=...) failed; falling back to manual config.",
+                exc_info=exc,
+            )
+    except (TypeError, ValueError, av.error.FFmpegError) as exc:
+        logger.debug(
+            "add_stream_from_template failed; falling back to manual config.",
+            exc_info=exc,
+        )
+    return None
+
+
+def _get_codec_name(template_stream: av.stream.Stream) -> str:
+    codec_context = getattr(template_stream, "codec_context", None)
+    codec_name = getattr(codec_context, "name", None) if codec_context else None
+    if not codec_name:
+        codec = getattr(template_stream, "codec", None)
+        codec_name = getattr(codec, "name", None) if codec else None
+    if codec_name:
+        return cast(str, codec_name)
+    return "libx264" if template_stream.type == "video" else "aac"
+
+
+def _get_stream_rate(
+    template_stream: av.stream.Stream,
+) -> Optional[Union[Fraction, int]]:
+    if template_stream.type == "video":
+        return cast(
+            Optional[Union[Fraction, int]],
+            getattr(template_stream, "average_rate", None)
+            or getattr(template_stream, "base_rate", None)
+            or getattr(template_stream, "rate", None),
+        )
+    if template_stream.type == "audio":
+        return cast(
+            Optional[Union[Fraction, int]],
+            getattr(template_stream, "rate", None)
+            or getattr(template_stream, "sample_rate", None)
+            or getattr(template_stream, "average_rate", None),
+        )
+    return None
+
+
+def _safe_set_attr(output_stream: av.stream.Stream, attr: str, value: object) -> None:
+    if value is None:
+        return
+    try:
+        setattr(output_stream, attr, value)
+    except (AttributeError, TypeError, ValueError):
+        return
+
+
+def _copy_video_attrs(
+    output_stream: av.stream.Stream, template_stream: av.stream.Stream
+) -> None:
+    for attr in ("width", "height", "pix_fmt", "time_base", "sample_aspect_ratio"):
+        _safe_set_attr(output_stream, attr, getattr(template_stream, attr, None))
+
+
+def _copy_audio_attrs(
+    output_stream: av.stream.Stream, template_stream: av.stream.Stream
+) -> None:
+    for attr in ("layout", "channels", "format"):
+        _safe_set_attr(output_stream, attr, getattr(template_stream, attr, None))
+    _safe_set_attr(output_stream, "rate", getattr(template_stream, "rate", None))
+    _safe_set_attr(output_stream, "rate", getattr(template_stream, "sample_rate", None))
+
+
+def _add_stream_from_template(
+    container: av.container.OutputContainer, template_stream: av.stream.Stream
+) -> av.stream.Stream:
+    """Add an output stream that matches the template stream."""
+    output_stream = _try_add_stream_from_template(container, template_stream)
+    if output_stream is not None:
+        return output_stream
+
+    codec_name = _get_codec_name(template_stream)
+    rate = _get_stream_rate(template_stream)
+    if rate is None:
+        output_stream = container.add_stream(codec_name)
+    else:
+        output_stream = container.add_stream(codec_name, rate=rate)
+
+    if template_stream.type == "video":
+        _copy_video_attrs(output_stream, template_stream)
+    elif template_stream.type == "audio":
+        _copy_audio_attrs(output_stream, template_stream)
+
+    return output_stream
 
 
 def concatenate_video_files(files: list[Path], dest: Path) -> None:
@@ -44,14 +152,14 @@ def concatenate_video_files(files: list[Path], dest: Path) -> None:
         av.open(str(dest), mode="w") as output_container,
     ):
         input_video_stream = input_container.streams.video[0]
-        output_video_stream = output_container.add_stream(
-            template=input_video_stream,
+        output_video_stream = _add_stream_from_template(
+            output_container, input_video_stream
         )
 
         if len(input_container.streams.audio) > 0:
             input_audio_stream = input_container.streams.audio[0]
-            output_audio_stream = output_container.add_stream(
-                template=input_audio_stream,
+            output_audio_stream = _add_stream_from_template(
+                output_container, input_audio_stream
             )
 
         for packet in input_container.demux():
@@ -109,9 +217,9 @@ def reverse_video_file_in_one_chunk(src_and_dest: tuple[Path, Path]) -> None:
         output_stream = output_container.add_stream(
             codec_name="libx264", rate=input_stream.base_rate
         )
-        output_stream.width = input_stream.width
-        output_stream.height = input_stream.height
-        output_stream.pix_fmt = input_stream.pix_fmt
+        cast(Any, output_stream).width = cast(Any, input_stream).width
+        cast(Any, output_stream).height = cast(Any, input_stream).height
+        cast(Any, output_stream).pix_fmt = cast(Any, input_stream).pix_fmt
 
         graph = av.filter.Graph()
         link_nodes(
@@ -129,11 +237,11 @@ def reverse_video_file_in_one_chunk(src_and_dest: tuple[Path, Path]) -> None:
         graph.push(None)  # EOF: https://github.com/PyAV-Org/PyAV/issues/886.
 
         for _ in range(frames_count):
-            frame = graph.pull()
-            frame.pict_type = "NONE"  # Otherwise we get a warning saying it is changed
-            output_container.mux(output_stream.encode(frame))
+            frame = cast(Any, graph.pull())
+            frame.pict_type = "NONE"  # type: ignore[assignment,unused-ignore]
+            output_container.mux(cast(Any, output_stream).encode(frame))
 
-        for packet in output_stream.encode():
+        for packet in cast(Any, output_stream).encode():
             output_container.mux(packet)
 
 
@@ -150,9 +258,9 @@ def reverse_video_file(
         if max_segment_duration is None:
             return reverse_video_file_in_one_chunk((src, dest))
         elif input_stream.duration:
-            if (
-                float(input_stream.duration * input_stream.time_base)
-                <= max_segment_duration
+            time_base = input_stream.time_base
+            if time_base is not None and (
+                float(input_stream.duration * time_base) <= max_segment_duration
             ):
                 return reverse_video_file_in_one_chunk((src, dest))
         else:  # pragma: no cover
@@ -168,8 +276,8 @@ def reverse_video_file(
                 format="segment",
                 options={"segment_time": str(max_segment_duration)},
             ) as output_container:
-                output_stream = output_container.add_stream(
-                    template=input_stream,
+                output_stream = _add_stream_from_template(
+                    output_container, input_stream
                 )
 
                 for packet in input_container.demux(input_stream):
