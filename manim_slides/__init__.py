@@ -1,6 +1,7 @@
+import importlib
 import sys
 from types import ModuleType
-from typing import Any
+from typing import Any, Callable, Optional, cast
 
 from .__version__ import __version__
 
@@ -18,9 +19,12 @@ class Module(ModuleType):
             )
             magic = getattr(module, name)
 
-            from IPython import get_ipython
-
-            ipy = get_ipython()
+            ipy_module = importlib.import_module("IPython")
+            get_ipython = cast(
+                Optional[Callable[[], Any]],
+                getattr(ipy_module, "get_ipython", None),
+            )
+            ipy = get_ipython() if get_ipython is not None else None
 
             if ipy is not None:
                 ipy.register_magics(magic)
