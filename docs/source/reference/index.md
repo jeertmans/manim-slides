@@ -11,6 +11,7 @@ customize_html
 examples
 gui
 html
+large_presentation_tips
 IPython magic <ipython_magic>
 sharing
 Sphinx Extension <sphinx_extension>
@@ -27,6 +28,8 @@ Slides' executable.
 [Graphical User Interface](/reference/gui): details about the main Manim Slide' feature.
 
 [HTML Presentation](/reference/html): an alternative way of presenting your animations.
+
+[Tips for Large Presentations](/reference/large_presentation_tips): tips and tricks for best performance on large presentations.
 
 [IPython Magic](/reference/ipython_magic): a magic to render and display Manim Slides inside notebooks.
 
