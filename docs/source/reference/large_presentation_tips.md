@@ -121,8 +121,6 @@ automatically creates media directories based upon the scene name.
 
 <summary>A sample parallelized render script.</summary>
 
-<!-- TODO: we should expose Manim Slides' logger to avoid using print statements everywhere -->
-
 :::{warning}
 The script below is provided as is, and may or may not work,
 depending on your application case.
@@ -138,8 +136,10 @@ For any issue, please report them on GitHub.
 import sys
 import os
 import ast
+import logging
 import subprocess
 from multiprocessing import Pool, cpu_count
+from manim_slides.logger import logger
 
 FAILED_SCENES = []
 
@@ -175,25 +175,26 @@ def render_worker(args):
     Worker function to execute the manim command.
     """
     cmd, scene_name = args
-    print(f"Starting render: {scene_name}...")
-    print(f"Command is {cmd}")
+    logger.info(f"Starting render: {scene_name}...")
+    logger.info(f"Command is {cmd}")
     try:
         result = subprocess.run(
             cmd, shell=True, check=True, text=True, stdout=subprocess.DEVNULL)
         if result.returncode == 0:
-            print(f"Finished: {scene_name}")
+            logger.info(f"Finished: {scene_name}")
         else:
-            print(f"Error in {scene_name}:\n{result.stderr}")
+            logger.error(f"Error in {scene_name}:\n{result.stderr}")
             FAILED_SCENES.append(scene_name)
     except Exception as e:
-        print(f"Failed: {scene_name} with exception {e}")
+        logger.error(f"Failed: {scene_name} with exception {e}")
         FAILED_SCENES.append(scene_name)
 
 
 def main():
+    logger.setLevel(logging.INFO)
     if len(sys.argv) < 2:
-        print("Usage: python fast_render.py <your_script.py> [flags]")
-        print("Example: python fast_render.py animation.py -ql")
+        logger.info("Usage: python fast_render.py <your_script.py> [flags]")
+        logger.info("Example: python fast_render.py animation.py -ql")
         return
 
     target_file = sys.argv[1]
@@ -202,17 +203,17 @@ def main():
     extra_flags = " ".join(sys.argv[2:]) if len(sys.argv) > 2 else ""
 
     if not os.path.exists(target_file):
-        print(f"Error: File '{target_file}' not found.")
+        logger.error(f"Error: File '{target_file}' not found.")
         return
 
-    print(f"Scanning '{target_file}' for scenes...")
+    logger.info(f"Scanning '{target_file}' for scenes...")
     scenes = find_scene_classes(target_file)
 
     if not scenes:
-        print("No classes inheriting from 'Scene' or 'Slide' found.")
+        logger.error("No classes inheriting from 'Scene' or 'Slide' found.")
         return
 
-    print(f"Found {len(scenes)} scenes: {', '.join(scenes)}")
+    logger.info(f"Found {len(scenes)} scenes: {', '.join(scenes)}")
 
     # Prepare commands
     # Format: manim-slides render <flags> <filename> <SceneName>
@@ -227,19 +228,19 @@ def main():
     # Use roughly 75% of available CPU cores to prevent system freeze
     # Adjust this if your machine starts running out of memory
     workers = max(1, int(cpu_count() * 0.75))
-    print(f"Rendering with {workers} parallel processes...\n")
+    logger.info(f"Rendering with {workers} parallel processes...\n")
 
     with Pool(processes=workers) as pool:
         pool.map(render_worker, tasks)
         pool.close()
         pool.join()
 
-    print("\nAll render jobs completed.")
+    logger.info("\nAll render jobs completed.")
 
     if len(FAILED_SCENES):
-        print(f"The following {len(FAILED_SCENES)} scenes had errors: {FAILED_SCENES}.")
+        logger.warning(f"The following {len(FAILED_SCENES)} scenes had errors: {FAILED_SCENES}.")
     else:
-        print("All render jobs were successful!")
+        logger.info("All render jobs were successful!")
 
 
 if __name__ == "__main__":
