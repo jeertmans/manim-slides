@@ -1,3 +1,4 @@
+
 # Performance Tips for Large Presentations
 
 Rendering large `manim-slides` presentations can slow if you are not careful.
@@ -193,7 +194,10 @@ def main():
     # Format: manim-slides render <flags> <filename> <SceneName>
     tasks = []
     for scene in scenes:
-        command = f"manim-slides render --media_dir media_{scene} {extra_flags} {target_file} {scene}"
+        command = (
+            f"manim-slides render --media_dir media_{scene} "
+            f"{extra_flags} {target_file} {scene}"
+        )
         tasks.append((command, scene))
 
     # Use roughly 75% of available CPU cores to prevent system freeze
@@ -281,6 +285,7 @@ class Presentation(Slide):
         # change this to Tex at final render
         TextMobject = Text
         text = TextMobject(
-            "Hello! This will be text for iteration, and can switch to TeX for better kerning at the end!"
+            "Hello! This will be text initially."
+            "Switch to TeX at the end for better kerning!"
         )
 ```
