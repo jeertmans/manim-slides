@@ -4,6 +4,12 @@ Rendering long Manim Slides presentations can be slow if you are not careful.
 This page collects practical tips for cutting render times, especially during
 development.
 
+:::{info}
+If you know other tips and would like to share them,
+do not hesitate to contribute to this page!
+*(See the little pen icon at the top of this page.)*
+:::
+
 ---
 
 ## Table of Contents
@@ -23,13 +29,13 @@ The biggest time-saver is to stop rendering at full quality while you are
 still iterating.
 
 Use the `-ql` flag (low quality) and, optionally, drop the frame rate while you
-are working:
+are working on your animations:
 
 ```bash
 manim-slides render your_script.py YourClass -ql --fps=10
 ```
 
-Only switch back to high quality (`-qh`) or full-HD (`-qk`) once the
+Only switch back to a higher quality (e.g., `-qh` for full HD or `-qk` for 4K)  once the
 presentation content and timing are finalized.
 
 ---
@@ -37,9 +43,15 @@ presentation content and timing are finalized.
 ## Keep Scenes Small and Self-Contained
 
 A presentation made up of a single `construct()` method is hard to debug and
-forces a full re-render every time anything changes.  The most effective
+forces a full re-render every time anything changes[^1].  The most effective
 structure for large presentations is to split each logical section into its own
 `Slide` subclass:
+
+[^1]: Although Manim (especially the community edition) provides a caching
+  mechanism to avoid re-rendering all the slides, modifying a slide can quickly
+  cause a cascade effect in all subsequent files, rendering the caching system 
+  ineffective.
+  To avoid this, try breaking your slides into independent animations.
 
 ```python
 from manim import *
@@ -61,7 +73,7 @@ class ShowResults(Slide):
         ...
 ```
 
-Each class can now be rendered independently from the command line.  When you
+Each class can now be rendered independently from the command line. When you
 are happy with every scene, stitch them together into a single presentation
 with `manim-slides convert`:
 
@@ -71,39 +83,62 @@ manim-slides convert --to html \
     presentation_output.html
 ```
 
-> **Note**: You may find it useful to create a bash file for the above command
-> to avoid remembering it, especially when the number of scenes becomes large.
+:::{note}
+ You may find it useful to create a bash file for the above command
+to avoid remembering it, especially when the number of scenes becomes large.
+:::
 
 ---
 
 ## Render Only the Animations You Need
 
 Even when you are working on a single scene, there is no reason to re-render
-everything.  `manim-slides` lets you target a contiguous range of animations
-with the `-n` flag:
+everything. Manim (and Manim Slides by extension) lets you target a contiguous
+range of animations with the `-n` flag:
 
 ```bash
 manim-slides render your_file.py YourClass -n a,b
 ```
 
-Here `a` is the index of the first animation to render and `b` is the last
-(both inclusive).  This is especially useful when a bug or layout issue is
-isolated to one section — you can re-render just those slides and skip the
-rest.
+Here, a is the index of the first animation to render, and b is the index
+of the last animation to render (both inclusive). You can omit the start
+or end indices to render either from the first animation or until the last
+animation, respectively.
+This is especially useful when a bug or layout issue is isolated to one section.
+You can re-render just those slides and skip the rest.
 
 ---
 
 ## Parallelize Rendering Across Scenes
 
+:::{important}
+Parallel rendering is (currently) not a feature provided by Manim Slides,
+but rather an improvement suggested by
+[@jdgsmallwood](https://github.com/jdgsmallwood).
+
+If you wish to see this better integrated into Manim Slides, please
+raise an issue on GitHub!
+:::
+
 Because each scene is independent, you can render multiple scenes at the same
-time — one per CPU core.  There is one important caveat: generated artifacts
-such as TeX images will collide if every scene writes to the same directory.
-Give each scene its own `media_dir` to avoid this. A sample render script is
-below that automatically creates media directories based upon the scene name.
+time; e.g., one per CPU thread. There is one important caveat:
+generated artifacts such as TeX images will collide if every scene writes to
+the same directory. To fix this, give each scene its own `media_dir` to
+file collision. Below, we provide a sample render script is that
+automatically creates media directories based upon the scene name.
 
 <details>
 
 <summary>A sample parallelized render script.</summary>
+
+<!-- TODO: we should expose Manim Slides' logger to avoid using print statements everywhere -->
+
+:::{warning}
+The script below is provided as is, and may or may not work,
+depending on your application case.
+
+For any issue, please report them on GitHub.
+:::
 
 ```python
 ## Usage
@@ -228,16 +263,18 @@ threads or processes as you have cores; however, you may wish to limit to fewer
 than maximum to reduce parallel RAM usage.  After all jobs finish, run your
 `manim-slides convert` command as usual to assemble the final presentation.
 
-> **Tip:** Before doing a final production render, delete all `media_*` folders
-> and the `slides/` folder first.  This ensures no silently failed or stale
-> artifacts are included in the final output.
+:::{tip}
+Before doing a final production render, delete all `media_*` folders
+and the `slides/` folder first.  This ensures no silently failed or stale
+artifacts are included in the final output.
+:::
 
 ---
 
 ## Disable Reverse-Animation
 
 By default, Manim Slides generates a reversed copy of every slide so that you
-can navigate backwards during a live presentation.  For output formats that do
+can navigate backwards during a live presentation. For output formats that do
 not use reversed animations, such as PPTX or HTML, this step can be safely
 turned off to reduce rendering time.
 
@@ -256,7 +293,9 @@ class Presentation(Slide):
 ```
 
 When reversed slides *are* enabled their generation can sometimes hang
-indefinitely.  The root cause is an internal parallelization step that is prone
+indefinitely
+(see [#562](https://github.com/jeertmans/manim-slides/issues/562)).
+The root cause is an internal parallelization step that is prone
 to deadlocking.  A known workaround is to disable that parallelization by
 setting `max_duration_before_split_reverse` to `None`:
 
@@ -273,10 +312,10 @@ class Presentation(Slide):
 ## Minimize TeX Calls
 
 `Tex` and `MathTex` objects are slow to create as each one requires LaTeX
-compilation.  In a large presentation, these calls add up quickly.  `Tex`
-does produce noticeably better kerning than `Text` for many strings, even
-when no maths is involved, so a potential strategy is to iterate using `Text`
-and switch to `Tex` when you are ready to render the final presentation.
+compilation.  In a large presentation, these calls add up quickly.
+However, LaTeX produce noticeably better kerning than `Text` for many strings, even when no math is involved. So, a potential strategy is to first iterate
+using `Text`, and switch to back `Tex` when you are ready to render the final presentation. Note that you will probably need to adapt the font size between
+the two.
 
 ```python
 class Presentation(Slide):
