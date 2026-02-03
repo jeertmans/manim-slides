@@ -10,8 +10,6 @@ do not hesitate to contribute to this page!
 *(See the little pen icon at the top of this page.)*
 :::
 
----
-
 ## Table of Contents
 
 1. [Render at Low Quality During Development](#render-at-low-quality-during-development)
@@ -20,8 +18,6 @@ do not hesitate to contribute to this page!
 4. [Parallelize Rendering Across Scenes](#parallelize-rendering-across-scenes)
 5. [Disable Reverse-Animation](#disable-reverse-animation)
 6. [Minimize TeX Calls](#minimize-tex-calls)
-
----
 
 ## Render at Low Quality During Development
 
@@ -35,10 +31,8 @@ are working on your animations:
 manim-slides render your_script.py YourClass -ql --fps=10
 ```
 
-Only switch back to a higher quality (e.g., `-qh` for full HD or `-qk` for 4K)  once the
-presentation content and timing are finalized.
-
----
+Only switch back to a higher quality (e.g., `-qh` for full HD or `-qk` for
+4K)  once the presentation content and timing are finalized.
 
 ## Keep Scenes Small and Self-Contained
 
@@ -88,8 +82,6 @@ manim-slides convert --to html \
 to avoid remembering it, especially when the number of scenes becomes large.
 :::
 
----
-
 ## Render Only the Animations You Need
 
 Even when you are working on a single scene, there is no reason to re-render
@@ -106,8 +98,6 @@ or end indices to render either from the first animation or until the last
 animation, respectively.
 This is especially useful when a bug or layout issue is isolated to one section.
 You can re-render just those slides and skip the rest.
-
----
 
 ## Parallelize Rendering Across Scenes
 
@@ -269,8 +259,6 @@ and the `slides/` folder first.  This ensures no silently failed or stale
 artifacts are included in the final output.
 :::
 
----
-
 ## Disable Reverse-Animation
 
 By default, Manim Slides generates a reversed copy of every slide so that you
@@ -307,14 +295,14 @@ class Presentation(Slide):
         ...
 ```
 
----
-
 ## Minimize TeX Calls
 
 `Tex` and `MathTex` objects are slow to create as each one requires LaTeX
-compilation.  In a large presentation, these calls add up quickly.
-However, LaTeX produce noticeably better kerning than `Text` for many strings, even when no math is involved. So, a potential strategy is to first iterate
-using `Text`, and switch to back `Tex` when you are ready to render the final presentation. Note that you will probably need to adapt the font size between
+compilation.  In a large presentation, these calls add up quickly. However,
+LaTeX produce noticeably better kerning than `Text` for many strings, even
+when no math is involved. So, a potential strategy is to first iterate using
+`Text`, and switch to back `Tex` when you are ready to render the final
+presentation. Note that you will probably need to adapt the font size between
 the two.
 
 ```python
