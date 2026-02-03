@@ -1,6 +1,6 @@
 # Performance Tips for Large Presentations
 
-Rendering large `manim-slides` presentations can slow if you are not careful.
+Rendering long Manim Slides presentations can be slow if you are not careful.
 This page collects practical tips for cutting render times, especially during
 development.
 
