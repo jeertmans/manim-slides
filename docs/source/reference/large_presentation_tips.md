@@ -1,4 +1,3 @@
-
 # Performance Tips for Large Presentations
 
 Rendering large `manim-slides` presentations can slow if you are not careful.
