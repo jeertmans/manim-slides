@@ -12,10 +12,11 @@ development.
 2. [Keep Scenes Small and Self-Contained](#keep-scenes-small-and-self-contained)
 3. [Render Only the Animations You Need](#render-only-the-animations-you-need)
 4. [Parallelize Rendering Across Scenes](#parallelize-rendering-across-scenes)
-5. [Reverse-Animation](#reverse-animation)
+5. [Disable Reverse-Animation](#disable-reverse-animation)
 6. [Minimize TeX Calls](#minimize-tex-calls)
 
 ---
+
 ## Render at Low Quality During Development
 
 The biggest time-saver is to stop rendering at full quality while you are
@@ -74,6 +75,7 @@ manim-slides convert --to html \
 > to avoid remembering it, especially when the number of scenes becomes large.
 
 ---
+
 ## Render Only the Animations You Need
 
 Even when you are working on a single scene, there is no reason to re-render
@@ -89,7 +91,6 @@ inclusive).  This is especially useful when a bug or layout issue is isolated to
 one section — you can re-render just those slides and skip the rest.
 
 ---
-
 
 ## Parallelize Rendering Across Scenes
 
@@ -229,10 +230,12 @@ than maximum to reduce parallel RAM usage.  After all jobs finish, run your
 
 ---
 
-## Reverse-Animation By default, Manim Slides generates a reversed copy of
-every slide so that you can navigate backwards during a live presentation.  For
-output formats that do not use reversed animations, such as PPTX or HTML, this
-step can be safely turned off to reduce rendering time.
+## Disable Reverse-Animation 
+
+By default, Manim Slides generates a reversed copy of every slide so that you
+can navigate backwards during a live presentation.  For output formats that do
+not use reversed animations, such as PPTX or HTML, this step can be safely
+turned off to reduce rendering time.
 
 Set the class attribute `skip_reversing = True` to turn it off:
 

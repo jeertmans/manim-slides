@@ -29,7 +29,8 @@ Slides' executable.
 
 [HTML Presentation](/reference/html): an alternative way of presenting your animations.
 
-[Tips for Large Presentations](/reference/large_presentation_tips): tips and tricks for best performance on large presentations.
+[Tips for Large Presentations](/reference/large_presentation_tips): tips and
+tricks for best performance on large presentations.
 
 [IPython Magic](/reference/ipython_magic): a magic to render and display Manim Slides inside notebooks.
 
