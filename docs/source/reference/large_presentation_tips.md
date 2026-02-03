@@ -49,7 +49,7 @@ structure for large presentations is to split each logical section into its own
 
 [^1]: Although Manim (especially the community edition) provides a caching
   mechanism to avoid re-rendering all the slides, modifying a slide can quickly
-  cause a cascade effect in all subsequent files, rendering the caching system 
+  cause a cascade effect in all subsequent files, rendering the caching system
   ineffective.
   To avoid this, try breaking your slides into independent animations.
 
