@@ -230,7 +230,7 @@ than maximum to reduce parallel RAM usage.  After all jobs finish, run your
 
 ---
 
-## Disable Reverse-Animation 
+## Disable Reverse-Animation
 
 By default, Manim Slides generates a reversed copy of every slide so that you
 can navigate backwards during a live presentation.  For output formats that do
