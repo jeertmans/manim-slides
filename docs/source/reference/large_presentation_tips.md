@@ -4,7 +4,7 @@ Rendering long Manim Slides presentations can be slow if you are not careful.
 This page collects practical tips for cutting render times, especially during
 development.
 
-:::{info}
+:::{note}
 If you know other tips and would like to share them,
 do not hesitate to contribute to this page!
 *(See the little pen icon at the top of this page.)*
