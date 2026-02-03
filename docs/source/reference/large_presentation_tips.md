@@ -61,9 +61,9 @@ class ShowResults(Slide):
         ...
 ```
 
-Each class can now be rendered independently from the command line.  When you are
-happy with every scene, stitch them together into a single presentation with
-`manim-slides convert`:
+Each class can now be rendered independently from the command line.  When you
+are happy with every scene, stitch them together into a single presentation
+with `manim-slides convert`:
 
 ```bash
 manim-slides convert --to html \
@@ -79,26 +79,27 @@ manim-slides convert --to html \
 ## Render Only the Animations You Need
 
 Even when you are working on a single scene, there is no reason to re-render
-everything.  `manim-slides` lets you target a contiguous range of animations with the
-`-n` flag:
+everything.  `manim-slides` lets you target a contiguous range of animations
+with the `-n` flag:
 
 ```bash
 manim-slides render your_file.py YourClass -n a,b
 ```
 
-Here `a` is the index of the first animation to render and `b` is the last (both
-inclusive).  This is especially useful when a bug or layout issue is isolated to
-one section — you can re-render just those slides and skip the rest.
+Here `a` is the index of the first animation to render and `b` is the last
+(both inclusive).  This is especially useful when a bug or layout issue is
+isolated to one section — you can re-render just those slides and skip the
+rest.
 
 ---
 
 ## Parallelize Rendering Across Scenes
 
 Because each scene is independent, you can render multiple scenes at the same
-time — one per CPU core.  There is one important caveat: generated artifacts such
-as TeX images will collide if every scene writes to the same directory.  Give
-each scene its own `media_dir` to avoid this. A sample render script is below
-that automatically creates media directories based upon the scene name.
+time — one per CPU core.  There is one important caveat: generated artifacts
+such as TeX images will collide if every scene writes to the same directory.
+Give each scene its own `media_dir` to avoid this. A sample render script is
+below that automatically creates media directories based upon the scene name.
 
 <details>
 
@@ -230,7 +231,7 @@ than maximum to reduce parallel RAM usage.  After all jobs finish, run your
 
 ---
 
-## Disable Reverse-Animation 
+## Disable Reverse-Animation
 
 By default, Manim Slides generates a reversed copy of every slide so that you
 can navigate backwards during a live presentation.  For output formats that do
@@ -254,8 +255,8 @@ class Presentation(Slide):
 
 When reversed slides *are* enabled their generation can sometimes hang
 indefinitely.  The root cause is an internal parallelization step that is prone
-to deadlocking.  A known workaround is to disable that parallelization by setting
-`max_duration_before_split_reverse` to `None`:
+to deadlocking.  A known workaround is to disable that parallelization by
+setting `max_duration_before_split_reverse` to `None`:
 
 ```python
 class Presentation(Slide):
@@ -269,12 +270,11 @@ class Presentation(Slide):
 
 ## Minimize TeX Calls
 
-`Tex` and `MathTex` objects are slow to create as each
-one requires LaTeX compilation.  In a large presentation, these
-calls add up quickly.  `Tex` does produce noticeably better kerning
-than `Text` for many strings, even when no maths is involved, so a potential
-strategy is to iterate using `Text` and switch to `Tex` when you are ready to
-render the final presentation.
+`Tex` and `MathTex` objects are slow to create as each one requires LaTeX
+compilation.  In a large presentation, these calls add up quickly.  `Tex`
+does produce noticeably better kerning than `Text` for many strings, even
+when no maths is involved, so a potential strategy is to iterate using `Text`
+and switch to `Tex` when you are ready to render the final presentation.
 
 ```python
 class Presentation(Slide):
