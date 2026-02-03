@@ -240,7 +240,6 @@ turned off to reduce rendering time.
 
 Set the class attribute `skip_reversing = True` to turn it off:
 
-
 ```python
 from manim import *
 from manim_slides import Slide
