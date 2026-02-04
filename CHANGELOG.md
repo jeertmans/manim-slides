@@ -10,6 +10,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 (unreleased)=
 ## [Unreleased](https://github.com/jeertmans/manim-slides/compare/v5.5.3...HEAD)
 
+### Chore
+
+- Added tips for working with large presentations to the documentation.
+  [@jdgsmallwood](https://github.com/jdgsmallwood) [#588](https://github.com/jeertmans/manim-slides/pull/588)
+
 (v5.5.3)=
 ## [v5.5.3](https://github.com/jeertmans/manim-slides/compare/v5.5.2...v5.5.3)
 
