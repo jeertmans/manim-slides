@@ -89,6 +89,28 @@ Here are the slides from a 25-minute talk he presented at the 39th Annual AAAI C
     </iframe>
 </div>
 
+### Justin (Jay) Smallwood
+
+Jay is a PhD student at Swinburne University in Melbourne, Australia and has
+used Manim Slides to present his work on *Radio Frequency Interference
+Mitigation in Radio Astronomy*. He also publishes his slides on his [personal
+website](https://jsmallwood.net).
+
+Here are the slides from his [PhD confirmation](https://jsmallwood.net/wp-content/uploads/2026/01/confirmation_output.htm).
+
+<div style="position:relative;padding-bottom:56.25%;">
+    <iframe
+        loading="lazy"
+        style="width:100%;height:100%;position:absolute;left:0px;top:0px;"
+        frameborder="1"
+        width="100%"
+        height="100%"
+        allowfullscreen
+        allow="autoplay"
+        src="https://jsmallwood.net/wp-content/uploads/2026/01/confirmation_output.htm">
+    </iframe>
+</div>
+
 ## School Work
 
 Below are people that used Manim Slides for school presentations.
