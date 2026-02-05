@@ -26,11 +26,6 @@ repos:
   - id: ruff
     args: [--fix]
   - id: ruff-format
-- repo: https://github.com/pre-commit/mirrors-mypy
-  rev: v1.19.1
-  hooks:
-  - id: mypy
-    additional_dependencies: [types-requests, types-setuptools]
 - repo: https://github.com/codespell-project/codespell
   rev: v2.4.1
   hooks:
@@ -45,3 +40,9 @@ repos:
     entry: python .github/scripts/check_github_issues.py
     language: system
     types: [markdown]
+  - id: ty
+    name: typecheck
+    description: Typecheck Python files with ty
+    language: system
+    entry: uv run ty check
+    pass_filenames: false
