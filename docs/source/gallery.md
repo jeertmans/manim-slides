@@ -67,28 +67,6 @@ For example, below are the slides of his
     </iframe>
 </div>
 
-### Matthew McIlree
-
-Matthew is a Computer Science researcher from Scotland and has used Manim Slides
-to present his work on *Proof Logging for Constraint Programming*. He also publishes
-his presentation slides on his [personal website](https://matthewmcilree.com).
-
-Here are the slides from a 25-minute talk he presented at the 39th Annual AAAI Conference on Artificial Intelligence titled
-[Certifying Bounds Propagation for Integer Multiplication Constraints](https://matthewmcilree.com/files/slides/mcilree_aaai2025.html).
-
-<div style="position:relative;padding-bottom:56.25%;">
-    <iframe
-        loading="lazy"
-        style="width:100%;height:100%;position:absolute;left:0px;top:0px;"
-        frameborder="1"
-        width="100%"
-        height="100%"
-        allowfullscreen
-        allow="autoplay"
-        src="https://matthewmcilree.com/files/slides/mcilree_aaai2025.html">
-    </iframe>
-</div>
-
 ### Justin (Jay) Smallwood
 
 Jay is a PhD student at Swinburne University in Melbourne, Australia and has
@@ -108,6 +86,28 @@ Here are the slides from his [PhD confirmation](https://jsmallwood.net/wp-conten
         allowfullscreen
         allow="autoplay"
         src="https://jsmallwood.net/wp-content/uploads/2026/01/confirmation_output.htm">
+    </iframe>
+</div>
+
+### Matthew McIlree
+
+Matthew is a Computer Science researcher from Scotland and has used Manim Slides
+to present his work on *Proof Logging for Constraint Programming*. He also publishes
+his presentation slides on his [personal website](https://matthewmcilree.com).
+
+Here are the slides from a 25-minute talk he presented at the 39th Annual AAAI Conference on Artificial Intelligence titled
+[Certifying Bounds Propagation for Integer Multiplication Constraints](https://matthewmcilree.com/files/slides/mcilree_aaai2025.html).
+
+<div style="position:relative;padding-bottom:56.25%;">
+    <iframe
+        loading="lazy"
+        style="width:100%;height:100%;position:absolute;left:0px;top:0px;"
+        frameborder="1"
+        width="100%"
+        height="100%"
+        allowfullscreen
+        allow="autoplay"
+        src="https://matthewmcilree.com/files/slides/mcilree_aaai2025.html">
     </iframe>
 </div>
 
