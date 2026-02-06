@@ -1,10 +1,10 @@
 import re
 from pathlib import Path
 
-with open('errors.txt', 'r', encoding='utf-16') as f:
+with open("errors.txt", encoding="utf-16") as f:
     content = f.read()
 
-pattern = r'warning\[unused-type-ignore-comment\].*?--> ([^:]+):(\d+):\d+'
+pattern = r"warning\[unused-type-ignore-comment\].*?--> ([^:]+):(\d+):\d+"
 matches = re.findall(pattern, content, re.DOTALL)
 
 files_to_fix = {}
@@ -21,22 +21,22 @@ for filepath, line_numbers in files_to_fix.items():
     path = Path(filepath)
     if not path.exists():
         continue
-    
-    with open(path, 'r', encoding='utf-8') as f:
+
+    with open(path, encoding="utf-8") as f:
         lines = f.readlines()
-    
+
     for line_num in sorted(line_numbers, reverse=True):
         idx = line_num - 1
         if idx < len(lines):
             # Remove entire # type: ignore comment including brackets
-            lines[idx] = re.sub(r'\s*#\s*type:\s*ignore(\[[\w-]+\])?', '', lines[idx])
+            lines[idx] = re.sub(r"\s*#\s*type:\s*ignore(\[[\w-]+\])?", "", lines[idx])
             # If line is now empty or just whitespace, remove it
-            if lines[idx].strip() == '':
-                lines[idx] = '\n'
-    
-    with open(path, 'w', encoding='utf-8') as f:
+            if lines[idx].strip() == "":
+                lines[idx] = "\n"
+
+    with open(path, "w", encoding="utf-8") as f:
         f.writelines(lines)
-    
+
     print(f"Fixed {filepath}")
 
 print("Done!")

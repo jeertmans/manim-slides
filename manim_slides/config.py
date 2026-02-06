@@ -292,7 +292,8 @@ class PresentationConfig(BaseModel):
     slides: list[SlideConfig] = Field(min_length=1)
     resolution: tuple[PositiveInt, PositiveInt] = (1920, 1080)
     background_color: Color = "black"  # type: ignore[invalid-assignment]
-    #Use of type: ignore above is because pydantic's color does accept string literals
+
+    # Use of type: ignore above is because pydantic's color does accept string literals
     @classmethod
     def from_file(cls, path: Path) -> "PresentationConfig":
         """Read a presentation configuration from a file."""
