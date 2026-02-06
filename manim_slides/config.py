@@ -101,11 +101,11 @@ class Keys(BaseModel):
         ids: set[int] = set()
 
         for key in values.values():
-            if len(ids.intersection(key["ids"])) != 0:
+            if len(ids.intersection(key.ids)) != 0:
                 raise ValueError(
                     "Two or more keys share a common key code: please make sure each key has distinct key codes"
                 )
-            ids.update(key["ids"])
+            ids.update(key.ids)
 
         return values
 
@@ -291,8 +291,8 @@ class SlideConfig(BaseSlideConfig):
 class PresentationConfig(BaseModel):
     slides: list[SlideConfig] = Field(min_length=1)
     resolution: tuple[PositiveInt, PositiveInt] = (1920, 1080)
-    background_color: Color = "black"
-
+    background_color: Color = "black"  # type: ignore[invalid-assignment]
+    #Use of type: ignore above is because pydantic's color does accept string literals
     @classmethod
     def from_file(cls, path: Path) -> "PresentationConfig":
         """Read a presentation configuration from a file."""

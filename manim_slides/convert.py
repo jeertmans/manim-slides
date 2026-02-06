@@ -21,8 +21,8 @@ import requests
 from bs4 import BeautifulSoup
 from click import Context, Parameter
 from jinja2 import Template
-from lxml import etree
-from PIL import Image
+from lxml import etree  # type: ignore[unresolved-import]
+from PIL.Image import Image
 from pydantic import (
     BaseModel,
     ConfigDict,

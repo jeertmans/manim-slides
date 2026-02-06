@@ -249,7 +249,7 @@ class ManimSlidesMagic(Magics):
             presentation_configs = get_scenes_presentation_config(
                 [clsname], Path("./slides")
             )
-            RevealJS(presentation_configs=presentation_configs, **kwargs).convert_to(
+            RevealJS(presentation_configs=presentation_configs, **kwargs).convert_to(  # type: ignore[invalid-argument-type]
                 tmpfile
             )
 
