@@ -1,11 +1,11 @@
 import re
 from pathlib import Path
 
-with open('remaining_errors1.txt', 'r', encoding='utf-16') as f:
+with open("remaining_errors1.txt", encoding="utf-16") as f:
     content = f.read()
 
 # Find all unresolved-attribute errors with file paths
-pattern = r'error\[unresolved-attribute\].*?--> ([^:]+):(\d+):\d+'
+pattern = r"error\[unresolved-attribute\].*?--> ([^:]+):(\d+):\d+"
 matches = re.findall(pattern, content, re.DOTALL)
 
 files_to_fix = {}
@@ -22,21 +22,21 @@ for filepath, line_numbers in files_to_fix.items():
     path = Path(filepath)
     if not path.exists():
         continue
-    
-    with open(path, 'r', encoding='utf-8') as f:
+
+    with open(path, encoding="utf-8") as f:
         lines = f.readlines()
-    
+
     # Add type: ignore in reverse order to maintain line numbers
     for line_num in sorted(set(line_numbers), reverse=True):
         idx = line_num - 1
         if idx < len(lines):
             line = lines[idx].rstrip()
-            if '# type: ignore' not in line:
-                lines[idx] = line + '  # type: ignore[unresolved-attribute]\n'
-    
-    with open(path, 'w', encoding='utf-8') as f:
+            if "# type: ignore" not in line:
+                lines[idx] = line + "  # type: ignore[unresolved-attribute]\n"
+
+    with open(path, "w", encoding="utf-8") as f:
         f.writelines(lines)
-    
+
     print(f"Fixed {filepath}: {len(set(line_numbers))} lines")
 
 print("Done!")
