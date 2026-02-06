@@ -151,7 +151,7 @@ def reverse_video_file(
             return reverse_video_file_in_one_chunk((src, dest))
         elif input_stream.duration:
             if (
-                float(input_stream.duration * input_stream.time_base) #type: ignore[unsupported-operator]
+                float(input_stream.duration * input_stream.time_base)  # type: ignore[unsupported-operator]
                 <= max_segment_duration
             ):
                 return reverse_video_file_in_one_chunk((src, dest))

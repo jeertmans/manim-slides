@@ -220,7 +220,11 @@ class TestConverter:
 
         # Check if CSS is not inlined
         styles = soup.find_all("style")
-        assert not any("background-color: #9a3241;" in style.string for style in styles if style.string)
+        assert not any(
+            "background-color: #9a3241;" in style.string
+            for style in styles
+            if style.string
+        )
         # Check if JS is not inlined
         scripts = soup.find_all("script")
         assert not any(
@@ -264,11 +268,19 @@ class TestConverter:
 
         # Check if CSS is inlined
         styles = soup.find_all("style")
-        assert any("background-color: #9a3241;" in style.string for style in styles if style.string)
+        assert any(
+            "background-color: #9a3241;" in style.string
+            for style in styles
+            if style.string
+        )
 
         # Check if JS is inlined
         scripts = soup.find_all("script")
-        assert any("background-color: #9a3241;" in script.string for script in scripts if script.string)
+        assert any(
+            "background-color: #9a3241;" in script.string
+            for script in scripts
+            if script.string
+        )
 
     def test_htmlzip_converter(
         self, tmp_path: Path, presentation_config: PresentationConfig
