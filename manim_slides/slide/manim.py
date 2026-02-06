@@ -9,7 +9,7 @@ from ..config import BaseSlideConfig
 from .base import BaseSlide
 
 
-class Slide(BaseSlide, Scene):  # type: ignore[misc]
+class Slide(BaseSlide, Scene):
     """
     Inherits from :class:`Scene<manim.scene.scene.Scene>` and provides necessary tools
     for slides rendering.
@@ -51,7 +51,7 @@ class Slide(BaseSlide, Scene):  # type: ignore[misc]
     @property
     def _frame_shape(self) -> tuple[float, float]:
         if isinstance(self.renderer, OpenGLRenderer):
-            return self.renderer.camera.frame_shape  # type: ignore
+            return self.renderer.camera.frame_shape
         else:
             return (
                 self.renderer.camera.frame_height,
@@ -69,14 +69,14 @@ class Slide(BaseSlide, Scene):  # type: ignore[misc]
     @property
     def _background_color(self) -> str:
         if isinstance(self.renderer, OpenGLRenderer):
-            return rgba_to_color(self.renderer.background_color).to_hex()  # type: ignore
+            return rgba_to_color(self.renderer.background_color).to_hex()
         else:
-            return self.renderer.camera.background_color.to_hex()  # type: ignore
+            return self.renderer.camera.background_color.to_hex()
 
     @property
     def _resolution(self) -> tuple[int, int]:
         if isinstance(self.renderer, OpenGLRenderer):
-            return self.renderer.get_pixel_shape()  # type: ignore
+            return self.renderer.get_pixel_shape()
         else:
             return (
                 self.renderer.camera.pixel_width,
@@ -96,15 +96,15 @@ class Slide(BaseSlide, Scene):  # type: ignore[misc]
 
     @property
     def _show_progress_bar(self) -> bool:
-        return config["progress_bar"] != "none"  # type: ignore
+        return config["progress_bar"] != "none"
 
     @property
     def _leave_progress_bar(self) -> bool:
-        return config["progress_bar"] == "leave"  # type: ignore
+        return config["progress_bar"] == "leave"
 
     @property
     def _start_at_animation_number(self) -> Optional[int]:
-        return config["from_animation_number"]  # type: ignore
+        return config["from_animation_number"]
 
     def play(self, *args: Any, **kwargs: Any) -> None:
         """Overload 'self.play' and increment animation count."""
@@ -174,7 +174,7 @@ class Slide(BaseSlide, Scene):  # type: ignore[misc]
             self.renderer.file_writer.flush_cache_directory()
 
 
-class ThreeDSlide(Slide, ThreeDScene):  # type: ignore[misc]
+class ThreeDSlide(Slide, ThreeDScene):
     """
     Inherits from :class:`Slide` and
     :class:`ThreeDScene<manim.scene.three_d_scene.ThreeDScene>` and provide necessary

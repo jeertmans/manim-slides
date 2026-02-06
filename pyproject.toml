@@ -183,12 +183,6 @@ replacement = '> **\1:**'
 [tool.hatch.version]
 path = "manim_slides/__version__.py"
 
-[tool.mypy]
-disallow_untyped_decorators = false
-install_types = true
-python_version = "3.9"
-strict = true
-
 [tool.pytest.ini_options]
 addopts = [
   "--cov-report=xml",
@@ -233,3 +227,6 @@ isort = {known-first-party = ["manim_slides", "tests"]}
 [tool.ruff.lint.per-file-ignores]
 "docs/source/reference/magic_example.ipynb" = ["F403", "F405"]
 "tests/test_slide.py" = ["N801"]
+
+[tool.ty.rules]
+unused-ignore-comment = "error"

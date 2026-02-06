@@ -25,7 +25,7 @@ from .logger import logger
 Receiver = Callable[..., Any]
 
 
-class Signal(BaseModel):  # type: ignore[misc]
+class Signal(BaseModel):
     __receivers: list[Receiver] = PrivateAttr(default_factory=list)
 
     def connect(self, receiver: Receiver) -> None:
@@ -46,7 +46,7 @@ def key_id(name: str) -> PositiveInt:
     return getattr(Qt, f"Key_{name}")
 
 
-class Key(BaseModel):  # type: ignore[misc]
+class Key(BaseModel):
     """Represents a list of key codes, with optionally a name."""
 
     ids: conset(PositiveInt, min_length=1)  # type: ignore[valid-type]
@@ -77,7 +77,7 @@ class Key(BaseModel):  # type: ignore[misc]
         return list(self.ids)
 
 
-class Keys(BaseModel):  # type: ignore[misc]
+class Keys(BaseModel):
     QUIT: Key = Field(default_factory=lambda: Key(ids=[key_id("Q")], name="QUIT"))
     PLAY_PAUSE: Key = Field(
         default_factory=lambda: Key(ids=[key_id("Space")], name="PLAY / PAUSE")
@@ -101,11 +101,11 @@ class Keys(BaseModel):  # type: ignore[misc]
         ids: set[int] = set()
 
         for key in values.values():
-            if len(ids.intersection(key["ids"])) != 0:
+            if len(ids.intersection(key.ids)) != 0:
                 raise ValueError(
                     "Two or more keys share a common key code: please make sure each key has distinct key codes"
                 )
-            ids.update(key["ids"])
+            ids.update(key.ids)
 
         return values
 
@@ -131,7 +131,7 @@ class Keys(BaseModel):  # type: ignore[misc]
         return dispatch
 
 
-class Config(BaseModel):  # type: ignore[misc]
+class Config(BaseModel):
     """General Manim Slides config."""
 
     keys: Keys = Field(default_factory=Keys)
@@ -139,7 +139,7 @@ class Config(BaseModel):  # type: ignore[misc]
     @classmethod
     def from_file(cls, path: Path) -> "Config":
         """Read a configuration from a file."""
-        return cls.model_validate(rtoml.load(path))  # type: ignore
+        return cls.model_validate(rtoml.load(path))
 
     def to_file(self, path: Path) -> None:
         """Dump the configuration to a file."""
@@ -151,7 +151,7 @@ class Config(BaseModel):  # type: ignore[misc]
         return self
 
 
-class BaseSlideConfig(BaseModel):  # type: ignore
+class BaseSlideConfig(BaseModel):
     """Base class for slide config."""
 
     loop: bool = False
@@ -288,11 +288,12 @@ class SlideConfig(BaseSlideConfig):
         return cls(file=file, rev_file=rev_file, **pre_slide_config.model_dump())
 
 
-class PresentationConfig(BaseModel):  # type: ignore[misc]
+class PresentationConfig(BaseModel):
     slides: list[SlideConfig] = Field(min_length=1)
     resolution: tuple[PositiveInt, PositiveInt] = (1920, 1080)
-    background_color: Color = "black"
+    background_color: Color = "black"  # type: ignore[invalid-assignment]
 
+    # Use of type: ignore above is because pydantic's color does accept string literals
     @classmethod
     def from_file(cls, path: Path) -> "PresentationConfig":
         """Read a presentation configuration from a file."""
@@ -309,7 +310,7 @@ class PresentationConfig(BaseModel):  # type: ignore[misc]
                 if rev_file := slide.get("rev_file", None):
                     slide["rev_file"] = parent / rev_file
 
-            return cls.model_validate(obj)  # type: ignore
+            return cls.model_validate(obj)
 
     def to_file(self, path: Path) -> None:
         """Dump the presentation configuration to a file."""
