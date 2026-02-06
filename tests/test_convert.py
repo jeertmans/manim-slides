@@ -115,7 +115,7 @@ def test_quoted_enum(enum_type: EnumMeta) -> None:
         if enum in ["true", "false", "null"]:
             continue
 
-        expected = "'" + enum.value + "'"
+        expected = "'" + enum.value + "'"  # type: ignore[unresolved-attribute]
         got = str(enum)
 
         assert expected == got
@@ -133,7 +133,7 @@ def test_quoted_enum(enum_type: EnumMeta) -> None:
 )
 def test_unquoted_enum(enum_type: EnumMeta) -> None:
     for enum in enum_type:
-        expected = enum.value
+        expected = enum.value  # type: ignore[unresolved-attribute]
         got = str(enum)
 
         assert expected == got

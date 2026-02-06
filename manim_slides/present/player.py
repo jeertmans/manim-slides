@@ -172,7 +172,7 @@ class Player(QMainWindow):  # type: ignore[misc]
         skip_all: bool = False,
         exit_after_last_slide: bool = False,
         hide_mouse: bool = False,
-        aspect_ratio_mode: Qt.AspectRatioMode = Qt.KeepAspectRatio,
+        aspect_ratio_mode: Qt.AspectRatioMode = Qt.KeepAspectRatio,  # type: ignore[unresolved-attribute]
         presentation_index: int = 0,
         slide_index: int = 0,
         screen: Optional[QScreen] = None,
@@ -207,7 +207,7 @@ class Player(QMainWindow):  # type: ignore[misc]
             self.move(screen.geometry().topLeft())
 
         if full_screen:
-            self.setWindowState(Qt.WindowFullScreen)
+            self.setWindowState(Qt.WindowFullScreen)  # type: ignore[unresolved-attribute]
         else:
             w, h = self.current_presentation_config.resolution
             geometry = self.geometry()
@@ -216,7 +216,7 @@ class Player(QMainWindow):  # type: ignore[misc]
             self.setGeometry(geometry)
 
         if hide_mouse:
-            self.setCursor(Qt.BlankCursor)
+            self.setCursor(Qt.BlankCursor)  # type: ignore[unresolved-attribute]
 
         self.setWindowTitle(WINDOW_NAME)
         self.icon = QIcon(":/icon.png")
@@ -548,19 +548,19 @@ class Player(QMainWindow):  # type: ignore[misc]
 
     @Slot()
     def full_screen(self) -> None:
-        if self.windowState() == Qt.WindowFullScreen:
-            self.setWindowState(Qt.WindowNoState)
-            self.info.setWindowState(Qt.WindowNoState)
+        if self.windowState() == Qt.WindowFullScreen:  # type: ignore[unresolved-attribute]
+            self.setWindowState(Qt.WindowNoState)  # type: ignore[unresolved-attribute]
+            self.info.setWindowState(Qt.WindowNoState)  # type: ignore[unresolved-attribute]
         else:
-            self.setWindowState(Qt.WindowFullScreen)
-            self.info.setWindowState(Qt.WindowFullScreen)
+            self.setWindowState(Qt.WindowFullScreen)  # type: ignore[unresolved-attribute]
+            self.info.setWindowState(Qt.WindowFullScreen)  # type: ignore[unresolved-attribute]
 
     @Slot()
     def hide_mouse(self) -> None:
-        if self.cursor().shape() == Qt.BlankCursor:
-            self.setCursor(Qt.ArrowCursor)
+        if self.cursor().shape() == Qt.BlankCursor:  # type: ignore[unresolved-attribute]
+            self.setCursor(Qt.ArrowCursor)  # type: ignore[unresolved-attribute]
         else:
-            self.setCursor(Qt.BlankCursor)
+            self.setCursor(Qt.BlankCursor)  # type: ignore[unresolved-attribute]
 
     def frame_changed(self, frame: QVideoFrame) -> None:
         """

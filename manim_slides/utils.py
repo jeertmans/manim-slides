@@ -109,9 +109,9 @@ def reverse_video_file_in_one_chunk(src_and_dest: tuple[Path, Path]) -> None:
         output_stream = output_container.add_stream(
             codec_name="libx264", rate=input_stream.base_rate
         )
-        output_stream.width = input_stream.width
-        output_stream.height = input_stream.height
-        output_stream.pix_fmt = input_stream.pix_fmt
+        output_stream.width = input_stream.width  # type: ignore[unresolved-attribute]
+        output_stream.height = input_stream.height  # type: ignore[unresolved-attribute]
+        output_stream.pix_fmt = input_stream.pix_fmt  # type: ignore[unresolved-attribute]
 
         graph = av.filter.Graph()
         link_nodes(
@@ -131,9 +131,9 @@ def reverse_video_file_in_one_chunk(src_and_dest: tuple[Path, Path]) -> None:
         for _ in range(frames_count):
             frame = graph.pull()
             frame.pict_type = "NONE"  # Otherwise we get a warning saying it is changed
-            output_container.mux(output_stream.encode(frame))
+            output_container.mux(output_stream.encode(frame))  # type: ignore[unresolved-attribute]
 
-        for packet in output_stream.encode():
+        for packet in output_stream.encode():  # type: ignore[unresolved-attribute]
             output_container.mux(packet)
 
 

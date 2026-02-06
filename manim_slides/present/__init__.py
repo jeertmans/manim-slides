@@ -337,8 +337,8 @@ def present(  # noqa: C901
         info_window_screen = None
 
     aspect_ratio_modes = {
-        "keep": Qt.KeepAspectRatio,
-        "ignore": Qt.IgnoreAspectRatio,
+        "keep": Qt.KeepAspectRatio, # type: ignore[unresolved-attribute]
+        "ignore": Qt.IgnoreAspectRatio, # type: ignore[unresolved-attribute]
     }
 
     player = Player(

@@ -53,7 +53,7 @@ class Wizard(QWidget):  # type: ignore
         self.setWindowIcon(self.icon)
         self.closed_without_saving = False
 
-        button = QDialogButtonBox.Save | QDialogButtonBox.Cancel
+        button = QDialogButtonBox.Save | QDialogButtonBox.Cancel  # type: ignore[unresolved-attribute]
 
         self.button_box = QDialogButtonBox(button)
         self.button_box.accepted.connect(self.save_config)
@@ -100,7 +100,7 @@ class Wizard(QWidget):  # type: ignore
             Config.model_validate(self.config.model_dump())
         except ValueError:
             msg = QMessageBox()
-            msg.setIcon(QMessageBox.Critical)
+            msg.setIcon(QMessageBox.Critical)  # type: ignore[unresolved-attribute]
             msg.setText("Error")
             msg.setInformativeText(
                 "Two or more actions share a common key: make sure actions have distinct key codes."
