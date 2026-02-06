@@ -49,7 +49,7 @@ def open_with_default(file: Path) -> None:
     if system == "Darwin":
         subprocess.call(("open", str(file)))
     elif system == "Windows":
-        os.startfile(str(file))  # type: ignore[attr-defined]
+        os.startfile(str(file))
     else:
         subprocess.call(("xdg-open", str(file)))
 
@@ -102,7 +102,7 @@ def read_image_from_video_file(file: Path, frame_index: "FrameIndex") -> Image:
         return frame.to_image()
 
 
-class Converter(BaseModel):  # type: ignore
+class Converter(BaseModel):
     presentation_configs: list[PresentationConfig]
     assets_dir: str = Field(
         "{basename}_assets",
@@ -173,27 +173,27 @@ class JsFalse(str, StrEnum):
     false = "false"
 
 
-class JsBool(Str, StrEnum):  # type: ignore
+class JsBool(Str, StrEnum):
     true = "true"
     false = "false"
 
 
-class JsNull(Str, StrEnum):  # type: ignore
+class JsNull(Str, StrEnum):
     null = "null"
 
 
-class ControlsLayout(Str, StrEnum):  # type: ignore
+class ControlsLayout(Str, StrEnum):
     edges = "edges"
     bottom_right = "bottom-right"
 
 
-class ControlsBackArrows(Str, StrEnum):  # type: ignore
+class ControlsBackArrows(Str, StrEnum):
     faded = "faded"
     hidden = "hidden"
     visibly = "visibly"
 
 
-class SlideNumber(Str, StrEnum):  # type: ignore
+class SlideNumber(Str, StrEnum):
     true = "true"
     false = "false"
     hdotv = "h.v"
@@ -202,24 +202,24 @@ class SlideNumber(Str, StrEnum):  # type: ignore
     candt = "c/t"
 
 
-class ShowSlideNumber(Str, StrEnum):  # type: ignore
+class ShowSlideNumber(Str, StrEnum):
     all = "all"
     print = "print"
     speaker = "speaker"
 
 
-class KeyboardCondition(Str, StrEnum):  # type: ignore
+class KeyboardCondition(Str, StrEnum):
     null = "null"
     focused = "focused"
 
 
-class NavigationMode(Str, StrEnum):  # type: ignore
+class NavigationMode(Str, StrEnum):
     default = "default"
     linear = "linear"
     grid = "grid"
 
 
-class AutoPlayMedia(Str, StrEnum):  # type: ignore
+class AutoPlayMedia(Str, StrEnum):
     null = "null"
     true = "true"
     false = "false"
@@ -228,25 +228,25 @@ class AutoPlayMedia(Str, StrEnum):  # type: ignore
 PreloadIframes = AutoPlayMedia
 
 
-class AutoAnimateMatcher(Str, StrEnum):  # type: ignore
+class AutoAnimateMatcher(Str, StrEnum):
     null = "null"
 
 
-class AutoAnimateEasing(Str, StrEnum):  # type: ignore
+class AutoAnimateEasing(Str, StrEnum):
     ease = "ease"
 
 
 AutoSlide = Union[PositiveInt, JsFalse]
 
 
-class AutoSlideMethod(Str, StrEnum):  # type: ignore
+class AutoSlideMethod(Str, StrEnum):
     null = "null"
 
 
 MouseWheel = Union[JsNull, float]
 
 
-class Transition(Str, StrEnum):  # type: ignore
+class Transition(Str, StrEnum):
     none = "none"
     fade = "fade"
     slide = "slide"
@@ -255,13 +255,13 @@ class Transition(Str, StrEnum):  # type: ignore
     zoom = "zoom"
 
 
-class TransitionSpeed(Str, StrEnum):  # type: ignore
+class TransitionSpeed(Str, StrEnum):
     default = "default"
     fast = "fast"
     slow = "slow"
 
 
-class BackgroundSize(Str, StrEnum):  # type: ignore
+class BackgroundSize(Str, StrEnum):
     # From: https://developer.mozilla.org/en-US/docs/Web/CSS/background-size
     # TODO: support more background size
     contain = "contain"
@@ -271,7 +271,7 @@ class BackgroundSize(Str, StrEnum):  # type: ignore
 BackgroundTransition = Transition
 
 
-class Display(Str, StrEnum):  # type: ignore
+class Display(Str, StrEnum):
     block = "block"
 
 
@@ -857,7 +857,7 @@ def show_config_options(function: Callable[..., Any]) -> Callable[..., Any]:
 
         ctx.exit()
 
-    return click.option(  # type: ignore
+    return click.option(
         "--show-config",
         is_flag=True,
         help="Show supported options for given format and exit.",
@@ -898,7 +898,7 @@ def show_template_option(function: Callable[..., Any]) -> Callable[..., Any]:
 
         ctx.exit()
 
-    return click.option(  # type: ignore
+    return click.option(
         "--show-template",
         is_flag=True,
         help="Show the template (currently) used for a given conversion format and exit.",

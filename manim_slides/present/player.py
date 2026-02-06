@@ -373,7 +373,7 @@ class Player(QMainWindow):  # type: ignore[misc]
     @property
     def next_file(self) -> Optional[Path]:
         if slide_config := self.next_slide_config:
-            return slide_config.file  # type: ignore[no-any-return]
+            return slide_config.file
 
         return None
 

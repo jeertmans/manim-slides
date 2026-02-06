@@ -7,7 +7,7 @@ from manim_slides.slide.base import BaseSlide
 
 @pytest.fixture
 def base_slide() -> BaseSlide:
-    return BaseSlide()  # type: ignore[abstract]
+    return BaseSlide()
 
 
 class TestBaseSlide:

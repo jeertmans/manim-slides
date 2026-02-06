@@ -70,7 +70,7 @@ def prompt_for_scenes(folder: Path) -> list[str]:
     while True:
         try:
             scenes = click.prompt("Choice(s)", value_proc=value_proc)
-            return scenes  # type: ignore
+            return scenes
         except ValueError as e:
             raise click.UsageError(str(e)) from None
 

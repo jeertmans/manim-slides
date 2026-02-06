@@ -74,7 +74,7 @@ def test_file_to_data_uri(video_file: Path, video_data_uri_file: Path) -> None:
     ],
 )
 def test_format_enum(enum_type: EnumMeta) -> None:
-    for enum in enum_type:  # type: ignore[var-annotated]
+    for enum in enum_type:
         expected = str(enum)
         got = f"{enum}"
 
@@ -111,7 +111,7 @@ def test_format_enum(enum_type: EnumMeta) -> None:
     ],
 )
 def test_quoted_enum(enum_type: EnumMeta) -> None:
-    for enum in enum_type:  # type: ignore[var-annotated]
+    for enum in enum_type:
         if enum in ["true", "false", "null"]:
             continue
 
@@ -132,7 +132,7 @@ def test_quoted_enum(enum_type: EnumMeta) -> None:
     ],
 )
 def test_unquoted_enum(enum_type: EnumMeta) -> None:
-    for enum in enum_type:  # type: ignore[var-annotated]
+    for enum in enum_type:
         expected = enum.value
         got = str(enum)
 
