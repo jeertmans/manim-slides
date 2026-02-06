@@ -86,7 +86,7 @@ def get_duration_ms(file: Path) -> float:
     with av.open(str(file)) as container:
         video = container.streams.video[0]
 
-        return float(1000 * video.duration * video.time_base)
+        return float(1000 * video.duration * video.time_base)  # type: ignore[unsupported-operator]
 
 
 def read_image_from_video_file(file: Path, frame_index: "FrameIndex") -> Image:
