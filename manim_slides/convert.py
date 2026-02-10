@@ -527,7 +527,7 @@ class RevealJS(Converter):
         5000, description="Time before the cursor is hidden (in ms)."
     )
     # Appearance options from RevealJS
-    background_color: Color = Field(
+    background_color: Color = Field( # type: ignore[invalid-assignment]
         "black",
         description="Background color used in slides, not relevant if videos fill the whole area.",
     )
@@ -750,8 +750,8 @@ class PowerPoint(Converter):
     def convert_to(self, dest: Path) -> None:
         """Convert this configuration into a PowerPoint presentation, saved to DEST."""
         prs = pptx.Presentation()
-        prs.slide_width = self.width * 9525
-        prs.slide_height = self.height * 9525
+        prs.slide_width = self.width * 9525  # type: ignore[invalid-assignment]
+        prs.slide_height = self.height * 9525  # type: ignore[invalid-assignment]
 
         layout = prs.slide_layouts[6]  # Should be blank
 
@@ -817,7 +817,7 @@ class PowerPoint(Converter):
                         auto_play_media(movie, loop=slide_config.loop)
 
             dest.parent.mkdir(parents=True, exist_ok=True)
-            prs.save(dest)
+            prs.save(str(dest))
 
 
 def show_config_options(function: Callable[..., Any]) -> Callable[..., Any]:
