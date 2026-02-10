@@ -527,7 +527,7 @@ class RevealJS(Converter):
         5000, description="Time before the cursor is hidden (in ms)."
     )
     # Appearance options from RevealJS
-    background_color: Color = Field( # type: ignore[invalid-assignment]
+    background_color: Color = Field(  # type: ignore[invalid-assignment]
         "black",
         description="Background color used in slides, not relevant if videos fill the whole area.",
     )
