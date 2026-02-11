@@ -43,14 +43,14 @@ class Info(QWidget):  # type: ignore[misc]
 
         left_layout = QVBoxLayout()
         left_layout.addWidget(
-            QLabel("Current slide"),
-            alignment=Qt.AlignmentFlag.AlignBottom | Qt.AlignmentFlag.AlignHCenter,
+            QLabel("Current slide"),  # type: ignore[invalid-argument-type]
+            alignment=Qt.AlignmentFlag.AlignBottom | Qt.AlignmentFlag.AlignHCenter,  # type: ignore[invalid-argument-type]
         )
         main_video_widget = QVideoWidget()
-        main_video_widget.setAspectRatioMode(aspect_ratio_mode)
+        main_video_widget.setAspectRatioMode(aspect_ratio_mode)  # type: ignore[invalid-argument-type]
         main_video_widget.setFixedSize(720, 480)
         self.video_sink = main_video_widget.videoSink()
-        left_layout.addWidget(main_video_widget)
+        left_layout.addWidget(main_video_widget)  # type: ignore[invalid-argument-type]
 
         # Current slide information
 
@@ -65,39 +65,39 @@ class Info(QWidget):  # type: ignore[misc]
 
         bottom_left_layout = QHBoxLayout()
         bottom_left_layout.addWidget(
-            QLabel("Scene:"),
-            alignment=Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignRight,
+            QLabel("Scene:"),  # type: ignore[invalid-argument-type]
+            alignment=Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignRight,  # type: ignore[invalid-argument-type]
         )
         bottom_left_layout.addWidget(
             self.scene_label,
-            alignment=Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft,
+            alignment=Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft,  # type: ignore[invalid-argument-type]
         )
         bottom_left_layout.addWidget(
-            QLabel("Slide:"),
-            alignment=Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignRight,
+            QLabel("Slide:"),  # type: ignore[invalid-argument-type]
+            alignment=Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignRight,  # type: ignore[invalid-argument-type]
         )
         bottom_left_layout.addWidget(
             self.slide_label,
-            alignment=Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft,
+            alignment=Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft,  # type: ignore[invalid-argument-type]
         )
         bottom_left_layout.addWidget(
-            QLabel("Time:"),
-            alignment=Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignRight,
+            QLabel("Time:"),  # type: ignore[invalid-argument-type]
+            alignment=Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignRight,  # type: ignore[invalid-argument-type]
         )
         bottom_left_layout.addWidget(
             self.time_label,
-            alignment=Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft,
+            alignment=Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft,  # type: ignore[invalid-argument-type]
         )
         bottom_left_layout.addWidget(
-            QLabel("Elapsed:"),
-            alignment=Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignRight,
+            QLabel("Elapsed:"),  # type: ignore[invalid-argument-type]
+            alignment=Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignRight,  # type: ignore[invalid-argument-type]
         )
         bottom_left_layout.addWidget(
             self.elapsed_label,
-            alignment=Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft,
+            alignment=Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft,  # type: ignore[invalid-argument-type]
         )
-        left_layout.addLayout(bottom_left_layout)
-        layout.addLayout(left_layout)
+        left_layout.addLayout(bottom_left_layout)  # type: ignore[invalid-argument-type]
+        layout.addLayout(left_layout)  # type: ignore[invalid-argument-type]
 
         layout.addSpacing(20)
 
@@ -105,17 +105,17 @@ class Info(QWidget):  # type: ignore[misc]
 
         right_layout = QVBoxLayout()
         right_layout.addWidget(
-            QLabel("Next slide"),
-            alignment=Qt.AlignmentFlag.AlignBottom | Qt.AlignmentFlag.AlignHCenter,
+            QLabel("Next slide"),  # type: ignore[invalid-argument-type]
+            alignment=Qt.AlignmentFlag.AlignBottom | Qt.AlignmentFlag.AlignHCenter,  # type: ignore[invalid-argument-type]
         )
         next_video_widget = QVideoWidget()
-        next_video_widget.setAspectRatioMode(aspect_ratio_mode)
+        next_video_widget.setAspectRatioMode(aspect_ratio_mode)  # type: ignore[invalid-argument-type]
         next_video_widget.setFixedSize(360, 240)
         self.next_media_player = QMediaPlayer()
         self.next_media_player.setVideoOutput(next_video_widget)
         self.next_media_player.setLoops(-1)
 
-        right_layout.addWidget(next_video_widget)
+        right_layout.addWidget(next_video_widget)  # type: ignore[invalid-argument-type]
 
         # Notes
 
@@ -125,16 +125,16 @@ class Info(QWidget):  # type: ignore[misc]
         self.slide_notes.setFixedWidth(360)
         right_layout.addWidget(
             self.slide_notes,
-            alignment=Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft,
+            alignment=Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft,  # type: ignore[invalid-argument-type]
         )
-        layout.addLayout(right_layout)
+        layout.addLayout(right_layout)  # type: ignore[invalid-argument-type]
 
         widget = QWidget()
 
-        widget.setLayout(layout)
+        widget.setLayout(layout)  # type: ignore[invalid-argument-type]
 
         main_layout = QVBoxLayout()
-        main_layout.addWidget(widget, alignment=Qt.AlignmentFlag.AlignCenter)
+        main_layout.addWidget(widget, alignment=Qt.AlignmentFlag.AlignCenter)  # type: ignore[invalid-argument-type]
 
         self.setLayout(main_layout)
 
