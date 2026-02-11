@@ -1,13 +1,16 @@
 import re
-from pathlib import Path
 
 # Generate fresh errors
 import subprocess
-result = subprocess.run(['uv', 'run', 'ty', 'check'], capture_output=True, text=True, encoding='utf-16')
+from pathlib import Path
+
+result = subprocess.run(
+    ["uv", "run", "ty", "check"], capture_output=True, text=True, encoding="utf-16"
+)
 content = result.stdout + result.stderr
 
 # Find all invalid-argument-type errors for Qt methods
-pattern = r'error\[invalid-argument-type\].*?--> ([^:]+):(\d+):\d+.*?Attempted to call union type.*?(?:PyQt6|PySide6)'
+pattern = r"error\[invalid-argument-type\].*?--> ([^:]+):(\d+):\d+.*?Attempted to call union type.*?(?:PyQt6|PySide6)"
 matches = re.findall(pattern, content, re.DOTALL)
 
 files_to_fix = {}
@@ -24,20 +27,20 @@ for filepath, line_numbers in files_to_fix.items():
     path = Path(filepath)
     if not path.exists():
         continue
-    
-    with open(path, 'r', encoding='utf-8') as f:
+
+    with open(path, encoding="utf-8") as f:
         lines = f.readlines()
-    
+
     for line_num in sorted(set(line_numbers), reverse=True):
         idx = line_num - 1
         if idx < len(lines):
             line = lines[idx].rstrip()
-            if '# type: ignore' not in line:
-                lines[idx] = line + '  # type: ignore[invalid-argument-type]\n'
-    
-    with open(path, 'w', encoding='utf-8') as f:
+            if "# type: ignore" not in line:
+                lines[idx] = line + "  # type: ignore[invalid-argument-type]\n"
+
+    with open(path, "w", encoding="utf-8") as f:
         f.writelines(lines)
-    
+
     print(f"Fixed {filepath}: {len(set(line_numbers))} lines")
 
 print("Done!")
