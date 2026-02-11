@@ -758,7 +758,8 @@ class PowerPoint(Converter):
         # From GitHub issue comment:
         # - https://github.com/scanny/python-pptx/issues/427#issuecomment-856724440
         def auto_play_media(
-            media: pptx.shapes.picture.Movie, loop: bool = False  # type: ignore[possibly-missing-attribute]
+            media: pptx.shapes.picture.Movie,
+            loop: bool = False,  # type: ignore[possibly-missing-attribute]
         ) -> None:
             el_id = xpath(media.element, ".//p:cNvPr")[0].attrib["id"]
             el_cnt = xpath(
