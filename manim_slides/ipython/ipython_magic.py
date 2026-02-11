@@ -48,7 +48,7 @@ from ..present import get_scenes_presentation_config
 
 
 @magics_class
-class ManimSlidesMagic(Magics):  # type: ignore
+class ManimSlidesMagic(Magics):
     def __init__(self, shell: InteractiveShell) -> None:
         super().__init__(shell)
         self.rendered_files: dict[Path, Path] = {}
@@ -249,7 +249,7 @@ class ManimSlidesMagic(Magics):  # type: ignore
             presentation_configs = get_scenes_presentation_config(
                 [clsname], Path("./slides")
             )
-            RevealJS(presentation_configs=presentation_configs, **kwargs).convert_to(
+            RevealJS(presentation_configs=presentation_configs, **kwargs).convert_to(  # type: ignore[invalid-argument-type]
                 tmpfile
             )
 
@@ -275,4 +275,4 @@ class ManimSlidesMagic(Magics):  # type: ignore
 
 
 def _generate_file_name() -> str:
-    return config["scene_names"][0] + "@" + datetime.now().strftime("%Y-%m-%d@%H-%M-%S")  # type: ignore
+    return config["scene_names"][0] + "@" + datetime.now().strftime("%Y-%m-%d@%H-%M-%S")

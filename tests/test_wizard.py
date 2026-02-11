@@ -26,8 +26,8 @@ class TestKeyInput:
         widget = KeyInput()
         widget.show()
         qtbot.addWidget(widget)
-        qtbot.keyPress(widget, Qt.Key_Q)
-        assert widget.key is Qt.Key_Q.value
+        qtbot.keyPress(widget, Qt.Key_Q)  # type: ignore[unresolved-attribute]
+        assert widget.key is Qt.Key_Q.value  # type: ignore[unresolved-attribute]
 
 
 class TestWizard:
@@ -54,7 +54,7 @@ class TestWizard:
             button = wizard.buttons[button_number]
             dialog = KeyInput()
             qtbot.addWidget(dialog)
-            qtbot.keyPress(dialog, Qt.Key_Q)
+            qtbot.keyPress(dialog, Qt.Key_Q)  # type: ignore[unresolved-attribute]
             assert dialog.key is not None
             key.set_ids(dialog.key)
             button.setText("Q")

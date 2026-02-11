@@ -74,7 +74,7 @@ def test_file_to_data_uri(video_file: Path, video_data_uri_file: Path) -> None:
     ],
 )
 def test_format_enum(enum_type: EnumMeta) -> None:
-    for enum in enum_type:  # type: ignore[var-annotated]
+    for enum in enum_type:
         expected = str(enum)
         got = f"{enum}"
 
@@ -111,11 +111,11 @@ def test_format_enum(enum_type: EnumMeta) -> None:
     ],
 )
 def test_quoted_enum(enum_type: EnumMeta) -> None:
-    for enum in enum_type:  # type: ignore[var-annotated]
+    for enum in enum_type:
         if enum in ["true", "false", "null"]:
             continue
 
-        expected = "'" + enum.value + "'"
+        expected = "'" + enum.value + "'"  # type: ignore[unresolved-attribute]
         got = str(enum)
 
         assert expected == got
@@ -132,8 +132,8 @@ def test_quoted_enum(enum_type: EnumMeta) -> None:
     ],
 )
 def test_unquoted_enum(enum_type: EnumMeta) -> None:
-    for enum in enum_type:  # type: ignore[var-annotated]
-        expected = enum.value
+    for enum in enum_type:
+        expected = enum.value  # type: ignore[unresolved-attribute]
         got = str(enum)
 
         assert expected == got
@@ -161,7 +161,7 @@ class TestConverter:
         self, tmp_path: Path, presentation_config: PresentationConfig
     ) -> None:
         out_file = tmp_path / "slides.html"
-        RevealJS(presentation_configs=[presentation_config], offline="true").convert_to(
+        RevealJS(presentation_configs=[presentation_config], offline="true").convert_to(  # type: ignore[invalid-argument-type]
             out_file
         )
         assert out_file.exists()
@@ -200,7 +200,9 @@ class TestConverter:
         )
         out_file = tmp_path / "slides.html"
         RevealJS(
-            presentation_configs=[presentation_config], offline="false", one_file="true"
+            presentation_configs=[presentation_config],
+            offline="false",
+            one_file="true",  # type: ignore[invalid-argument-type]
         ).convert_to(out_file)
         assert out_file.exists()
         # Check that assets are not stored
@@ -220,7 +222,11 @@ class TestConverter:
 
         # Check if CSS is not inlined
         styles = soup.find_all("style")
-        assert not any("background-color: #9a3241;" in style.string for style in styles)
+        assert not any(
+            "background-color: #9a3241;" in style.string
+            for style in styles
+            if style.string
+        )
         # Check if JS is not inlined
         scripts = soup.find_all("script")
         assert not any(
@@ -253,7 +259,9 @@ class TestConverter:
 
         out_file = tmp_path / "slides.html"
         RevealJS(
-            presentation_configs=[presentation_config], offline="true", one_file="true"
+            presentation_configs=[presentation_config],
+            offline="true",
+            one_file="true",  # type: ignore[invalid-argument-type]
         ).convert_to(out_file)
         assert out_file.exists()
 
@@ -264,11 +272,19 @@ class TestConverter:
 
         # Check if CSS is inlined
         styles = soup.find_all("style")
-        assert any("background-color: #9a3241;" in style.string for style in styles)
+        assert any(
+            "background-color: #9a3241;" in style.string
+            for style in styles
+            if style.string
+        )
 
         # Check if JS is inlined
         scripts = soup.find_all("script")
-        assert any("background-color: #9a3241;" in script.string for script in scripts)
+        assert any(
+            "background-color: #9a3241;" in script.string
+            for script in scripts
+            if script.string
+        )
 
     def test_htmlzip_converter(
         self, tmp_path: Path, presentation_config: PresentationConfig
@@ -318,7 +334,8 @@ class TestConverter:
     ) -> None:
         out_file = tmp_path / "slides.pdf"
         PDF(
-            presentation_configs=[presentation_config], frame_index=frame_index
+            presentation_configs=[presentation_config],
+            frame_index=frame_index,  # type: ignore[invalid-argument-type]
         ).convert_to(out_file)
         assert out_file.exists()
 

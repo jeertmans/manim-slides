@@ -92,7 +92,7 @@ def merge_basenames(files: list[Path]) -> Path:
     return dirname.joinpath(basename + ext)
 
 
-def link_nodes(*nodes: av.filter.context.FilterContext) -> None:
+def link_nodes(*nodes: av.filter.context.FilterContext) -> None:  # type: ignore[possibly-missing-attribute]
     """Code from https://github.com/PyAV-Org/PyAV/issues/239."""
     for c, n in zip(nodes, nodes[1:]):
         c.link_to(n)
@@ -109,11 +109,11 @@ def reverse_video_file_in_one_chunk(src_and_dest: tuple[Path, Path]) -> None:
         output_stream = output_container.add_stream(
             codec_name="libx264", rate=input_stream.base_rate
         )
-        output_stream.width = input_stream.width
-        output_stream.height = input_stream.height
-        output_stream.pix_fmt = input_stream.pix_fmt
+        output_stream.width = input_stream.width  # type: ignore[unresolved-attribute]
+        output_stream.height = input_stream.height  # type: ignore[unresolved-attribute]
+        output_stream.pix_fmt = input_stream.pix_fmt  # type: ignore[unresolved-attribute]
 
-        graph = av.filter.Graph()
+        graph = av.filter.Graph()  # type: ignore[possibly-missing-attribute]
         link_nodes(
             graph.add_buffer(template=input_stream),
             graph.add("reverse"),
@@ -131,9 +131,9 @@ def reverse_video_file_in_one_chunk(src_and_dest: tuple[Path, Path]) -> None:
         for _ in range(frames_count):
             frame = graph.pull()
             frame.pict_type = "NONE"  # Otherwise we get a warning saying it is changed
-            output_container.mux(output_stream.encode(frame))
+            output_container.mux(output_stream.encode(frame))  # type: ignore[unresolved-attribute]
 
-        for packet in output_stream.encode():
+        for packet in output_stream.encode():  # type: ignore[unresolved-attribute]
             output_container.mux(packet)
 
 
@@ -151,7 +151,7 @@ def reverse_video_file(
             return reverse_video_file_in_one_chunk((src, dest))
         elif input_stream.duration:
             if (
-                float(input_stream.duration * input_stream.time_base)
+                float(input_stream.duration * input_stream.time_base)  # type: ignore[unsupported-operator]
                 <= max_segment_duration
             ):
                 return reverse_video_file_in_one_chunk((src, dest))

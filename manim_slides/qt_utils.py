@@ -9,6 +9,6 @@ def qapp() -> QApplication:
     if needed.
     """
     if app := QApplication.instance():
-        return app
+        return app  # type: ignore[invalid-return-type]
 
     return QApplication([])
