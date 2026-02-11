@@ -628,10 +628,10 @@ class RevealJS(Converter):
 
             for tag, inner in [("link", "href"), ("script", "src")]:
                 for item in soup.find_all(tag):
-                    if item.has_attr(inner) and (link := item[inner]).startswith(
+                    if item.has_attr(inner) and (link := item[inner]).startswith(  # type: ignore[possibly-missing-attribute]
                         "http"
                     ):
-                        asset_name = link.rsplit("/", 1)[1]
+                        asset_name = link.rsplit("/", 1)[1]  # type: ignore[possibly-missing-attribute]
                         asset = session.get(link)
                         if self.one_file:
                             # If it is a CSS file, inline it
@@ -639,13 +639,13 @@ class RevealJS(Converter):
                                 item.decompose()
                                 style = soup.new_tag("style")
                                 style.string = asset.text
-                                soup.head.append(style)
+                                soup.head.append(style)  # type: ignore[possibly-missing-attribute]
                             # If it is a JS file, inline it
                             elif tag == "script":
                                 item.decompose()
                                 script = soup.new_tag("script")
                                 script.string = asset.text
-                                soup.head.append(script)
+                                soup.head.append(script)  # type: ignore[possibly-missing-attribute]
                             else:
                                 raise ValueError(
                                     f"Unable to inline {tag} asset: {link}"
@@ -758,7 +758,7 @@ class PowerPoint(Converter):
         # From GitHub issue comment:
         # - https://github.com/scanny/python-pptx/issues/427#issuecomment-856724440
         def auto_play_media(
-            media: pptx.shapes.picture.Movie, loop: bool = False
+            media: pptx.shapes.picture.Movie, loop: bool = False  # type: ignore[possibly-missing-attribute]
         ) -> None:
             el_id = xpath(media.element, ".//p:cNvPr")[0].attrib["id"]
             el_cnt = xpath(

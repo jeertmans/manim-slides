@@ -92,7 +92,7 @@ def merge_basenames(files: list[Path]) -> Path:
     return dirname.joinpath(basename + ext)
 
 
-def link_nodes(*nodes: av.filter.context.FilterContext) -> None:
+def link_nodes(*nodes: av.filter.context.FilterContext) -> None:  # type: ignore[possibly-missing-attribute]
     """Code from https://github.com/PyAV-Org/PyAV/issues/239."""
     for c, n in zip(nodes, nodes[1:]):
         c.link_to(n)
@@ -113,7 +113,7 @@ def reverse_video_file_in_one_chunk(src_and_dest: tuple[Path, Path]) -> None:
         output_stream.height = input_stream.height  # type: ignore[unresolved-attribute]
         output_stream.pix_fmt = input_stream.pix_fmt  # type: ignore[unresolved-attribute]
 
-        graph = av.filter.Graph()
+        graph = av.filter.Graph()  # type: ignore[possibly-missing-attribute]
         link_nodes(
             graph.add_buffer(template=input_stream),
             graph.add("reverse"),
