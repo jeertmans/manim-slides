@@ -605,7 +605,7 @@ class BaseSlide:
         PresentationConfig(
             slides=slides,
             resolution=self._resolution,
-            background_color=self._background_color,
+            background_color=self._background_color, # type: ignore[invalid-argument-type]
         ).to_file(slide_path)
 
         logger.info(

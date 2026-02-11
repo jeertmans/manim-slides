@@ -78,7 +78,7 @@ class Slide(BaseSlide, Scene):
         if isinstance(self.renderer, OpenGLRenderer):
             return self.renderer.get_pixel_shape()
         else:
-            return (
+            return (  # type: ignore[invalid-return-type]
                 self.renderer.camera.pixel_width,
                 self.renderer.camera.pixel_height,
             )
@@ -148,7 +148,7 @@ class Slide(BaseSlide, Scene):
             base_slide_config=base_slide_config,
         )
 
-    def render(self, *args: Any, **kwargs: Any) -> None:
+    def render(self, *args: Any, **kwargs: Any) -> None:  # type: ignore[invalid-method-override]
         """MANIM renderer."""
         # We need to disable the caching limit since we rely on intermediate files
         max_files_cached = config["max_files_cached"]
