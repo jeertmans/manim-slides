@@ -21,7 +21,7 @@ from ..resources import *  # noqa: F403
 WINDOW_NAME = "Manim Slides"
 
 
-class Info(QWidget):  # type: ignore[misc]
+class Info(QWidget): # type: ignore[misc]
     key_press_event: Signal = Signal(QKeyEvent)
     close_event: Signal = Signal(QCloseEvent)
 
@@ -513,11 +513,22 @@ class Player(QMainWindow):  # type: ignore[misc]
         if self.media_player.playbackState() == QMediaPlayer.PlaybackState.PausedState:
             self.media_player.play()
         elif self.next_terminates_loop and self.media_player.loops() != 1:
+            duration = self.media_player.duration()
             position = self.media_player.position()
-            self.media_player.setLoops(1)
-            self.media_player.stop()
-            self.media_player.setPosition(position)
-            self.media_player.play()
+
+    # Safety check: duration may be unknown (-1)
+            if duration <= 0:
+               self.media_player.setLoops(1)
+               return
+
+            remaining = max(0, duration - position)
+
+            def finish_loop():
+        # Stop looping after the current loop ends
+                 self.media_player.setLoops(1)
+
+           QTimer.singleShot(remaining, finish_loop)
+
         else:
             self.load_next_slide()
 
