@@ -12,6 +12,8 @@ from tqdm import tqdm
 
 from .logger import logger
 
+AV_VERSION_14 = int(av.__version__.split(".", maxsplit=1)[0]) >= 14
+
 
 def concatenate_video_files(files: list[Path], dest: Path) -> None:
     """Concatenate multiple video files into one."""
@@ -44,14 +46,26 @@ def concatenate_video_files(files: list[Path], dest: Path) -> None:
         av.open(str(dest), mode="w") as output_container,
     ):
         input_video_stream = input_container.streams.video[0]
-        output_video_stream = output_container.add_stream(
-            template=input_video_stream,
+        output_video_stream = (
+            output_container.add_stream_from_template(
+                input_video_stream,
+            )
+            if AV_VERSION_14
+            else output_container.add_stream(
+                template=input_video_stream,
+            )
         )
 
         if len(input_container.streams.audio) > 0:
             input_audio_stream = input_container.streams.audio[0]
-            output_audio_stream = output_container.add_stream(
-                template=input_audio_stream,
+            output_audio_stream = (
+                output_container.add_stream_from_template(
+                    input_audio_stream,
+                )
+                if AV_VERSION_14
+                else output_container.add_stream(
+                    template=input_audio_stream,
+                )
             )
 
         for packet in input_container.demux():
