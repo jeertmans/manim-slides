@@ -288,6 +288,7 @@ class BaseSlide:
     def next_slide(
         self,
         *,
+        horizontal: bool = False,
         base_slide_config: BaseSlideConfig,
         **kwargs: Any,
     ) -> None:
@@ -508,6 +509,8 @@ class BaseSlide:
                 self._start_animation,
                 self._current_animation,
             )
+            pre_slide.horizontal = horizontal
+            self._slides.append(pre_slide)
         )
 
     def _save_slides(  # noqa: C901
