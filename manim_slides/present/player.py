@@ -2,9 +2,9 @@ from datetime import datetime
 from pathlib import Path
 from typing import Optional
 
-from qtpy.QtCore import Qt, QTimer, QUrl, Signal, Slot
-from qtpy.QtGui import QCloseEvent, QIcon, QKeyEvent, QScreen
-from qtpy.QtMultimedia import QAudioOutput, QMediaPlayer, QVideoFrame
+from qtpy.QtCore import Qt, QTimer, Signal, Slot
+from qtpy.QtGui import QCloseEvent, QKeyEvent, QScreen
+from qtpy.QtMultimedia import QAudioOutput, QMediaPlayer
 from qtpy.QtMultimediaWidgets import QVideoWidget
 from qtpy.QtWidgets import (
     QHBoxLayout,
@@ -14,8 +14,7 @@ from qtpy.QtWidgets import (
     QWidget,
 )
 
-from ..config import Config, PresentationConfig, SlideConfig
-from ..logger import logger
+from ..config import Config, PresentationConfig
 from ..resources import *  # noqa: F403
 
 WINDOW_NAME = "Manim Slides"
