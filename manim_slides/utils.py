@@ -144,7 +144,9 @@ def reverse_video_file_in_one_chunk(src_and_dest: tuple[Path, Path]) -> None:
 
         for _ in range(frames_count):
             frame = graph.pull()
-            frame.pict_type = "NONE"  # Otherwise we get a warning saying it is changed
+            frame.pict_type = (
+                av.video.frame.PictureType.NONE
+            )  # Otherwise we get a warning saying it is changed
             output_container.mux(output_stream.encode(frame))
 
         for packet in output_stream.encode():
@@ -182,8 +184,12 @@ def reverse_video_file(
                 format="segment",
                 options={"segment_time": str(max_segment_duration)},
             ) as output_container:
-                output_stream = output_container.add_stream(
-                    template=input_stream,
+                output_stream = (
+                    output_container.add_stream_from_template(input_stream)
+                    if AV_VERSION_14
+                    else output_container.add_stream(
+                        template=input_stream,
+                    )
                 )
 
                 for packet in input_container.demux(input_stream):
