@@ -138,7 +138,6 @@ class Slide(BaseSlide, Scene):  # type: ignore[misc]
         base_slide_config: BaseSlideConfig,
         **kwargs: Any,
     ) -> None:
-
         Scene.next_section(
             self,
             *args,
