@@ -134,9 +134,11 @@ class Slide(BaseSlide, Scene):  # type: ignore[misc]
     def next_slide(
         self,
         *args: Any,
+        horizontal: bool = False,
         base_slide_config: BaseSlideConfig,
         **kwargs: Any,
     ) -> None:
+
         Scene.next_section(
             self,
             *args,
