@@ -8,7 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <!-- start changelog -->
 
 (unreleased)=
-## [Unreleased](https://github.com/jeertmans/manim-slides/compare/v5.5.3...HEAD)
+## [Unreleased](https://github.com/jeertmans/manim-slides/compare/v5.5.4...HEAD)
+
+(v5.5.4)=
+## [v5.5.4](https://github.com/jeertmans/manim-slides/compare/v5.5.3...v5.5.4)
 
 ### Chore
 
