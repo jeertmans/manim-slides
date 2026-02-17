@@ -67,6 +67,7 @@ dependencies = [
   "rich>=13.3.2",
   "rtoml>=0.11.0",
   "tqdm>=4.64.1",
+  "trogon>=0.6.0",
 ]
 description = "Tool for live presentations using manim"
 dynamic = ["readme", "version"]
