@@ -200,7 +200,9 @@ class TestConverter:
         )
         out_file = tmp_path / "slides.html"
         RevealJS(
-            presentation_configs=[presentation_config], offline="false", one_file="true"  # type: ignore[invalid-argument-type]
+            presentation_configs=[presentation_config],
+            offline="false",
+            one_file="true",  # type: ignore[invalid-argument-type]
         ).convert_to(out_file)
         assert out_file.exists()
         # Check that assets are not stored
@@ -257,7 +259,9 @@ class TestConverter:
 
         out_file = tmp_path / "slides.html"
         RevealJS(
-            presentation_configs=[presentation_config], offline="true", one_file="true"  # type: ignore[invalid-argument-type]
+            presentation_configs=[presentation_config],
+            offline="true",
+            one_file="true",  # type: ignore[invalid-argument-type]
         ).convert_to(out_file)
         assert out_file.exists()
 
@@ -330,7 +334,8 @@ class TestConverter:
     ) -> None:
         out_file = tmp_path / "slides.pdf"
         PDF(
-            presentation_configs=[presentation_config], frame_index=frame_index  # type: ignore[invalid-argument-type]
+            presentation_configs=[presentation_config],
+            frame_index=frame_index,  # type: ignore[invalid-argument-type]
         ).convert_to(out_file)
         assert out_file.exists()
 
