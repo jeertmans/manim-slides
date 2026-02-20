@@ -4,7 +4,7 @@ from functools import wraps
 from inspect import Parameter, signature
 from pathlib import Path
 from textwrap import dedent
-from typing import Any, Callable, Optional, Literal
+from typing import Any, Callable, Literal, Optional
 
 import rtoml
 from pydantic import (
