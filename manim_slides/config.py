@@ -4,7 +4,7 @@ from functools import wraps
 from inspect import Parameter, signature
 from pathlib import Path
 from textwrap import dedent
-from typing import Any, Callable, Optional
+from typing import Any, Callable, Optional, Literal
 
 import rtoml
 from pydantic import (
@@ -162,7 +162,7 @@ class BaseSlideConfig(BaseModel):  # type: ignore
     dedent_notes: bool = True
     skip_animations: bool = False
     src: Optional[FilePath] = None
-    direction: str | None = "horizontal"
+    direction: Literal["horizontal", "vertical"] = "horizontal"
 
     @classmethod
     def wrapper(cls, arg_name: str) -> Callable[..., Any]:
@@ -221,6 +221,7 @@ class PreSlideConfig(BaseSlideConfig):
 
     start_animation: int
     end_animation: int
+    direction: str = "horizontal"
 
     @classmethod
     def from_base_slide_config_and_animation_indices(
@@ -232,6 +233,7 @@ class PreSlideConfig(BaseSlideConfig):
         return cls(
             start_animation=start_animation,
             end_animation=end_animation,
+            direction=base_slide_config.direction,
             **base_slide_config.model_dump(),
         )
 
@@ -281,6 +283,7 @@ class SlideConfig(BaseSlideConfig):
 
     file: FilePath
     rev_file: FilePath
+    direction: str = "horizontal"
 
     @classmethod
     def from_pre_slide_config_and_files(
