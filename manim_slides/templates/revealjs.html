@@ -18,6 +18,7 @@
   <body>
     <div class="reveal">
       <div class="slides">
+        {% set in_vertical_stack = false %}
         {% for presentation_config in presentation_configs -%}
           {%- set outer_loop = loop %}
           {% for slide_config in presentation_config.slides %}
@@ -26,6 +27,19 @@
             {% else %}
               {% set file = assets_dir / (prefix(outer_loop.index0) + slide_config.file.name) %}
             {% endif %}
+
+            {% if slide_config.direction == "vertical" %}
+              {% if not in_vertical_stack %}
+              <section>
+              {% set in_vertical_stack = true %}
+              {% endif %}
+              {% else %}
+              {% if in_vertical_stack %}
+            </section>
+                  {% set in_vertical_stack = false %}
+              {% endif %}
+            {% endif %}
+
         <section
           data-background-size={{ background_size }}
           data-background-color="{{ presentation_config.background_color }}"
