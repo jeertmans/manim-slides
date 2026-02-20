@@ -475,7 +475,6 @@ class BaseSlide:
                     self._base_slide_config,
                     self._start_animation,
                     self._current_animation,
-                    direction=direction or "horizontal",
                 )
             )
 
@@ -490,7 +489,6 @@ class BaseSlide:
                     base_slide_config,
                     self._current_animation,
                     self._current_animation,
-                    direction=direction or "horizontal",
                 )
             )
 
@@ -516,7 +514,6 @@ class BaseSlide:
                 self._base_slide_config,
                 self._start_animation,
                 self._current_animation,
-                direction="horizontal",
             )
         )
 
