@@ -289,6 +289,7 @@ class BaseSlide:
         self,
         *,
         base_slide_config: BaseSlideConfig,
+        direction: str = "horizontal",
         **kwargs: Any,
     ) -> None:
         """
