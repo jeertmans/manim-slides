@@ -221,7 +221,7 @@ class PreSlideConfig(BaseSlideConfig):
 
     start_animation: int
     end_animation: int
-    direction: Literal["horizontal", "vertical"] = "horizontal"
+    direction: Literal["horizontal", "vertical"]
 
     @classmethod
     def from_base_slide_config_and_animation_indices(
