@@ -18,8 +18,10 @@
   <body>
     <div class="reveal">
       <div class="slides">
-        {% set in_vertical_stack = false %}
+
         {% for presentation_config in presentation_configs -%}
+        {% set ns = namespace(open_stack=false) %}
+
           {%- set outer_loop = loop %}
           {% for slide_config in presentation_config.slides %}
             {% if one_file %}
@@ -27,18 +29,21 @@
             {% else %}
               {% set file = assets_dir / (prefix(outer_loop.index0) + slide_config.file.name) %}
             {% endif %}
+            <!-- direction={{ slide_config.direction }} -->
 
             {% if slide_config.direction == "vertical" %}
-              {% if not in_vertical_stack %}
+
+              {% if not ns.open_stack %}
               <section>
-              {% set in_vertical_stack = true %}
-              {% endif %}
-              {% else %}
-              {% if in_vertical_stack %}
-            </section>
-                  {% set in_vertical_stack = false %}
-              {% endif %}
+              {% set ns.open_stack = true %}
             {% endif %}
+            {% else %}
+              {% if ns.open_stack %}
+              </section>
+              {% set ns.open_stack = false %}
+            {% endif %}
+          {% endif %}
+
 
         <section
           data-background-size={{ background_size }}
@@ -59,6 +64,10 @@
           {% endif %}
         </section>
           {% endfor %}
+
+        {% if ns.open_stack %}
+         </section>
+        {% endif %}
         {% endfor %}
       </div>
     </div>
