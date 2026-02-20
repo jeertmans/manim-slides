@@ -221,7 +221,7 @@ class PreSlideConfig(BaseSlideConfig):
 
     start_animation: int
     end_animation: int
-    direction: str = "horizontal"
+    direction: Literal["horizontal", "vertical"] = "horizontal"
 
     @classmethod
     def from_base_slide_config_and_animation_indices(
@@ -229,11 +229,12 @@ class PreSlideConfig(BaseSlideConfig):
         base_slide_config: BaseSlideConfig,
         start_animation: int,
         end_animation: int,
+        direction: Literal["horizontal", "vertical"],
     ) -> "PreSlideConfig":
         return cls(
             start_animation=start_animation,
             end_animation=end_animation,
-            direction=base_slide_config.direction,
+            direction=direction,
             **base_slide_config.model_dump(),
         )
 
@@ -283,7 +284,7 @@ class SlideConfig(BaseSlideConfig):
 
     file: FilePath
     rev_file: FilePath
-    direction: str = "horizontal"
+    direction: Literal["horizontal", "vertical"] = "horizontal"
 
     @classmethod
     def from_pre_slide_config_and_files(

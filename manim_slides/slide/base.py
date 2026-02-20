@@ -9,7 +9,7 @@ from collections.abc import MutableMapping, Sequence, ValuesView
 from pathlib import Path
 from typing import (
     TYPE_CHECKING,
-    Any,
+    Any, Literal,
 )
 
 import numpy as np
@@ -289,7 +289,7 @@ class BaseSlide:
         self,
         *,
         base_slide_config: BaseSlideConfig,
-        direction: str = "horizontal",
+        direction: Literal["horizontal", "vertical"] = "horizontal",
         **kwargs: Any,
     ) -> None:
         """
@@ -489,6 +489,7 @@ class BaseSlide:
                     base_slide_config,
                     self._current_animation,
                     self._current_animation,
+                    direction=direction or "horizontal",
                 )
             )
 
@@ -514,6 +515,7 @@ class BaseSlide:
                 self._base_slide_config,
                 self._start_animation,
                 self._current_animation,
+                direction="horizontal"
             )
         )
 
