@@ -353,6 +353,8 @@ class BaseSlide:
 
             The video will be copied into the output folder, but no rescaling
             is applied.
+        :param direction:
+            Optional variable used to set slide direction.
         :param kwargs:
             Keyword arguments passed to
             :meth:`Scene.next_section<manim.scene.scene.Scene.next_section>`,
@@ -490,6 +492,9 @@ class BaseSlide:
 
         if self._skip_animations:
             base_slide_config.skip_animations = True
+
+        if direction is not None:
+            base_slide_config.direction = direction
 
         self._base_slide_config = base_slide_config
         self._start_animation = self._current_animation
