@@ -18,10 +18,8 @@
   <body>
     <div class="reveal">
       <div class="slides">
-
         {% for presentation_config in presentation_configs -%}
         {% set ns = namespace(open_stack=false) %}
-
           {%- set outer_loop = loop %}
           {% for slide_config in presentation_config.slides %}
             {% if one_file %}
@@ -43,8 +41,6 @@
               {% set ns.open_stack = false %}
             {% endif %}
           {% endif %}
-
-
         <section
           data-background-size={{ background_size }}
           data-background-color="{{ presentation_config.background_color }}"
@@ -64,7 +60,6 @@
           {% endif %}
         </section>
           {% endfor %}
-
         {% if ns.open_stack %}
          </section>
         {% endif %}

@@ -492,7 +492,7 @@ class BaseSlide:
                 )
             )
 
-            base_slide_config = BaseSlideConfig(direction=direction)  # default
+            base_slide_config = BaseSlideConfig()  # default
             self._current_slide += 1
 
         if self._skip_animations:
