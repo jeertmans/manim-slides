@@ -494,8 +494,7 @@ class BaseSlide:
         if self._skip_animations:
             base_slide_config.skip_animations = True
 
-        if direction is not None:
-            base_slide_config.direction = direction
+        base_slide_config.direction = direction or "horizontal"
 
         self._base_slide_config = base_slide_config
         self._start_animation = self._current_animation
