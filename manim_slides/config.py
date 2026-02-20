@@ -218,10 +218,8 @@ class BaseSlideConfig(BaseModel):  # type: ignore
 
 class PreSlideConfig(BaseSlideConfig):
     """Slide config to be used prior to rendering."""
-
     start_animation: int
     end_animation: int
-    direction: Literal["horizontal", "vertical"]
 
     @classmethod
     def from_base_slide_config_and_animation_indices(
@@ -283,7 +281,6 @@ class SlideConfig(BaseSlideConfig):
 
     file: FilePath
     rev_file: FilePath
-    direction: Literal["horizontal", "vertical"] = "horizontal"
 
     @classmethod
     def from_pre_slide_config_and_files(

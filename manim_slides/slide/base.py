@@ -483,7 +483,6 @@ class BaseSlide:
 
         if base_slide_config.src is not None:
             base_slide_config.direction = direction
-
             self._slides.append(
                 PreSlideConfig.from_base_slide_config_and_animation_indices(
                     base_slide_config,

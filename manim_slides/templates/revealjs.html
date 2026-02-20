@@ -28,9 +28,7 @@
               {% set file = assets_dir / (prefix(outer_loop.index0) + slide_config.file.name) %}
             {% endif %}
             <!-- direction={{ slide_config.direction }} -->
-
             {% if slide_config.direction == "vertical" %}
-
               {% if not ns.open_stack %}
               <section>
               {% set ns.open_stack = true %}
