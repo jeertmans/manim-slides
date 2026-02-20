@@ -232,7 +232,6 @@ class PreSlideConfig(BaseSlideConfig):
         return cls(
             start_animation=start_animation,
             end_animation=end_animation,
-            direction=base_slide_config.direction,
             **base_slide_config.model_dump(),
         )
 
