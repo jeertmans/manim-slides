@@ -218,6 +218,7 @@ class BaseSlideConfig(BaseModel):  # type: ignore
 
 class PreSlideConfig(BaseSlideConfig):
     """Slide config to be used prior to rendering."""
+
     start_animation: int
     end_animation: int
 
