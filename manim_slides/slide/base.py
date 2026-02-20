@@ -474,12 +474,16 @@ class BaseSlide:
                     self._base_slide_config,
                     self._start_animation,
                     self._current_animation,
+                    direction=direction or "horizontal"
                 )
             )
 
             self._current_slide += 1
+        direction = direction or "horizontal"
 
         if base_slide_config.src is not None:
+            base_slide_config.direction = direction
+
             self._slides.append(
                 PreSlideConfig.from_base_slide_config_and_animation_indices(
                     base_slide_config,
@@ -488,13 +492,11 @@ class BaseSlide:
                 )
             )
 
-            base_slide_config = BaseSlideConfig()  # default
+            base_slide_config = BaseSlideConfig(direction=direction)  # default
             self._current_slide += 1
 
         if self._skip_animations:
             base_slide_config.skip_animations = True
-
-        base_slide_config.direction = direction or "horizontal"
 
         self._base_slide_config = base_slide_config
         self._start_animation = self._current_animation
