@@ -290,7 +290,6 @@ class BaseSlide:
         self,
         *,
         base_slide_config: BaseSlideConfig,
-        direction: Literal["horizontal", "vertical"] = "horizontal",
         **kwargs: Any,
     ) -> None:
         """
@@ -479,10 +478,8 @@ class BaseSlide:
             )
 
             self._current_slide += 1
-        direction = direction or "horizontal"
 
         if base_slide_config.src is not None:
-            base_slide_config.direction = direction
             self._slides.append(
                 PreSlideConfig.from_base_slide_config_and_animation_indices(
                     base_slide_config,
