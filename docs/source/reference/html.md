@@ -93,6 +93,8 @@ press the down key.
 
         self.play(dot.animate.move_to(ORIGIN))
 
+for more information about vertical slides see https://revealjs.com/vertical-slides/
+
 ## More about HTML Slides
 
 You can read more about HTML slides in the [sharing](/reference/sharing) section.
