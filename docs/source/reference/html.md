@@ -87,7 +87,7 @@ press the down key.
 
         self.play(GrowFromCenter(circle))
 
-        self.next_slide(direction="vertical",loop=True)
+        self.next_slide(direction="vertical", loop=True)
         self.play(MoveAlongPath(dot, circle), run_time=2, rate_func=linear)
         self.next_slide()
 
