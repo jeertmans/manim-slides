@@ -51,6 +51,7 @@ move from any slide in the vertical stack to the next "horizontal" slide.
 In the following example we have only the linear "horizontal" slides.
 Note that no direction argument is passed to self.next_slide().
 
+```{eval-rst}
 ..manim-slides:: MySlide
     :config_options: slide_number=true
 
@@ -69,6 +70,7 @@ Note that no direction argument is passed to self.next_slide().
         self.next_slide()
 
         self.play(dot.animate.move_to(ORIGIN))
+```
 
 In this example the second slide is a "vertical" slide so the left right progression
 moves from slide 1 to slide 3, while to access slide 2 you must be on slide 1 and
