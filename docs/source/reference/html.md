@@ -38,7 +38,7 @@ If you wish to use another template, you can do so with the
 ## Vertical Slides
 
 Slides default to a "horizontal" arrangement by default. This means that each
-slide follows the next in a linear progression. If you instead wish to add 
+slide follows the next in a linear progression. If you instead wish to add
 an additional dimension to your slides and have "vertical" groupings under a
 given "horizontal" slide, you may pass the keyword argument "direction" to the
 next_slide method and give it the argument "vertical". The "horizontal" slides
@@ -48,7 +48,7 @@ parent slide and use the up and down keys to navigate through the slides that ar
 grouped under the initial slide. You may still use the left/right navigation to
 move from any slide in the vertical stack to the next "horizontal" slide.
 
-In the following example we have only the linear "horizontal" slides. 
+In the following example we have only the linear "horizontal" slides.
 Note that no direction argument is passed to self.next_slide().
 
 ..manim-slides:: MySlide
