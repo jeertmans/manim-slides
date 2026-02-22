@@ -355,6 +355,10 @@ class BaseSlide:
             is applied.
         :param direction:
             Optional variable used to set slide direction.
+
+            .. warning::
+
+                Only supported by ``manim-slides convert --to=html``.
         :param kwargs:
             Keyword arguments passed to
             :meth:`Scene.next_section<manim.scene.scene.Scene.next_section>`,
