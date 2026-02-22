@@ -74,6 +74,7 @@ In this example the second slide is a "vertical" slide so the left right progres
 moves from slide 1 to slide 3, while to access slide 2 you must be on slide 1 and
 press the down key.
 
+```{eval-rst}
 ..manim-slides:: MySlide
     :config_options: slide_number=true
 
@@ -92,6 +93,7 @@ press the down key.
         self.next_slide()
 
         self.play(dot.animate.move_to(ORIGIN))
+```
 
 for more information about vertical slides see https://revealjs.com/vertical-slides/
 
