@@ -19,6 +19,7 @@
     <div class="reveal">
       <div class="slides">
         {% for presentation_config in presentation_configs -%}
+        {% set ns = namespace(open_stack=false) %}
           {%- set outer_loop = loop %}
           {% for slide_config in presentation_config.slides %}
             {% if one_file %}
@@ -26,6 +27,17 @@
             {% else %}
               {% set file = assets_dir / (prefix(outer_loop.index0) + slide_config.file.name) %}
             {% endif %}
+            {% if slide_config.direction == "vertical" %}
+              {% if not ns.open_stack %}
+              <section>
+              {% set ns.open_stack = true %}
+            {% endif %}
+            {% else %}
+              {% if ns.open_stack %}
+              </section>
+              {% set ns.open_stack = false %}
+            {% endif %}
+          {% endif %}
         <section
           data-background-size={{ background_size }}
           data-background-color="{{ presentation_config.background_color }}"
@@ -45,6 +57,9 @@
           {% endif %}
         </section>
           {% endfor %}
+        {% if ns.open_stack %}
+         </section>
+        {% endif %}
         {% endfor %}
       </div>
     </div>
