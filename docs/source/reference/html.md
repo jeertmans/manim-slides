@@ -35,6 +35,64 @@ or printed with the `--show-template` option.
 If you wish to use another template, you can do so with the
 `--use-template FILE` option.
 
+## Vertical Slides
+
+Slides default to a "horizontal" arrangement by default. This means that each
+slide follows the next in a linear progression. If you instead wish to add 
+an additional dimension to your slides and have "vertical" groupings under a
+given "horizontal" slide, you may pass the keyword argument "direction" to the
+next_slide method and give it the argument "vertical". The "horizontal" slides
+will be the main progression of your presentation accessible by tabbing left
+or right using those arrow keys. For "vertical" slides you move to the "horizontal"
+parent slide and use the up and down keys to navigate through the slides that are
+grouped under the initial slide. You may still use the left/right navigation to
+move from any slide in the vertical stack to the next "horizontal" slide.
+
+In the following example we have only the linear "horizontal" slides. 
+Note that no direction argument is passed to self.next_slide().
+
+..manim-slides:: MySlide
+    :config_options: slide_number=true
+
+    from manim import *
+    from manim_slides import Slide
+
+    class BasicExample(Slide):
+    def construct(self):
+        circle = Circle(radius=3, color=BLUE)
+        dot = Dot()
+
+        self.play(GrowFromCenter(circle))
+
+        self.next_slide(loop=True)
+        self.play(MoveAlongPath(dot, circle), run_time=2, rate_func=linear)
+        self.next_slide()
+
+        self.play(dot.animate.move_to(ORIGIN))
+
+In this example the second slide is a "vertical" slide so the left right progression
+moves from slide 1 to slide 3, while to access slide 2 you must be on slide 1 and
+press the down key.
+
+..manim-slides:: MySlide
+    :config_options: slide_number=true
+
+    from manim import *
+    from manim_slides import Slide
+
+    class BasicExample(Slide):
+    def construct(self):
+        circle = Circle(radius=3, color=BLUE)
+        dot = Dot()
+
+        self.play(GrowFromCenter(circle))
+
+        self.next_slide(direction="vertical",loop=True)
+        self.play(MoveAlongPath(dot, circle), run_time=2, rate_func=linear)
+        self.next_slide()
+
+        self.play(dot.animate.move_to(ORIGIN))
+
 ## More about HTML Slides
 
 You can read more about HTML slides in the [sharing](/reference/sharing) section.
