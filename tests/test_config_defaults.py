@@ -24,7 +24,7 @@ _qt_mock.QtCore.Qt.Key_F5 = 0x01000034
 sys.modules.setdefault("qtpy", _qt_mock)
 sys.modules.setdefault("qtpy.QtCore", _qt_mock.QtCore)
 
-from manim_slides.config import Config, find_config_files, load_merged_config
+from manim_slides.config import Config, find_config_files, load_merged_config  # noqa: E402
 
 
 class TestConfigWithCommands:
@@ -59,7 +59,7 @@ class TestConfigWithCommands:
         }
 
     def test_from_toml_with_commands(self, tmp_path: Path) -> None:
-        config_data = {
+        config_data: dict[str, Any] = {
             "keys": {},
             "commands": {
                 "present": {"full_screen": True},
@@ -75,7 +75,7 @@ class TestConfigWithCommands:
 
     def test_from_toml_without_commands(self, tmp_path: Path) -> None:
         """Backward compatibility: config without commands section."""
-        config_data = {"keys": {}}
+        config_data: dict[str, Any] = {"keys": {}}
         config_file = tmp_path / "config.toml"
         rtoml.dump(config_data, config_file, pretty=True)
 
