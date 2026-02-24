@@ -24,11 +24,7 @@ _qt_mock.QtCore.Qt.Key_F5 = 0x01000034
 sys.modules.setdefault("qtpy", _qt_mock)
 sys.modules.setdefault("qtpy.QtCore", _qt_mock.QtCore)
 
-from manim_slides.config import (  # noqa: E402
-    Config,
-    find_config_files,
-    load_merged_config,
-)
+from manim_slides.config import Config, find_config_files, load_merged_config  # noqa: E402
 
 
 class TestConfigWithCommands:
@@ -63,7 +59,7 @@ class TestConfigWithCommands:
         }
 
     def test_from_toml_with_commands(self, tmp_path: Path) -> None:
-        config_data: dict[str, Any] = {
+        config_data: dict[str, object] = {
             "keys": {},
             "commands": {
                 "present": {"full_screen": True},
@@ -79,7 +75,7 @@ class TestConfigWithCommands:
 
     def test_from_toml_without_commands(self, tmp_path: Path) -> None:
         """Backward compatibility: config without commands section."""
-        config_data: dict[str, Any] = {"keys": {}}
+        config_data: dict[str, object] = {"keys": {}}
         config_file = tmp_path / "config.toml"
         rtoml.dump(config_data, config_file, pretty=True)
 
@@ -129,28 +125,20 @@ class TestConfigWithCommands:
 class TestFindConfigFiles:
     """Test config file discovery via directory traversal."""
 
-    def test_no_config_files(
-        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
+    def test_no_config_files(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
         monkeypatch.chdir(tmp_path)
         import manim_slides.defaults as defaults
 
-        monkeypatch.setattr(
-            defaults, "GLOBAL_CONFIG_PATH", tmp_path / "xdg" / "config.toml"
-        )
+        monkeypatch.setattr(defaults, "GLOBAL_CONFIG_PATH", tmp_path / "xdg" / "config.toml")
 
         files = find_config_files()
         assert files == []
 
-    def test_finds_local_config(
-        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
+    def test_finds_local_config(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
         monkeypatch.chdir(tmp_path)
         import manim_slides.defaults as defaults
 
-        monkeypatch.setattr(
-            defaults, "GLOBAL_CONFIG_PATH", tmp_path / "nonexistent" / "config.toml"
-        )
+        monkeypatch.setattr(defaults, "GLOBAL_CONFIG_PATH", tmp_path / "nonexistent" / "config.toml")
         monkeypatch.setattr(defaults, "CONFIG_FILENAME", ".manim-slides.toml")
 
         config_file = tmp_path / ".manim-slides.toml"
@@ -159,17 +147,13 @@ class TestFindConfigFiles:
         files = find_config_files()
         assert config_file.resolve() in [f.resolve() for f in files]
 
-    def test_finds_parent_config(
-        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
+    def test_finds_parent_config(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
         subdir = tmp_path / "project" / "subdir"
         subdir.mkdir(parents=True)
         monkeypatch.chdir(subdir)
         import manim_slides.defaults as defaults
 
-        monkeypatch.setattr(
-            defaults, "GLOBAL_CONFIG_PATH", tmp_path / "nonexistent" / "config.toml"
-        )
+        monkeypatch.setattr(defaults, "GLOBAL_CONFIG_PATH", tmp_path / "nonexistent" / "config.toml")
         monkeypatch.setattr(defaults, "CONFIG_FILENAME", ".manim-slides.toml")
 
         parent_config = tmp_path / "project" / ".manim-slides.toml"
@@ -178,18 +162,14 @@ class TestFindConfigFiles:
         files = find_config_files()
         assert parent_config.resolve() in [f.resolve() for f in files]
 
-    def test_priority_order(
-        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
+    def test_priority_order(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
         """CWD config should come after (= higher priority) parent config."""
         subdir = tmp_path / "project"
         subdir.mkdir()
         monkeypatch.chdir(subdir)
         import manim_slides.defaults as defaults
 
-        monkeypatch.setattr(
-            defaults, "GLOBAL_CONFIG_PATH", tmp_path / "nonexistent" / "config.toml"
-        )
+        monkeypatch.setattr(defaults, "GLOBAL_CONFIG_PATH", tmp_path / "nonexistent" / "config.toml")
         monkeypatch.setattr(defaults, "CONFIG_FILENAME", ".manim-slides.toml")
 
         parent_config = tmp_path / ".manim-slides.toml"
@@ -201,13 +181,9 @@ class TestFindConfigFiles:
         resolved = [f.resolve() for f in files]
         parent_idx = resolved.index(parent_config.resolve())
         local_idx = resolved.index(local_config.resolve())
-        assert parent_idx < local_idx, (
-            "Parent config should come before local (lower priority)"
-        )
+        assert parent_idx < local_idx, "Parent config should come before local (lower priority)"
 
-    def test_finds_global_config(
-        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
+    def test_finds_global_config(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
         """Global config file is found and has lowest priority."""
         monkeypatch.chdir(tmp_path)
         import manim_slides.defaults as defaults
@@ -223,9 +199,7 @@ class TestFindConfigFiles:
 
         files = find_config_files()
         resolved = [f.resolve() for f in files]
-        assert resolved[0] == global_config.resolve(), (
-            "Global config should be first (lowest priority)"
-        )
+        assert resolved[0] == global_config.resolve(), "Global config should be first (lowest priority)"
 
 
 class TestLoadMergedConfig:
@@ -241,31 +215,23 @@ class TestLoadMergedConfig:
         config = load_merged_config(explicit_path=config_file)
         assert config.commands["present"]["full_screen"] is True
 
-    def test_explicit_path_missing(
-        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
+    def test_explicit_path_missing(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
         """If explicit path doesn't exist, fall back to discovery."""
         monkeypatch.chdir(tmp_path)
         import manim_slides.defaults as defaults
 
-        monkeypatch.setattr(
-            defaults, "GLOBAL_CONFIG_PATH", tmp_path / "nonexistent" / "config.toml"
-        )
+        monkeypatch.setattr(defaults, "GLOBAL_CONFIG_PATH", tmp_path / "nonexistent" / "config.toml")
 
         config = load_merged_config(explicit_path=tmp_path / "nonexistent.toml")
         assert config.commands == {}
 
-    def test_merges_parent_and_local(
-        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
+    def test_merges_parent_and_local(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
         subdir = tmp_path / "project"
         subdir.mkdir()
         monkeypatch.chdir(subdir)
         import manim_slides.defaults as defaults
 
-        monkeypatch.setattr(
-            defaults, "GLOBAL_CONFIG_PATH", tmp_path / "nonexistent" / "config.toml"
-        )
+        monkeypatch.setattr(defaults, "GLOBAL_CONFIG_PATH", tmp_path / "nonexistent" / "config.toml")
         monkeypatch.setattr(defaults, "CONFIG_FILENAME", ".manim-slides.toml")
 
         rtoml.dump(
@@ -283,18 +249,14 @@ class TestLoadMergedConfig:
         assert config.commands["present"]["full_screen"] is True
         assert config.commands["present"]["hide_mouse"] is True
 
-    def test_local_overrides_parent(
-        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
+    def test_local_overrides_parent(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
         """Local config values override parent config values."""
         subdir = tmp_path / "project"
         subdir.mkdir()
         monkeypatch.chdir(subdir)
         import manim_slides.defaults as defaults
 
-        monkeypatch.setattr(
-            defaults, "GLOBAL_CONFIG_PATH", tmp_path / "nonexistent" / "config.toml"
-        )
+        monkeypatch.setattr(defaults, "GLOBAL_CONFIG_PATH", tmp_path / "nonexistent" / "config.toml")
         monkeypatch.setattr(defaults, "CONFIG_FILENAME", ".manim-slides.toml")
 
         rtoml.dump(
