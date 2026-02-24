@@ -24,7 +24,11 @@ _qt_mock.QtCore.Qt.Key_F5 = 0x01000034
 sys.modules.setdefault("qtpy", _qt_mock)
 sys.modules.setdefault("qtpy.QtCore", _qt_mock.QtCore)
 
-from manim_slides.config import Config, find_config_files, load_merged_config  # noqa: E402
+from manim_slides.config import (  # noqa: E402
+    Config,
+    find_config_files,
+    load_merged_config,
+)
 
 
 class TestConfigWithCommands:
