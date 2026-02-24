@@ -25,6 +25,60 @@ from .logger import logger
 Receiver = Callable[..., Any]
 
 
+def find_config_files() -> list[Path]:
+    """Find config files by traversing from CWD upward, plus global config.
+
+    Returns a list of config file paths, ordered from lowest to highest
+    priority (global first, then ancestor directories from root to CWD).
+    Later entries override earlier ones when merging.
+    """
+    from .defaults import CONFIG_FILENAME, GLOBAL_CONFIG_PATH
+
+    config_files: list[Path] = []
+
+    # 1. Global config (lowest priority)
+    if GLOBAL_CONFIG_PATH.exists():
+        config_files.append(GLOBAL_CONFIG_PATH)
+
+    # 2. Walk from root toward CWD (so CWD has highest priority)
+    cwd = Path.cwd().resolve()
+    ancestors = [cwd, *cwd.parents]
+    for directory in reversed(ancestors):
+        candidate = directory / CONFIG_FILENAME
+        if candidate.exists():
+            config_files.append(candidate)
+
+    return config_files
+
+
+def load_merged_config(
+    explicit_path: Optional[Path] = None,
+) -> "Config":
+    """Load and merge config files.
+
+    If explicit_path is given and exists, only that file is used.
+    Otherwise, discovers config files via directory traversal.
+    """
+    if explicit_path is not None and explicit_path.exists():
+        logger.debug(f"Loading config from explicit path: {explicit_path}")
+        return Config.from_file(explicit_path)
+
+    config_files = find_config_files()
+
+    if not config_files:
+        logger.debug("No configuration files found, using default configuration.")
+        return Config()
+
+    logger.debug(f"Found config files: {config_files}")
+
+    config = Config.from_file(config_files[0])
+    for path in config_files[1:]:
+        other = Config.from_file(path)
+        config.merge_with(other)
+
+    return config
+
+
 class Signal(BaseModel):  # type: ignore[misc]
     __receivers: list[Receiver] = PrivateAttr(default_factory=list)
 
@@ -135,6 +189,7 @@ class Config(BaseModel):  # type: ignore[misc]
     """General Manim Slides config."""
 
     keys: Keys = Field(default_factory=Keys)
+    commands: dict[str, dict[str, Any]] = Field(default_factory=dict)
 
     @classmethod
     def from_file(cls, path: Path) -> "Config":
@@ -148,7 +203,16 @@ class Config(BaseModel):  # type: ignore[misc]
     def merge_with(self, other: "Config") -> "Config":
         """Merge with another config."""
         self.keys = self.keys.merge_with(other.keys)
+        for cmd, defaults in other.commands.items():
+            if cmd in self.commands:
+                self.commands[cmd].update(defaults)
+            else:
+                self.commands[cmd] = defaults
         return self
+
+    def get_default_map(self) -> dict[str, dict[str, Any]]:
+        """Return a Click-compatible default_map for CLI commands."""
+        return dict(self.commands)
 
 
 class BaseSlideConfig(BaseModel):  # type: ignore

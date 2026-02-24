@@ -23,12 +23,32 @@ from .wizard import init, wizard
 )
 @click.version_option(__version__, "-v", "--version")
 @click.help_option("-h", "--help")
-def cli(notify_outdated_version: bool) -> None:
+@click.pass_context
+def cli(ctx: click.Context, notify_outdated_version: bool) -> None:
     """
     Manim Slides command-line utilities.
 
     If no command is specified, defaults to `present`.
     """
+    # Load config and set default_map for subcommands
+    from .config import load_merged_config
+
+    try:
+        config = load_merged_config()
+        default_map = config.get_default_map()
+        if default_map:
+            # Merge with any existing default_map (e.g., from env vars)
+            if ctx.default_map is None:
+                ctx.default_map = {}
+            for cmd, defaults in default_map.items():
+                if cmd in ctx.default_map:
+                    ctx.default_map[cmd].update(defaults)
+                else:
+                    ctx.default_map[cmd] = defaults
+            logger.debug(f"Loaded command defaults from config: {ctx.default_map}")
+    except Exception as e:
+        logger.warning(f"Failed to load config file: {e}")
+
     # Code below is mostly a copy from:
     # https://github.com/ManimCommunity/manim/blob/main/manim/cli/render/commands.py
     if notify_outdated_version:
