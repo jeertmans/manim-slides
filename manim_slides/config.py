@@ -26,7 +26,8 @@ Receiver = Callable[..., Any]
 
 
 def find_config_files() -> list[Path]:
-    """Find config files by traversing from CWD upward, plus global config.
+    """
+    Find config files by traversing from CWD upward, plus global config.
 
     Returns a list of config file paths, ordered from lowest to highest
     priority (global first, then ancestor directories from root to CWD).
@@ -54,7 +55,8 @@ def find_config_files() -> list[Path]:
 def load_merged_config(
     explicit_path: Optional[Path] = None,
 ) -> "Config":
-    """Load and merge config files.
+    """
+    Load and merge config files.
 
     If explicit_path is given and exists, only that file is used.
     Otherwise, discovers config files via directory traversal.
