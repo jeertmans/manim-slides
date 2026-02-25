@@ -10,6 +10,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 (unreleased)=
 ## [Unreleased](https://github.com/jeertmans/manim-slides/compare/v5.5.4...HEAD)
 
+### Added
+
+- Added vertical slide implementation to html exports of presentations. [@DaughterOfSpring](https://github.com/daughterOfSpring) [#602](https://github.com/jeertmans/manim-slides/pull/602)
+
+### Fixed
+
+- Fixed missing FFmpeg in Docker/Binder environment causing rendering failures.
+  [@alwaysalearner1234](https://github.com/alwaysalearner1234) [#593](https://github.com/jeertmans/manim-slides/pull/593)
+
 (v5.5.4)=
 ## [v5.5.4](https://github.com/jeertmans/manim-slides/compare/v5.5.3...v5.5.4)
 
