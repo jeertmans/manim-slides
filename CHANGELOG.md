@@ -29,7 +29,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added new example to the example gallery.
   [@jdgsmallwood](https://github.com/jdgsmallwood) [#589](https://github.com/jeertmans/manim-slides/pull/589)
 
-
 ### Fixed
 
 - Fixed compatibility issue with `av>=14` (and thus `manim>=0.19.2`).
