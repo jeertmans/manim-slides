@@ -30,8 +30,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   [@jdgsmallwood](https://github.com/jdgsmallwood) [#589](https://github.com/jeertmans/manim-slides/pull/589)
 
 
+### Fixed
 
-
+- Fixed compatibility issue with `av>=14` (and thus `manim>=0.19.2`).
+  [@SockingPanda](https://github.com/SockingPanda) [#584](https://github.com/jeertmans/manim-slides/pull/584)
 
 (v5.5.3)=
 ## [v5.5.3](https://github.com/jeertmans/manim-slides/compare/v5.5.2...v5.5.3)
