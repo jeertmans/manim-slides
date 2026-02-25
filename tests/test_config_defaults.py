@@ -14,7 +14,8 @@ import rtoml
 
 @pytest.fixture(autouse=True, scope="module")
 def patch_qtpy() -> Iterator[None]:
-    """Mock qtpy module for the duration of this test module.
+    """
+    Mock qtpy module for the duration of this test module.
 
     The Config/Keys classes depend on Qt key constants at import time.
     We mock qtpy, then reload manim_slides.config so it picks up the mock.
