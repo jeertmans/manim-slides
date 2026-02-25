@@ -14,6 +14,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Added vertical slide implementation to html exports of presentations. [@DaughterOfSpring](https://github.com/daughterOfSpring) [#602](https://github.com/jeertmans/manim-slides/pull/602)
 
+### Fixed
+
+- Fixed FFmpeg-related issue when exporting or rendering videos using the PyAV backend.
+  [@alwaysaleaarner1234](https://github.com/alwaysalearner1234) [#519](https://github.com/jeertmans/manim-slides/pull/519)
+
 (v5.5.4)=
 ## [v5.5.4](https://github.com/jeertmans/manim-slides/compare/v5.5.3...v5.5.4)
 
