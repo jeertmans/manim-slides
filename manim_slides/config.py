@@ -26,7 +26,8 @@ Receiver = Callable[..., Any]
 
 
 def find_config_files() -> list[Path]:
-    """Find config files, in ascending order of precedence.
+    """
+    Find config files, in ascending order of precedence.
 
     Searches for config files in the following locations:
     1. User-wide config (OS-specific, lowest priority)
@@ -38,6 +39,7 @@ def find_config_files() -> list[Path]:
     -------
     list[Path]
         Config file paths that exist, in ascending order of precedence.
+
     """
     import sys
 
@@ -69,7 +71,8 @@ def find_config_files() -> list[Path]:
 def load_merged_config(
     explicit_path: Optional[Path] = None,
 ) -> "Config":
-    """Load and merge config files.
+    """
+    Load and merge config files.
 
     If explicit_path is given and exists, only that file is used.
     Otherwise, discovers config files via directory traversal.
