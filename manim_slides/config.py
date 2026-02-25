@@ -244,7 +244,7 @@ class BaseSlideConfig(BaseModel):  # type: ignore
     dedent_notes: bool = True
     skip_animations: bool = False
     src: Optional[FilePath] = None
-    direction: Literal["horizontal", "vertical"] = "horizontal" 
+    direction: Literal["horizontal", "vertical"] = "horizontal"
 
     @classmethod
     def wrapper(cls, arg_name: str) -> Callable[..., Any]:
