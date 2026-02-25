@@ -31,7 +31,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   [@jdgsmallwood](https://github.com/jdgsmallwood) [#588](https://github.com/jeertmans/manim-slides/pull/588)
 - Added new example to the example gallery.
   [@jdgsmallwood](https://github.com/jdgsmallwood) [#589](https://github.com/jeertmans/manim-slides/pull/589)
-  
+
 
 
 
