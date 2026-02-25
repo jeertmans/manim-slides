@@ -14,8 +14,7 @@ import rtoml
 
 @pytest.fixture(autouse=True, scope="module")
 def patch_qtpy() -> Iterator[None]:
-    """
-    Mock qtpy module for the duration of this test module.
+    """Mock qtpy module for the duration of this test module.
 
     The Config/Keys classes depend on Qt key constants at import time.
     We mock qtpy, then reload manim_slides.config so it picks up the mock.
@@ -62,24 +61,19 @@ def patch_qtpy() -> Iterator[None]:
     importlib.reload(manim_slides.config)
 
 
-def _get_config_classes() -> tuple:
-    """Import after fixture has patched qtpy."""
-    from manim_slides.config import Config, find_config_files, load_merged_config
-
-    return Config, find_config_files, load_merged_config
-
-
 class TestConfigWithCommands:
     """Test Config model with command defaults."""
 
     def test_empty_commands(self) -> None:
-        Config, _, _ = _get_config_classes()
+        from manim_slides.config import Config
+
         config = Config()
         assert config.commands == {}
         assert config.get_default_map() == {}
 
     def test_commands_from_dict(self) -> None:
-        Config, _, _ = _get_config_classes()
+        from manim_slides.config import Config
+
         config = Config(
             commands={
                 "present": {"full_screen": True, "hide_mouse": True},
@@ -90,7 +84,8 @@ class TestConfigWithCommands:
         assert config.commands["convert"]["one_file"] is True
 
     def test_get_default_map(self) -> None:
-        Config, _, _ = _get_config_classes()
+        from manim_slides.config import Config
+
         config = Config(
             commands={
                 "present": {"full_screen": True},
@@ -104,7 +99,8 @@ class TestConfigWithCommands:
         }
 
     def test_from_toml_with_commands(self, tmp_path: Path) -> None:
-        Config, _, _ = _get_config_classes()
+        from manim_slides.config import Config
+
         config_data: dict[str, object] = {
             "keys": {},
             "commands": {
@@ -121,7 +117,8 @@ class TestConfigWithCommands:
 
     def test_from_toml_without_commands(self, tmp_path: Path) -> None:
         """Backward compatibility: config without commands section."""
-        Config, _, _ = _get_config_classes()
+        from manim_slides.config import Config
+
         config_data: dict[str, object] = {"keys": {}}
         config_file = tmp_path / "config.toml"
         rtoml.dump(config_data, config_file, pretty=True)
@@ -130,7 +127,8 @@ class TestConfigWithCommands:
         assert config.commands == {}
 
     def test_to_file_with_commands(self, tmp_path: Path) -> None:
-        Config, _, _ = _get_config_classes()
+        from manim_slides.config import Config
+
         config = Config(
             commands={"present": {"full_screen": True}},
         )
@@ -141,7 +139,8 @@ class TestConfigWithCommands:
         assert raw["commands"]["present"]["full_screen"] is True
 
     def test_merge_commands(self) -> None:
-        Config, _, _ = _get_config_classes()
+        from manim_slides.config import Config
+
         config_a = Config(
             commands={
                 "present": {"full_screen": True},
@@ -163,7 +162,8 @@ class TestConfigWithCommands:
 
     def test_merge_commands_override(self) -> None:
         """Later config overrides earlier values for same key."""
-        Config, _, _ = _get_config_classes()
+        from manim_slides.config import Config
+
         config_a = Config(commands={"present": {"full_screen": False}})
         config_b = Config(commands={"present": {"full_screen": True}})
 
@@ -177,18 +177,18 @@ class TestFindConfigFiles:
     def test_no_config_files(
         self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
     ) -> None:
-        monkeypatch.chdir(tmp_path)
-        _, find_config_files, _ = _get_config_classes()
+        from manim_slides.config import find_config_files
 
+        monkeypatch.chdir(tmp_path)
         files = find_config_files()
         assert files == []
 
     def test_finds_local_config(
         self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
     ) -> None:
-        monkeypatch.chdir(tmp_path)
-        _, find_config_files, _ = _get_config_classes()
+        from manim_slides.config import find_config_files
 
+        monkeypatch.chdir(tmp_path)
         config_file = tmp_path / ".manim-slides.toml"
         rtoml.dump({"keys": {}}, config_file, pretty=True)
 
@@ -198,10 +198,11 @@ class TestFindConfigFiles:
     def test_finds_parent_config(
         self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
     ) -> None:
+        from manim_slides.config import find_config_files
+
         subdir = tmp_path / "project" / "subdir"
         subdir.mkdir(parents=True)
         monkeypatch.chdir(subdir)
-        _, find_config_files, _ = _get_config_classes()
 
         parent_config = tmp_path / "project" / ".manim-slides.toml"
         rtoml.dump({"keys": {}}, parent_config, pretty=True)
@@ -213,10 +214,11 @@ class TestFindConfigFiles:
         self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
     ) -> None:
         """CWD config should come after (= higher priority) parent config."""
+        from manim_slides.config import find_config_files
+
         subdir = tmp_path / "project"
         subdir.mkdir()
         monkeypatch.chdir(subdir)
-        _, find_config_files, _ = _get_config_classes()
 
         parent_config = tmp_path / ".manim-slides.toml"
         local_config = subdir / ".manim-slides.toml"
@@ -236,7 +238,8 @@ class TestLoadMergedConfig:
     """Test merged config loading."""
 
     def test_explicit_path(self, tmp_path: Path) -> None:
-        _, _, load_merged_config = _get_config_classes()
+        from manim_slides.config import load_merged_config
+
         config_file = tmp_path / "my-config.toml"
         rtoml.dump(
             {"commands": {"present": {"full_screen": True}}},
@@ -250,19 +253,20 @@ class TestLoadMergedConfig:
         self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
     ) -> None:
         """If explicit path doesn't exist, fall back to discovery."""
-        monkeypatch.chdir(tmp_path)
-        _, _, load_merged_config = _get_config_classes()
+        from manim_slides.config import load_merged_config
 
+        monkeypatch.chdir(tmp_path)
         config = load_merged_config(explicit_path=tmp_path / "nonexistent.toml")
         assert config.commands == {}
 
     def test_merges_parent_and_local(
         self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
     ) -> None:
+        from manim_slides.config import load_merged_config
+
         subdir = tmp_path / "project"
         subdir.mkdir()
         monkeypatch.chdir(subdir)
-        _, _, load_merged_config = _get_config_classes()
 
         rtoml.dump(
             {"commands": {"present": {"full_screen": True}}},
@@ -283,10 +287,11 @@ class TestLoadMergedConfig:
         self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
     ) -> None:
         """Local config values override parent config values."""
+        from manim_slides.config import load_merged_config
+
         subdir = tmp_path / "project"
         subdir.mkdir()
         monkeypatch.chdir(subdir)
-        _, _, load_merged_config = _get_config_classes()
 
         rtoml.dump(
             {"commands": {"present": {"full_screen": False}}},
