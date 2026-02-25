@@ -8,15 +8,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <!-- start changelog -->
 
 (unreleased)=
-## [Unreleased](https://github.com/jeertmans/manim-slides/compare/v5.5.3...HEAD)
+## [Unreleased](https://github.com/jeertmans/manim-slides/compare/v5.5.4...HEAD)
 
-### Chore
+### Added
 
-- Added tips for working with large presentations to the documentation.
-  [@jdgsmallwood](https://github.com/jdgsmallwood) [#588](https://github.com/jeertmans/manim-slides/pull/588)
-- Added new example to the example gallery.
-  [@jdgsmallwood](https://github.com/jdgsmallwood) [#589](https://github.com/jeertmans/manim-slides/pull/589)
-  
+- Added vertical slide implementation to html exports of presentations. [@DaughterOfSpring](https://github.com/daughterOfSpring) [#602](https://github.com/jeertmans/manim-slides/pull/602)
+
 ### Fixed
 
 - Fixed missing FFmpeg in Docker/Binder environment causing rendering failures.
@@ -25,7 +22,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 
 
+(v5.5.4)=
+## [v5.5.4](https://github.com/jeertmans/manim-slides/compare/v5.5.3...v5.5.4)
+
+### Chore
+
+- Added tips for working with large presentations to the documentation.
+  [@jdgsmallwood](https://github.com/jdgsmallwood) [#588](https://github.com/jeertmans/manim-slides/pull/588)
+- Added new example to the example gallery.
+  [@jdgsmallwood](https://github.com/jdgsmallwood) [#589](https://github.com/jeertmans/manim-slides/pull/589)
   
+
+
+
+
 (v5.5.3)=
 ## [v5.5.3](https://github.com/jeertmans/manim-slides/compare/v5.5.2...v5.5.3)
 
