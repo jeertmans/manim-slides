@@ -4,7 +4,7 @@ from functools import wraps
 from inspect import Parameter, signature
 from pathlib import Path
 from textwrap import dedent
-from typing import Any, Callable, Literal, Optional
+from typing import Any, Callable, Optional
 
 import rtoml
 from pydantic import (
@@ -26,26 +26,40 @@ Receiver = Callable[..., Any]
 
 
 def find_config_files() -> list[Path]:
-    """
-    Find config files by traversing from CWD upward, plus global config.
+    """Find config files, in ascending order of precedence.
 
-    Returns a list of config file paths, ordered from lowest to highest
-    priority (global first, then ancestor directories from root to CWD).
-    Later entries override earlier ones when merging.
-    """
-    from .defaults import CONFIG_FILENAME, GLOBAL_CONFIG_PATH
+    Searches for config files in the following locations:
+    1. User-wide config (OS-specific, lowest priority)
+    2. Folder-wide configs from ancestors of CWD down to CWD (highest priority)
 
+    Follows the same pattern as Manim's ``config_file_paths``.
+
+    Returns
+    -------
+    list[Path]
+        Config file paths that exist, in ascending order of precedence.
+    """
+    import sys
+
+    from .defaults import CONFIG_PATH
+
+    config_name = CONFIG_PATH.name
     config_files: list[Path] = []
 
-    # 1. Global config (lowest priority)
-    if GLOBAL_CONFIG_PATH.exists():
-        config_files.append(GLOBAL_CONFIG_PATH)
+    # 1. User-wide config (OS-specific)
+    if sys.platform.startswith("win32"):
+        user_wide = Path.home() / "AppData" / "Roaming" / "ManimSlides" / config_name
+    else:
+        user_wide = Path.home() / ".config" / "manim-slides" / config_name
+
+    if user_wide.exists():
+        config_files.append(user_wide)
 
     # 2. Walk from root toward CWD (so CWD has highest priority)
     cwd = Path.cwd().resolve()
     ancestors = [cwd, *cwd.parents]
     for directory in reversed(ancestors):
-        candidate = directory / CONFIG_FILENAME
+        candidate = directory / config_name
         if candidate.exists():
             config_files.append(candidate)
 
@@ -55,8 +69,7 @@ def find_config_files() -> list[Path]:
 def load_merged_config(
     explicit_path: Optional[Path] = None,
 ) -> "Config":
-    """
-    Load and merge config files.
+    """Load and merge config files.
 
     If explicit_path is given and exists, only that file is used.
     Otherwise, discovers config files via directory traversal.
@@ -228,7 +241,6 @@ class BaseSlideConfig(BaseModel):  # type: ignore
     dedent_notes: bool = True
     skip_animations: bool = False
     src: Optional[FilePath] = None
-    direction: Literal["horizontal", "vertical"] = "horizontal"
 
     @classmethod
     def wrapper(cls, arg_name: str) -> Callable[..., Any]:
