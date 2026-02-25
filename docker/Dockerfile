@@ -32,7 +32,7 @@ RUN apt-get update -qq \
         wget \
         ghostscript \
         fonts-noto
-        
+
 RUN fc-cache -fv
 
 
