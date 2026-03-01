@@ -12,6 +12,8 @@ from tqdm import tqdm
 
 from .logger import logger
 
+AV_VERSION_14 = int(av.__version__.split(".", maxsplit=1)[0]) >= 14
+
 
 def concatenate_video_files(files: list[Path], dest: Path) -> None:
     """Concatenate multiple video files into one."""
@@ -44,14 +46,26 @@ def concatenate_video_files(files: list[Path], dest: Path) -> None:
         av.open(str(dest), mode="w") as output_container,
     ):
         input_video_stream = input_container.streams.video[0]
-        output_video_stream = output_container.add_stream(
-            template=input_video_stream,
+        output_video_stream = (
+            output_container.add_stream_from_template(
+                input_video_stream,
+            )
+            if AV_VERSION_14
+            else output_container.add_stream(
+                template=input_video_stream,
+            )
         )
 
         if len(input_container.streams.audio) > 0:
             input_audio_stream = input_container.streams.audio[0]
-            output_audio_stream = output_container.add_stream(
-                template=input_audio_stream,
+            output_audio_stream = (
+                output_container.add_stream_from_template(
+                    input_audio_stream,
+                )
+                if AV_VERSION_14
+                else output_container.add_stream(
+                    template=input_audio_stream,
+                )
             )
 
         for packet in input_container.demux():
@@ -130,8 +144,10 @@ def reverse_video_file_in_one_chunk(src_and_dest: tuple[Path, Path]) -> None:
 
         for _ in range(frames_count):
             frame = graph.pull()
-            frame.pict_type = "NONE"  # Otherwise we get a warning saying it is changed
-            output_container.mux(output_stream.encode(frame))  # type: ignore[unresolved-attribute]
+            frame.pict_type = (
+                av.video.frame.PictureType.NONE
+            )  # Otherwise we get a warning saying it is changed
+            output_container.mux(output_stream.encode(frame))
 
         for packet in output_stream.encode():  # type: ignore[unresolved-attribute]
             output_container.mux(packet)
@@ -168,8 +184,12 @@ def reverse_video_file(
                 format="segment",
                 options={"segment_time": str(max_segment_duration)},
             ) as output_container:
-                output_stream = output_container.add_stream(
-                    template=input_stream,
+                output_stream = (
+                    output_container.add_stream_from_template(input_stream)
+                    if AV_VERSION_14
+                    else output_container.add_stream(
+                        template=input_stream,
+                    )
                 )
 
                 for packet in input_container.demux(input_stream):

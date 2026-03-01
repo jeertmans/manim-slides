@@ -8,7 +8,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <!-- start changelog -->
 
 (unreleased)=
-## [Unreleased](https://github.com/jeertmans/manim-slides/compare/v5.5.3...HEAD)
+## [Unreleased](https://github.com/jeertmans/manim-slides/compare/v5.5.4...HEAD)
+
+### Added
+
+- Added vertical slide implementation to html exports of presentations. [@DaughterOfSpring](https://github.com/daughterOfSpring) [#602](https://github.com/jeertmans/manim-slides/pull/602)
+
+### Fixed
+
+- Fixed missing FFmpeg in Docker/Binder environment causing rendering failures.
+  [@alwaysalearner1234](https://github.com/alwaysalearner1234) [#593](https://github.com/jeertmans/manim-slides/pull/593)
+
+(v5.5.4)=
+## [v5.5.4](https://github.com/jeertmans/manim-slides/compare/v5.5.3...v5.5.4)
 
 ### Chore
 
@@ -16,6 +28,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   [@jdgsmallwood](https://github.com/jdgsmallwood) [#588](https://github.com/jeertmans/manim-slides/pull/588)
 - Added new example to the example gallery.
   [@jdgsmallwood](https://github.com/jdgsmallwood) [#589](https://github.com/jeertmans/manim-slides/pull/589)
+
+### Fixed
+
+- Fixed compatibility issue with `av>=14` (and thus `manim>=0.19.2`).
+  [@SockingPanda](https://github.com/SockingPanda) [#584](https://github.com/jeertmans/manim-slides/pull/584)
 
 (v5.5.3)=
 ## [v5.5.3](https://github.com/jeertmans/manim-slides/compare/v5.5.2...v5.5.3)

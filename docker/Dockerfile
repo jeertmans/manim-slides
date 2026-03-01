@@ -13,7 +13,28 @@ RUN apt-get update -qq \
         pkg-config \
         make \
         wget \
-        ghostscript
+        ghostscript \
+# Mostly a copy from https://github.com/ManimCommunity/manim/blob/v0.20.0/docker/Dockerfile
+FROM python:3.11-slim
+
+RUN apt-get update -qq \
+    && apt-get install --no-install-recommends -y \
+        build-essential \
+        gcc \
+        cmake \
+        libcairo2-dev \
+        libffi-dev \
+        libpango1.0-dev \
+        freeglut3-dev \
+        ffmpeg \
+        pkg-config \
+        make \
+        wget \
+        ghostscript \
+        fonts-noto
+
+RUN fc-cache -fv
+
 
 # setup a minimal texlive installation
 COPY docker/texlive-profile.txt /tmp/
