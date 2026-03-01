@@ -1,0 +1,60 @@
+# Lint code and (optionally) apply fixes
+name: Pre-commit
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  schedule:
+  - cron: 0 0 * * 1 # Every monday
+  workflow_dispatch:
+
+jobs:
+  auto-update:
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' }}
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v6
+
+    - name: Install Python
+      uses: actions/setup-python@v6
+
+    - name: Install pre-commit
+      run: pip install pre-commit
+
+    - name: Run autoupdate
+      run: pre-commit autoupdate
+
+    - name: Create a pull request with updated versions
+      uses: peter-evans/create-pull-request@v8
+      with:
+        branch: update/pre-commit-hooks
+        title: 'chore(deps): update pre-commit hooks'
+        commit-message: 'chore(deps): update pre-commit hooks'
+        labels: |
+          ci
+          dependencies
+
+  pre-commit:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v6
+
+    - name: Setup uv
+      uses: astral-sh/setup-uv@v7
+      with:
+        enable-cache: true
+
+    - name: Run pre-commit hooks
+      run: uv run --locked pre-commit run --all-files
+
+    - name: Apply fixes when present
+      uses: pre-commit-ci/lite-action@v1.1.0
+      if: always()
+      with:
+        msg: 'chore(fmt): auto fixes from pre-commit hooks'
