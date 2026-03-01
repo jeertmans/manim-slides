@@ -40,9 +40,7 @@ repos:
     entry: python .github/scripts/check_github_issues.py
     language: system
     types: [markdown]
-  - id: ty
-    name: typecheck
-    description: Typecheck Python files with ty
-    language: system
-    entry: uv run ty check
-    pass_filenames: false
+- repo: https://github.com/allganize/ty-pre-commit
+  rev: v0.0.19
+  hooks:
+  - id: ty-check
