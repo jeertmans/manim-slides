@@ -70,7 +70,7 @@ def prompt_for_scenes(folder: Path) -> list[str]:
     while True:
         try:
             scenes = click.prompt("Choice(s)", value_proc=value_proc)
-            return scenes  # type: ignore
+            return scenes
         except ValueError as e:
             raise click.UsageError(str(e)) from None
 
@@ -337,8 +337,8 @@ def present(  # noqa: C901
         info_window_screen = None
 
     aspect_ratio_modes = {
-        "keep": Qt.KeepAspectRatio,
-        "ignore": Qt.IgnoreAspectRatio,
+        "keep": Qt.KeepAspectRatio,  # type: ignore[unresolved-attribute]
+        "ignore": Qt.IgnoreAspectRatio,  # type: ignore[unresolved-attribute]
     }
 
     player = Player(
@@ -359,7 +359,7 @@ def present(  # noqa: C901
         info_window_screen=info_window_screen,
     )
 
-    player.show(screens)
+    player.show(screens)  # type: ignore[invalid-argument-type]
 
     signal.signal(signal.SIGINT, signal.SIG_DFL)
     sys.exit(app.exec())

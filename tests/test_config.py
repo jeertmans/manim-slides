@@ -29,4 +29,4 @@ class TestPresentationConfig:
 
     def test_empty_presentation_config(self) -> None:
         with pytest.raises(ValidationError):
-            _ = PresentationConfig(slides=[], files=[])
+            _ = PresentationConfig(slides=[], files=[])  # type: ignore[unknown-argument]

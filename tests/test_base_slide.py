@@ -7,7 +7,7 @@ from manim_slides.slide.base import BaseSlide
 
 @pytest.fixture
 def base_slide() -> BaseSlide:
-    return BaseSlide()  # type: ignore[abstract]
+    return BaseSlide()
 
 
 class TestBaseSlide:
@@ -63,7 +63,7 @@ class TestBaseSlide:
 
         assert len(base_slide.canvas) == 3
 
-        assert sorted(base_slide.canvas_mobjects) == [1, 3, 4]
+        assert sorted(base_slide.canvas_mobjects) == [1, 3, 4]  # type: ignore[invalid-argument-type]
 
         base_slide.remove_from_canvas("a", "b", "c")
 

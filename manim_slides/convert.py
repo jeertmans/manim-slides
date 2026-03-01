@@ -21,8 +21,8 @@ import requests
 from bs4 import BeautifulSoup
 from click import Context, Parameter
 from jinja2 import Template
-from lxml import etree
-from PIL import Image
+from lxml import etree  # type: ignore[unresolved-import]
+from PIL.Image import Image
 from pydantic import (
     BaseModel,
     ConfigDict,
@@ -49,7 +49,7 @@ def open_with_default(file: Path) -> None:
     if system == "Darwin":
         subprocess.call(("open", str(file)))
     elif system == "Windows":
-        os.startfile(str(file))  # type: ignore[attr-defined]
+        os.startfile(str(file))
     else:
         subprocess.call(("xdg-open", str(file)))
 
@@ -86,7 +86,7 @@ def get_duration_ms(file: Path) -> float:
     with av.open(str(file)) as container:
         video = container.streams.video[0]
 
-        return float(1000 * video.duration * video.time_base)
+        return float(1000 * video.duration * video.time_base)  # type: ignore[unsupported-operator]
 
 
 def read_image_from_video_file(file: Path, frame_index: "FrameIndex") -> Image:
@@ -102,7 +102,7 @@ def read_image_from_video_file(file: Path, frame_index: "FrameIndex") -> Image:
         return frame.to_image()
 
 
-class Converter(BaseModel):  # type: ignore
+class Converter(BaseModel):
     presentation_configs: list[PresentationConfig]
     assets_dir: str = Field(
         "{basename}_assets",
@@ -173,27 +173,27 @@ class JsFalse(str, StrEnum):
     false = "false"
 
 
-class JsBool(Str, StrEnum):  # type: ignore
+class JsBool(Str, StrEnum):
     true = "true"
     false = "false"
 
 
-class JsNull(Str, StrEnum):  # type: ignore
+class JsNull(Str, StrEnum):
     null = "null"
 
 
-class ControlsLayout(Str, StrEnum):  # type: ignore
+class ControlsLayout(Str, StrEnum):
     edges = "edges"
     bottom_right = "bottom-right"
 
 
-class ControlsBackArrows(Str, StrEnum):  # type: ignore
+class ControlsBackArrows(Str, StrEnum):
     faded = "faded"
     hidden = "hidden"
     visibly = "visibly"
 
 
-class SlideNumber(Str, StrEnum):  # type: ignore
+class SlideNumber(Str, StrEnum):
     true = "true"
     false = "false"
     hdotv = "h.v"
@@ -202,24 +202,24 @@ class SlideNumber(Str, StrEnum):  # type: ignore
     candt = "c/t"
 
 
-class ShowSlideNumber(Str, StrEnum):  # type: ignore
+class ShowSlideNumber(Str, StrEnum):
     all = "all"
     print = "print"
     speaker = "speaker"
 
 
-class KeyboardCondition(Str, StrEnum):  # type: ignore
+class KeyboardCondition(Str, StrEnum):
     null = "null"
     focused = "focused"
 
 
-class NavigationMode(Str, StrEnum):  # type: ignore
+class NavigationMode(Str, StrEnum):
     default = "default"
     linear = "linear"
     grid = "grid"
 
 
-class AutoPlayMedia(Str, StrEnum):  # type: ignore
+class AutoPlayMedia(Str, StrEnum):
     null = "null"
     true = "true"
     false = "false"
@@ -228,25 +228,25 @@ class AutoPlayMedia(Str, StrEnum):  # type: ignore
 PreloadIframes = AutoPlayMedia
 
 
-class AutoAnimateMatcher(Str, StrEnum):  # type: ignore
+class AutoAnimateMatcher(Str, StrEnum):
     null = "null"
 
 
-class AutoAnimateEasing(Str, StrEnum):  # type: ignore
+class AutoAnimateEasing(Str, StrEnum):
     ease = "ease"
 
 
 AutoSlide = Union[PositiveInt, JsFalse]
 
 
-class AutoSlideMethod(Str, StrEnum):  # type: ignore
+class AutoSlideMethod(Str, StrEnum):
     null = "null"
 
 
 MouseWheel = Union[JsNull, float]
 
 
-class Transition(Str, StrEnum):  # type: ignore
+class Transition(Str, StrEnum):
     none = "none"
     fade = "fade"
     slide = "slide"
@@ -255,13 +255,13 @@ class Transition(Str, StrEnum):  # type: ignore
     zoom = "zoom"
 
 
-class TransitionSpeed(Str, StrEnum):  # type: ignore
+class TransitionSpeed(Str, StrEnum):
     default = "default"
     fast = "fast"
     slow = "slow"
 
 
-class BackgroundSize(Str, StrEnum):  # type: ignore
+class BackgroundSize(Str, StrEnum):
     # From: https://developer.mozilla.org/en-US/docs/Web/CSS/background-size
     # TODO: support more background size
     contain = "contain"
@@ -271,7 +271,7 @@ class BackgroundSize(Str, StrEnum):  # type: ignore
 BackgroundTransition = Transition
 
 
-class Display(Str, StrEnum):  # type: ignore
+class Display(Str, StrEnum):
     block = "block"
 
 
@@ -527,7 +527,7 @@ class RevealJS(Converter):
         5000, description="Time before the cursor is hidden (in ms)."
     )
     # Appearance options from RevealJS
-    background_color: Color = Field(
+    background_color: Color = Field(  # type: ignore[invalid-assignment]
         "black",
         description="Background color used in slides, not relevant if videos fill the whole area.",
     )
@@ -628,10 +628,10 @@ class RevealJS(Converter):
 
             for tag, inner in [("link", "href"), ("script", "src")]:
                 for item in soup.find_all(tag):
-                    if item.has_attr(inner) and (link := item[inner]).startswith(
+                    if item.has_attr(inner) and (link := item[inner]).startswith(  # type: ignore[possibly-missing-attribute]
                         "http"
                     ):
-                        asset_name = link.rsplit("/", 1)[1]
+                        asset_name = link.rsplit("/", 1)[1]  # type: ignore[possibly-missing-attribute]
                         asset = session.get(link)
                         if self.one_file:
                             # If it is a CSS file, inline it
@@ -639,13 +639,13 @@ class RevealJS(Converter):
                                 item.decompose()
                                 style = soup.new_tag("style")
                                 style.string = asset.text
-                                soup.head.append(style)
+                                soup.head.append(style)  # type: ignore[possibly-missing-attribute]
                             # If it is a JS file, inline it
                             elif tag == "script":
                                 item.decompose()
                                 script = soup.new_tag("script")
                                 script.string = asset.text
-                                soup.head.append(script)
+                                soup.head.append(script)  # type: ignore[possibly-missing-attribute]
                             else:
                                 raise ValueError(
                                     f"Unable to inline {tag} asset: {link}"
@@ -750,15 +750,16 @@ class PowerPoint(Converter):
     def convert_to(self, dest: Path) -> None:
         """Convert this configuration into a PowerPoint presentation, saved to DEST."""
         prs = pptx.Presentation()
-        prs.slide_width = self.width * 9525
-        prs.slide_height = self.height * 9525
+        prs.slide_width = self.width * 9525  # type: ignore[invalid-assignment]
+        prs.slide_height = self.height * 9525  # type: ignore[invalid-assignment]
 
         layout = prs.slide_layouts[6]  # Should be blank
 
         # From GitHub issue comment:
         # - https://github.com/scanny/python-pptx/issues/427#issuecomment-856724440
         def auto_play_media(
-            media: pptx.shapes.picture.Movie, loop: bool = False
+            media: pptx.shapes.picture.Movie,
+            loop: bool = False,  # type: ignore[possibly-missing-attribute]
         ) -> None:
             el_id = xpath(media.element, ".//p:cNvPr")[0].attrib["id"]
             el_cnt = xpath(
@@ -817,7 +818,7 @@ class PowerPoint(Converter):
                         auto_play_media(movie, loop=slide_config.loop)
 
             dest.parent.mkdir(parents=True, exist_ok=True)
-            prs.save(dest)
+            prs.save(str(dest))
 
 
 def show_config_options(function: Callable[..., Any]) -> Callable[..., Any]:
@@ -857,7 +858,7 @@ def show_config_options(function: Callable[..., Any]) -> Callable[..., Any]:
 
         ctx.exit()
 
-    return click.option(  # type: ignore
+    return click.option(
         "--show-config",
         is_flag=True,
         help="Show supported options for given format and exit.",
@@ -898,7 +899,7 @@ def show_template_option(function: Callable[..., Any]) -> Callable[..., Any]:
 
         ctx.exit()
 
-    return click.option(  # type: ignore
+    return click.option(
         "--show-template",
         is_flag=True,
         help="Show the template (currently) used for a given conversion format and exit.",

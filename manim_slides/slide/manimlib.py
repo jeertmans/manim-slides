@@ -12,7 +12,7 @@ sys.argv = old_argv
 from .base import BaseSlide  # noqa: E402
 
 
-class Slide(BaseSlide, Scene):  # type: ignore[misc]
+class Slide(BaseSlide, Scene):
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         kwargs.setdefault("file_writer_config", {}).update(
             subdivide_output=True,
@@ -56,11 +56,11 @@ class Slide(BaseSlide, Scene):  # type: ignore[misc]
 
     @property
     def _leave_progress_bar(self) -> bool:
-        return self.leave_progress_bars  # type: ignore
+        return self.leave_progress_bars
 
     @property
     def _start_at_animation_number(self) -> Optional[int]:
-        return self.start_at_animation_number  # type: ignore
+        return self.start_at_animation_number
 
     def run(self, *args: Any, **kwargs: Any) -> None:
         """MANIMGL renderer."""
