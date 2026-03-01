@@ -50,6 +50,9 @@ jobs:
       with:
         enable-cache: true
 
+    - name: Install Ubuntu dependencies
+      run: sudo apt-get install libpango1.0-dev pkg-config python3-dev
+
     - name: Run pre-commit hooks
       run: uv run --locked pre-commit run --all-files
 
