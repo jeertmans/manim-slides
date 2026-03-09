@@ -21,7 +21,7 @@ repos:
     exclude: poetry.lock
     args: [--autofix, --trailing-commas]
 - repo: https://github.com/astral-sh/ruff-pre-commit
-  rev: v0.14.14
+  rev: v0.15.5
   hooks:
   - id: ruff
     args: [--fix]
@@ -32,7 +32,7 @@ repos:
   - id: mypy
     additional_dependencies: [types-requests, types-setuptools]
 - repo: https://github.com/codespell-project/codespell
-  rev: v2.4.1
+  rev: v2.4.2
   hooks:
   - id: codespell
     additional_dependencies:
