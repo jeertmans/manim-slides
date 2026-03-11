@@ -482,7 +482,10 @@ class BaseSlide:
 
             self._current_slide += 1
 
-        if base_slide_config.src is not None:
+        if (
+            base_slide_config.src is not None
+            or base_slide_config.static_image is not None
+        ):
             self._slides.append(
                 PreSlideConfig.from_base_slide_config_and_animation_indices(
                     base_slide_config,
@@ -565,11 +568,16 @@ class BaseSlide:
                 continue
             if pre_slide_config.src:
                 slide_files = [pre_slide_config.src]
+            if pre_slide_config.static_image:
+                slide_files = [pre_slide_config.static_image]
             else:
                 slide_files = files[pre_slide_config.slides_slice]
 
             try:
-                file = merge_basenames(slide_files)
+                if pre_slide_config.src is not None:
+                    file = merge_basenames(slide_files)
+                else:
+                    file = Path(slide_files[0])
             except ValueError as e:
                 raise ValueError(
                     f"Failed to merge basenames of files for slide: {pre_slide_config!r}"
@@ -581,9 +589,9 @@ class BaseSlide:
             if not use_cache or not dst_file.exists():
                 concatenate_video_files(slide_files, dst_file)
 
-            # We only reverse video if it was not present
+            # We only reverse video if it was not present and not a static image
             if not use_cache or not rev_file.exists():
-                if skip_reversing:
+                if skip_reversing or pre_slide_config.static_image is not None:
                     rev_file = dst_file
                 else:
                     reverse_video_file(
