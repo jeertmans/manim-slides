@@ -89,7 +89,7 @@ def merge_basenames(files: list[Path]) -> Path:
     """Merge multiple filenames by concatenating basenames."""
     if len(files) == 0:
         raise ValueError("Cannot merge an empty list of files!")
-        
+
     dirname: Path = files[0].parent
     ext = files[0].suffix
 

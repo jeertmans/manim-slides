@@ -88,10 +88,12 @@ def get_duration_ms(file: Path) -> float:
 
         return float(1000 * video.duration * video.time_base)
 
+
 def is_image_file(file_path: Path) -> bool:
     """Check if the file is an image based on its extension."""
     image_extensions = {".png", ".jpg", ".jpeg", ".gif", ".bmp", ".tiff", ".webp"}
     return file_path.suffix.lower() in image_extensions
+
 
 def read_image_from_video_file(file: Path, frame_index: "FrameIndex") -> Image:
     """Read a image from a video file at a given index."""
@@ -792,7 +794,7 @@ class PowerPoint(Converter):
                     file = slide_config.file
 
                     if is_image_file(file):
-                        #Handle static image
+                        # Handle static image
                         slide.shapes.add_picture(
                             str(file),
                             self.left,
@@ -801,7 +803,7 @@ class PowerPoint(Converter):
                             self.height * 9525,
                         )
                     else:
-                        #handle video
+                        # handle video
                         mime_type = mimetypes.guess_type(file)[0]
 
                         if self.poster_frame_image is None:
@@ -828,12 +830,9 @@ class PowerPoint(Converter):
 
                         if self.auto_play_media:
                             auto_play_media(movie, loop=slide_config.loop)
-                    
-                    
+
                     if slide_config.notes != "":
                         slide.notes_slide.notes_text_frame.text = slide_config.notes
-
-
 
             dest.parent.mkdir(parents=True, exist_ok=True)
             prs.save(dest)
