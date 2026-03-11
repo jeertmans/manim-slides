@@ -175,7 +175,7 @@ class BaseSlideConfig(BaseModel):  # type: ignore
 
     @model_validator(mode="after")
     def validate_static_image(self) -> "BaseSlideConfig":
-        """check if both 'src' and 'static_image' exist at same time or not."""
+        """Check if both 'src' and 'static_image' exist at same time or not."""
         if self.src is not None and self.static_image is not None:
             raise ValueError("Cannot set both 'src' and 'static_image'")
         return self
