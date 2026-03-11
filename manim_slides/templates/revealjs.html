@@ -41,12 +41,16 @@
         <section
           data-background-size={{ background_size }}
           data-background-color="{{ presentation_config.background_color }}"
+          {% if slide_config.static_image %}
+          data-background-image="{{file}}"
+          {% else %}
           data-background-video="{{ file }}"
           {% if loop.index == 1 and outer_loop.index == 1 %}
           data-background-video-muted
           {% endif %}
           {% if slide_config.loop %}
           data-background-video-loop
+          {% endif %}
           {% endif %}
           {% if slide_config.auto_next %}
           data-autoslide="{{ get_duration_ms(slide_config.file) }}"
