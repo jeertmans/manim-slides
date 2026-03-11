@@ -482,7 +482,10 @@ class BaseSlide:
 
             self._current_slide += 1
 
-        if base_slide_config.src is not None or base_slide_config.static_image is not None:
+        if (
+            base_slide_config.src is not None
+            or base_slide_config.static_image is not None
+        ):
             self._slides.append(
                 PreSlideConfig.from_base_slide_config_and_animation_indices(
                     base_slide_config,
