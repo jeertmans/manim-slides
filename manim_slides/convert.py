@@ -88,6 +88,10 @@ def get_duration_ms(file: Path) -> float:
 
         return float(1000 * video.duration * video.time_base)
 
+def is_image_file(file_path: Path) -> bool:
+    """Check if the file is an image based on its extension."""
+    image_extensions = {".png", ".jpg", ".jpeg", ".gif", ".bmp", ".tiff", ".webp"}
+    return file_path.suffix.lower() in image_extensions
 
 def read_image_from_video_file(file: Path, frame_index: "FrameIndex") -> Image:
     """Read a image from a video file at a given index."""
@@ -787,34 +791,49 @@ class PowerPoint(Converter):
                 ):
                     file = slide_config.file
 
-                    mime_type = mimetypes.guess_type(file)[0]
-
-                    if self.poster_frame_image is None:
-                        poster_frame_image = str(directory / f"{frame_number}.png")
-                        image = read_image_from_video_file(
-                            file, frame_index=FrameIndex.first
+                    if is_image_file(file):
+                        #Handle static image
+                        slide.shapes.add_picture(
+                            str(file),
+                            self.left,
+                            self.top,
+                            self.width * 9625,
+                            self.height * 9525,
                         )
-                        image.save(poster_frame_image)
-
-                        frame_number += 1
                     else:
-                        poster_frame_image = str(self.poster_frame_image)
+                        #handle video
+                        mime_type = mimetypes.guess_type(file)[0]
 
-                    slide = prs.slides.add_slide(layout)
-                    movie = slide.shapes.add_movie(
-                        str(file),
-                        self.left,
-                        self.top,
-                        self.width * 9525,
-                        self.height * 9525,
-                        poster_frame_image=poster_frame_image,
-                        mime_type=mime_type,
-                    )
+                        if self.poster_frame_image is None:
+                            poster_frame_image = str(directory / f"{frame_number}.png")
+                            image = read_image_from_video_file(
+                                file, frame_index=FrameIndex.first
+                            )
+                            image.save(poster_frame_image)
+
+                            frame_number += 1
+                        else:
+                            poster_frame_image = str(self.poster_frame_image)
+
+                        slide = prs.slides.add_slide(layout)
+                        movie = slide.shapes.add_movie(
+                            str(file),
+                            self.left,
+                            self.top,
+                            self.width * 9525,
+                            self.height * 9525,
+                            poster_frame_image=poster_frame_image,
+                            mime_type=mime_type,
+                        )
+
+                        if self.auto_play_media:
+                            auto_play_media(movie, loop=slide_config.loop)
+                    
+                    
                     if slide_config.notes != "":
                         slide.notes_slide.notes_text_frame.text = slide_config.notes
 
-                    if self.auto_play_media:
-                        auto_play_media(movie, loop=slide_config.loop)
+
 
             dest.parent.mkdir(parents=True, exist_ok=True)
             prs.save(dest)
