@@ -793,6 +793,8 @@ class PowerPoint(Converter):
                 ):
                     file = slide_config.file
 
+                    slide = prs.slides.add_slide(layout)
+
                     if is_image_file(file):
                         # Handle static image
                         slide.shapes.add_picture(
