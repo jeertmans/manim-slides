@@ -1,10 +1,11 @@
 import json
 import shutil
+from enum import Enum
 from functools import wraps
 from inspect import Parameter, signature
 from pathlib import Path
 from textwrap import dedent
-from typing import Any, Callable, Literal, Optional
+from typing import Any, Callable, Literal, Optional, Union
 
 import rtoml
 from pydantic import (
@@ -24,6 +25,11 @@ from .logger import logger
 
 Receiver = Callable[..., Any]
 
+class SlideType(Enum):
+    """Enumeration of slide types."""
+
+    Video = "video"
+    Image = "image"
 
 class Signal(BaseModel):  # type: ignore[misc]
     __receivers: list[Receiver] = PrivateAttr(default_factory=list)
@@ -161,8 +167,24 @@ class BaseSlideConfig(BaseModel):  # type: ignore
     notes: str = ""
     dedent_notes: bool = True
     skip_animations: bool = False
-    src: Optional[FilePath] = None
+    src: Optional[str] = None
+    static_image: Optional[str] = None
     direction: Literal["horizontal", "vertical"] = "horizontal"
+
+    @model_validator(mode="after")
+    def validate_static_image(self) -> "BaseSlideConfig":
+        """check if both 'src' and 'static_image' exist at same time or not"""
+        if self.src is not None and self.static_image is not None:
+            raise ValueError("Cannot set both 'src' and 'static_image'")
+        return self
+    
+    @property
+    def slide_type(self) -> SlideType:
+        """Determine the slide type based on configuration."""
+        if self.static_image is not None:
+            return SlideType.Image
+        return SlideType.Video
+
 
     @classmethod
     def wrapper(cls, arg_name: str) -> Callable[..., Any]:
@@ -210,7 +232,7 @@ class BaseSlideConfig(BaseModel):  # type: ignore
     def apply_dedent_notes(
         self,
     ) -> "BaseSlideConfig":
-        if self.dedent_notes:
+        if self.dedent_notes and self.notes is not None:
             self.notes = dedent(self.notes)
 
         return self
@@ -260,7 +282,7 @@ class PreSlideConfig(BaseSlideConfig):
             raise ValueError(
                 "A slide cannot have 'src=...' and more than zero animations at the same time."
             )
-        elif self.src is None and self.start_animation == self.end_animation:
+        elif self.src is None and self.static_image is None and self.start_animation == self.end_animation:
             raise ValueError(
                 "You have to play at least one animation (e.g., 'self.wait()') "
                 "before pausing. If you want to start paused, use the appropriate "
