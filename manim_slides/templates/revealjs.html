@@ -25,7 +25,7 @@
             {% if one_file %}
               {% set file = file_to_data_uri(slide_config.file) %}
             {% else %}
-              {% set file = assets_dir / (prefix(outer_loop.index0) + slide_config.file.name) %}
+              {% set file = assets_dir+ '/' +(prefix(outer_loop.index0) + slide_config.file.name) %}
             {% endif %}
             {% if slide_config.direction == "vertical" %}
               {% if not ns.open_stack %}
@@ -41,7 +41,7 @@
         <section
           data-background-size={{ background_size }}
           data-background-color="{{ presentation_config.background_color }}"
-          {% if slide_config.static_image %}
+          {% if slide_config.type == SlideType.Image %}
           data-background-image="{{file}}"
           {% else %}
           data-background-video="{{ file }}"
@@ -290,7 +290,7 @@
         },
         () => {
           var currentVideos = Reveal.getCurrentSlide().slideBackgroundContentElement.getElementsByTagName("video");
-          if (currentVideos.length > 0) {
+          if (currentVideos.length > 0 && currentImage != null) {
             if (currentVideos[0].paused == true) currentVideos[0].play();
             else currentVideos[0].pause();
           } else {

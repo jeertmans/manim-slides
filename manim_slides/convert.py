@@ -39,7 +39,7 @@ from tqdm import tqdm
 
 from . import templates
 from .commons import folder_path_option, verbosity_option
-from .config import PresentationConfig
+from .config import PresentationConfig,SlideType
 from .logger import logger
 from .present import get_scenes_presentation_config
 
@@ -607,7 +607,7 @@ class RevealJS(Converter):
             options = self.model_dump()
 
             if assets_dir is not None:
-                options["assets_dir"] = assets_dir
+                options["assets_dir"] = assets_dir.as_posix()
 
             has_notes = any(
                 slide_config.notes != ""
@@ -618,6 +618,7 @@ class RevealJS(Converter):
             content = revealjs_template.render(
                 file_to_data_uri=file_to_data_uri,
                 get_duration_ms=get_duration_ms,
+                SlideType=SlideType,
                 has_notes=has_notes,
                 env=os.environ,
                 prefix=prefix if not self.one_file else None,
@@ -819,7 +820,6 @@ class PowerPoint(Converter):
                         else:
                             poster_frame_image = str(self.poster_frame_image)
 
-                        slide = prs.slides.add_slide(layout)
                         movie = slide.shapes.add_movie(
                             str(file),
                             self.left,

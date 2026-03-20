@@ -1,5 +1,6 @@
 import json
 import shutil
+import mimetypes
 from enum import Enum
 from functools import wraps
 from inspect import Parameter, signature
@@ -170,22 +171,27 @@ class BaseSlideConfig(BaseModel):  # type: ignore
     dedent_notes: bool = True
     skip_animations: bool = False
     src: Optional[str] = None
-    static_image: Optional[str] = None
+    type: SlideType = SlideType.Video
     direction: Literal["horizontal", "vertical"] = "horizontal"
 
     @model_validator(mode="after")
-    def validate_static_image(self) -> "BaseSlideConfig":
-        """check if both 'src' and 'static_image' exist at same time or not."""
-        if self.src is not None and self.static_image is not None:
-            raise ValueError("Cannot set both 'src' and 'static_image'")
+    def determine_slide_type(self) -> "BaseSlideConfig":
+        """determine the type of src."""
+        if self.src is not None:
+            guessed_typed = mimetypes.guess_type(self.src)[0]
+            if guessed_typed is None:
+                Warning.warn(f"The 'src' is guessed to be {guessed_typed}, which is currently not supported. Defaulting to video type.", stacklevel = 2)
+                self.type = SlideType.Video
+            elif guessed_typed.startswith("image"):
+                self.type = SlideType.Image
+            elif guessed_typed.startswith("video"):
+                self.type = SlideType.Video
+            else:
+                Warning.warn(f"The 'src' is guessed to be {guessed_typed}, which is currently not supported. Defaulting to video type.", stacklevel = 2)
+                self.type = SlideType.Video
+        else:
+            self.type = SlideType.Video
         return self
-
-    @property
-    def slide_type(self) -> SlideType:
-        """Determine the slide type based on configuration."""
-        if self.static_image is not None:
-            return SlideType.Image
-        return SlideType.Video
 
     @classmethod
     def wrapper(cls, arg_name: str) -> Callable[..., Any]:
@@ -285,7 +291,6 @@ class PreSlideConfig(BaseSlideConfig):
             )
         elif (
             self.src is None
-            and self.static_image is None
             and self.start_animation == self.end_animation
         ):
             raise ValueError(

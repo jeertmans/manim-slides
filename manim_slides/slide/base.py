@@ -15,7 +15,7 @@ from typing import (
 import numpy as np
 from tqdm import tqdm
 
-from ..config import BaseSlideConfig, PresentationConfig, PreSlideConfig, SlideConfig
+from ..config import BaseSlideConfig, PresentationConfig, PreSlideConfig, SlideConfig, SlideType
 from ..defaults import FOLDER_PATH
 from ..logger import logger
 from ..utils import concatenate_video_files, merge_basenames, reverse_video_file
@@ -484,7 +484,6 @@ class BaseSlide:
 
         if (
             base_slide_config.src is not None
-            or base_slide_config.static_image is not None
         ):
             self._slides.append(
                 PreSlideConfig.from_base_slide_config_and_animation_indices(
@@ -568,13 +567,11 @@ class BaseSlide:
                 continue
             if pre_slide_config.src:
                 slide_files = [pre_slide_config.src]
-            if pre_slide_config.static_image:
-                slide_files = [pre_slide_config.static_image]
             else:
                 slide_files = files[pre_slide_config.slides_slice]
 
             try:
-                if pre_slide_config.src is not None:
+                if pre_slide_config.type is SlideType.Video:
                     file = merge_basenames(slide_files)
                 else:
                     file = Path(slide_files[0])
@@ -591,7 +588,7 @@ class BaseSlide:
 
             # We only reverse video if it was not present and not a static image
             if not use_cache or not rev_file.exists():
-                if skip_reversing or pre_slide_config.static_image is not None:
+                if skip_reversing or pre_slide_config.type is SlideType.Image:
                     rev_file = dst_file
                 else:
                     reverse_video_file(
