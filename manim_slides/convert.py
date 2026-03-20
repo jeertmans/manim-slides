@@ -39,7 +39,7 @@ from tqdm import tqdm
 
 from . import templates
 from .commons import folder_path_option, verbosity_option
-from .config import PresentationConfig,SlideType
+from .config import PresentationConfig, SlideType
 from .logger import logger
 from .present import get_scenes_presentation_config
 

@@ -15,7 +15,13 @@ from typing import (
 import numpy as np
 from tqdm import tqdm
 
-from ..config import BaseSlideConfig, PresentationConfig, PreSlideConfig, SlideConfig, SlideType
+from ..config import (
+    BaseSlideConfig,
+    PresentationConfig,
+    PreSlideConfig,
+    SlideConfig,
+    SlideType,
+)
 from ..defaults import FOLDER_PATH
 from ..logger import logger
 from ..utils import concatenate_video_files, merge_basenames, reverse_video_file
@@ -482,9 +488,7 @@ class BaseSlide:
 
             self._current_slide += 1
 
-        if (
-            base_slide_config.src is not None
-        ):
+        if base_slide_config.src is not None:
             self._slides.append(
                 PreSlideConfig.from_base_slide_config_and_animation_indices(
                     base_slide_config,
