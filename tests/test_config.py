@@ -3,7 +3,7 @@ from typing import Any
 import pytest
 from pydantic import ValidationError
 
-from manim_slides.config import Key, PresentationConfig
+from manim_slides.config import Key, PresentationConfig,SlideType,BaseSlideConfig
 
 
 class TestKey:
@@ -30,3 +30,10 @@ class TestPresentationConfig:
     def test_empty_presentation_config(self) -> None:
         with pytest.raises(ValidationError):
             _ = PresentationConfig(slides=[], files=[])
+
+class TestBaseSlideConfig:
+    @pytest.mark.parametrize(("src","expected_type"), [("test.png",SlideType.Image),("test.mp4",SlideType.Video),(None,SlideType.Video)])
+    def test_determine_slide_type(self,src: Any,expected_type:Any) -> None:
+        obj = BaseSlideConfig(src = src)
+        assert obj.type == expected_type
+
