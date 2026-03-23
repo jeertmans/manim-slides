@@ -1,6 +1,6 @@
 import json
-import shutil
 import mimetypes
+import shutil
 from enum import Enum
 from functools import wraps
 from inspect import Parameter, signature
@@ -176,18 +176,24 @@ class BaseSlideConfig(BaseModel):  # type: ignore
 
     @model_validator(mode="after")
     def determine_slide_type(self) -> "BaseSlideConfig":
-        """determine the type of src."""
+        """Determine the type of src."""
         if self.src is not None:
             guessed_typed = mimetypes.guess_type(self.src)[0]
             if guessed_typed is None:
-                Warning.warn(f"The 'src' is guessed to be {guessed_typed}, which is currently not supported. Defaulting to video type.", stacklevel = 2)
+                Warning.warn(
+                    f"The 'src' is guessed to be {guessed_typed}, which is currently not supported. Defaulting to video type.",
+                    stacklevel=2,
+                )
                 self.type = SlideType.Video
             elif guessed_typed.startswith("image"):
                 self.type = SlideType.Image
             elif guessed_typed.startswith("video"):
                 self.type = SlideType.Video
             else:
-                Warning.warn(f"The 'src' is guessed to be {guessed_typed}, which is currently not supported. Defaulting to video type.", stacklevel = 2)
+                Warning.warn(
+                    f"The 'src' is guessed to be {guessed_typed}, which is currently not supported. Defaulting to video type.",
+                    stacklevel=2,
+                )
                 self.type = SlideType.Video
         else:
             self.type = SlideType.Video
@@ -289,10 +295,7 @@ class PreSlideConfig(BaseSlideConfig):
             raise ValueError(
                 "A slide cannot have 'src=...' and more than zero animations at the same time."
             )
-        elif (
-            self.src is None
-            and self.start_animation == self.end_animation
-        ):
+        elif self.src is None and self.start_animation == self.end_animation:
             raise ValueError(
                 "You have to play at least one animation (e.g., 'self.wait()') "
                 "before pausing. If you want to start paused, use the appropriate "
