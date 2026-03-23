@@ -607,7 +607,7 @@ class RevealJS(Converter):
             options = self.model_dump()
 
             if assets_dir is not None:
-                options["assets_dir"] = assets_dir.as_posix()
+                options["assets_dir"] = assets_dir
 
             has_notes = any(
                 slide_config.notes != ""
@@ -618,7 +618,6 @@ class RevealJS(Converter):
             content = revealjs_template.render(
                 file_to_data_uri=file_to_data_uri,
                 get_duration_ms=get_duration_ms,
-                assets_dir=Path(assets_dir),
                 SlideType=SlideType,
                 has_notes=has_notes,
                 env=os.environ,
