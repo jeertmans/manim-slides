@@ -35,5 +35,5 @@ class TestBaseSlideConfig:
     @pytest.mark.parametrize(("src","expected_type"), [("test.png",SlideType.Image),("test.mp4",SlideType.Video),(None,SlideType.Video)])
     def test_determine_slide_type(self,src: Any,expected_type:Any) -> None:
         obj = BaseSlideConfig(src = src)
-        assert obj.type == expected_type
-
+        if obj.type != expected_type :
+            raise AssertionError(f"Expected {expected_type}, got {obj.type}")

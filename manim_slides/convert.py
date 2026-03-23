@@ -567,7 +567,7 @@ class RevealJS(Converter):
         assets_dir = Path(
             self.assets_dir.format(dirname=dirname, basename=basename, ext=ext)
         )
-        full_assets_dir = dirname / assets_dir
+        full_assets_dir = Path(dirname) / assets_dir
 
         if not self.one_file or self.offline:
             logger.debug(f"Assets will be saved to: {full_assets_dir}")
