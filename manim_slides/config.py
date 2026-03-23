@@ -181,7 +181,7 @@ class BaseSlideConfig(BaseModel):  # type: ignore
         if self.src is not None:
             guessed_typed = mimetypes.guess_type(self.src)[0]
             if guessed_typed is None:
-                Warnings.warn(
+                warnings.warn(
                     f"The 'src' is guessed to be {guessed_typed}, which is currently not supported. Defaulting to video type.",
                     stacklevel=2,
                 )
@@ -191,7 +191,7 @@ class BaseSlideConfig(BaseModel):  # type: ignore
             elif guessed_typed.startswith("video"):
                 self.type = SlideType.Video
             else:
-                Warnings.warn(
+                warnings.warn(
                     f"The 'src' is guessed to be {guessed_typed}, which is currently not supported. Defaulting to video type.",
                     stacklevel=2,
                 )
