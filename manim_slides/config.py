@@ -1,6 +1,7 @@
 import json
 import mimetypes
 import shutil
+import warnings
 from enum import Enum
 from functools import wraps
 from inspect import Parameter, signature
@@ -170,7 +171,7 @@ class BaseSlideConfig(BaseModel):  # type: ignore
     notes: str = ""
     dedent_notes: bool = True
     skip_animations: bool = False
-    src: Optional[Union[str| Path]] = None
+    src: Optional[Union[str, Path]] = None
     type: SlideType = SlideType.Video
     direction: Literal["horizontal", "vertical"] = "horizontal"
 
