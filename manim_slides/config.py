@@ -170,7 +170,7 @@ class BaseSlideConfig(BaseModel):  # type: ignore
     notes: str = ""
     dedent_notes: bool = True
     skip_animations: bool = False
-    src: Optional[str| Path] = None
+    src: Optional[str | Path] = None
     type: SlideType = SlideType.Video
     direction: Literal["horizontal", "vertical"] = "horizontal"
 

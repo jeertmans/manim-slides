@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import Optional
 
 from qtpy.QtCore import Qt, QTimer, QUrl, Signal, Slot
-from qtpy.QtGui import QCloseEvent, QIcon, QKeyEvent, QScreen, QPixmap
+from qtpy.QtGui import QCloseEvent, QIcon, QKeyEvent, QPixmap, QScreen
 from qtpy.QtMultimedia import QAudioOutput, QMediaPlayer, QVideoFrame
 from qtpy.QtMultimediaWidgets import QVideoWidget
 from qtpy.QtWidgets import (
@@ -14,7 +14,7 @@ from qtpy.QtWidgets import (
     QWidget,
 )
 
-from ..config import Config, PresentationConfig, SlideConfig ,SlideType
+from ..config import Config, PresentationConfig, SlideConfig, SlideType
 from ..logger import logger
 from ..resources import *  # noqa: F403
 
@@ -44,7 +44,7 @@ class Info(QWidget):  # type: ignore[misc]
         current_container = QWidget()
         current_container.setFixedSize(720, 480)
         current_layout = QVBoxLayout(current_container)
-        current_layout.setContentsMargins(0,0,0,0)
+        current_layout.setContentsMargins(0, 0, 0, 0)
 
         left_layout = QVBoxLayout()
         left_layout.addWidget(
@@ -64,7 +64,6 @@ class Info(QWidget):  # type: ignore[misc]
         current_layout.addWidget(self.main_image_label)
 
         left_layout.addWidget(current_container)
-        
 
         # Current slide information
 
@@ -119,7 +118,7 @@ class Info(QWidget):  # type: ignore[misc]
         preview_container = QWidget()
         preview_container.setFixedSize(360, 240)
         perview_layout = QVBoxLayout(preview_container)
-        perview_layout.setContentsMargins(0,0,0,0)
+        perview_layout.setContentsMargins(0, 0, 0, 0)
 
         right_layout = QVBoxLayout()
         right_layout.addWidget(
@@ -253,11 +252,11 @@ class Player(QMainWindow):  # type: ignore[misc]
         self.video_widget = QVideoWidget()
         self.video_sink = self.video_widget.videoSink()
         self.video_widget.setAspectRatioMode(aspect_ratio_mode)
-        #self.setCentralWidget(self.video_widget)
+        # self.setCentralWidget(self.video_widget)
 
         container = QWidget()
         container_layout = QVBoxLayout(container)
-        container_layout.setContentsMargins(0,0,0,0)
+        container_layout.setContentsMargins(0, 0, 0, 0)
 
         container_layout.addWidget(self.video_widget)
 
@@ -439,7 +438,8 @@ class Player(QMainWindow):  # type: ignore[misc]
 
             if self.playing_reversed_slide:
                 self.media_player.setPlaybackRate(
-                    self.current_slide_config.reversed_playback_rate * self.playback_rate
+                    self.current_slide_config.reversed_playback_rate
+                    * self.playback_rate
                 )
             else:
                 self.media_player.setPlaybackRate(
@@ -460,7 +460,6 @@ class Player(QMainWindow):  # type: ignore[misc]
             self.video_widget.hide()
             self.info.main_image_label.show()
             self.info.main_video_widget.hide()
-
 
     def load_current_slide(self) -> None:
         slide_config = self.current_slide_config
@@ -541,7 +540,6 @@ class Player(QMainWindow):  # type: ignore[misc]
                 self.info.next_image_label.show()
                 self.info.next_media_player.stop()
                 self.info.next_image_label.setPixmap(QPixmap(url.toLocalFile()))
-
 
     def show(self, screens: list[QScreen]) -> None:
         """Screens is necessary to prevent the info window from being shown on the same screen as the main window (especially in full screen mode)."""
