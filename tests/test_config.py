@@ -43,6 +43,5 @@ class TestBaseSlideConfig:
     )
     def test_determine_slide_type(self, src: Any, expected_type: Any) -> None:
         obj = BaseSlideConfig(src=src)
-        if obj.type != expected_type :
+        if obj.type != expected_type:
             raise AssertionError(f"Expected {expected_type}, got {obj.type}")
-
