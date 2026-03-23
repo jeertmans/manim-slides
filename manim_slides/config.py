@@ -182,6 +182,7 @@ class BaseSlideConfig(BaseModel):  # type: ignore
             if guessed_typed is None:
                 warnings.warn(
                     f"The 'src' is guessed to be {guessed_typed}, which is currently not supported. Defaulting to video type.",
+                    DeprecationWarning,
                     stacklevel=2,
                 )
                 self.type = SlideType.Video
@@ -192,6 +193,7 @@ class BaseSlideConfig(BaseModel):  # type: ignore
             else:
                 warnings.warn(
                     f"The 'src' is guessed to be {guessed_typed}, which is currently not supported. Defaulting to video type.",
+                    DeprecationWarning,
                     stacklevel=2,
                 )
                 self.type = SlideType.Video
