@@ -6,8 +6,7 @@ from .__version__ import __version__
 
 if TYPE_CHECKING:
     from .slide import Slide, ThreeDSlide
-    from .ipython.ipython_magic import ManimSlidesMagic
-
+    
 
 class Module(ModuleType):
     def __getattr__(self, name: str) -> Any:
