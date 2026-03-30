@@ -266,6 +266,55 @@ class ManimSlidesMagic(Magics):  # type: ignore
 
             display(result)
 
+    @needs_local_scope
+    @line_cell_magic
+    def frame(  # noqa: C901
+        self,
+        line: str,
+        cell: str | None = None,
+        local_ns: dict[str, Any] | None = None,
+    ) -> None:
+        """Short alias for manim_slides. It looks for a subclass of Slide or ThreeDSlide in
+        the cell and renders it. Usage is the same as for manim_slides, except that the scene
+        name is not passed as an argument, but instead inferred from the cell content. If no
+        subclass of Slide or ThreeDSlide is found, the cell content will be wrapped in a Slide
+        subclass and rendered.
+        
+        Moreover, it adds some default arguments that are common in a Jupyter environment."""
+        split_args = line.split("--manim-slides", 2)
+        manim_args = split_args[0].split()
+
+        if len(split_args) == 2:
+            manim_slides_args = split_args[1].split()
+        else:
+            manim_slides_args = []
+
+        manim_args = self.add_default_args(manim_args)
+
+        ## Looking for a subclass of Slide or ThreeDSlide in the cell content
+        if cell is not None:
+            slide_classes = _find_slide_class_in_cell(cell, local_ns)
+            if not slide_classes:
+                # Generate a class name
+                class_name = "FrameSlide"
+                
+                # Indent all lines by 8 spaces (2 levels)
+                indented_lines = [
+                    "        " + line if line.strip() else line
+                    for line in cell.split("\n")
+                ]
+                indented_cell = "\n".join(indented_lines)
+                
+                # Create the wrapped class
+                cell = f"class {class_name}(Slide):\n    def construct(self):\n{indented_cell}"
+                
+                # Add the class name to arguments
+                manim_args.append(class_name)
+            else:
+                manim_args.append(slide_classes[0]) # Take only first candidate
+
+        self.manim_slides(" ".join(manim_args) + " --manim-slides " + " ".join(manim_slides_args), cell, local_ns)
+
     def add_additional_args(self, args: list[str]) -> list[str]:
         additional_args = ["--jupyter"]
         # Use webm to support transparency
@@ -273,6 +322,44 @@ class ManimSlidesMagic(Magics):  # type: ignore
             additional_args += ["--format", "webm"]
         return additional_args + args[:-1] + [""] + [args[-1]]
 
+    def add_default_args(self, manim_args: list[str]) -> list[str]:
+        default_manim_args = [
+            ["-v", "WARNING"],
+            ["--progress_bar", "None"]
+        ]
+
+        additional_args = []
+        for arg, value in default_manim_args:
+            if arg not in manim_args:
+                additional_args += [arg, value]
+        
+        return additional_args + manim_args
 
 def _generate_file_name() -> str:
     return config["scene_names"][0] + "@" + datetime.now().strftime("%Y-%m-%d@%H-%M-%S")  # type: ignore
+
+def _find_slide_class_in_cell(cell_source, local_ns) -> list[str]:
+    import ast
+    from ..slide import Slide, ThreeDSlide
+
+    def get_base_class(base, local_ns):
+        if isinstance(base, ast.Name):
+            return local_ns.get(base.id)
+        elif isinstance(base, ast.Attribute):
+            if isinstance(base.value, ast.Name):
+                obj = local_ns.get(base.value.id)
+                if obj is not None:
+                    return getattr(obj, base.attr, None)
+        return None
+
+    tree = ast.parse(cell_source)
+    candidates = []
+    for node in tree.body:
+        if isinstance(node, ast.ClassDef):
+            for base in node.bases:
+                base_cls = get_base_class(base, local_ns)
+                if base_cls is not None and isinstance(base_cls, type):
+                    if issubclass(base_cls, Slide) or issubclass(base_cls, ThreeDSlide):
+                        candidates.append(node.name)
+                        break
+    return candidates
