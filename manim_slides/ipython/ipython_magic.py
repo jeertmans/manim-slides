@@ -306,7 +306,9 @@ class ManimSlidesMagic(Magics):  # type: ignore
                 indented_cell = "\n".join(indented_lines)
                 
                 # Create the wrapped class
-                cell = f"class {class_name}(Slide):\n    def construct(self):\n{indented_cell}"
+                cell = f"class {class_name}(Slide):\n" \
+                        "    skip_reversing = True\n" \
+                       f"    def construct(self):\n{indented_cell}" 
                 
                 # Add the class name to arguments
                 manim_args.append(class_name)
