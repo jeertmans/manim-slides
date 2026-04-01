@@ -4,12 +4,10 @@ import shutil
 import subprocess
 import tempfile
 from collections.abc import Iterator
-from multiprocessing import Pool
 from pathlib import Path
 from typing import Any, Optional
 
 import av
-from tqdm import tqdm
 
 from .logger import logger
 
@@ -44,7 +42,9 @@ def concatenate_video_files(files: list[Path], dest: Path) -> None:
         return
 
     # Use ffmpeg concat demuxer - more robust than PyAV
-    with tempfile.NamedTemporaryFile(mode="w", suffix=".txt", delete=False, encoding="utf-8") as f:
+    with tempfile.NamedTemporaryFile(
+        mode="w", suffix=".txt", delete=False, encoding="utf-8"
+    ) as f:
         for file in filtered_files:
             # Escape single quotes in filename for ffmpeg
             escaped = str(file).replace("'", "'\\''")
@@ -55,22 +55,29 @@ def concatenate_video_files(files: list[Path], dest: Path) -> None:
         cmd = [
             "ffmpeg",
             "-y",  # Overwrite output
-            "-f", "concat",
-            "-safe", "0",
-            "-i", concat_file,
-            "-c", "copy",  # Stream copy (no re-encoding)
-            "-movflags", "+faststart",
-            str(dest)
+            "-f",
+            "concat",
+            "-safe",
+            "0",
+            "-i",
+            concat_file,
+            "-c",
+            "copy",  # Stream copy (no re-encoding)
+            "-movflags",
+            "+faststart",
+            str(dest),
         ]
-        
+
         logger.debug(f"Running: {' '.join(cmd)}")
         result = subprocess.run(cmd, capture_output=True, text=True, check=True)
-        
+
         if result.returncode == 0:
-            logger.info(f"Successfully concatenated {len(filtered_files)} files to {dest}")
+            logger.info(
+                f"Successfully concatenated {len(filtered_files)} files to {dest}"
+            )
         else:
             raise RuntimeError(f"ffmpeg failed: {result.stderr}")
-            
+
     except subprocess.CalledProcessError as e:
         logger.error(f"ffmpeg concat failed: {e.stderr}")
         # Fallback: try with re-encoding
@@ -78,16 +85,22 @@ def concatenate_video_files(files: list[Path], dest: Path) -> None:
         cmd = [
             "ffmpeg",
             "-y",
-            "-f", "concat",
-            "-safe", "0", 
-            "-i", concat_file,
-            "-c:v", "libx264",
-            "-c:a", "aac",
-            "-movflags", "+faststart",
-            str(dest)
+            "-f",
+            "concat",
+            "-safe",
+            "0",
+            "-i",
+            concat_file,
+            "-c:v",
+            "libx264",
+            "-c:a",
+            "aac",
+            "-movflags",
+            "+faststart",
+            str(dest),
         ]
         subprocess.run(cmd, capture_output=True, text=True, check=True)
-        
+
     finally:
         os.unlink(concat_file)
 
@@ -125,12 +138,17 @@ def reverse_video_file_in_one_chunk(src_and_dest: tuple[Path, Path]) -> None:
     cmd = [
         "ffmpeg",
         "-y",
-        "-i", str(src),
-        "-vf", "reverse",
-        "-af", "areverse",
-        "-c:v", "libx264",
-        "-c:a", "aac",
-        str(dest)
+        "-i",
+        str(src),
+        "-vf",
+        "reverse",
+        "-af",
+        "areverse",
+        "-c:v",
+        "libx264",
+        "-c:a",
+        "aac",
+        str(dest),
     ]
     subprocess.run(cmd, capture_output=True, check=True)
 
@@ -147,11 +165,16 @@ def reverse_video_file(
     cmd = [
         "ffmpeg",
         "-y",
-        "-i", str(src),
-        "-vf", "reverse",
-        "-af", "areverse", 
-        "-c:v", "libx264",
-        "-c:a", "aac",
-        str(dest)
+        "-i",
+        str(src),
+        "-vf",
+        "reverse",
+        "-af",
+        "areverse",
+        "-c:v",
+        "libx264",
+        "-c:a",
+        "aac",
+        str(dest),
     ]
     subprocess.run(cmd, capture_output=True, check=True)

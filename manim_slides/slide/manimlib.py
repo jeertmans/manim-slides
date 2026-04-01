@@ -15,17 +15,17 @@ from .base import BaseSlide  # noqa: E402
 class Slide(BaseSlide, Scene):  # type: ignore[misc]
     """
     Slide class for ManimGL (3b1b/manim).
-    
+
     KEY FIX: ManimGL doesn't call begin_animation()/end_animation() like ManimCE.
     Instead, it uses pre_play()/post_play(). We override these to properly
     subdivide output at slide boundaries.
     """
-    
+
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         kwargs.setdefault("file_writer_config", {}).update(
             subdivide_output=True,
         )
-        
+
         super().__init__(*args, **kwargs)
         # Track when we're inside an animation for proper file subdivision
         self._in_animation = False
@@ -80,13 +80,13 @@ class Slide(BaseSlide, Scene):  # type: ignore[misc]
             if not self._in_animation:
                 self.file_writer.begin_animation()
                 self._in_animation = True
-        
+
         super().pre_play()
 
     def post_play(self) -> None:
         """Called after each play() — close the partial movie file."""
         super().post_play()
-        
+
         # ManimGL doesn't call end_animation(), so we do it here
         if self.file_writer.subdivide_output and self.file_writer.write_to_movie:
             if self._in_animation:
@@ -98,11 +98,11 @@ class Slide(BaseSlide, Scene):  # type: ignore[misc]
         duration: float = 1.0,
         stop_condition: Optional[Any] = None,
         note: Optional[str] = None,
-        ignore_presenter_mode: bool = False
+        ignore_presenter_mode: bool = False,
     ) -> None:
         """
         Override wait() to treat it as an animation for slide purposes.
-        
+
         ManimGL's wait() doesn't create animation files, which breaks slide
         boundaries. We create a minimal animation to ensure proper subdivision.
         """
@@ -110,10 +110,10 @@ class Slide(BaseSlide, Scene):  # type: ignore[misc]
         if self.file_writer.subdivide_output and self._in_animation:
             self.file_writer.end_animation()
             self._in_animation = False
-        
+
         # Call original wait
         super().wait(duration, stop_condition, note, ignore_presenter_mode)
-        
+
         # Re-open for next animation if needed
         if self.file_writer.subdivide_output and self.file_writer.write_to_movie:
             self._in_animation = False  # Reset state
