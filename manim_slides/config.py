@@ -182,7 +182,7 @@ class BaseSlideConfig(BaseModel):  # type: ignore
             guessed_typed = mimetypes.guess_type(self.src)[0]
             if guessed_typed is None:
                 warnings.warn(
-                    f"The 'src' is guessed to be {guessed_typed}, which is currently not supported. Defaulting to video type.",
+                    f"The file type of 'src' ({str(self.src)!r}) could not be guessed. Defaulting to video type.",
                     DeprecationWarning,
                     stacklevel=2,
                 )
@@ -193,13 +193,11 @@ class BaseSlideConfig(BaseModel):  # type: ignore
                 self.type = SlideType.Video
             else:
                 warnings.warn(
-                    f"The 'src' is guessed to be {guessed_typed}, which is currently not supported. Defaulting to video type.",
+                    f"The file type of 'src' ({str(self.src)!r}) could not be guessed. Defaulting to video type.",
                     DeprecationWarning,
                     stacklevel=2,
                 )
                 self.type = SlideType.Video
-        else:
-            self.type = SlideType.Video
         return self
 
     @classmethod
@@ -248,7 +246,7 @@ class BaseSlideConfig(BaseModel):  # type: ignore
     def apply_dedent_notes(
         self,
     ) -> "BaseSlideConfig":
-        if self.dedent_notes and self.notes is not None:
+        if self.dedent_notes:
             self.notes = dedent(self.notes)
 
         return self

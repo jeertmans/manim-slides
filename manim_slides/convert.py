@@ -89,12 +89,6 @@ def get_duration_ms(file: Path) -> float:
         return float(1000 * video.duration * video.time_base)
 
 
-def is_image_file(file_path: Path) -> bool:
-    """Check if the file is an image based on its extension."""
-    image_extensions = {".png", ".jpg", ".jpeg", ".gif", ".bmp", ".tiff", ".webp"}
-    return file_path.suffix.lower() in image_extensions
-
-
 def read_image_from_video_file(file: Path, frame_index: "FrameIndex") -> Image:
     """Read a image from a video file at a given index."""
     with av.open(str(file)) as container:
@@ -567,7 +561,7 @@ class RevealJS(Converter):
         assets_dir = Path(
             self.assets_dir.format(dirname=dirname, basename=basename, ext=ext)
         )
-        full_assets_dir = Path(dirname) / assets_dir
+        full_assets_dir = dirname / assets_dir
 
         if not self.one_file or self.offline:
             logger.debug(f"Assets will be saved to: {full_assets_dir}")
@@ -796,7 +790,7 @@ class PowerPoint(Converter):
 
                     slide = prs.slides.add_slide(layout)
 
-                    if is_image_file(file):
+                    if slide_config.type == SlideType.Image:
                         # Handle static image
                         slide.shapes.add_picture(
                             str(file),
