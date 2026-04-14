@@ -41,7 +41,7 @@
         <section
           data-background-size={{ background_size }}
           data-background-color="{{ presentation_config.background_color }}"
-          {% if slide_config.type == SlideType.Image %}
+          {% if slide_config.type.value == "image" %}
           data-background-image="{{file}}"
           {% else %}
           data-background-video="{{ file }}"

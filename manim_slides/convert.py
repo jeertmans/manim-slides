@@ -612,7 +612,6 @@ class RevealJS(Converter):
             content = revealjs_template.render(
                 file_to_data_uri=file_to_data_uri,
                 get_duration_ms=get_duration_ms,
-                SlideType=SlideType,
                 has_notes=has_notes,
                 env=os.environ,
                 prefix=prefix if not self.one_file else None,
