@@ -18,7 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Chore
 
-- Changed default RevealJS version to 6.0.1. Update the templates accordingly, and remove the use of minified versions, as they are no longer provided by the CDN.
+- Changed default RevealJS version to 6.0.1. Updated the templates accordingly, and removed the use of minified versions, as they are no longer provided by the CDN.
   [#618](https://github.com/jeertmans/manim-slides/pull/618)
 
 ### Fixed
