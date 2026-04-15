@@ -116,7 +116,7 @@ manim-slides BasicExample
 <!-- end more-usage -->
 
 <p align="center">
-  <img alt="Example GIF" src="https://raw.githubusercontent.com/jeertmans/manim-slides/main/static/example.gif">
+<img alt="Example GIF" src="example.gif">
 </p>
 
 For detailed usage documentation, run `manim-slides --help`, or go to the
