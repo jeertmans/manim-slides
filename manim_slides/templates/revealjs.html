@@ -42,7 +42,7 @@
           data-background-size={{ background_size }}
           data-background-color="{{ presentation_config.background_color }}"
           {% if slide_config.type.value == "image" %}
-          data-background-image="{{file}}"
+          data-background-image="{{ file }}"
           {% else %}
           data-background-video="{{ file }}"
           {% if loop.index == 1 and outer_loop.index == 1 %}
@@ -290,7 +290,7 @@
         },
         () => {
           var currentVideos = Reveal.getCurrentSlide().slideBackgroundContentElement.getElementsByTagName("video");
-          if (currentVideos.length > 0 && currentImage != null) {
+          if (currentVideos.length > 0) {
             if (currentVideos[0].paused == true) currentVideos[0].play();
             else currentVideos[0].pause();
           } else {
