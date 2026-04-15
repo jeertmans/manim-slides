@@ -10,6 +10,7 @@ from qtpy.QtWidgets import (
     QHBoxLayout,
     QLabel,
     QMainWindow,
+    QStackedWidget,
     QVBoxLayout,
     QWidget,
 )
@@ -59,7 +60,8 @@ class Info(QWidget):  # type: ignore[misc]
 
         self.main_image_label = QLabel()
         self.main_image_label.setAlignment(Qt.AlignCenter)
-        self.main_image_label.setScaledContents(True)
+        self.main_image_label.setScaledContents(False)
+        self.main_image_label.setMinimumSize(720, 480)
         self.main_image_label.hide()
         current_layout.addWidget(self.main_image_label)
 
@@ -135,7 +137,8 @@ class Info(QWidget):  # type: ignore[misc]
 
         self.next_image_label = QLabel()
         self.next_image_label.setAlignment(Qt.AlignCenter)
-        self.next_image_label.setScaledContents(True)
+        self.next_image_label.setScaledContents(False)
+        self.next_image_label.setMinimumSize(360, 240)
         self.next_image_label.hide()
         perview_layout.addWidget(self.next_image_label)
 
@@ -252,20 +255,20 @@ class Player(QMainWindow):  # type: ignore[misc]
         self.video_widget = QVideoWidget()
         self.video_sink = self.video_widget.videoSink()
         self.video_widget.setAspectRatioMode(aspect_ratio_mode)
-        # self.setCentralWidget(self.video_widget)
-
-        container = QWidget()
-        container_layout = QVBoxLayout(container)
-        container_layout.setContentsMargins(0, 0, 0, 0)
-
-        container_layout.addWidget(self.video_widget)
 
         self.image_label = QLabel(self)
         self.image_label.setAlignment(Qt.AlignCenter)
-        self.image_label.setScaledContents(True)
-        self.image_label.hide()
-        container_layout.addWidget(self.image_label)
-        self.setCentralWidget(container)
+        self.image_label.setScaledContents(False)
+        w, h = self.current_presentation_config.resolution
+        self.image_label.setMinimumSize(w, h)
+
+        # Use QStackedWidget to switch between video and image without layout recalculation
+        self.media_stack = QStackedWidget()
+        self.media_stack.addWidget(self.video_widget)
+        self.media_stack.addWidget(self.image_label)
+        self.media_stack.setCurrentWidget(self.video_widget)
+
+        self.setCentralWidget(self.media_stack)
 
         self.media_player = QMediaPlayer(self)
         self.media_player.setAudioOutput(self.audio_output)
@@ -428,11 +431,13 @@ class Player(QMainWindow):  # type: ignore[misc]
 
     def load_current_media(self, start_paused: bool = False) -> None:
         url = QUrl.fromLocalFile(str(self.current_file.resolve(strict=True)))
-        if self.current_slide_config.type == SlideType.Video:
+        if self.current_slide_config.type == SlideType.Video or (
+            self.current_slide_config.type == SlideType.Image
+            and self.current_file.suffix.lower() == ".gif"
+        ):
             self.media_player.setSource(url)
 
-            self.image_label.hide()
-            self.video_widget.show()
+            self.media_stack.setCurrentWidget(self.video_widget)
             self.info.main_image_label.hide()
             self.info.main_video_widget.show()
 
@@ -451,13 +456,15 @@ class Player(QMainWindow):  # type: ignore[misc]
             else:
                 self.media_player.play()
         else:
-            self.image_label.setPixmap(QPixmap(url.toLocalFile()))
-            self.info.main_image_label.setPixmap(QPixmap(url.toLocalFile()))
+            w, _ = self.current_presentation_config.resolution
+            pixmap = QPixmap(url.toLocalFile())
+            scaled_pixmap = pixmap.scaledToWidth(w)
+            self.image_label.setPixmap(scaled_pixmap)
+            self.info.main_image_label.setPixmap(scaled_pixmap)
 
             self.media_player.stop()
 
-            self.image_label.show()
-            self.video_widget.hide()
+            self.media_stack.setCurrentWidget(self.image_label)
             self.info.main_image_label.show()
             self.info.main_video_widget.hide()
 
@@ -539,7 +546,10 @@ class Player(QMainWindow):  # type: ignore[misc]
                 self.info.next_video_widget.hide()
                 self.info.next_image_label.show()
                 self.info.next_media_player.stop()
-                self.info.next_image_label.setPixmap(QPixmap(url.toLocalFile()))
+                w, _ = self.current_presentation_config.resolution
+                pixmap = QPixmap(url.toLocalFile())
+                scaled_pixmap = pixmap.scaledToWidth(w)
+                self.info.next_image_label.setPixmap(scaled_pixmap)
 
     def show(self, screens: list[QScreen]) -> None:
         """Screens is necessary to prevent the info window from being shown on the same screen as the main window (especially in full screen mode)."""

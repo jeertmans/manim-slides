@@ -1,7 +1,6 @@
 import json
 import mimetypes
 import shutil
-import warnings
 from enum import Enum
 from functools import wraps
 from inspect import Parameter, signature
@@ -181,10 +180,8 @@ class BaseSlideConfig(BaseModel):  # type: ignore
         if self.src is not None:
             guessed_typed = mimetypes.guess_type(self.src)[0]
             if guessed_typed is None:
-                warnings.warn(
+                logger.warning(
                     f"The file type of 'src' ({str(self.src)!r}) could not be guessed. Defaulting to video type.",
-                    DeprecationWarning,
-                    stacklevel=2,
                 )
                 self.type = SlideType.Video
             elif guessed_typed.startswith("image"):
@@ -192,10 +189,8 @@ class BaseSlideConfig(BaseModel):  # type: ignore
             elif guessed_typed.startswith("video"):
                 self.type = SlideType.Video
             else:
-                warnings.warn(
-                    f"The file type of 'src' ({str(self.src)!r}) could not be guessed. Defaulting to video type.",
-                    DeprecationWarning,
-                    stacklevel=2,
+                logger.warning(
+                    f"The file type of 'src' ({str(self.src)!r}) is guessed as {guessed_typed!r}, which is not recognized or currently supported. Defaulting to video type.",
                 )
                 self.type = SlideType.Video
         return self
