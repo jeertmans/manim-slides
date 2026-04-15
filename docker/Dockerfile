@@ -1,3 +1,4 @@
+# Modified from https://github.com/ManimCommunity/manim/blob/c45724989df900e6026425f524022a8d54625ef2/docker/Dockerfile
 FROM python:3.14-slim AS builder
 
 RUN apt-get update -qq \
@@ -28,7 +29,7 @@ RUN wget -O /tmp/install-tl-unx.tar.gz http://mirror.ctan.org/systems/texlive/tl
         setspace standalone tipa wasy wasysym xcolor xetex xkeyval \
     && rm -rf /tmp/install-tl /tmp/install-tl-unx.tar.gz
 
-# Install manim into an isolated virtualenv
+# Install manim and manim-slides into an isolated virtualenv
 ENV VIRTUAL_ENV=/opt/venv
 RUN python -m venv $VIRTUAL_ENV
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
