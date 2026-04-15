@@ -168,10 +168,10 @@ class TestConverter:
         assets_dir = Path(tmp_path / "slides_assets")
         assert assets_dir.is_dir()
         for file in [
-            "black.min.css",
-            "reveal.min.css",
-            "reveal.min.js",
-            "zenburn.min.css",
+            "black.css",
+            "reveal.css",
+            "reveal.js",
+            "zenburn.css",
         ]:
             assert (assets_dir / file).exists()
 
