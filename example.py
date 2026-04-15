@@ -320,11 +320,11 @@ class SlideTypesExample(Slide):
         self.play(FadeIn(title))
 
         self.next_slide(
-            src=(Path(__file__).parent / "static" / "logo.png").absolute(),
+            src=Path(__file__).parent / "static" / "logo.png",
             notes="Static image example",
         )
 
         self.next_slide(
-            src=(Path(__file__).parent / "static" / "example.gif").absolute(),
+            src=Path(__file__).parent / "static" / "example.gif",
             notes="GIF image example",
         )
