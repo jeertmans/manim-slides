@@ -15,7 +15,13 @@ from typing import (
 import numpy as np
 from tqdm import tqdm
 
-from ..config import BaseSlideConfig, PresentationConfig, PreSlideConfig, SlideConfig
+from ..config import (
+    BaseSlideConfig,
+    PresentationConfig,
+    PreSlideConfig,
+    SlideConfig,
+    SlideType,
+)
 from ..defaults import FOLDER_PATH
 from ..logger import logger
 from ..utils import concatenate_video_files, merge_basenames, reverse_video_file
@@ -569,7 +575,10 @@ class BaseSlide:
                 slide_files = files[pre_slide_config.slides_slice]
 
             try:
-                file = merge_basenames(slide_files)
+                if pre_slide_config.type == SlideType.Video:
+                    file = merge_basenames(slide_files)
+                else:
+                    file = Path(slide_files[0])
             except ValueError as e:
                 raise ValueError(
                     f"Failed to merge basenames of files for slide: {pre_slide_config!r}"
@@ -581,9 +590,9 @@ class BaseSlide:
             if not use_cache or not dst_file.exists():
                 concatenate_video_files(slide_files, dst_file)
 
-            # We only reverse video if it was not present
+            # We only reverse video if it was not present and not a static image
             if not use_cache or not rev_file.exists():
-                if skip_reversing:
+                if skip_reversing or pre_slide_config.type == SlideType.Image:
                     rev_file = dst_file
                 else:
                     reverse_video_file(

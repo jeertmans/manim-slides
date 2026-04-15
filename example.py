@@ -1,6 +1,8 @@
 # flake8: noqa: F403, F405
 # type: ignore
 
+from pathlib import Path
+
 from manim_slides import Slide, ThreeDSlide
 from manim_slides.slide import MANIM, MANIMGL
 
@@ -309,3 +311,20 @@ else:
             self.play(dot.animate.move_to(ORIGIN))
 
     # [manimgl-3d]
+
+
+class SlideTypesExample(Slide):
+    def construct(self):
+        title = Text("Basic slide types")
+
+        self.play(FadeIn(title))
+
+        self.next_slide(
+            src=Path(__file__).parent / "static" / "logo.png",
+            notes="Static image example",
+        )
+
+        self.next_slide(
+            src=Path(__file__).parent / "static" / "example.gif",
+            notes="GIF image example",
+        )

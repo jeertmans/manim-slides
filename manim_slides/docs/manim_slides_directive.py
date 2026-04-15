@@ -379,8 +379,10 @@ class ManimSlidesDirective(Directive):
         }
 
         if file := arguments[0][0]:
-            user_code = file.absolute().read_text().splitlines()
+            source_file = file.absolute()
+            user_code = source_file.read_text().splitlines()
         else:
+            source_file = source_file_name.absolute()
             user_code = self.content
 
         if user_code[0].startswith(">>> "):  # check whether block comes from doctest
@@ -396,7 +398,8 @@ class ManimSlidesDirective(Directive):
         try:
             with tempconfig(example_config):
                 print(f"Rendering {clsname}...")  # noqa: T201
-                run_time = timeit(lambda: exec("\n".join(code), globals()), number=1)
+                global_ns = {"__file__": str(source_file)}
+                run_time = timeit(lambda: exec("\n".join(code), global_ns), number=1)
                 video_dir = config.get_dir("video_dir")
         except Exception as e:
             raise RuntimeError(f"Error while rendering example {clsname}") from e

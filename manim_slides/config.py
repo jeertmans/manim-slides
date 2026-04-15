@@ -1,5 +1,7 @@
 import json
+import mimetypes
 import shutil
+from enum import Enum
 from functools import wraps
 from inspect import Parameter, signature
 from pathlib import Path
@@ -23,6 +25,13 @@ from pydantic_extra_types.color import Color
 from .logger import logger
 
 Receiver = Callable[..., Any]
+
+
+class SlideType(Enum):
+    """Enumeration of slide types."""
+
+    Video = "video"
+    Image = "image"
 
 
 class Signal(BaseModel):  # type: ignore[misc]
@@ -162,7 +171,29 @@ class BaseSlideConfig(BaseModel):  # type: ignore
     dedent_notes: bool = True
     skip_animations: bool = False
     src: Optional[FilePath] = None
+    type: SlideType = SlideType.Video
     direction: Literal["horizontal", "vertical"] = "horizontal"
+
+    @model_validator(mode="after")
+    def determine_slide_type(self) -> "BaseSlideConfig":
+        """Determine the type of src."""
+        if self.src is not None:
+            guessed_typed = mimetypes.guess_type(self.src)[0]
+            if guessed_typed is None:
+                logger.warning(
+                    f"The file type of 'src' ({str(self.src)!r}) could not be guessed. Defaulting to video type.",
+                )
+                self.type = SlideType.Video
+            elif guessed_typed.startswith("image"):
+                self.type = SlideType.Image
+            elif guessed_typed.startswith("video"):
+                self.type = SlideType.Video
+            else:
+                logger.warning(
+                    f"The file type of 'src' ({str(self.src)!r}) is guessed as {guessed_typed!r}, which is not recognized or currently supported. Defaulting to video type.",
+                )
+                self.type = SlideType.Video
+        return self
 
     @classmethod
     def wrapper(cls, arg_name: str) -> Callable[..., Any]:

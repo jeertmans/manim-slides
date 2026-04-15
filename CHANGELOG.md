@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Added vertical slide implementation to html exports of presentations. [@DaughterOfSpring](https://github.com/daughterOfSpring) [#602](https://github.com/jeertmans/manim-slides/pull/602)
+- Added support for static image in slides with `src` option.
+  [@Low-Zi-Hong](https://github.com/Low-Zi-Hong)[#607](https://github.com/jeertmans/manim-slides/pull/607)
 
 ### Fixed
 

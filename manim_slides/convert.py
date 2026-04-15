@@ -39,7 +39,7 @@ from tqdm import tqdm
 
 from . import templates
 from .commons import folder_path_option, verbosity_option
-from .config import PresentationConfig
+from .config import PresentationConfig, SlideType
 from .logger import logger
 from .present import get_scenes_presentation_config
 
@@ -787,34 +787,47 @@ class PowerPoint(Converter):
                 ):
                     file = slide_config.file
 
-                    mime_type = mimetypes.guess_type(file)[0]
-
-                    if self.poster_frame_image is None:
-                        poster_frame_image = str(directory / f"{frame_number}.png")
-                        image = read_image_from_video_file(
-                            file, frame_index=FrameIndex.first
-                        )
-                        image.save(poster_frame_image)
-
-                        frame_number += 1
-                    else:
-                        poster_frame_image = str(self.poster_frame_image)
-
                     slide = prs.slides.add_slide(layout)
-                    movie = slide.shapes.add_movie(
-                        str(file),
-                        self.left,
-                        self.top,
-                        self.width * 9525,
-                        self.height * 9525,
-                        poster_frame_image=poster_frame_image,
-                        mime_type=mime_type,
-                    )
+
+                    if slide_config.type == SlideType.Image:
+                        # Handle static image
+                        slide.shapes.add_picture(
+                            str(file),
+                            self.left,
+                            self.top,
+                            self.width * 9625,
+                            self.height * 9525,
+                        )
+                    else:
+                        # handle video
+                        mime_type = mimetypes.guess_type(file)[0]
+
+                        if self.poster_frame_image is None:
+                            poster_frame_image = str(directory / f"{frame_number}.png")
+                            image = read_image_from_video_file(
+                                file, frame_index=FrameIndex.first
+                            )
+                            image.save(poster_frame_image)
+
+                            frame_number += 1
+                        else:
+                            poster_frame_image = str(self.poster_frame_image)
+
+                        movie = slide.shapes.add_movie(
+                            str(file),
+                            self.left,
+                            self.top,
+                            self.width * 9525,
+                            self.height * 9525,
+                            poster_frame_image=poster_frame_image,
+                            mime_type=mime_type,
+                        )
+
+                        if self.auto_play_media:
+                            auto_play_media(movie, loop=slide_config.loop)
+
                     if slide_config.notes != "":
                         slide.notes_slide.notes_text_frame.text = slide_config.notes
-
-                    if self.auto_play_media:
-                        auto_play_media(movie, loop=slide_config.loop)
 
             dest.parent.mkdir(parents=True, exist_ok=True)
             prs.save(dest)
