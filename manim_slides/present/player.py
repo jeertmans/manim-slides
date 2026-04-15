@@ -162,7 +162,7 @@ class Player(QMainWindow):  # type: ignore[misc]
     presentation_changed: Signal = Signal()
     slide_changed: Signal = Signal()
 
-    def __init__(  # noqa: C901
+    def __init__(
         self,
         config: Config,
         presentation_configs: list[PresentationConfig],
