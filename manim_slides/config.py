@@ -6,7 +6,7 @@ from functools import wraps
 from inspect import Parameter, signature
 from pathlib import Path
 from textwrap import dedent
-from typing import Any, Callable, Literal, Optional, Union
+from typing import Any, Callable, Literal, Optional
 
 import rtoml
 from pydantic import (
@@ -170,7 +170,7 @@ class BaseSlideConfig(BaseModel):  # type: ignore
     notes: str = ""
     dedent_notes: bool = True
     skip_animations: bool = False
-    src: Optional[Union[str, Path]] = None
+    src: Optional[FilePath] = None
     type: SlideType = SlideType.Video
     direction: Literal["horizontal", "vertical"] = "horizontal"
 

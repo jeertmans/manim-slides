@@ -575,7 +575,7 @@ class BaseSlide:
                 slide_files = files[pre_slide_config.slides_slice]
 
             try:
-                if pre_slide_config.type is SlideType.Video:
+                if pre_slide_config.type == SlideType.Video:
                     file = merge_basenames(slide_files)
                 else:
                     file = Path(slide_files[0])
@@ -592,7 +592,7 @@ class BaseSlide:
 
             # We only reverse video if it was not present and not a static image
             if not use_cache or not rev_file.exists():
-                if skip_reversing or pre_slide_config.type is SlideType.Image:
+                if skip_reversing or pre_slide_config.type == SlideType.Image:
                     rev_file = dst_file
                 else:
                     reverse_video_file(
