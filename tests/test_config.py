@@ -42,7 +42,9 @@ class TestBaseSlideConfig:
             (None, SlideType.Video),
         ],
     )
-    def test_determine_slide_type(self, src: Any, expected_type: Any, tmp_path: Path) -> None:
+    def test_determine_slide_type(
+        self, src: Any, expected_type: Any, tmp_path: Path
+    ) -> None:
         if src is not None:
             src = tmp_path / src
             src.touch()  # create the file
