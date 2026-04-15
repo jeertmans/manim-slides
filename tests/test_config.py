@@ -1,3 +1,4 @@
+from pathlib import Path
 from typing import Any
 
 import pytest
@@ -41,7 +42,10 @@ class TestBaseSlideConfig:
             (None, SlideType.Video),
         ],
     )
-    def test_determine_slide_type(self, src: Any, expected_type: Any) -> None:
+    def test_determine_slide_type(self, src: Any, expected_type: Any, tmp_path: Path) -> None:
+        if src is not None:
+            src = tmp_path / src
+            src.touch()  # create the file
         obj = BaseSlideConfig(src=src)
         if obj.type != expected_type:
             raise AssertionError(f"Expected {expected_type}, got {obj.type}")
