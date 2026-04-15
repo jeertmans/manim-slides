@@ -13,6 +13,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Added vertical slide implementation to html exports of presentations. [@DaughterOfSpring](https://github.com/daughterOfSpring) [#602](https://github.com/jeertmans/manim-slides/pull/602)
+- Added option to specify the CDN from which to load RevealJS, and changed the default CDN, see [hakimel/reveal.js#3894](https://github.com/hakimel/reveal.js/issues/3894) for more details.
+  [#618](https://github.com/jeertmans/manim-slides/pull/618)
+
+### Chore
+
+- Changed default RevealJS version to 6.0.1. Update the templates accordingly, and remove the use of minified versions, as they are no longer provided by the CDN.
+  [#618](https://github.com/jeertmans/manim-slides/pull/618)
 
 ### Fixed
 

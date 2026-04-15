@@ -531,9 +531,13 @@ class RevealJS(Converter):
         "black",
         description="Background color used in slides, not relevant if videos fill the whole area.",
     )
-    reveal_version: str = Field("5.2.0", description="RevealJS version.")
+    reveal_version: str = Field("6.0.1", description="RevealJS version.")
     reveal_theme: RevealTheme = Field(
         RevealTheme.black, description="RevealJS version."
+    )
+    cdn_url: str = Field(
+        "https://cdn.jsdelivr.net/npm/reveal.js@{reveal_version}",
+        description="CDN URL to load RevealJS assets from. Known CDNs include https://cdn.jsdelivr.net/npm/reveal.js@{reveal_version}, https://cdnjs.cloudflare.com/ajax/libs/reveal.js/{reveal_version}, or https://unpkg.com/reveal.js@{reveal_version}.",
     )
     title: str = Field("Manim Slides", description="Presentation title.")
     # Pydantic options
@@ -599,6 +603,10 @@ class RevealJS(Converter):
             )
 
             options = self.model_dump()
+
+            options["cdn_url"] = options["cdn_url"].format(
+                reveal_version=options["reveal_version"]
+            )
 
             if assets_dir is not None:
                 options["assets_dir"] = assets_dir

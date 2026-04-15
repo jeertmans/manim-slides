@@ -6,13 +6,11 @@
 
     <title>{{ title }}</title>
 
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/{{ reveal_version }}/reveal.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/{{ reveal_version }}/theme/{{ reveal_theme }}.min.css">
+    <link rel="stylesheet" href="{{ cdn_url }}/dist/reveal.css">
+    <link rel="stylesheet" href="{{ cdn_url }}/dist/theme/{{ reveal_theme }}.css">
 
     <!-- Theme used for syntax highlighting of code -->
-    <!-- <link rel="stylesheet" href="lib/css/zenburn.css"> -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/styles/zenburn.min.css">
-    <!-- <link rel="stylesheet" href="index.css"> -->
+    <link rel="stylesheet" href="{{ cdn_url }}/dist/plugin/highlight/zenburn.css">
   </head>
 
   <body>
@@ -49,12 +47,12 @@
       </div>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/{{ reveal_version }}/reveal.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/{{ reveal_version }}/plugin/notes/notes.min.js"></script>
+    <script src="{{ cdn_url }}/dist/reveal.js"></script>
+    <script src="{{ cdn_url }}/dist/plugin/notes.js"></script>
 
     <!-- To include plugins, see: https://revealjs.com/plugins/ -->
     {% if has_notes %}
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/{{ reveal_version }}/plugin/markdown/markdown.min.js"></script>
+    <script src="{{ cdn_url }}/dist/plugin/markdown.js"></script>
     {% endif %}
 
     <!-- <script src="index.js"></script> -->
