@@ -25,7 +25,7 @@
             {% if one_file %}
               {% set file = file_to_data_uri(slide_config.file) %}
             {% else %}
-              {% set file = assets_dir / (prefix(outer_loop.index0) + slide_config.file.name) %}
+              {% set file = assets_dir ~ '/' ~ (prefix(outer_loop.index0) + slide_config.file.name) %}
             {% endif %}
             {% if slide_config.direction == "vertical" %}
               {% if not ns.open_stack %}
@@ -41,12 +41,16 @@
         <section
           data-background-size={{ background_size }}
           data-background-color="{{ presentation_config.background_color }}"
+          {% if slide_config.type.value == "image" %}
+          data-background-image="{{ file }}"
+          {% else %}
           data-background-video="{{ file }}"
           {% if loop.index == 1 and outer_loop.index == 1 %}
           data-background-video-muted
           {% endif %}
           {% if slide_config.loop %}
           data-background-video-loop
+          {% endif %}
           {% endif %}
           {% if slide_config.auto_next %}
           data-autoslide="{{ get_duration_ms(slide_config.file) }}"
