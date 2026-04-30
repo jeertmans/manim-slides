@@ -1,8 +1,11 @@
 import sys
 from types import ModuleType
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from .__version__ import __version__
+
+if TYPE_CHECKING:
+    from .slide import Slide, ThreeDSlide
 
 
 class Module(ModuleType):
