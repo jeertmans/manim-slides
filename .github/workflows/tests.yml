@@ -99,7 +99,7 @@ jobs:
       run: uv run --python ${{ matrix.pyversion }} --frozen --group tests --no-dev pytest
 
     - name: Upload to codecov.io
-      uses: codecov/codecov-action@v5
+      uses: codecov/codecov-action@v6
       env:
         CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
       with:
