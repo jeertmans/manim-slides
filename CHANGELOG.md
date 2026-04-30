@@ -18,6 +18,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Fixed missing FFmpeg in Docker/Binder environment causing rendering failures.
   [@alwaysalearner1234](https://github.com/alwaysalearner1234) [#593](https://github.com/jeertmans/manim-slides/pull/593)
+- Fixed animation stuttering when triggering loop termination in a non-interrupting fashion (using `--next-terminates-loop` flag) mid-animation.
+  [@melyso](https://github.com/melyso) [#605](https://github.com/jeertmans/manim-slides/pull/605)
+
 
 (v5.5.4)=
 ## [v5.5.4](https://github.com/jeertmans/manim-slides/compare/v5.5.3...v5.5.4)
