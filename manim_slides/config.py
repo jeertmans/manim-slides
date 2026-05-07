@@ -100,6 +100,8 @@ class Keys(BaseModel):  # type: ignore[misc]
     FULL_SCREEN: Key = Field(
         default_factory=lambda: Key(ids=[key_id("F")], name="TOGGLE FULL SCREEN")
     )
+    JUMP: Key = Field(default_factory=lambda: Key(ids=[key_id("G")], name="JUMP TO SLIDE")) 
+
     HIDE_MOUSE: Key = Field(
         default_factory=lambda: Key(ids=[key_id("H")], name="HIDE / SHOW MOUSE")
     )
@@ -162,7 +164,7 @@ class Config(BaseModel):  # type: ignore[misc]
 
 class BaseSlideConfig(BaseModel):  # type: ignore
     """Base class for slide config."""
-
+    id: Optional[str] = None
     loop: bool = False
     auto_next: bool = False
     playback_rate: float = 1.0

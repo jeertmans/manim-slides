@@ -13,6 +13,7 @@ from qtpy.QtWidgets import (
     QStackedWidget,
     QVBoxLayout,
     QWidget,
+    QInputDialog,
 )
 
 from ..config import Config, PresentationConfig, SlideConfig, SlideType
@@ -297,6 +298,7 @@ class Player(QMainWindow):  # type: ignore[misc]
         self.config.keys.REPLAY.connect(self.replay)
         self.config.keys.FULL_SCREEN.connect(self.full_screen)
         self.config.keys.HIDE_MOUSE.connect(self.hide_mouse)
+        self.config.keys.JUMP.connect(self.jump_to_slide)
 
         self.dispatch = self.config.keys.dispatch_key_function()
 
@@ -519,7 +521,24 @@ class Player(QMainWindow):  # type: ignore[misc]
     """
     Key callbacks and slots
     """
-
+    @Slot()
+    def jump_to_slide(self) -> None:
+        # Ask the user for the target slide ID
+        target_id, ok = QInputDialog.getText(self, "Jump to Slide", "Enter Slide ID:")
+        
+        if ok and target_id:
+            # Search for the slide with the given ID
+            for p_idx, presentation in enumerate(self.presentation_configs):
+                for s_idx, slide in enumerate(presentation.slides):
+                    if slide.id == target_id:
+                        # Found the target slide, jump to it
+                        self.current_presentation_index = p_idx
+                        self.current_slide_index = s_idx
+                        self.load_current_slide()
+                        logger.info(f"Jumped to slide ID: {target_id}")
+                        return
+            
+            logger.warning(f"Slide ID '{target_id}' not found.")
     @Slot()
     def presentation_changed_callback(self) -> None:
         index = self.current_presentation_index
