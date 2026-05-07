@@ -8,12 +8,12 @@ from qtpy.QtMultimedia import QAudioOutput, QMediaPlayer, QVideoFrame
 from qtpy.QtMultimediaWidgets import QVideoWidget
 from qtpy.QtWidgets import (
     QHBoxLayout,
+    QInputDialog,
     QLabel,
     QMainWindow,
     QStackedWidget,
     QVBoxLayout,
     QWidget,
-    QInputDialog,
 )
 
 from ..config import Config, PresentationConfig, SlideConfig, SlideType
@@ -521,11 +521,12 @@ class Player(QMainWindow):  # type: ignore[misc]
     """
     Key callbacks and slots
     """
+
     @Slot()
     def jump_to_slide(self) -> None:
         # Ask the user for the target slide ID
         target_id, ok = QInputDialog.getText(self, "Jump to Slide", "Enter Slide ID:")
-        
+
         if ok and target_id:
             # Search for the slide with the given ID
             for p_idx, presentation in enumerate(self.presentation_configs):
@@ -537,8 +538,9 @@ class Player(QMainWindow):  # type: ignore[misc]
                         self.load_current_slide()
                         logger.info(f"Jumped to slide ID: {target_id}")
                         return
-            
+
             logger.warning(f"Slide ID '{target_id}' not found.")
+
     @Slot()
     def presentation_changed_callback(self) -> None:
         index = self.current_presentation_index
