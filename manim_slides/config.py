@@ -179,6 +179,13 @@ class BaseSlideConfig(BaseModel):  # type: ignore
     type: SlideType = SlideType.Video
     direction: Literal["horizontal", "vertical"] = "horizontal"
 
+    @field_validator("id")
+    @classmethod
+    def process_id(cls, v: Optional[str]) -> Optional[str]:
+        if v is not None:
+            return v.strip().lower()
+        return v
+
     @model_validator(mode="after")
     def determine_slide_type(self) -> "BaseSlideConfig":
         """Determine the type of src."""
@@ -329,6 +336,13 @@ class PresentationConfig(BaseModel):  # type: ignore[misc]
     slides: list[SlideConfig] = Field(min_length=1)
     resolution: tuple[PositiveInt, PositiveInt] = (1920, 1080)
     background_color: Color = "black"
+
+    @model_validator(mode="after")
+    def ids_are_unique(self) -> "PresentationConfig":
+        ids = [s.id for s in self.slides if s.id is not None]
+        if len(ids) != len(set(ids)):
+            logger.warning("Duplicate slide IDs found. Some IDs may be unreachable.")
+        return self
 
     @classmethod
     def from_file(cls, path: Path) -> "PresentationConfig":

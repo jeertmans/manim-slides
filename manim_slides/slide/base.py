@@ -308,6 +308,9 @@ class BaseSlide:
             Positional arguments passed to
             :meth:`Scene.next_section<manim.scene.scene.Scene.next_section>`,
             or ignored if `manimlib` API is used.
+        :param id:
+            An optional unique identifier for the slide, which can be used 
+            to jump directly to this slide during a presentation.
         :param skip_animations:
             Exclude the next slide from the output.
 

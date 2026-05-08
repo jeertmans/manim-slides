@@ -528,6 +528,7 @@ class Player(QMainWindow):  # type: ignore[misc]
         target_id, ok = QInputDialog.getText(self, "Jump to Slide", "Enter Slide ID:")
 
         if ok and target_id:
+            target_id = target_id.strip().lower()
             # Search for the slide with the given ID
             for p_idx, presentation in enumerate(self.presentation_configs):
                 for s_idx, slide in enumerate(presentation.slides):
@@ -536,10 +537,10 @@ class Player(QMainWindow):  # type: ignore[misc]
                         self.current_presentation_index = p_idx
                         self.current_slide_index = s_idx
                         self.load_current_slide()
-                        logger.info(f"Jumped to slide ID: {target_id}")
+                        logger.info(f"Jumped to slide {target_id!r}")
                         return
 
-            logger.warning(f"Slide ID '{target_id}' not found.")
+            logger.warning(f"Slide ID {target_id!r} not found.")
 
     @Slot()
     def presentation_changed_callback(self) -> None:
