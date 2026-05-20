@@ -17,7 +17,7 @@ The current template is configured to use a public Firebase project for testing 
 
 ## Example Demo
 
-If you want to see a live demo of the Firebase sync in action, you can check out this example presentation hosted on GitHub Pages: 
+If you want to see a live demo of the Firebase sync in action, you can check out this example presentation hosted on GitHub Pages:
 
 - https://liuktc.github.io/ProjectsPresentation/#presenter
 
@@ -73,7 +73,7 @@ In the Firebase Console under **Realtime Database > Rules**, configure the follo
       "$roomId": {
         // Anyone can read room state
         ".read": true,
-        
+
         // Writes are allowed if:
         // 1. User is authenticated (Anonymous Auth)
         // 2. The write operation preserves their UID as presenterId, or the existing room is already owned by this UID.

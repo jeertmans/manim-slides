@@ -30,10 +30,10 @@
       const params = new URLSearchParams(window.location.search);
       const hash = window.location.hash;
       const role = (params.get("role") === "presenter" || hash.includes("presenter")) ? "presenter" : "guest";
-      
+
       const isPresenter = role === "presenter";
       const isGuest = !isPresenter;
-      
+
       let roomId = params.get("room");
       if (isPresenter && !roomId) {
         roomId = "room-" + Math.random().toString(36).substring(2, 8);
