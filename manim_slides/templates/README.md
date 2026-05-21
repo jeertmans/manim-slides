@@ -26,7 +26,7 @@ and update the configuration variables in the template accordingly.
 ## Example Demo
 
 If you want to see a live demo of the Firebase sync in action,
-you can check out this example presentation hosted on GitHub Pages: 
+you can check out this example presentation hosted on GitHub Pages:
 
 - <https://liuktc.github.io/ProjectsPresentation/#presenter>
 
