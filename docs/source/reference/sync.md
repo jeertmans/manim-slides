@@ -15,8 +15,8 @@ manim-slides convert MainScene --one-file --use-template firebase_sync.html
 Afterward, serve the generated HTML file using GitHub Pages, Vercel, or any static hosting service.
 
 When you open the URL, you can specify your role:
-- **Presenter:** Append `?role=presenter` (or `#presenter`) to the URL (e.g., `https://your-hosting-url.com/your-slides.html?role=presenter`). 
-- **Guest:** The presenter will have a button to copy the guest URL (e.g., `https://your-hosting-url.com/your-slides.html?room=room-1234abcd`), which can be shared with others or opened on the display computer. 
+- **Presenter:** Append `?role=presenter` (or `#presenter`) to the URL (e.g., `https://your-hosting-url.com/your-slides.html?role=presenter`).
+- **Guest:** The presenter will have a button to copy the guest URL (e.g., `https://your-hosting-url.com/your-slides.html?room=room-1234abcd`), which can be shared with others or opened on the display computer.
 
 The guests will see the current slide and will update in real-time as the presenter changes slides.
 
