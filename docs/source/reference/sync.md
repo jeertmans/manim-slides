@@ -32,7 +32,7 @@ configuration variables (see [Create your own Firebase Project](#create-your-own
 If you want to see a live demo of the Firebase sync in action, you can check out
 this example presentation hosted on the project documentation:
 
-- [Live demo (presenter view)](https://eertmans.be/manim-slides/latest/_static/firebase_sync_demo.html#presenter)
+- [Live demo (presenter view)](../_static/firebase_sync_demo.html#presenter)
 :::
 
 ## Create your own Firebase Project

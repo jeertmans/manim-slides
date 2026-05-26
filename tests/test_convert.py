@@ -2,6 +2,7 @@ import shutil
 from enum import EnumMeta
 from pathlib import Path
 
+import click
 import pytest
 import requests
 from bs4 import BeautifulSoup
@@ -36,6 +37,7 @@ from manim_slides.convert import (
     TransitionSpeed,
     file_to_data_uri,
     get_duration_ms,
+    resolve_template_option,
 )
 
 
@@ -45,6 +47,22 @@ def test_get_duration_ms(video_file: Path) -> None:
 
 def test_file_to_data_uri(video_file: Path, video_data_uri_file: Path) -> None:
     assert file_to_data_uri(video_file) == video_data_uri_file.read_text().strip()
+
+
+def test_resolve_template_option_accepts_builtin_template() -> None:
+    assert resolve_template_option(None, None, "firebase_sync.html") == "firebase_sync.html"
+
+
+def test_resolve_template_option_accepts_existing_path(tmp_path: Path) -> None:
+    template_file = tmp_path / "custom.html"
+    template_file.write_text("template")
+
+    assert resolve_template_option(None, None, str(template_file)) == template_file
+
+
+def test_resolve_template_option_rejects_missing_template() -> None:
+    with pytest.raises(click.BadParameter, match="Template 'missing.html' was not found"):
+        resolve_template_option(None, None, "missing.html")
 
 
 @pytest.mark.parametrize(
