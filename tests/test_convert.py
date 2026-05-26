@@ -65,7 +65,7 @@ def test_resolve_template_option_accepts_existing_path(tmp_path: Path) -> None:
 
 def test_resolve_template_option_rejects_missing_template() -> None:
     with pytest.raises(
-        click.BadParameter, match="Template 'missing.html' was not found"
+        click.BadParameter, match=r"Template 'missing\.html' was not found"
     ):
         resolve_template_option(None, None, "missing.html")
 
