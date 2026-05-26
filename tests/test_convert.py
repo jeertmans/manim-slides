@@ -50,7 +50,10 @@ def test_file_to_data_uri(video_file: Path, video_data_uri_file: Path) -> None:
 
 
 def test_resolve_template_option_accepts_builtin_template() -> None:
-    assert resolve_template_option(None, None, "firebase_sync.html") == "firebase_sync.html"
+    assert (
+        resolve_template_option(None, None, "firebase_sync.html")
+        == "firebase_sync.html"
+    )
 
 
 def test_resolve_template_option_accepts_existing_path(tmp_path: Path) -> None:
@@ -61,7 +64,9 @@ def test_resolve_template_option_accepts_existing_path(tmp_path: Path) -> None:
 
 
 def test_resolve_template_option_rejects_missing_template() -> None:
-    with pytest.raises(click.BadParameter, match="Template 'missing.html' was not found"):
+    with pytest.raises(
+        click.BadParameter, match="Template 'missing.html' was not found"
+    ):
         resolve_template_option(None, None, "missing.html")
 
 
