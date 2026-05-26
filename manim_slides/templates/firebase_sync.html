@@ -68,7 +68,7 @@
             const uid = auth.currentUser.uid;
             // Optional: Write presenter ID for security rules
             set(metaRef, { presenterId: uid });
-            
+
             // Clean up the room when the presenter disconnects/closes the page
             onDisconnect(roomRef).remove();
 
