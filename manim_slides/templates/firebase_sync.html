@@ -18,7 +18,7 @@
     <script type="module">
       import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
       import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-      import { getDatabase, ref, onValue, set, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+      import { getDatabase, ref, onValue, set, serverTimestamp, onDisconnect } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
       const firebaseConfig = {
         apiKey: "{{ firebase_api_key | default('AIzaSyD6zkJUPgUF0X5jgLo_E2lOSIUXvNPi5Xk') }}",
@@ -68,6 +68,23 @@
             const uid = auth.currentUser.uid;
             // Optional: Write presenter ID for security rules
             set(metaRef, { presenterId: uid });
+            
+            // Clean up the room when the presenter disconnects/closes the page
+            onDisconnect(roomRef).remove();
+
+            let lastPointerUpdate = 0;
+            document.addEventListener('mousemove', (e) => {
+              const now = Date.now();
+              if (now - lastPointerUpdate > 100) {
+                lastPointerUpdate = now;
+                const x = e.clientX / window.innerWidth;
+                const y = e.clientY / window.innerHeight;
+                set(ref(db, `rooms/${roomId}/pointer`), { x, y, active: true });
+              }
+            });
+            document.addEventListener('mouseleave', () => {
+              set(ref(db, `rooms/${roomId}/pointer`), { active: false });
+            });
 
             window._sendFirebaseSlideState = function(indices = null) {
               if (!indices && typeof Reveal !== "undefined" && Reveal.getIndices) {
@@ -145,6 +162,35 @@
               else Reveal.on("ready", onRevealReady);
             });
           }
+
+          // Laser pointer setup
+          const laser = document.createElement("div");
+          laser.style.position = "fixed";
+          laser.style.left = "0px";
+          laser.style.top = "0px";
+          laser.style.width = "15px";
+          laser.style.height = "15px";
+          laser.style.borderRadius = "50%";
+          laser.style.backgroundColor = "red";
+          laser.style.boxShadow = "0 0 10px red";
+          laser.style.zIndex = "99999";
+          laser.style.pointerEvents = "none";
+          laser.style.transition = "transform 0.05s linear, opacity 0.2s";
+          laser.style.opacity = "0";
+          document.body.appendChild(laser);
+
+          let hideTimeout;
+          onValue(ref(db, `rooms/${roomId}/pointer`), (snapshot) => {
+            const data = snapshot.val();
+            if (data && data.active !== false) {
+              laser.style.opacity = "1";
+              laser.style.transform = `translate(${data.x * window.innerWidth}px, ${data.y * window.innerHeight}px) translate(-50%, -50%)`;
+              clearTimeout(hideTimeout);
+              hideTimeout = setTimeout(() => { laser.style.opacity = "0"; }, 1500);
+            } else {
+              laser.style.opacity = "0";
+            }
+          });
         }
       }
     </script>
