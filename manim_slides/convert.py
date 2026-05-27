@@ -1015,15 +1015,15 @@ def show_template_option(function: Callable[..., Any]) -> Callable[..., Any]:
     # Build a help string that includes the list of available built-in templates
     # and visually highlight the default template.
     help=(
-    "Use the template given by FILE instead of default one. " +
-    "FILE can be a filesystem path or a built-in template name.\n\n" +
-    "Available built-in templates: [" +
-    ", ".join(
-        click.style(name, bold=(name == "revealjs.html"))
-        for name in _builtin_template_names()
-    )
-    + "]\n\nTo echo the default template, use '--show-template'."
-),
+        "Use the template given by FILE instead of default one. "
+        + "FILE can be a filesystem path or a built-in template name.\n\n"
+        + "Available built-in templates: ["
+        + ", ".join(
+            click.style(name, bold=(name == "revealjs.html"))
+            for name in _builtin_template_names()
+        )
+        + "]\n\nTo echo the default template, use '--show-template'."
+    ),
 )
 @click.option(
     "--one-file",
