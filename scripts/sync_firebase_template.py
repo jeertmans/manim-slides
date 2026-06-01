@@ -198,7 +198,7 @@ BODY_INSERT = """\
 """
 
 
-def main():
+def main() -> None:
     root = Path(__file__).parent.parent
     templates_dir = root / "manim_slides" / "templates"
 
