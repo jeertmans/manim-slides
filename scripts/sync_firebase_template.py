@@ -206,7 +206,7 @@ def main():
     firebase_sync_file = templates_dir / "firebase_sync.html"
 
     if not revealjs_file.exists():
-        print(f"Error: {revealjs_file} not found.")
+        # print(f"Error: {revealjs_file} not found.")
         sys.exit(1)
 
     revealjs_content = revealjs_file.read_text(encoding="utf-8")
@@ -225,7 +225,7 @@ def main():
 
     if file_changed:
         firebase_sync_file.write_text(new_content, encoding="utf-8")
-        print("Updated firebase_sync.html")
+        # print("Updated firebase_sync.html")
         sys.exit(1)
 
 
