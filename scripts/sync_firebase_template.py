@@ -197,26 +197,23 @@ BODY_INSERT = """\
     </div>
 """
 
+
 def main():
     root = Path(__file__).parent.parent
     templates_dir = root / "manim_slides" / "templates"
-    
+
     revealjs_file = templates_dir / "revealjs.html"
     firebase_sync_file = templates_dir / "firebase_sync.html"
-    
+
     if not revealjs_file.exists():
         print(f"Error: {revealjs_file} not found.")
         sys.exit(1)
-        
+
     revealjs_content = revealjs_file.read_text(encoding="utf-8")
-    
+
     new_content = revealjs_content.replace(
-        "  </head>",
-        f"{HEAD_INSERT}  </head>"
-    ).replace(
-        "  <body>",
-        f"  <body>\n{BODY_INSERT}"
-    )
+        "  </head>", f"{HEAD_INSERT}  </head>"
+    ).replace("  <body>", f"  <body>\n{BODY_INSERT}")
 
     file_changed = False
     if firebase_sync_file.exists():
@@ -225,11 +222,12 @@ def main():
             file_changed = True
     else:
         file_changed = True
-        
+
     if file_changed:
         firebase_sync_file.write_text(new_content, encoding="utf-8")
         print("Updated firebase_sync.html")
         sys.exit(1)
+
 
 if __name__ == "__main__":
     main()
