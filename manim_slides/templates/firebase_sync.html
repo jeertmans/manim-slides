@@ -13,7 +13,6 @@
     <!-- <link rel="stylesheet" href="lib/css/zenburn.css"> -->
     <link rel="stylesheet" href="{{ cdn_url }}/dist/plugin/highlight/zenburn.css">
     <!-- <link rel="stylesheet" href="index.css"> -->
-
     <!-- FIREBASE REALTIME DATABASE SYNC -->
     <script type="module">
       import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
@@ -205,6 +204,7 @@
         onclick="const btn = this; let link = window.location.href.split('#')[0].replace(/([?&])role=presenter(&|$)/, '$1').replace(/[?&]$/, '') + '#guest'; navigator.clipboard.writeText(link).then(() => { const old = btn.innerText; btn.innerText = 'Copied!'; setTimeout(() => btn.innerText = old, 1500); })"
       >Copy Guest Link</button>
     </div>
+
     <div class="reveal">
       <div class="slides">
         {% for presentation_config in presentation_configs -%}
@@ -470,7 +470,7 @@
         // Time before the cursor is hidden (in ms)
         hideCursorTime: {{ hide_cursor_time }}
       });
-// Override SPACE to play / pause the video
+      // Override SPACE to play / pause the video
       Reveal.addKeyBinding(
         {
           keyCode: 32,
