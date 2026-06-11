@@ -71,4 +71,6 @@ you must also set `FORCE_MANIM_API=1`.
 
 ## Current state of the `Slide.wait()` method in ManimGL
 
-Currently, there is a known issue with this method that can cause rendering issues when using the ManimGL backend. There is a workaround for dis described in the [FAQ](./faq.md#manimgl-wait-workaround)
+Currently, there is a known issue with this method that can cause
+rendering issues when using the ManimGL backend. There is a
+workaround for this described in the [FAQ](./faq.md#manimgl-wait-workaround)

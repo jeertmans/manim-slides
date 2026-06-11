@@ -77,9 +77,14 @@ in _Settings_->_Display_.
 
 (manimgl-wait-workaround)=
 
-There is currently a known issue with the `Slide.wait()` method using ManimGL. A workaround has been found by [@marcell-ziegler](https://github.com/marcell-ziegler) in [#609](https://github.com/jeertmans/manim-slides/issues/609).
+There is currently a known issue with the `Slide.wait()` method using ManimGL.
+A workaround has been found by
+[@marcell-ziegler](https://github.com/marcell-ziegler),
+in [#609](https://github.com/jeertmans/manim-slides/issues/609).
 
-To have a working wait method, you need to crate an {py:class}`Animation<manimlib.Animation>` which does nothing for the specified amount of time. To do this, declare this class early in your code:
+To have a working wait method, you need to crate an
+{py:class}`Animation<manimlib.Animation>` which does nothing for the
+specified amount of time. To do this, declare this class early in your code:
 
 ```python
 class Wait(Animation):
@@ -89,7 +94,8 @@ class Wait(Animation):
         )
 ```
 
-Then, in you {py:class}`Slide<manim_slides.slide.Slide>` class, override the `Slide.wait()` method like this:
+Then, in you {py:class}`Slide<manim_slides.slide.Slide>` class,
+override the `Slide.wait()` method like this:
 
 ```python
 class MySlide(Slide):
@@ -103,7 +109,8 @@ class MySlide(Slide):
         ...
 ```
 
-Now you just call the new `Slide.wait()` anywhere in your constructor and it should work fine.
+Now you just call the new `Slide.wait()` anywhere in your constructor
+and it should work fine.
 
 ## Converting to any format
 
