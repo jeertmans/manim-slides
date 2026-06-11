@@ -68,3 +68,7 @@ if any of the two modules is already imported.
 
 If you want to force Manim Slides to obey the `MANIM_API` environment variable,
 you must also set `FORCE_MANIM_API=1`.
+
+## Current state of the `Slide.wait()` method in ManimGL
+
+Currently, there is a known issue with this method that can cause rendering issues when using the ManimGL backend. There is a workaround for dis described in the [FAQ](./faq.md#manimgl-wait-workaround)

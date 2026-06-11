@@ -71,7 +71,39 @@ the problem can be addressed by changing the scaling factor to 100%:
   >
 </p>
 
-in *Settings*->*Display*.
+in _Settings_->_Display_.
+
+### Why are there animation errors in slides when using `Slide.wait()` with ManimGL
+
+(manimgl-wait-workaround)=
+
+There is currently a known issue with the `Slide.wait()` method using ManimGL. A workaround has been found by [@marcell-ziegler](https://github.com/marcell-ziegler) in [#609](https://github.com/jeertmans/manim-slides/issues/609).
+
+To have a working wait method, you need to crate an {py:class}`Animation<manimlib.Animation>` which does nothing for the specified amount of time. To do this, declare this class early in your code:
+
+```python
+class Wait(Animation):
+    def __init__(self, run_time: float = 1.0):
+        super().__init__(
+            Group(), run_time=run_time, remover=True, name=f"Wait({run_time})"
+        )
+```
+
+Then, in you {py:class}`Slide<manim_slides.slide.Slide>` class, override the `Slide.wait()` method like this:
+
+```python
+class MySlide(Slide):
+
+    @override
+    def wait(self, duration=None) -> None:
+        wait_time = self.default_wait_time if duration is None else duration
+        self.play(Wait(wait_time))
+
+    def construct(self):
+        ...
+```
+
+Now you just call the new `Slide.wait()` anywhere in your constructor and it should work fine.
 
 ## Converting to any format
 
