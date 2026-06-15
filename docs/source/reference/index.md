@@ -12,6 +12,7 @@ examples
 gui
 html
 large_presentation_tips
+sync
 IPython magic <ipython_magic>
 sharing
 Sphinx Extension <sphinx_extension>
@@ -31,6 +32,8 @@ Slides' executable.
 
 [Tips for Large Presentations](/reference/large_presentation_tips): tips and
 tricks for best performance on large presentations.
+
+[Sync Presentation](/reference/sync): real-time synchronize your presentation across devices using Firebase.
 
 [IPython Magic](/reference/ipython_magic): a magic to render and display Manim Slides inside notebooks.
 

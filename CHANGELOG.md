@@ -10,6 +10,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 (unreleased)=
 ## [Unreleased](https://github.com/jeertmans/manim-slides/compare/v5.6.0...HEAD)
 
+### Added
+
+- Added `firebase_sync.html` template to enable realtime slide syncing via
+  Firebase Realtime Database, including a usage guide in the templates
+  directory. [@liuktc](https://github.com/liuktc) [#638](https://github.com/jeertmans/manim-slides/pull/638)
+- Added support for named built-in templates. Now `manim-slides convert` accepts the template name without the full path. [@liuktc](https://github.com/liuktc) [#638](https://github.com/jeertmans/manim-slides/pull/638)
+
 (v5.6.0)=
 ## [v5.6.0](https://github.com/jeertmans/manim-slides/compare/v5.5.4...v5.6.0)
 

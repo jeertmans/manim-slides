@@ -73,6 +73,39 @@ def validate_config_option(
     return config
 
 
+def _builtin_template_names() -> list[str]:
+    """Return all bundled HTML template filenames."""
+    templates_dir = resources.files(templates)
+
+    return sorted(
+        entry.name
+        for entry in templates_dir.iterdir()
+        if entry.is_file() and entry.name.endswith(".html")
+    )
+
+
+def resolve_template_option(
+    ctx: Context, param: Parameter, value: Optional[str]
+) -> Optional[Union[str, Path]]:
+    """Resolve --use-template value to either a file path or a built-in template."""
+    if value is None:
+        return None
+
+    path = Path(value)
+    if path.is_file():
+        return path
+
+    builtin_templates = _builtin_template_names()
+    if value in builtin_templates:
+        return value
+
+    templates_str = ", ".join(builtin_templates)
+    raise click.BadParameter(
+        f"Template '{value}' was not found as a file path or built-in template. "
+        f"Available built-in templates: {templates_str}."
+    )
+
+
 def file_to_data_uri(file: Path) -> str:
     """Read a video and return the corresponding data-uri."""
     b64 = b64encode(file.read_bytes()).decode("ascii")
@@ -108,7 +141,10 @@ class Converter(BaseModel):  # type: ignore
         "{basename}_assets",
         description="Assets folder.\nThis is a template string that accepts 'dirname', 'basename', and 'ext' as variables.\nThose variables are obtained from the output filename.",
     )
-    template: Optional[Path] = Field(None, description="Custom template file to use.")
+    template: Optional[Union[Path, str]] = Field(
+        None,
+        description="Custom template path or built-in template name.",
+    )
 
     def convert_to(self, dest: Path) -> None:
         """Convert self, i.e., a list of presentations, into a given format."""
@@ -548,6 +584,19 @@ class RevealJS(Converter):
         if isinstance(self.template, Path):
             return self.template.read_text()
 
+        if isinstance(self.template, str):
+            template_path = Path(self.template)
+            if template_path.is_file():
+                return template_path.read_text()
+
+            builtin_template = resources.files(templates).joinpath(self.template)
+            if builtin_template.is_file():
+                return builtin_template.read_text()
+
+            raise FileNotFoundError(
+                f"Template '{self.template}' was not found as a file path or built-in template. It must be one of the following built-in templates: [{', '.join(_builtin_template_names())}]."
+            )
+
         return resources.files(templates).joinpath("revealjs.html").read_text()
 
     def open(self, file: Path) -> None:
@@ -961,9 +1010,20 @@ def show_template_option(function: Callable[..., Any]) -> Callable[..., Any]:
     "--use-template",
     "template",
     metavar="FILE",
-    type=click.Path(exists=True, dir_okay=False, path_type=Path),
-    help="Use the template given by FILE instead of default one. "
-    "To echo the default template, use '--show-template'.",
+    type=str,
+    callback=resolve_template_option,
+    # Build a help string that includes the list of available built-in templates
+    # and visually highlight the default template.
+    help=(
+        "Use the template given by FILE instead of default one. "
+        + "FILE can be a filesystem path or a built-in template name.\n\n"
+        + "Available built-in templates: ["
+        + ", ".join(
+            click.style(name, bold=(name == "revealjs.html"))
+            for name in _builtin_template_names()
+        )
+        + "]\n\nTo echo the default template, use '--show-template'."
+    ),
 )
 @click.option(
     "--one-file",
@@ -987,7 +1047,7 @@ def convert(
     to: str,
     open_result: bool,
     config_options: dict[str, str],
-    template: Optional[Path],
+    template: Optional[Union[Path, str]],
     offline: bool,
     one_file: bool,
 ) -> None:
