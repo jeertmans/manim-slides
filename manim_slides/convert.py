@@ -13,7 +13,6 @@ from enum import Enum
 from importlib import resources
 from pathlib import Path
 from typing import Any, Callable, Optional, Union
-from platformdirs import user_cache_dir
 
 import av
 import click
@@ -24,6 +23,7 @@ from click import Context, Parameter
 from jinja2 import Template
 from lxml import etree
 from PIL import Image
+from platformdirs import user_cache_dir
 from pydantic import (
     BaseModel,
     ConfigDict,
@@ -710,9 +710,7 @@ class RevealJS(Converter):
                                     f"Unable to download Reveal.js asset "
                                     f"'{asset_name}' from {link}."
                                 )
-                                logger.error(
-                                    "No cached copy was found."
-                                )
+                                logger.error("No cached copy was found.")
                                 logger.error(
                                     "Please connect to the internet once and rerun "
                                     "'manim-slides convert --offline' "
