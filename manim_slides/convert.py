@@ -23,7 +23,6 @@ from click import Context, Parameter
 from jinja2 import Template
 from lxml import etree
 from PIL import Image
-from platformdirs import user_cache_dir
 from pydantic import (
     BaseModel,
     ConfigDict,
