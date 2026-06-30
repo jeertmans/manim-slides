@@ -13,6 +13,7 @@ from enum import Enum
 from importlib import resources
 from pathlib import Path
 from typing import Any, Callable, Optional, Union
+from platformdirs import user_cache_dir
 
 import av
 import click
@@ -683,34 +684,71 @@ class RevealJS(Converter):
             soup = BeautifulSoup(content, "html.parser")
             session = requests.Session()
 
+            cache_dir = Path(user_cache_dir("manim-slides")) / "revealjs"
+            cache_dir.mkdir(parents=True, exist_ok=True)
+
             for tag, inner in [("link", "href"), ("script", "src")]:
                 for item in soup.find_all(tag):
                     if item.has_attr(inner) and (link := item[inner]).startswith(
                         "http"
                     ):
                         asset_name = link.rsplit("/", 1)[1]
-                        asset = session.get(link)
+                        cached_asset = cache_dir / asset_name
+
+                        if cached_asset.exists():
+                            asset_bytes = cached_asset.read_bytes()
+                        else:
+                            try:
+                                response = session.get(link, timeout=10)
+                                response.raise_for_status()
+
+                                asset_bytes = response.content
+                                cached_asset.write_bytes(asset_bytes)
+
+                            except requests.RequestException as e:
+                                logger.error(
+                                    f"Unable to download Reveal.js asset "
+                                    f"'{asset_name}' from {link}."
+                                )
+                                logger.error(
+                                    "No cached copy was found."
+                                )
+                                logger.error(
+                                    "Please connect to the internet once and rerun "
+                                    "'manim-slides convert --offline' "
+                                    "to populate the cache."
+                                )
+
+                                raise RuntimeError(
+                                    f"Missing Reveal.js asset: {asset_name}"
+                                ) from e
+
                         if self.one_file:
+                            asset_text = asset_bytes.decode("utf-8")
+
                             # If it is a CSS file, inline it
                             if tag == "link" and "stylesheet" in item["rel"]:
                                 item.decompose()
                                 style = soup.new_tag("style")
-                                style.string = asset.text
+                                style.string = asset_text
                                 soup.head.append(style)
+
                             # If it is a JS file, inline it
                             elif tag == "script":
                                 item.decompose()
                                 script = soup.new_tag("script")
-                                script.string = asset.text
+                                script.string = asset_text
                                 soup.head.append(script)
+
                             else:
                                 raise ValueError(
                                     f"Unable to inline {tag} asset: {link}"
                                 )
                         else:
                             full_assets_dir.mkdir(parents=True, exist_ok=True)
+
                             with open(full_assets_dir / asset_name, "wb") as asset_file:
-                                asset_file.write(asset.content)
+                                asset_file.write(asset_bytes)
 
                             item[inner] = str(assets_dir / asset_name)
 
