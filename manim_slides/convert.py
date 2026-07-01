@@ -13,6 +13,7 @@ from enum import Enum
 from importlib import resources
 from pathlib import Path
 from typing import Any, Callable, Optional, Union
+from platformdirs import user_cache_path
 
 import av
 import click
