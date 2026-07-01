@@ -13,7 +13,6 @@ from enum import Enum
 from importlib import resources
 from pathlib import Path
 from typing import Any, Callable, Optional, Union
-from platformdirs import user_cache_path
 
 import av
 import click
@@ -24,6 +23,7 @@ from click import Context, Parameter
 from jinja2 import Template
 from lxml import etree
 from PIL import Image
+from platformdirs import user_cache_path
 from pydantic import (
     BaseModel,
     ConfigDict,
