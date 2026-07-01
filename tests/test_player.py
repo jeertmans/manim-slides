@@ -1,8 +1,10 @@
-from unittest.mock import MagicMock, patch
 from pathlib import Path
+from unittest.mock import MagicMock, patch
+
 from qtpy.QtWidgets import QApplication
-from manim_slides.present.player import Player
+
 from manim_slides.config import Config, PresentationConfig, SlideConfig, SlideType
+from manim_slides.present.player import Player
 
 
 def test_player_backward_navigation() -> None:
@@ -34,10 +36,11 @@ def test_player_backward_navigation() -> None:
     pres_cfg.slides = [slide_cfg_1, slide_cfg_2]
     pres_cfg.resolution = (1920, 1080)
 
-    with patch("manim_slides.present.player.QMediaPlayer"), \
-         patch("manim_slides.present.player.QAudioOutput"), \
-         patch("pathlib.Path.resolve", return_value=Path("resolved_path.mp4")):
-
+    with (
+        patch("manim_slides.present.player.QMediaPlayer"),
+        patch("manim_slides.present.player.QAudioOutput"),
+        patch("pathlib.Path.resolve", return_value=Path("resolved_path.mp4")),
+    ):
         player = Player(
             config,
             [pres_cfg],
