@@ -57,6 +57,7 @@ class BaseSlide:
         self._start_animation = 0
         self._canvas: MutableMapping[str, Mobject] = {}
         self._wait_time_between_slides = 0.0
+        self._wait_between_looping_slides = True
         self._skip_animations = False
 
     @property
@@ -285,6 +286,27 @@ class BaseSlide:
     def wait_time_between_slides(self, wait_time: float) -> None:
         self._wait_time_between_slides = max(wait_time, 0.0)
 
+    @property
+    def wait_between_looping_slides(self) -> bool:
+        """
+        Return whether :attr:`wait_time_between_slides` should also apply
+        to slides that loop, i.e., slides created with
+        ``self.next_slide(loop=True)``.
+
+        By default, this value is set to :data:`True`, for backward
+        compatibility.
+
+        Setting this value to :data:`False` avoids the small pause added by
+        :attr:`wait_time_between_slides` right before a looping slide starts,
+        which can otherwise be visible as an unwanted stutter every time the
+        loop repeats.
+        """
+        return self._wait_between_looping_slides
+
+    @wait_between_looping_slides.setter
+    def wait_between_looping_slides(self, wait_between_looping_slides: bool) -> None:
+        self._wait_between_looping_slides = wait_between_looping_slides
+
     def play(self, *args: Any, **kwargs: Any) -> None:
         """Overload 'self.play' and increment animation count."""
         super().play(*args, **kwargs)  # type: ignore[misc]
@@ -475,7 +497,9 @@ class BaseSlide:
 
         """
         if self._current_animation > self._start_animation:
-            if self.wait_time_between_slides > 0.0:
+            if self.wait_time_between_slides > 0.0 and (
+                self.wait_between_looping_slides or not self._base_slide_config.loop
+            ):
                 self.wait(self.wait_time_between_slides)  # type: ignore[attr-defined]
 
             self._slides.append(
