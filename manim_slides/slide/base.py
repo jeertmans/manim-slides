@@ -300,6 +300,48 @@ class BaseSlide:
         :attr:`wait_time_between_slides` right before a looping slide starts,
         which can otherwise be visible as an unwanted stutter every time the
         loop repeats.
+
+        Examples
+        --------
+        .. manim-slides:: WithWaitBetweenLoopingSlidesExample
+
+            from manim import *
+            from manim_slides import Slide
+
+            class WithWaitBetweenLoopingSlidesExample(Slide):
+                def construct(self):
+                    self.wait_time_between_slides = 0.5
+                    dot = Dot(color=BLUE, radius=1)
+
+                    self.play(FadeIn(dot))
+                    self.next_slide(loop=True)
+
+                    self.play(Indicate(dot, scale_factor=2))
+
+                    self.next_slide()
+
+                    self.play(FadeOut(dot))
+
+        .. manim-slides:: WithoutWaitBetweenLoopingSlidesExample
+
+            from manim import *
+            from manim_slides import Slide
+
+            class WithoutWaitBetweenLoopingSlidesExample(Slide):
+                def construct(self):
+                    self.wait_time_between_slides = 0.5
+                    self.wait_between_looping_slides = False
+                    dot = Dot(color=BLUE, radius=1)
+
+                    self.play(FadeIn(dot))
+                    self.next_slide(loop=True)
+
+                    self.play(Indicate(dot, scale_factor=2))
+
+                    self.next_slide()
+
+                    self.play(FadeOut(dot))
+
         """
         return self._wait_between_looping_slides
 
