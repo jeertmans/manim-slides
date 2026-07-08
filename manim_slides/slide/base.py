@@ -540,7 +540,7 @@ class BaseSlide:
         """
         if self._current_animation > self._start_animation:
             if self.wait_time_between_slides > 0.0 and (
-                self.wait_between_looping_slides or not self._base_slide_config.loop
+                not self._base_slide_config.loop or self.wait_between_looping_slides
             ):
                 self.wait(self.wait_time_between_slides)  # type: ignore[attr-defined]
 

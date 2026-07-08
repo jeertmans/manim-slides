@@ -16,7 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Firebase Realtime Database, including a usage guide in the templates
   directory. [@liuktc](https://github.com/liuktc) [#638](https://github.com/jeertmans/manim-slides/pull/638)
 - Added support for named built-in templates. Now `manim-slides convert` accepts the template name without the full path. [@liuktc](https://github.com/liuktc) [#638](https://github.com/jeertmans/manim-slides/pull/638)
-- Added `wait_between_looping_slides` property to skip the `wait_time_between_slides` pause before slides created with `next_slide(loop=True)`, avoiding a stutter on every loop repeat. [@zain-asif-dev](https://github.com/zain-asif-dev) [#648](https://github.com/jeertmans/manim-slides/pull/648)
+- Added `wait_between_looping_slides` property to skip the `wait_time_between_slides` pause inside slides created with `next_slide(loop=True)`, avoiding a stutter on every loop repeat. [@zain-asif-dev](https://github.com/zain-asif-dev) [#648](https://github.com/jeertmans/manim-slides/pull/648)
 
 (v5.6.0)=
 ## [v5.6.0](https://github.com/jeertmans/manim-slides/compare/v5.5.4...v5.6.0)
