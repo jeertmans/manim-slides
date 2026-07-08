@@ -541,6 +541,23 @@ class TestSlide:
                 self.next_slide()
                 assert self._current_animation == 2  # self.wait = +1
 
+    def test_wait_between_looping_slides(self) -> None:
+        @assert_constructs
+        class _(CESlide):
+            def construct(self) -> None:
+                self._wait_time_between_slides = 1.0
+                self.wait_between_looping_slides = False
+                assert not self.wait_between_looping_slides
+                circle = Circle(color=BLUE)
+                self.play(GrowFromCenter(circle))
+                self.next_slide(loop=True)
+                # wait should NOT be added for looping slides
+                assert self._current_animation == 1
+                self.play(GrowFromCenter(circle))
+                self.next_slide()
+                # wait should be added for non-looping slides
+                assert self._current_animation == 2
+
     def test_next_slide(self) -> None:
         @assert_constructs
         class _(CESlide):

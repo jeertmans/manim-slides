@@ -57,6 +57,7 @@ class BaseSlide:
         self._start_animation = 0
         self._canvas: MutableMapping[str, Mobject] = {}
         self._wait_time_between_slides = 0.0
+        self._wait_between_looping_slides = True
         self._skip_animations = False
 
     @property
@@ -285,6 +286,41 @@ class BaseSlide:
     def wait_time_between_slides(self, wait_time: float) -> None:
         self._wait_time_between_slides = max(wait_time, 0.0)
 
+    @property
+    def wait_between_looping_slides(self) -> bool:
+        """
+        Return whether wait time is applied between looping slides.
+
+        By default, this value is set to True.
+
+        Setting this value to False will disable the use of
+        :attr:`wait_time_between_slides` for slides that have
+        ``loop=True``, preventing pauses when looping.
+
+        Examples
+        --------
+        .. manim-slides:: NoWaitLoopExample
+
+            from manim import *
+            from manim_slides import Slide
+
+            class NoWaitLoopExample(Slide):
+                def construct(self):
+                    self.wait_time_between_slides = 1.0
+                    self.wait_between_looping_slides = False
+
+                    circle = Circle(radius=2)
+                    self.play(Create(circle))
+                    self.next_slide(loop=True)
+
+                    self.play(FadeOut(circle))
+        """
+        return self._wait_between_looping_slides
+
+    @wait_between_looping_slides.setter
+    def wait_between_looping_slides(self, value: bool) -> None:
+        self._wait_between_looping_slides = value
+
     def play(self, *args: Any, **kwargs: Any) -> None:
         """Overload 'self.play' and increment animation count."""
         super().play(*args, **kwargs)  # type: ignore[misc]
@@ -475,7 +511,13 @@ class BaseSlide:
 
         """
         if self._current_animation > self._start_animation:
-            if self.wait_time_between_slides > 0.0:
+            # Apply wait time unless this is a looping slide and
+            # wait_between_looping_slides is disabled
+            should_wait = self.wait_time_between_slides > 0.0 and (
+                self.wait_between_looping_slides
+                or not self._base_slide_config.loop
+            )
+            if should_wait:
                 self.wait(self.wait_time_between_slides)  # type: ignore[attr-defined]
 
             self._slides.append(
