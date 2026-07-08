@@ -314,6 +314,7 @@ class BaseSlide:
                     self.next_slide(loop=True)
 
                     self.play(FadeOut(circle))
+
         """
         return self._wait_between_looping_slides
 
@@ -514,8 +515,7 @@ class BaseSlide:
             # Apply wait time unless this is a looping slide and
             # wait_between_looping_slides is disabled
             should_wait = self.wait_time_between_slides > 0.0 and (
-                self.wait_between_looping_slides
-                or not self._base_slide_config.loop
+                self.wait_between_looping_slides or not self._base_slide_config.loop
             )
             if should_wait:
                 self.wait(self.wait_time_between_slides)  # type: ignore[attr-defined]
