@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import Optional
 
 from qtpy.QtCore import Qt, QTimer, QUrl, Signal, Slot
-from qtpy.QtGui import QCloseEvent, QIcon, QKeyEvent, QPixmap, QScreen
+from qtpy.QtGui import QCloseEvent, QIcon, QKeyEvent, QPixmap, QResizeEvent, QScreen
 from qtpy.QtMultimedia import QAudioOutput, QMediaPlayer, QVideoFrame
 from qtpy.QtMultimediaWidgets import QVideoWidget
 from qtpy.QtWidgets import (
@@ -255,12 +255,12 @@ class Player(QMainWindow):  # type: ignore[misc]
         self.video_widget = QVideoWidget()
         self.video_sink = self.video_widget.videoSink()
         self.video_widget.setAspectRatioMode(aspect_ratio_mode)
+        self.aspect_ratio_mode = aspect_ratio_mode
 
         self.image_label = QLabel(self)
         self.image_label.setAlignment(Qt.AlignCenter)
         self.image_label.setScaledContents(False)
-        w, h = self.current_presentation_config.resolution
-        self.image_label.setMinimumSize(w, h)
+        self.raw_image_pixmap: Optional[QPixmap] = None
 
         # Use QStackedWidget to switch between video and image without layout recalculation
         self.media_stack = QStackedWidget()
@@ -458,8 +458,9 @@ class Player(QMainWindow):  # type: ignore[misc]
         else:
             w, _ = self.current_presentation_config.resolution
             pixmap = QPixmap(url.toLocalFile())
+            self.raw_image_pixmap = pixmap
+            self.update_image_label_pixmap()
             scaled_pixmap = pixmap.scaledToWidth(w)
-            self.image_label.setPixmap(scaled_pixmap)
             self.info.main_image_label.setPixmap(scaled_pixmap)
 
             self.media_player.stop()
@@ -467,6 +468,23 @@ class Player(QMainWindow):  # type: ignore[misc]
             self.media_stack.setCurrentWidget(self.image_label)
             self.info.main_image_label.show()
             self.info.main_video_widget.hide()
+
+    def update_image_label_pixmap(self) -> None:
+        """
+        Rescale the currently shown image to fit the label's actual size.
+
+        Needed because, unlike QVideoWidget, QLabel does not rescale its
+        pixmap on its own when the window is resized.
+        """
+        if self.raw_image_pixmap is None:
+            return
+
+        scaled_pixmap = self.raw_image_pixmap.scaled(
+            self.image_label.size(),
+            self.aspect_ratio_mode,
+            Qt.TransformationMode.SmoothTransformation,
+        )
+        self.image_label.setPixmap(scaled_pixmap)
 
     def load_current_slide(self) -> None:
         slide_config = self.current_slide_config
@@ -669,3 +687,7 @@ class Player(QMainWindow):  # type: ignore[misc]
         key = event.key()
         self.dispatch(key)
         event.accept()
+
+    def resizeEvent(self, event: QResizeEvent) -> None:  # noqa: N802
+        super().resizeEvent(event)
+        self.update_image_label_pixmap()
