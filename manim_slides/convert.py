@@ -569,7 +569,7 @@ class RevealJS(Converter):
     )
     reveal_version: str = Field("6.0.1", description="RevealJS version.")
     reveal_theme: RevealTheme = Field(
-        RevealTheme.black, description="RevealJS version."
+        RevealTheme.black, description="RevealJS color theme."
     )
     cdn_url: str = Field(
         "https://cdn.jsdelivr.net/npm/reveal.js@{reveal_version}",
