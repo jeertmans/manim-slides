@@ -9,7 +9,7 @@ from manim_slides.present.player import Player
 
 def test_player_backward_navigation() -> None:
     # Ensure QApplication is created
-    app = QApplication.instance() or QApplication([])
+    _ = QApplication.instance() or QApplication([])
 
     config = MagicMock(spec=Config)
     config.keys = MagicMock()
@@ -50,13 +50,13 @@ def test_player_backward_navigation() -> None:
             hide_info_window=True,
         )
 
-        assert player._navigated_backward is False
+        assert player._navigated_backward is False  # nosec
 
         # Call load_previous_slide / previous
         player.previous()
 
         # Verify navigating backward set the flag
-        assert player._navigated_backward is True
+        assert player._navigated_backward is True  # nosec
 
         # Mock duration change to verify seeking and resetting flag
         player.media_player.duration = MagicMock(return_value=5000)
@@ -65,4 +65,4 @@ def test_player_backward_navigation() -> None:
         # Verify seeking was triggered and flag is reset
         player.media_player.setPosition.assert_called_with(5000)
         player.media_player.pause.assert_called()
-        assert player._navigated_backward is False
+        assert player._navigated_backward is False  # nosec
