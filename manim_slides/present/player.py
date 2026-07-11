@@ -227,6 +227,10 @@ class Player(QMainWindow):  # type: ignore[misc]
 
         self.__playing_reversed_slide = False
 
+        self.__prev_pos = -1
+        self.__termination_requested = False
+        self.__termination_achieved = False
+
         # Widgets
 
         if screen:
@@ -326,6 +330,21 @@ class Player(QMainWindow):  # type: ignore[misc]
                     self.load_next_slide()
 
             self.media_player.mediaStatusChanged.connect(media_status_changed)
+
+        if next_terminates_loop:
+
+            def on_position_changed(position: int) -> None:
+                # non-monotonicity in the position, when occurring outside of the loading of a new slide, indicates looping
+                if self.__termination_requested and self.__prev_pos > position:
+                    if self.current_slide_config.auto_next:
+                        self.load_next_slide()
+                    else:
+                        self.media_player.setPosition(self.media_player.duration())
+                        self.media_player.pause()
+                        self.__termination_achieved = True
+                self.__prev_pos = position
+
+            self.media_player.positionChanged.connect(on_position_changed)
 
         if self.current_slide_config.loop:
             self.media_player.setLoops(-1)
@@ -477,6 +496,10 @@ class Player(QMainWindow):  # type: ignore[misc]
         else:
             self.media_player.setLoops(1)
 
+        self.__prev_pos = -1
+        self.__termination_requested = False
+        self.__termination_achieved = False
+
         self.load_current_media()
 
     def load_previous_slide(self) -> None:
@@ -582,14 +605,17 @@ class Player(QMainWindow):  # type: ignore[misc]
 
     @Slot()
     def next(self) -> None:
-        if self.media_player.playbackState() == QMediaPlayer.PlaybackState.PausedState:
+        if (
+            self.media_player.playbackState() == QMediaPlayer.PlaybackState.PausedState
+            and not self.__termination_achieved
+        ):
             self.media_player.play()
-        elif self.next_terminates_loop and self.media_player.loops() != 1:
-            position = self.media_player.position()
-            self.media_player.setLoops(1)
-            self.media_player.stop()
-            self.media_player.setPosition(position)
-            self.media_player.play()
+        elif (
+            self.next_terminates_loop
+            and self.media_player.loops() != 1
+            and not self.__termination_achieved
+        ):
+            self.__termination_requested = True
         else:
             self.load_next_slide()
 
@@ -613,7 +639,10 @@ class Player(QMainWindow):  # type: ignore[misc]
     @Slot()
     def play_pause(self) -> None:
         state = self.media_player.playbackState()
-        if state == QMediaPlayer.PlaybackState.PausedState:
+        if (
+            state == QMediaPlayer.PlaybackState.PausedState
+            and not self.__termination_achieved
+        ):
             self.media_player.play()
         elif state == QMediaPlayer.PlaybackState.PlayingState:
             self.media_player.pause()
