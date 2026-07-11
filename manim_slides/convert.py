@@ -1173,14 +1173,15 @@ def convert(
                 else config_options.pop("data_uri")
             )
 
-        if "revealjs_assets_timeout" not in config_options:
-            config_options["revealjs_assets_timeout"] = str(revealjs_assets_timeout)
+        if issubclass(cls, (RevealJS, HtmlZip)):
+            if "revealjs_assets_timeout" not in config_options:
+                config_options["revealjs_assets_timeout"] = str(revealjs_assets_timeout)
 
-        if flush_revealjs_cache and "flush_revealjs_cache" not in config_options:
-            config_options["flush_revealjs_cache"] = "true"
+            if flush_revealjs_cache and "flush_revealjs_cache" not in config_options:
+                config_options["flush_revealjs_cache"] = "true"
 
-        if disable_revealjs_cache and "disable_revealjs_cache" not in config_options:
-            config_options["disable_revealjs_cache"] = "true"
+            if disable_revealjs_cache and "disable_revealjs_cache" not in config_options:
+                config_options["disable_revealjs_cache"] = "true"
 
         if (
             offline
