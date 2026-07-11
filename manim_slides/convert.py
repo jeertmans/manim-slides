@@ -684,7 +684,7 @@ class RevealJS(Converter):
             soup = BeautifulSoup(content, "html.parser")
             session = requests.Session()
 
-            cache_dir = user_cache_path("manim-slides") / "revealjs"
+            cache_dir = user_cache_path("manim-slides") / f"revealjs{self.revealjs_version}"
             cache_dir.mkdir(parents=True, exist_ok=True)
 
             for tag, inner in [("link", "href"), ("script", "src")]:
