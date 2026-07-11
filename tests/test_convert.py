@@ -205,7 +205,9 @@ class TestConverter:
         monkeypatch: pytest.MonkeyPatch,
     ) -> None:
         cache_root = tmp_path / "cache"
-        monkeypatch.setattr("manim_slides.convert.user_cache_path", lambda _: cache_root)
+        monkeypatch.setattr(
+            "manim_slides.convert.user_cache_path", lambda _: cache_root
+        )
 
         requested_timeouts: list[float] = []
 
@@ -240,8 +242,12 @@ class TestConverter:
         monkeypatch: pytest.MonkeyPatch,
     ) -> None:
         cache_root = tmp_path / "cache"
-        cache_dir = cache_root / f"revealjs{RevealJS(presentation_configs=[]).reveal_version}"
-        monkeypatch.setattr("manim_slides.convert.user_cache_path", lambda _: cache_root)
+        cache_dir = (
+            cache_root / f"revealjs{RevealJS(presentation_configs=[]).reveal_version}"
+        )
+        monkeypatch.setattr(
+            "manim_slides.convert.user_cache_path", lambda _: cache_root
+        )
 
         calls = 0
 
@@ -283,12 +289,16 @@ class TestConverter:
         monkeypatch: pytest.MonkeyPatch,
     ) -> None:
         cache_root = tmp_path / "cache"
-        cache_dir = cache_root / f"revealjs{RevealJS(presentation_configs=[]).reveal_version}"
+        cache_dir = (
+            cache_root / f"revealjs{RevealJS(presentation_configs=[]).reveal_version}"
+        )
         cache_dir.mkdir(parents=True)
         for name in ["black.css", "reveal.css", "reveal.js", "zenburn.css"]:
             (cache_dir / name).write_text("stale-content")
 
-        monkeypatch.setattr("manim_slides.convert.user_cache_path", lambda _: cache_root)
+        monkeypatch.setattr(
+            "manim_slides.convert.user_cache_path", lambda _: cache_root
+        )
 
         calls = 0
 
@@ -325,12 +335,16 @@ class TestConverter:
         monkeypatch: pytest.MonkeyPatch,
     ) -> None:
         cache_root = tmp_path / "cache"
-        cache_dir = cache_root / f"revealjs{RevealJS(presentation_configs=[]).reveal_version}"
+        cache_dir = (
+            cache_root / f"revealjs{RevealJS(presentation_configs=[]).reveal_version}"
+        )
         cache_dir.mkdir(parents=True)
         for name in ["black.css", "reveal.css", "reveal.js", "zenburn.css"]:
             (cache_dir / name).write_text("stale-content")
 
-        monkeypatch.setattr("manim_slides.convert.user_cache_path", lambda _: cache_root)
+        monkeypatch.setattr(
+            "manim_slides.convert.user_cache_path", lambda _: cache_root
+        )
 
         calls = 0
 
@@ -425,7 +439,9 @@ class TestConverter:
         monkeypatch: pytest.MonkeyPatch,
     ) -> None:
         cache_root = tmp_path / "cache"
-        monkeypatch.setattr("manim_slides.convert.user_cache_path", lambda _: cache_root)
+        monkeypatch.setattr(
+            "manim_slides.convert.user_cache_path", lambda _: cache_root
+        )
 
         # Mock requests.Session.get to return a fake response
         class MockResponse:

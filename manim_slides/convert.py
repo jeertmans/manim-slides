@@ -698,7 +698,7 @@ class RevealJS(Converter):
 
             cache_dir = (
                 user_cache_path("manim-slides") / f"revealjs{self.reveal_version}"
-            )   
+            )
             use_cache = not self.disable_revealjs_cache
 
             if self.flush_revealjs_cache and cache_dir.exists():
@@ -1180,7 +1180,10 @@ def convert(
             if flush_revealjs_cache and "flush_revealjs_cache" not in config_options:
                 config_options["flush_revealjs_cache"] = "true"
 
-            if disable_revealjs_cache and "disable_revealjs_cache" not in config_options:
+            if (
+                disable_revealjs_cache
+                and "disable_revealjs_cache" not in config_options
+            ):
                 config_options["disable_revealjs_cache"] = "true"
 
         if (
