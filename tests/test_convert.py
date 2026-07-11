@@ -198,6 +198,168 @@ class TestConverter:
         ]:
             assert (assets_dir / file).exists()
 
+    def test_revealjs_offline_uses_configurable_timeout(
+        self,
+        tmp_path: Path,
+        presentation_config: PresentationConfig,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        cache_root = tmp_path / "cache"
+        monkeypatch.setattr("manim_slides.convert.user_cache_path", lambda _: cache_root)
+
+        requested_timeouts: list[float] = []
+
+        class MockResponse:
+            def __init__(self, content: bytes) -> None:
+                self.content = content
+
+            def raise_for_status(self) -> None:
+                return None
+
+        def mock_get(self: requests.Session, url: str, timeout: float) -> MockResponse:
+            requested_timeouts.append(timeout)
+            return MockResponse(b"asset-bytes")
+
+        monkeypatch.setattr(requests.Session, "get", mock_get)
+
+        out_file = tmp_path / "slides.html"
+        RevealJS(
+            presentation_configs=[presentation_config],
+            offline="true",
+            revealjs_assets_timeout=3.5,
+        ).convert_to(out_file)
+
+        assert out_file.exists()
+        assert requested_timeouts
+        assert all(timeout == 3.5 for timeout in requested_timeouts)
+
+    def test_revealjs_offline_populates_and_reuses_cache(
+        self,
+        tmp_path: Path,
+        presentation_config: PresentationConfig,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        cache_root = tmp_path / "cache"
+        cache_dir = cache_root / f"revealjs{RevealJS(presentation_configs=[]).reveal_version}"
+        monkeypatch.setattr("manim_slides.convert.user_cache_path", lambda _: cache_root)
+
+        calls = 0
+
+        class MockResponse:
+            def __init__(self, content: bytes) -> None:
+                self.content = content
+
+            def raise_for_status(self) -> None:
+                return None
+
+        def mock_get(self: requests.Session, url: str, timeout: float) -> MockResponse:
+            nonlocal calls
+            calls += 1
+            return MockResponse(b"fresh-content")
+
+        monkeypatch.setattr(requests.Session, "get", mock_get)
+
+        out_file = tmp_path / "slides.html"
+        converter = RevealJS(presentation_configs=[presentation_config], offline="true")
+        converter.convert_to(out_file)
+
+        assert out_file.exists()
+        assert cache_dir.is_dir()
+        assert any(cache_dir.iterdir())
+        assert calls == 5
+
+        out_file_again = tmp_path / "slides-again.html"
+        converter.convert_to(out_file_again)
+
+        assert out_file_again.exists()
+        assert calls == 5
+        for name in ["black.css", "reveal.css", "reveal.js", "zenburn.css"]:
+            assert (cache_dir / name).read_text() == "fresh-content"
+
+    def test_revealjs_flush_cache_downloads_fresh_assets(
+        self,
+        tmp_path: Path,
+        presentation_config: PresentationConfig,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        cache_root = tmp_path / "cache"
+        cache_dir = cache_root / f"revealjs{RevealJS(presentation_configs=[]).reveal_version}"
+        cache_dir.mkdir(parents=True)
+        for name in ["black.css", "reveal.css", "reveal.js", "zenburn.css"]:
+            (cache_dir / name).write_text("stale-content")
+
+        monkeypatch.setattr("manim_slides.convert.user_cache_path", lambda _: cache_root)
+
+        calls = 0
+
+        class MockResponse:
+            def __init__(self, content: bytes) -> None:
+                self.content = content
+
+            def raise_for_status(self) -> None:
+                return None
+
+        def mock_get(self: requests.Session, url: str, timeout: float) -> MockResponse:
+            nonlocal calls
+            calls += 1
+            return MockResponse(b"fresh-content")
+
+        monkeypatch.setattr(requests.Session, "get", mock_get)
+
+        out_file = tmp_path / "slides.html"
+        RevealJS(
+            presentation_configs=[presentation_config],
+            offline="true",
+            flush_revealjs_cache="true",
+        ).convert_to(out_file)
+
+        assert out_file.exists()
+        assert calls == 5
+        for name in ["black.css", "reveal.css", "reveal.js", "zenburn.css"]:
+            assert (cache_dir / name).read_text() == "fresh-content"
+
+    def test_revealjs_disable_cache_skips_writing_cache(
+        self,
+        tmp_path: Path,
+        presentation_config: PresentationConfig,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        cache_root = tmp_path / "cache"
+        cache_dir = cache_root / f"revealjs{RevealJS(presentation_configs=[]).reveal_version}"
+        cache_dir.mkdir(parents=True)
+        for name in ["black.css", "reveal.css", "reveal.js", "zenburn.css"]:
+            (cache_dir / name).write_text("stale-content")
+
+        monkeypatch.setattr("manim_slides.convert.user_cache_path", lambda _: cache_root)
+
+        calls = 0
+
+        class MockResponse:
+            def __init__(self, content: bytes) -> None:
+                self.content = content
+
+            def raise_for_status(self) -> None:
+                return None
+
+        def mock_get(self: requests.Session, url: str, timeout: float) -> MockResponse:
+            nonlocal calls
+            calls += 1
+            return MockResponse(b"fresh-content")
+
+        monkeypatch.setattr(requests.Session, "get", mock_get)
+
+        out_file = tmp_path / "slides.html"
+        RevealJS(
+            presentation_configs=[presentation_config],
+            offline="true",
+            disable_revealjs_cache="true",
+        ).convert_to(out_file)
+
+        assert out_file.exists()
+        assert calls == 5
+        for name in ["black.css", "reveal.css", "reveal.js", "zenburn.css"]:
+            assert (cache_dir / name).read_text() == "stale-content"
+
     def test_revealjs_data_encode(
         self,
         tmp_path: Path,
@@ -211,11 +373,17 @@ class TestConverter:
                 self.text = text
                 self.status_code = status_code
 
+            def raise_for_status(self) -> None:
+                return None
+
+            def raise_for_status(self) -> None:
+                return None
+
         # Apply the monkeypatch
         monkeypatch.setattr(
             requests.Session,
             "get",
-            lambda self, url: MockResponse(
+            lambda self, url, timeout: MockResponse(
                 b"body { background-color: #9a3241; }",
                 "body { background-color: #9a3241; }",
                 200,
@@ -256,6 +424,9 @@ class TestConverter:
         presentation_config: PresentationConfig,
         monkeypatch: pytest.MonkeyPatch,
     ) -> None:
+        cache_root = tmp_path / "cache"
+        monkeypatch.setattr("manim_slides.convert.user_cache_path", lambda _: cache_root)
+
         # Mock requests.Session.get to return a fake response
         class MockResponse:
             def __init__(self, content: bytes, text: str, status_code: int) -> None:
@@ -263,11 +434,14 @@ class TestConverter:
                 self.text = text
                 self.status_code = status_code
 
+            def raise_for_status(self) -> None:
+                return None
+
         # Apply the monkeypatch
         monkeypatch.setattr(
             requests.Session,
             "get",
-            lambda self, url: MockResponse(
+            lambda self, url, timeout: MockResponse(
                 b"body { background-color: #9a3241; }",
                 "body { background-color: #9a3241; }",
                 200,
