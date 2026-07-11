@@ -59,6 +59,7 @@ dependencies = [
   "lxml>=4.9.2",
   "numpy>=1.19",
   "pillow>=9.5.0",
+  "platformdirs>=4.0",
   "pydantic>=2.0.1",
   "pydantic-extra-types>=2.0.0",
   "python-pptx>=0.6.21",

@@ -23,6 +23,7 @@ from click import Context, Parameter
 from jinja2 import Template
 from lxml import etree
 from PIL import Image
+from platformdirs import user_cache_path
 from pydantic import (
     BaseModel,
     ConfigDict,
@@ -568,6 +569,18 @@ class RevealJS(Converter):
         description="Background color used in slides, not relevant if videos fill the whole area.",
     )
     reveal_version: str = Field("6.0.1", description="RevealJS version.")
+    revealjs_assets_timeout: PositiveFloat = Field(
+        10.0,
+        description="Timeout in seconds for downloading remote RevealJS assets.",
+    )
+    flush_revealjs_cache: bool = Field(
+        False,
+        description="Delete cached RevealJS assets before downloading remote assets.",
+    )
+    disable_revealjs_cache: bool = Field(
+        False,
+        description="Skip reading from and writing to the RevealJS asset cache.",
+    )
     reveal_theme: RevealTheme = Field(
         RevealTheme.black, description="RevealJS color theme."
     )
@@ -683,34 +696,85 @@ class RevealJS(Converter):
             soup = BeautifulSoup(content, "html.parser")
             session = requests.Session()
 
+            cache_dir = (
+                user_cache_path("manim-slides") / f"revealjs{self.reveal_version}"
+            )
+            use_cache = not self.disable_revealjs_cache
+
+            if self.flush_revealjs_cache and cache_dir.exists():
+                shutil.rmtree(cache_dir)
+
+            if use_cache:
+                cache_dir.mkdir(parents=True, exist_ok=True)
+
             for tag, inner in [("link", "href"), ("script", "src")]:
                 for item in soup.find_all(tag):
                     if item.has_attr(inner) and (link := item[inner]).startswith(
                         "http"
                     ):
                         asset_name = link.rsplit("/", 1)[1]
-                        asset = session.get(link)
+                        cached_asset = cache_dir / asset_name
+
+                        if use_cache and cached_asset.exists():
+                            asset_bytes = cached_asset.read_bytes()
+                        else:
+                            try:
+                                response = session.get(
+                                    link, timeout=self.revealjs_assets_timeout
+                                )
+                                response.raise_for_status()
+
+                                asset_bytes = response.content
+                                if use_cache:
+                                    cached_asset.write_bytes(asset_bytes)
+
+                            except requests.RequestException as e:
+                                logger.error(
+                                    f"Unable to download Reveal.js asset "
+                                    f"'{asset_name}' from {link}."
+                                )
+                                if self.disable_revealjs_cache:
+                                    logger.error(
+                                        "Reveal.js asset cache lookup is disabled."
+                                    )
+                                else:
+                                    logger.error("No cached copy was found.")
+                                logger.error(
+                                    "Please connect to the internet once and rerun "
+                                    "'manim-slides convert --offline' "
+                                    "to populate the cache."
+                                )
+
+                                raise RuntimeError(
+                                    f"Missing Reveal.js asset: {asset_name}"
+                                ) from e
+
                         if self.one_file:
+                            asset_text = asset_bytes.decode("utf-8")
+
                             # If it is a CSS file, inline it
                             if tag == "link" and "stylesheet" in item["rel"]:
                                 item.decompose()
                                 style = soup.new_tag("style")
-                                style.string = asset.text
+                                style.string = asset_text
                                 soup.head.append(style)
+
                             # If it is a JS file, inline it
                             elif tag == "script":
                                 item.decompose()
                                 script = soup.new_tag("script")
-                                script.string = asset.text
+                                script.string = asset_text
                                 soup.head.append(script)
+
                             else:
                                 raise ValueError(
                                     f"Unable to inline {tag} asset: {link}"
                                 )
                         else:
                             full_assets_dir.mkdir(parents=True, exist_ok=True)
+
                             with open(full_assets_dir / asset_name, "wb") as asset_file:
-                                asset_file.write(asset.content)
+                                asset_file.write(asset_bytes)
 
                             item[inner] = str(assets_dir / asset_name)
 
@@ -1026,6 +1090,23 @@ def show_template_option(function: Callable[..., Any]) -> Callable[..., Any]:
     ),
 )
 @click.option(
+    "--revealjs-assets-timeout",
+    type=float,
+    default=10.0,
+    show_default=True,
+    help="Timeout in seconds for downloading remote RevealJS assets.",
+)
+@click.option(
+    "--flush-revealjs-cache",
+    is_flag=True,
+    help="Delete the RevealJS asset cache before downloading remote assets.",
+)
+@click.option(
+    "--disable-revealjs-cache",
+    is_flag=True,
+    help="Skip reading from and writing to the RevealJS asset cache.",
+)
+@click.option(
     "--one-file",
     is_flag=True,
     help="Embed all local assets (e.g., video files) in the output file. "
@@ -1048,6 +1129,9 @@ def convert(
     open_result: bool,
     config_options: dict[str, str],
     template: Optional[Union[Path, str]],
+    revealjs_assets_timeout: float,
+    flush_revealjs_cache: bool,
+    disable_revealjs_cache: bool,
     offline: bool,
     one_file: bool,
 ) -> None:
@@ -1088,6 +1172,19 @@ def convert(
                 if "one_file" in config_options
                 else config_options.pop("data_uri")
             )
+
+        if issubclass(cls, (RevealJS, HtmlZip)):
+            if "revealjs_assets_timeout" not in config_options:
+                config_options["revealjs_assets_timeout"] = str(revealjs_assets_timeout)
+
+            if flush_revealjs_cache and "flush_revealjs_cache" not in config_options:
+                config_options["flush_revealjs_cache"] = "true"
+
+            if (
+                disable_revealjs_cache
+                and "disable_revealjs_cache" not in config_options
+            ):
+                config_options["disable_revealjs_cache"] = "true"
 
         if (
             offline
