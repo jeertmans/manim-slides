@@ -59,6 +59,7 @@ dependencies = [
   "lxml>=4.9.2",
   "numpy>=1.19",
   "pillow>=9.5.0",
+  "platformdirs>=4.0",
   "pydantic>=2.0.1",
   "pydantic-extra-types>=2.0.0",
   "python-pptx>=0.6.21",
@@ -67,7 +68,6 @@ dependencies = [
   "rich>=13.3.2",
   "rtoml>=0.11.0",
   "tqdm>=4.64.1",
-  "platformdirs>=4.0",
 ]
 description = "Tool for live presentations using manim"
 dynamic = ["readme", "version"]
