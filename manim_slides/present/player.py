@@ -165,6 +165,10 @@ class Info(QWidget):  # type: ignore[misc]
 
         self.setLayout(main_layout)
 
+    def reset_elapsed_time(self) -> None:
+        self.start_time = datetime.now()
+        self.update_time()
+
     @Slot()
     def update_time(self) -> None:
         now = datetime.now()
@@ -667,5 +671,15 @@ class Player(QMainWindow):  # type: ignore[misc]
 
     def keyPressEvent(self, event: QKeyEvent) -> None:  # noqa: N802
         key = event.key()
+
+        # Ctrl+Shift+R resets the elapsed-time counter. The chord is deliberately
+        # awkward so it can't be triggered by accident mid-presentation.
+        if key == Qt.Key_R and event.modifiers() & Qt.ControlModifier and (
+            event.modifiers() & Qt.ShiftModifier
+        ):
+            self.info.reset_elapsed_time()
+            event.accept()
+            return
+        
         self.dispatch(key)
         event.accept()
