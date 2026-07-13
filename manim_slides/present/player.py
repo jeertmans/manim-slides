@@ -226,6 +226,7 @@ class Player(QMainWindow):  # type: ignore[misc]
         self.__current_file: Path = self.current_slide_config.file
 
         self.__playing_reversed_slide = False
+        self._navigated_backward = False
 
         # Widgets
 
@@ -277,6 +278,7 @@ class Player(QMainWindow):  # type: ignore[misc]
 
         self.presentation_changed.connect(self.presentation_changed_callback)
         self.slide_changed.connect(self.slide_changed_callback)
+        self.media_player.durationChanged.connect(self.duration_changed_callback)
 
         self.info = Info(
             aspect_ratio_mode=aspect_ratio_mode,
@@ -451,12 +453,13 @@ class Player(QMainWindow):  # type: ignore[misc]
                     self.current_slide_config.playback_rate * self.playback_rate
                 )
 
-            if start_paused:
+            if start_paused or self._navigated_backward:
                 self.media_player.pause()
             else:
                 self.media_player.play()
         else:
             w, _ = self.current_presentation_config.resolution
+            self._navigated_backward = False
             pixmap = QPixmap(url.toLocalFile())
             scaled_pixmap = pixmap.scaledToWidth(w)
             self.image_label.setPixmap(scaled_pixmap)
@@ -481,6 +484,7 @@ class Player(QMainWindow):  # type: ignore[misc]
 
     def load_previous_slide(self) -> None:
         self.playing_reversed_slide = False
+        self._navigated_backward = True
 
         if self.current_slide_index > 0:
             self.current_slide_index -= 1
@@ -494,6 +498,7 @@ class Player(QMainWindow):  # type: ignore[misc]
         self.load_current_slide()
 
     def load_next_slide(self) -> None:
+        self._navigated_backward = False
         if self.playing_reversed_slide:
             self.playing_reversed_slide = False
             self.preview_next_slide()  # Slide number did not change, but next did
@@ -513,6 +518,7 @@ class Player(QMainWindow):  # type: ignore[misc]
 
     def load_reversed_slide(self) -> None:
         self.playing_reversed_slide = True
+        self._navigated_backward = False
         self.current_file = self.current_slide_config.rev_file
         self.load_current_media()
 
@@ -533,6 +539,13 @@ class Player(QMainWindow):  # type: ignore[misc]
         self.info.slide_label.setText(f"{index + 1:4d}/{count:4<d}")
         self.info.slide_notes.setText(self.current_slide_config.notes)
         self.preview_next_slide()
+
+    @Slot(int)
+    def duration_changed_callback(self, duration: int) -> None:
+        if self._navigated_backward and duration > 0:
+            self.media_player.setPosition(duration)
+            self.media_player.pause()
+            self._navigated_backward = False
 
     def preview_next_slide(self) -> None:
         if slide_config := self.next_slide_config:
