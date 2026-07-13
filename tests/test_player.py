@@ -16,6 +16,7 @@ def test_player_backward_navigation() -> None:
 
     slide_cfg_1 = MagicMock(spec=SlideConfig)
     slide_cfg_1.file = Path("slide1.mp4")
+    slide_cfg_1.rev_file = Path("slide1_rev.mp4")
     slide_cfg_1.type = SlideType.Video
     slide_cfg_1.loop = False
     slide_cfg_1.auto_next = False
@@ -25,6 +26,7 @@ def test_player_backward_navigation() -> None:
 
     slide_cfg_2 = MagicMock(spec=SlideConfig)
     slide_cfg_2.file = Path("slide2.mp4")
+    slide_cfg_2.rev_file = Path("slide2_rev.mp4")
     slide_cfg_2.type = SlideType.Video
     slide_cfg_2.loop = False
     slide_cfg_2.auto_next = False
@@ -65,4 +67,51 @@ def test_player_backward_navigation() -> None:
         # Verify seeking was triggered and flag is reset
         player.media_player.setPosition.assert_called_with(5000)
         player.media_player.pause.assert_called()
+        assert player._navigated_backward is False  # nosec
+
+        # Test forward navigation resets flag
+        player._navigated_backward = True
+        player.load_next_slide()
+        assert player._navigated_backward is False  # nosec
+
+        # Test reversed slide navigation resets flag
+        player._navigated_backward = True
+        player.load_reversed_slide()
+        assert player._navigated_backward is False  # nosec
+
+
+def test_player_image_slide_backward_navigation() -> None:
+    _ = QApplication.instance() or QApplication([])
+
+    config = MagicMock(spec=Config)
+    config.keys = MagicMock()
+
+    slide_cfg_1 = MagicMock(spec=SlideConfig)
+    slide_cfg_1.file = Path("slide1.png")
+    slide_cfg_1.type = SlideType.Image
+    slide_cfg_1.loop = False
+    slide_cfg_1.auto_next = False
+    slide_cfg_1.playback_rate = 1.0
+    slide_cfg_1.reversed_playback_rate = 1.0
+    slide_cfg_1.notes = ""
+
+    pres_cfg = MagicMock(spec=PresentationConfig)
+    pres_cfg.slides = [slide_cfg_1]
+    pres_cfg.resolution = (1920, 1080)
+
+    with (
+        patch("manim_slides.present.player.QMediaPlayer"),
+        patch("manim_slides.present.player.QAudioOutput"),
+        patch("pathlib.Path.resolve", return_value=Path("slide1.png")),
+    ):
+        player = Player(
+            config,
+            [pres_cfg],
+            presentation_index=0,
+            slide_index=0,
+            skip_all=True,
+            hide_info_window=True,
+        )
+        player._navigated_backward = True
+        player.load_current_media()
         assert player._navigated_backward is False  # nosec
