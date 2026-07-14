@@ -674,12 +674,14 @@ class Player(QMainWindow):  # type: ignore[misc]
 
         # Ctrl+Shift+R resets the elapsed-time counter. The chord is deliberately
         # awkward so it can't be triggered by accident mid-presentation.
-        if key == Qt.Key_R and event.modifiers() & Qt.ControlModifier and (
-            event.modifiers() & Qt.ShiftModifier
+        if (
+            key == Qt.Key_R
+            and event.modifiers() & Qt.ControlModifier
+            and (event.modifiers() & Qt.ShiftModifier)
         ):
             self.info.reset_elapsed_time()
             event.accept()
             return
-        
+
         self.dispatch(key)
         event.accept()
