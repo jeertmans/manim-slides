@@ -89,16 +89,29 @@ class Key(BaseModel):  # type: ignore[misc]
 class Keys(BaseModel):  # type: ignore[misc]
     QUIT: Key = Field(default_factory=lambda: Key(ids=[key_id("Q")], name="QUIT"))
     PLAY_PAUSE: Key = Field(
-        default_factory=lambda: Key(ids=[key_id("Space")], name="PLAY / PAUSE")
+        # B is emitted by presentation clickers
+        default_factory=lambda: Key(
+            ids=[key_id("Space"), key_id("B")], name="PLAY / PAUSE"
+        )
     )
-    NEXT: Key = Field(default_factory=lambda: Key(ids=[key_id("Right")], name="NEXT"))
+    # PageUp / PageDown are emitted by presentation clickers
+    NEXT: Key = Field(
+        default_factory=lambda: Key(
+            ids=[key_id("Right"), key_id("PageDown")], name="NEXT"
+        )
+    )
     PREVIOUS: Key = Field(
-        default_factory=lambda: Key(ids=[key_id("Left")], name="PREVIOUS")
+        default_factory=lambda: Key(
+            ids=[key_id("Left"), key_id("PageUp")], name="PREVIOUS"
+        )
     )
     REVERSE: Key = Field(default_factory=lambda: Key(ids=[key_id("V")], name="REVERSE"))
     REPLAY: Key = Field(default_factory=lambda: Key(ids=[key_id("R")], name="REPLAY"))
     FULL_SCREEN: Key = Field(
-        default_factory=lambda: Key(ids=[key_id("F")], name="TOGGLE FULL SCREEN")
+        # P is emitted by presentation clickers
+        default_factory=lambda: Key(
+            ids=[key_id("F"), key_id("P")], name="TOGGLE FULL SCREEN"
+        )
     )
     HIDE_MOUSE: Key = Field(
         default_factory=lambda: Key(ids=[key_id("H")], name="HIDE / SHOW MOUSE")
