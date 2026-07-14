@@ -136,7 +136,7 @@ class Info(QWidget):  # type: ignore[misc]
         self.next_media_player.setLoops(-1)
 
         perview_layout.addWidget(self.next_video_widget, stretch=1)
-        
+
         self.next_image_label = QLabel()
         self.next_image_label.setAlignment(Qt.AlignCenter)
         self.next_image_label.setScaledContents(False)
