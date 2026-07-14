@@ -129,11 +129,13 @@ class Info(QWidget):  # type: ignore[misc]
         )
         self.next_video_widget = QVideoWidget()
         self.next_video_widget.setAspectRatioMode(aspect_ratio_mode)
+        self.next_video_widget.setMinimumSize(320, 180)
+        self.next_video_sink = self.next_video_widget.videoSink()
         self.next_media_player = QMediaPlayer()
         self.next_media_player.setVideoOutput(self.next_video_widget)
         self.next_media_player.setLoops(-1)
 
-        perview_layout.addWidget(self.next_video_widget)
+        perview_layout.addWidget(self.next_video_widget, stretch=1)
 
         self.next_image_label = QLabel()
         self.next_image_label.setAlignment(Qt.AlignCenter)
@@ -250,6 +252,7 @@ class Player(QMainWindow):  # type: ignore[misc]
         self.setWindowIcon(self.icon)
 
         self.frame = QVideoFrame()
+        self.next_frame = QVideoFrame()
 
         self.audio_output = QAudioOutput()
         self.video_widget = QVideoWidget()
@@ -285,6 +288,7 @@ class Player(QMainWindow):  # type: ignore[misc]
         self.info.close_event.connect(self.closeEvent)
         self.info.key_press_event.connect(self.keyPressEvent)
         self.video_sink.videoFrameChanged.connect(self.frame_changed)
+        self.info.next_video_sink.videoFrameChanged.connect(self.next_frame_changed)
         self.hide_info_window = hide_info_window
 
         # Connecting key callbacks
@@ -661,6 +665,14 @@ class Player(QMainWindow):  # type: ignore[misc]
             self.video_sink.setVideoFrame(self.frame)  # Reuse previous frame
 
         self.info.video_sink.setVideoFrame(self.frame)
+
+    def next_frame_changed(self, frame: QVideoFrame) -> None:
+        # Same workaround as :meth:`frame_changed`, applied to the "next slide"
+        # preview, so it freezes on its last frame instead of flashing black.
+        if frame.isValid():
+            self.next_frame = frame
+        else:
+            self.info.next_video_sink.setVideoFrame(self.next_frame)
 
     def closeEvent(self, event: QCloseEvent) -> None:  # noqa: N802
         self.close()
