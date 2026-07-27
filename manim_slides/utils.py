@@ -3,11 +3,13 @@ import os
 import shutil
 import tempfile
 from collections.abc import Iterator
+from itertools import pairwise
 from multiprocessing import Pool
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 import av
+import av.filter
 from tqdm import tqdm
 
 from .logger import logger
@@ -51,7 +53,7 @@ def concatenate_video_files(files: list[Path], dest: Path) -> None:
                 input_video_stream,
             )
             if AV_VERSION_14
-            else output_container.add_stream(
+            else output_container.add_stream(  # ty: ignore[no-matching-overload]
                 template=input_video_stream,
             )
         )
@@ -63,7 +65,7 @@ def concatenate_video_files(files: list[Path], dest: Path) -> None:
                     input_audio_stream,
                 )
                 if AV_VERSION_14
-                else output_container.add_stream(
+                else output_container.add_stream(  # ty: ignore[no-matching-overload]
                     template=input_audio_stream,
                 )
             )
@@ -93,7 +95,7 @@ def merge_basenames(files: list[Path]) -> Path:
     dirname: Path = files[0].parent
     ext = files[0].suffix
 
-    basenames = list(file.stem for file in files)
+    basenames = [file.stem for file in files]
 
     basenames_str = ",".join(f"{len(b)}:{b}" for b in basenames)
 
@@ -108,7 +110,7 @@ def merge_basenames(files: list[Path]) -> Path:
 
 def link_nodes(*nodes: av.filter.context.FilterContext) -> None:
     """Code from https://github.com/PyAV-Org/PyAV/issues/239."""
-    for c, n in zip(nodes, nodes[1:]):
+    for c, n in pairwise(nodes):
         c.link_to(n)
 
 
@@ -144,6 +146,7 @@ def reverse_video_file_in_one_chunk(src_and_dest: tuple[Path, Path]) -> None:
 
         for _ in range(frames_count):
             frame = graph.pull()
+            assert isinstance(frame, av.VideoFrame)
             frame.pict_type = (
                 av.video.frame.PictureType.NONE
             )  # Otherwise we get a warning saying it is changed
@@ -156,8 +159,8 @@ def reverse_video_file_in_one_chunk(src_and_dest: tuple[Path, Path]) -> None:
 def reverse_video_file(
     src: Path,
     dest: Path,
-    max_segment_duration: Optional[float] = 4.0,
-    num_processes: Optional[int] = None,
+    max_segment_duration: float | None = 4.0,
+    num_processes: int | None = None,
     **tqdm_kwargs: Any,
 ) -> None:
     """Reverses a video file, writing the result to `dest`."""
@@ -165,7 +168,7 @@ def reverse_video_file(
         input_stream = input_container.streams.video[0]
         if max_segment_duration is None:
             return reverse_video_file_in_one_chunk((src, dest))
-        elif input_stream.duration:
+        elif input_stream.duration and input_stream.time_base:
             if (
                 float(input_stream.duration * input_stream.time_base)
                 <= max_segment_duration
@@ -187,7 +190,7 @@ def reverse_video_file(
                 output_stream = (
                     output_container.add_stream_from_template(input_stream)
                     if AV_VERSION_14
-                    else output_container.add_stream(
+                    else output_container.add_stream(  # ty: ignore[no-matching-overload]
                         template=input_stream,
                     )
                 )
@@ -207,7 +210,8 @@ def reverse_video_file(
             with Pool(num_processes, maxtasksperchild=1) as pool:
                 for _ in tqdm(
                     pool.imap_unordered(
-                        reverse_video_file_in_one_chunk, zip(src_files, rev_files)
+                        reverse_video_file_in_one_chunk,
+                        zip(src_files, rev_files, strict=True),
                     ),
                     desc="Reversing large file by cutting it in segments",
                     total=len(src_files),

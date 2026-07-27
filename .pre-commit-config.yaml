@@ -26,11 +26,11 @@ repos:
   - id: ruff
     args: [--fix]
   - id: ruff-format
-- repo: https://github.com/pre-commit/mirrors-mypy
-  rev: v2.3.0
+- repo: https://github.com/astral-sh/ty-pre-commit
+  rev: v0.0.65
   hooks:
-  - id: mypy
-    additional_dependencies: [types-requests, types-setuptools]
+  - id: ty
+    args: [--isolated, --no-default-groups, --group=typechecking]
 - repo: https://github.com/codespell-project/codespell
   rev: v2.4.3
   hooks:

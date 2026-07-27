@@ -4,7 +4,7 @@ import sys
 
 import pytest
 
-import manim_slides.slide as slide
+from manim_slides import slide
 
 skip_if_py39 = pytest.mark.skipif(
     sys.version_info < (3, 10),

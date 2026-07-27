@@ -30,7 +30,7 @@ from __future__ import annotations
 import logging
 import mimetypes
 import shutil
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -48,7 +48,7 @@ from ..present import get_scenes_presentation_config
 
 
 @magics_class
-class ManimSlidesMagic(Magics):  # type: ignore
+class ManimSlidesMagic(Magics):
     def __init__(self, shell: InteractiveShell) -> None:
         super().__init__(shell)
         self.rendered_files: dict[Path, Path] = {}
@@ -149,7 +149,7 @@ class ManimSlidesMagic(Magics):  # type: ignore
         if local_ns is None:
             local_ns = {}
         if cell:
-            exec(cell, local_ns)
+            exec(cell, local_ns)  # noqa: S102
 
         split_args = line.split("--manim-slides", 2)
         manim_args = split_args[0].split()
@@ -200,7 +200,6 @@ class ManimSlidesMagic(Magics):  # type: ignore
 
             if local_path in self.rendered_files:
                 self.rendered_files[local_path].unlink()
-                pass
             self.rendered_files[local_path] = tmpfile
             tmpfile.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy(local_path, tmpfile)
@@ -275,4 +274,5 @@ class ManimSlidesMagic(Magics):  # type: ignore
 
 
 def _generate_file_name() -> str:
-    return config["scene_names"][0] + "@" + datetime.now().strftime("%Y-%m-%d@%H-%M-%S")  # type: ignore
+    now = datetime.now(tz=timezone.utc)
+    return config["scene_names"][0] + "@" + now.strftime("%Y-%m-%d@%H-%M-%S")

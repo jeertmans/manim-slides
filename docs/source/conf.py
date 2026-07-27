@@ -1,4 +1,3 @@
-# type: ignore
 # Configuration file for the Sphinx documentation builder.
 #
 # For the full list of built-in configuration values, see the documentation:
@@ -6,7 +5,8 @@
 
 import os
 import sys
-from datetime import date
+from datetime import datetime
+from zoneinfo import ZoneInfo
 
 from manim_slides import __version__
 
@@ -16,7 +16,9 @@ assert sys.version_info >= (3, 10), "Building docs requires Python 3.10"
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 project = "Manim Slides"
-copyright = f"2024-{date.today().year}, Jérome Eertmans"
+copyright = (
+    f"2024-{datetime.now(tz=ZoneInfo('Europe/Brussels')).date().year}, Jérome Eertmans"
+)
 author = "Jérome Eertmans"
 version = __version__
 

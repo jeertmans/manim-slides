@@ -59,7 +59,7 @@ def cli(notify_outdated_version: bool) -> None:
         except json.JSONDecodeError:
             logger.debug(warn_prompt)
             logger.debug(f"Error decoding JSON from {manim_info_url}")
-        except Exception:
+        except Exception:  # noqa: BLE001
             logger.debug(f"Something went wrong: {warn_prompt}")
 
 
