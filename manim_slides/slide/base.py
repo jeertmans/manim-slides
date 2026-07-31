@@ -222,7 +222,7 @@ class BaseSlide:
         """
         return [
             mobject
-            for mobject in self.mobjects  # type: ignore[attr-defined]
+            for mobject in self.mobjects  # ty: ignore[unresolved-attribute]
             if mobject not in self.canvas_mobjects
         ]
 
@@ -351,7 +351,7 @@ class BaseSlide:
 
     def play(self, *args: Any, **kwargs: Any) -> None:
         """Overload 'self.play' and increment animation count."""
-        super().play(*args, **kwargs)  # type: ignore[misc]
+        super().play(*args, **kwargs)  # ty: ignore[unresolved-attribute]
         self._current_animation += 1
 
     @BaseSlideConfig.wrapper("base_slide_config")
@@ -542,7 +542,7 @@ class BaseSlide:
             if self.wait_time_between_slides > 0.0 and (
                 not self._base_slide_config.loop or self.wait_between_looping_slides
             ):
-                self.wait(self.wait_time_between_slides)  # type: ignore[attr-defined]
+                self.wait(self.wait_time_between_slides)  # ty: ignore[unresolved-attribute]
 
             self._slides.append(
                 PreSlideConfig.from_base_slide_config_and_animation_indices(

@@ -21,7 +21,7 @@ PYSIDE6_NOT_INSTALLED = importlib.util.find_spec("PySide6") is None
     list(
         chain.from_iterable(
             combinations(("manim", "manimlib", "pyqt6", "pyside6"), r=r)
-            for r in range(0, 5)
+            for r in range(5)
         )
     ),
 )
