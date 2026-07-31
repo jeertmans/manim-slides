@@ -152,7 +152,7 @@ search = "<!-- start changelog -->"
 builtin = "clear,rare,informal,usage,names,en-GB_to_en-US"
 check-hidden = true
 ignore-words-list = "master"
-skip = "uv.lock"
+skip = "uv.lock,docs/source/_static/firebase_sync_demo.html"
 
 [tool.coverage.report]
 exclude_lines = [

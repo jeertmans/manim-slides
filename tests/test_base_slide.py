@@ -86,6 +86,13 @@ class TestBaseSlide:
 
         assert base_slide.wait_time_between_slides == 0.0
 
+    def test_wait_between_looping_slides(self, base_slide: BaseSlide) -> None:
+        assert base_slide.wait_between_looping_slides
+
+        base_slide.wait_between_looping_slides = False
+
+        assert not base_slide.wait_between_looping_slides
+
     def test_skip_animations(self, base_slide: BaseSlide) -> None:
         assert not base_slide._skip_animations
 

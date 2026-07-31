@@ -20,6 +20,7 @@ from manim import (
     Circle,
     Dot,
     FadeIn,
+    FadeOut,
     GrowFromCenter,
     Square,
     Text,
@@ -540,6 +541,26 @@ class TestSlide:
                 assert self._current_animation == 1
                 self.next_slide()
                 assert self._current_animation == 2  # self.wait = +1
+
+    def test_wait_between_looping_slides(self) -> None:
+        @assert_constructs
+        class _(CESlide):
+            def construct(self) -> None:
+                self._wait_time_between_slides = 1.0
+                self.wait_between_looping_slides = False
+                circle = Circle(color=BLUE)
+                self.play(GrowFromCenter(circle))
+                assert self._current_animation == 1
+                self.next_slide(loop=True)
+                assert (
+                    self._current_animation == 2
+                )  # self.wait = +1, slide is not a loop yet
+                self.play(FadeOut(circle))
+                assert self._current_animation == 3
+                self.next_slide()
+                assert (
+                    self._current_animation == 3
+                )  # no extra wait, closing slide loops
 
     def test_next_slide(self) -> None:
         @assert_constructs

@@ -1,0 +1,542 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <title>{{ title }}</title>
+
+    <link rel="stylesheet" href="{{ cdn_url }}/dist/reveal.css">
+    <link rel="stylesheet" href="{{ cdn_url }}/dist/theme/{{ reveal_theme }}.css">
+
+    <!-- Theme used for syntax highlighting of code -->
+    <!-- <link rel="stylesheet" href="lib/css/zenburn.css"> -->
+    <link rel="stylesheet" href="{{ cdn_url }}/dist/plugin/highlight/zenburn.css">
+    <!-- <link rel="stylesheet" href="index.css"> -->
+    <!-- FIREBASE REALTIME DATABASE SYNC -->
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+      import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+      import { getDatabase, ref, onValue, set, serverTimestamp, onDisconnect } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+      const firebaseConfig = {
+        apiKey: "{{ firebase_api_key | default('AIzaSyD6zkJUPgUF0X5jgLo_E2lOSIUXvNPi5Xk') }}",
+        authDomain: "{{ firebase_auth_domain | default('manim-slides-sync.firebaseapp.com') }}",
+        databaseURL: "{{ firebase_database_url | default('https://manim-slides-sync-default-rtdb.europe-west1.firebasedatabase.app') }}",
+        projectId: "{{ firebase_project_id | default('manim-slides-sync') }}"
+      };
+
+      const params = new URLSearchParams(window.location.search);
+      const hash = window.location.hash;
+      const role = (params.get("role") === "presenter" || hash.includes("presenter")) ? "presenter" : "guest";
+
+      const isPresenter = role === "presenter";
+      const isGuest = !isPresenter;
+
+      let roomId = params.get("room");
+      if (isPresenter && !roomId) {
+        roomId = "room-" + Math.random().toString(36).substring(2, 8);
+        params.set("room", roomId);
+        const newUrl = window.location.pathname + "?" + params.toString() + hash;
+        window.history.replaceState(null, "", newUrl);
+      }
+
+      if (roomId) {
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getDatabase(app);
+        const roomRef = ref(db, `rooms/${roomId}`);
+        const metaRef = ref(db, `rooms/${roomId}/meta`);
+
+        let lastSeq = 0;
+        let revealReady = typeof Reveal !== "undefined" && Reveal.isReady && Reveal.isReady();
+        let bufferedUpdate = null;
+
+        if (isPresenter) {
+          const showControls = () => {
+            const controls = document.getElementById("presenter-controls");
+            if (controls) controls.style.display = "flex";
+          };
+          if (document.readyState === "loading") {
+            document.addEventListener("DOMContentLoaded", showControls);
+          } else {
+            showControls();
+          }
+
+          signInAnonymously(auth).then(() => {
+            const uid = auth.currentUser.uid;
+            // Optional: Write presenter ID for security rules
+            set(metaRef, { presenterId: uid });
+
+            // Clean up the room when the presenter disconnects/closes the page
+            onDisconnect(roomRef).remove();
+
+            let lastPointerUpdate = 0;
+            document.addEventListener('mousemove', (e) => {
+              const now = Date.now();
+              if (now - lastPointerUpdate > 100) {
+                lastPointerUpdate = now;
+                const x = e.clientX / window.innerWidth;
+                const y = e.clientY / window.innerHeight;
+                set(ref(db, `rooms/${roomId}/pointer`), { x, y, active: true });
+              }
+            });
+            document.addEventListener('mouseleave', () => {
+              set(ref(db, `rooms/${roomId}/pointer`), { active: false });
+            });
+
+            window._sendFirebaseSlideState = function(indices = null) {
+              if (!indices && typeof Reveal !== "undefined" && Reveal.getIndices) {
+                indices = Reveal.getIndices();
+              }
+              if (indices) {
+                lastSeq++;
+                const payload = {
+                  h: indices.h || 0,
+                  v: indices.v || 0,
+                  f: indices.f || 0,
+                  seq: lastSeq,
+                  updatedAt: serverTimestamp(),
+                  meta: { presenterId: uid }
+                };
+                console.log("Firebase sending sync update:", { ...payload, updatedAt: "serverTimestamp()" });
+                set(roomRef, payload);
+              }
+            };
+
+            if (typeof Reveal !== "undefined") {
+              if (Reveal.isReady()) {
+                window._sendFirebaseSlideState();
+              } else {
+                Reveal.on("ready", () => window._sendFirebaseSlideState());
+              }
+              Reveal.on("slidechanged", () => window._sendFirebaseSlideState());
+            } else {
+              // Wait for Reveal to become available
+              window.addEventListener("load", () => {
+                Reveal.on("ready", () => window._sendFirebaseSlideState());
+                Reveal.on("slidechanged", () => window._sendFirebaseSlideState());
+              });
+            }
+          }).catch((err) => console.error("Firebase Auth Error", err));
+        } else {
+          // Guest mode
+          onValue(roomRef, (snapshot) => {
+            const data = snapshot.val();
+            console.log("Firebase received sync event:", data);
+            if (data && data.seq > lastSeq) {
+              lastSeq = data.seq;
+              if (revealReady && typeof Reveal !== "undefined") {
+                Reveal.slide(data.h, data.v, data.f);
+              } else {
+                bufferedUpdate = data;
+              }
+            }
+          });
+
+          // Handlers to apply update once Reveal is ready
+          const onRevealReady = () => {
+            revealReady = true;
+            if (bufferedUpdate) {
+              Reveal.slide(bufferedUpdate.h, bufferedUpdate.v, bufferedUpdate.f);
+              bufferedUpdate = null;
+            }
+            // Disable guest controls
+            Reveal.configure({
+              controls: false,
+              progress: false,
+              keyboard: false,
+              touch: false,
+              overview: false,
+              mouseWheel: false,
+            });
+          };
+
+          if (typeof Reveal !== "undefined") {
+            if (Reveal.isReady()) onRevealReady();
+            else Reveal.on("ready", onRevealReady);
+          } else {
+            window.addEventListener("load", () => {
+              if (Reveal.isReady()) onRevealReady();
+              else Reveal.on("ready", onRevealReady);
+            });
+          }
+
+          // Laser pointer setup
+          const laser = document.createElement("div");
+          laser.style.position = "fixed";
+          laser.style.left = "0px";
+          laser.style.top = "0px";
+          laser.style.width = "15px";
+          laser.style.height = "15px";
+          laser.style.borderRadius = "50%";
+          laser.style.backgroundColor = "red";
+          laser.style.boxShadow = "0 0 10px red";
+          laser.style.zIndex = "99999";
+          laser.style.pointerEvents = "none";
+          laser.style.transition = "transform 0.05s linear, opacity 0.2s";
+          laser.style.opacity = "0";
+          document.body.appendChild(laser);
+
+          let hideTimeout;
+          onValue(ref(db, `rooms/${roomId}/pointer`), (snapshot) => {
+            const data = snapshot.val();
+            if (data && data.active !== false) {
+              laser.style.opacity = "1";
+              laser.style.transform = `translate(${data.x * window.innerWidth}px, ${data.y * window.innerHeight}px) translate(-50%, -50%)`;
+              clearTimeout(hideTimeout);
+              hideTimeout = setTimeout(() => { laser.style.opacity = "0"; }, 1500);
+            } else {
+              laser.style.opacity = "0";
+            }
+          });
+        }
+      }
+    </script>
+  </head>
+
+  <body>
+    <!-- Presenter Controls -->
+    <div id="presenter-controls" style="position: fixed; top: 10px; right: 12px; z-index: 9999; display: none; gap: 8px; align-items: center;">
+      <button
+        id="copy-guest-link"
+        style="font-size: 12px; color: #fff; background: rgba(0, 0, 0, 0.45); padding: 4px 8px; border-radius: 4px; border: 1px solid #555; cursor: pointer;"
+        onclick="const btn = this; let link = window.location.href.split('#')[0].replace(/([?&])role=presenter(&|$)/, '$1').replace(/[?&]$/, '') + '#guest'; navigator.clipboard.writeText(link).then(() => { const old = btn.innerText; btn.innerText = 'Copied!'; setTimeout(() => btn.innerText = old, 1500); })"
+      >Copy Guest Link</button>
+    </div>
+
+    <div class="reveal">
+      <div class="slides">
+        {% for presentation_config in presentation_configs -%}
+        {% set ns = namespace(open_stack=false) %}
+          {%- set outer_loop = loop %}
+          {% for slide_config in presentation_config.slides %}
+            {% if one_file %}
+              {% set file = file_to_data_uri(slide_config.file) %}
+            {% else %}
+              {% set file = assets_dir ~ '/' ~ (prefix(outer_loop.index0) + slide_config.file.name) %}
+            {% endif %}
+            {% if slide_config.direction == "vertical" %}
+              {% if not ns.open_stack %}
+              <section>
+              {% set ns.open_stack = true %}
+            {% endif %}
+            {% else %}
+              {% if ns.open_stack %}
+              </section>
+              {% set ns.open_stack = false %}
+            {% endif %}
+          {% endif %}
+        <section
+          data-background-size={{ background_size }}
+          data-background-color="{{ presentation_config.background_color }}"
+          {% if slide_config.type.value == "image" %}
+          data-background-image="{{ file }}"
+          {% else %}
+          data-background-video="{{ file }}"
+          {% if loop.index == 1 and outer_loop.index == 1 %}
+          data-background-video-muted
+          {% endif %}
+          {% if slide_config.loop %}
+          data-background-video-loop
+          {% endif %}
+          {% endif %}
+          {% if slide_config.auto_next %}
+          data-autoslide="{{ get_duration_ms(slide_config.file) }}"
+          {% endif %}
+          >
+          {% if slide_config.notes != "" %}
+            <aside class="notes" data-markdown>{{ slide_config.notes }}</aside>
+          {% endif %}
+        </section>
+          {% endfor %}
+        {% if ns.open_stack %}
+         </section>
+        {% endif %}
+        {% endfor %}
+      </div>
+    </div>
+
+    <script src="{{ cdn_url }}/dist/reveal.js"></script>
+    <script src="{{ cdn_url }}/dist/plugin/notes.js"></script>
+
+    <!-- To include plugins, see: https://revealjs.com/plugins/ -->
+    {% if has_notes %}
+    <script src="{{ cdn_url }}/dist/plugin/markdown.js"></script>
+    {% endif %}
+
+    <!-- <script src="index.js"></script> -->
+    <script>
+      Reveal.initialize({
+        {% if has_notes %}
+        /// The list of RevealJS plugins.
+        plugins: [ RevealMarkdown, RevealNotes ],
+        {% endif %}
+        // The "normal" size of the presentation, aspect ratio will
+        // be preserved when the presentation is scaled to fit different
+        // resolutions. Can be specified using percentage units.
+        width: {{ width }},
+        height: {{ height }},
+        // Factor of the display size that should remain empty around
+        // the content
+        margin: {{ margin }},
+        // Bounds for smallest/largest possible scale to apply to content
+        minScale: {{ min_scale }},
+        maxScale: {{ max_scale }},
+        // Display presentation control arrows
+        controls: {{ controls }},
+        // Help the user learn the controls by providing hints, for example by
+        // bouncing the down arrow when they first encounter a vertical slide
+        controlsTutorial: {{ controls_tutorial }},
+        // Determines where controls appear, "edges" or "bottom-right"
+        controlsLayout: {{ controls_layout }},
+        // Visibility rule for backwards navigation arrows; "faded", "hidden"
+        // or "visible"
+        controlsBackArrows: {{ controls_back_arrows }},
+        // Display a presentation progress bar
+        progress: {{ progress }},
+        // Display the page number of the current slide
+        // - true:    Show slide number
+        // - false:   Hide slide number
+        //
+        // Can optionally be set as a string that specifies the number formatting:
+        // - "h.v":   Horizontal . vertical slide number (default)
+        // - "h/v":   Horizontal / vertical slide number
+        // - "c":   Flattened slide number
+        // - "c/t":   Flattened slide number / total slides
+        //
+        // Alternatively, you can provide a function that returns the slide
+        // number for the current slide. The function should take in a slide
+        // object and return an array with one string [slideNumber] or
+        // three strings [n1,delimiter,n2]. See #formatSlideNumber().
+        slideNumber: {{ slide_number }},
+        // Can be used to limit the contexts in which the slide number appears
+        // - "all":      Always show the slide number
+        // - "print":    Only when printing to PDF
+        // - "speaker":  Only in the speaker view
+        showSlideNumber: {{ show_slide_number }},
+        // Use 1 based indexing for # links to match slide number (default is zero
+        // based)
+        hashOneBasedIndex: {{ hash_one_based_index }},
+        // Add the current slide number to the URL hash so that reloading the
+        // page/copying the URL will return you to the same slide
+        hash: {{ hash }},
+        // Flags if we should monitor the hash and change slides accordingly
+        respondToHashChanges: {{ respond_to_hash_changes }},
+        // Enable support for jump-to-slide navigation shortcuts
+        jumpToSlide: {{ jump_to_slide }},
+        // Push each slide change to the browser history.  Implies `hash: true`
+        history: {{ history }},
+        // Enable keyboard shortcuts for navigation
+        keyboard: {{ keyboard }},
+        // Optional function that blocks keyboard events when retuning false
+        //
+        // If you set this to 'focused', we will only capture keyboard events
+        // for embedded decks when they are in focus
+        keyboardCondition: {{ keyboard_condition }},
+        // Disables the default reveal.js slide layout (scaling and centering)
+        // so that you can use custom CSS layout
+        disableLayout: {{ disable_layout }},
+        // Enable the slide overview mode
+        overview: {{ overview }},
+        // Vertical centering of slides
+        center: {{ center }},
+        // Enables touch navigation on devices with touch input
+        touch: {{ touch }},
+        // Loop the presentation
+        loop: {{ loop }},
+        // Change the presentation direction to be RTL
+        rtl: {{ rtl }},
+        // Changes the behavior of our navigation directions.
+        //
+        // "default"
+        // Left/right arrow keys step between horizontal slides, up/down
+        // arrow keys step between vertical slides. Space key steps through
+        // all slides (both horizontal and vertical).
+        //
+        // "linear"
+        // Removes the up/down arrows. Left/right arrows step through all
+        // slides (both horizontal and vertical).
+        //
+        // "grid"
+        // When this is enabled, stepping left/right from a vertical stack
+        // to an adjacent vertical stack will land you at the same vertical
+        // index.
+        //
+        // Consider a deck with six slides ordered in two vertical stacks:
+        // 1.1    2.1
+        // 1.2    2.2
+        // 1.3    2.3
+        //
+        // If you're on slide 1.3 and navigate right, you will normally move
+        // from 1.3 -> 2.1. If "grid" is used, the same navigation takes you
+        // from 1.3 -> 2.3.
+        navigationMode: {{ navigation_mode }},
+        // Randomizes the order of slides each time the presentation loads
+        shuffle: {{ shuffle }},
+        // Turns fragments on and off globally
+        fragments: {{ fragments }},
+        // Flags whether to include the current fragment in the URL,
+        // so that reloading brings you to the same fragment position
+        fragmentInURL: {{ fragment_in_url }},
+        // Flags if the presentation is running in an embedded mode,
+        // i.e. contained within a limited portion of the screen
+        embedded: {{ embedded }},
+        // Flags if we should show a help overlay when the question-mark
+        // key is pressed
+        help: {{ help }},
+        // Flags if it should be possible to pause the presentation (blackout)
+        pause: {{ pause }},
+        // Flags if speaker notes should be visible to all viewers
+        showNotes: {{ show_notes }},
+        // Global override for autolaying embedded media (video/audio/iframe)
+        // - null:   Media will only autoplay if data-autoplay is present
+        // - true:   All media will autoplay, regardless of individual setting
+        // - false:  No media will autoplay, regardless of individual setting
+        autoPlayMedia: {{ auto_play_media }},
+        // Global override for preloading lazy-loaded iframes
+        // - null:   Iframes with data-src AND data-preload will be loaded when within
+        //           the viewDistance, iframes with only data-src will be loaded when visible
+        // - true:   All iframes with data-src will be loaded when within the viewDistance
+        // - false:  All iframes with data-src will be loaded only when visible
+        preloadIframes: {{ preload_iframes }},
+        // Can be used to globally disable auto-animation
+        autoAnimate: {{ auto_animate }},
+        // Optionally provide a custom element matcher that will be
+        // used to dictate which elements we can animate between.
+        autoAnimateMatcher: {{ auto_animate_matcher }},
+        // Default settings for our auto-animate transitions, can be
+        // overridden per-slide or per-element via data arguments
+        autoAnimateEasing: {{ auto_animate_easing }},
+        autoAnimateDuration: {{ auto_animate_duration }},
+        autoAnimateUnmatched: {{ auto_animate_unmatched }},
+        // CSS properties that can be auto-animated. Position & scale
+        // is matched separately so there's no need to include styles
+        // like top/right/bottom/left, width/height or margin.
+        autoAnimateStyles: {{ auto_animate_styles }},
+        // Controls automatic progression to the next slide
+        // - 0:      Auto-sliding only happens if the data-autoslide HTML attribute
+        //           is present on the current slide or fragment
+        // - 1+:     All slides will progress automatically at the given interval
+        // - false:  No auto-sliding, even if data-autoslide is present
+        autoSlide: {{ auto_slide }},
+        // Stop auto-sliding after user input
+        autoSlideStoppable: {{ auto_slide_stoppable }},
+        // Use this method for navigation when auto-sliding (defaults to navigateNext)
+        autoSlideMethod: {{ auto_slide_method }},
+        // Specify the average time in seconds that you think you will spend
+        // presenting each slide. This is used to show a pacing timer in the
+        // speaker view
+        defaultTiming: {{ default_timing }},
+        // Enable slide navigation via mouse wheel
+        mouseWheel: {{ mouse_wheel }},
+        // Opens links in an iframe preview overlay
+        // Add `data-preview-link` and `data-preview-link="false"` to customize each link
+        // individually
+        previewLinks: {{ preview_links }},
+        // Exposes the reveal.js API through window.postMessage
+        postMessage: {{ post_message }},
+        // Dispatches all reveal.js events to the parent window through postMessage
+        postMessageEvents: {{ post_message_events }},
+        // Focuses body when page changes visibility to ensure keyboard shortcuts work
+        focusBodyOnPageVisibilityChange: {{ focus_body_on_page_visibility_change }},
+        // Transition style
+        transition: {{ transition }}, // none/fade/slide/convex/concave/zoom
+        // Transition speed
+        transitionSpeed: {{ transition_speed }}, // default/fast/slow
+        // Transition style for full page slide backgrounds
+        backgroundTransition: {{ background_transition }}, // none/fade/slide/convex/concave/zoom
+        // The maximum number of pages a single slide can expand onto when printing
+        // to PDF, unlimited by default
+        pdfMaxPagesPerSlide: {{ pdf_max_pages_per_slide }},
+        // Prints each fragment on a separate slide
+        pdfSeparateFragments: {{ pdf_separate_fragments }},
+        // Offset used to reduce the height of content within exported PDF pages.
+        // This exists to account for environment differences based on how you
+        // print to PDF. CLI printing options, like phantomjs and wkpdf, can end
+        // on precisely the total height of the document whereas in-browser
+        // printing has to end one pixel before.
+        pdfPageHeightOffset: {{ pdf_page_height_offset }},
+        // Number of slides away from the current that are visible
+        viewDistance: {{ view_distance }},
+        // Number of slides away from the current that are visible on mobile
+        // devices. It is advisable to set this to a lower number than
+        // viewDistance in order to save resources.
+        mobileViewDistance: {{ mobile_view_distance }},
+        // The display mode that will be used to show slides
+        display: {{ display }},
+        // Hide cursor if inactive
+        hideInactiveCursor: {{ hide_inactive_cursor }},
+        // Time before the cursor is hidden (in ms)
+        hideCursorTime: {{ hide_cursor_time }}
+      });
+      // Override SPACE to play / pause the video
+      Reveal.addKeyBinding(
+        {
+          keyCode: 32,
+          key: 'SPACE',
+          description: 'Play / pause video'
+        },
+        () => {
+          var currentVideos = Reveal.getCurrentSlide().slideBackgroundContentElement.getElementsByTagName("video");
+          if (currentVideos.length > 0) {
+            if (currentVideos[0].paused == true) currentVideos[0].play();
+            else currentVideos[0].pause();
+          } else {
+            Reveal.next();
+          }
+        }
+      );
+      {% if one_file %}
+      // Fix found by @t-fritsch and @Rapsssito on GitHub
+      // see: https://github.com/hakimel/reveal.js/discussions/3362#discussioncomment-11733074.
+      function setVideoBase64(video) {
+        const sources = video.querySelectorAll('source');
+        // Update the source of the video
+        sources.forEach((source, i) => {
+          const src = source.getAttribute('src');
+          if(src.match(/^data:video.*;base64$/)) {
+            const nextSrc = sources[i+1]?.getAttribute('src');
+            video.setAttribute('src', `${src},${nextSrc}`);
+          }
+        });
+      }
+
+      function fixBase64VideoBackground(event) {
+        // Analyze all slides backgrounds
+        for (const slide of Reveal.getBackgroundsElement().querySelectorAll('.slide-background')) {
+          // Get the slide video and its sources for each background
+          const video = slide.querySelector('video');
+          if (video) {
+            setVideoBase64(video);
+          } else {
+            // Listen to the creation of the video element
+            const observer = new MutationObserver((mutationsList) => {
+              for (const mutation of mutationsList) {
+                if (mutation.type === 'childList') {
+                  for (const addedNode of mutation.addedNodes) {
+                    if (addedNode.tagName === 'VIDEO') {
+                      setVideoBase64(addedNode);
+                      observer.disconnect(); // Stop observing once the video is handled
+                    }
+                  }
+                }
+              }
+            });
+            observer.observe(slide, { childList: true, subtree: true });
+          }
+        }
+      }
+      // Setup base64 videos
+      Reveal.on( 'ready', fixBase64VideoBackground );
+      {% endif %}
+    </script>
+    {% if env['READTHEDOCS'] %}
+      <style>
+        readthedocs-flyout, readthedocs-notification {
+          display: none;
+        }
+      </style>
+    {% endif %}
+  </body>
+</html>

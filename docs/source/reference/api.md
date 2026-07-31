@@ -20,6 +20,7 @@ use, not the methods used internally when rendering.
         remove_from_canvas,
         start_skip_animations,
         stop_skip_animations,
+        wait_between_looping_slides,
         wait_time_between_slides,
         wipe,
         zoom,
