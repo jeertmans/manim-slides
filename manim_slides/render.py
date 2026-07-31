@@ -17,9 +17,11 @@ import click
 
 
 @click.command(
-    context_settings=dict(
-        ignore_unknown_options=True, allow_extra_args=True, help_option_names=("-h",)
-    ),
+    context_settings={
+        "ignore_unknown_options": True,
+        "allow_extra_args": True,
+        "help_option_names": ("-h",),
+    },
     options_metavar="[-h] [--CE|--GL]",
 )
 @click.option(
@@ -48,7 +50,11 @@ def render(ce: bool, gl: bool, args: tuple[str, ...]) -> None:
     if ce and gl:
         raise click.UsageError("You cannot specify both --CE and --GL renderers.")
     if gl:
-        completed = subprocess.run([sys.executable, "-m", "manimlib", "-w", *args])
+        completed = subprocess.run(
+            [sys.executable, "-m", "manimlib", "-w", *args], check=False
+        )
     else:
-        completed = subprocess.run([sys.executable, "-m", "manim", "render", *args])
+        completed = subprocess.run(
+            [sys.executable, "-m", "manim", "render", *args], check=False
+        )
     sys.exit(completed.returncode)

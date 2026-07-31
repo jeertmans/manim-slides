@@ -1,7 +1,7 @@
 import signal
 import sys
 from pathlib import Path
-from typing import Literal, Optional
+from typing import Literal
 
 import click
 from click import Context, Parameter
@@ -30,9 +30,7 @@ def _list_scenes(folder: Path) -> list[str]:
         try:
             _ = PresentationConfig.from_file(filepath)
             scenes.append(filepath.stem)
-        except (
-            Exception
-        ) as e:  # Could not parse this file as a proper presentation config
+        except Exception as e:  # noqa: BLE001 (could not parse this file as a proper presentation config)
             logger.warning(
                 f"Something went wrong with parsing presentation config `{filepath}`: {e}"
             )
@@ -54,7 +52,7 @@ def prompt_for_scenes(folder: Path) -> list[str]:
     click.echo("Choose number corresponding to desired scene/arguments.")
     click.echo("(Use comma separated list for multiple entries)")
 
-    def value_proc(value: Optional[str]) -> list[str]:
+    def value_proc(value: str | None) -> list[str]:
         indices = list(map(int, (value or "").strip().replace(" ", "").split(",")))
 
         if not all(0 < i <= len(scene_choices) for i in indices):
@@ -70,7 +68,7 @@ def prompt_for_scenes(folder: Path) -> list[str]:
     while True:
         try:
             scenes = click.prompt("Choice(s)", value_proc=value_proc)
-            return scenes  # type: ignore
+            return scenes
         except ValueError as e:
             raise click.UsageError(str(e)) from None
 
@@ -99,11 +97,11 @@ def get_scenes_presentation_config(
 
 def start_at_callback(
     ctx: Context, param: Parameter, values: str
-) -> tuple[Optional[int], ...]:
+) -> tuple[int | None, ...]:
     if values == "(None, None)":
         return (None, None)
 
-    def str_to_int_or_none(value: str) -> Optional[int]:
+    def str_to_int_or_none(value: str) -> int | None:
         if value.lower().strip() == "":
             return None
         else:
@@ -253,14 +251,14 @@ def present(  # noqa: C901
     exit_after_last_slide: bool,
     hide_mouse: bool,
     aspect_ratio: str,
-    start_at: tuple[Optional[int], Optional[int], Optional[int]],
+    start_at: tuple[int | None, int | None, int | None],
     start_at_scene_number: int,
     start_at_slide_number: int,
-    screen_number: Optional[int],
+    screen_number: int | None,
     playback_rate: float,
     next_terminates_loop: bool,
-    hide_info_window: Optional[Literal["always", "never"]],
-    info_window_screen_number: Optional[int],
+    hide_info_window: Literal["always", "never"] | None,
+    info_window_screen_number: int | None,
 ) -> None:
     """
     Present SCENE(s), one at a time, in order.
@@ -304,7 +302,7 @@ def present(  # noqa: C901
 
     screens = app.screens()
 
-    def get_screen(number: int) -> Optional[QScreen]:
+    def get_screen(number: int) -> QScreen | None:
         try:
             return screens[number]
         except IndexError:
@@ -337,8 +335,8 @@ def present(  # noqa: C901
         info_window_screen = None
 
     aspect_ratio_modes = {
-        "keep": Qt.KeepAspectRatio,
-        "ignore": Qt.IgnoreAspectRatio,
+        "keep": Qt.AspectRatioMode.KeepAspectRatio,
+        "ignore": Qt.AspectRatioMode.IgnoreAspectRatio,
     }
 
     player = Player(

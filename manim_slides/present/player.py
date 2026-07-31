@@ -1,6 +1,5 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
-from typing import Optional
 
 from qtpy.QtCore import Qt, QTimer, QUrl, Signal, Slot
 from qtpy.QtGui import QCloseEvent, QIcon, QKeyEvent, QPixmap, QScreen
@@ -17,12 +16,12 @@ from qtpy.QtWidgets import (
 
 from ..config import Config, PresentationConfig, SlideConfig, SlideType
 from ..logger import logger
-from ..resources import *  # noqa: F403
+from ..resources import *
 
 WINDOW_NAME = "Manim Slides"
 
 
-class Info(QWidget):  # type: ignore[misc]
+class Info(QWidget):
     key_press_event: Signal = Signal(QKeyEvent)
     close_event: Signal = Signal(QCloseEvent)
 
@@ -30,7 +29,7 @@ class Info(QWidget):  # type: ignore[misc]
         self,
         *,
         aspect_ratio_mode: Qt.AspectRatioMode,
-        screen: Optional[QScreen],
+        screen: QScreen | None,
     ) -> None:
         super().__init__()
 
@@ -59,7 +58,7 @@ class Info(QWidget):  # type: ignore[misc]
         current_layout.addWidget(self.main_video_widget)
 
         self.main_image_label = QLabel()
-        self.main_image_label.setAlignment(Qt.AlignCenter)
+        self.main_image_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.main_image_label.setScaledContents(False)
         self.main_image_label.setMinimumSize(720, 480)
         self.main_image_label.hide()
@@ -71,7 +70,7 @@ class Info(QWidget):  # type: ignore[misc]
 
         self.scene_label = QLabel()
         self.slide_label = QLabel()
-        self.start_time = datetime.now()
+        self.start_time = datetime.now(tz=timezone.utc).astimezone()
         self.time_label = QLabel()
         self.elapsed_label = QLabel("00h00m00s")
         self.timer = QTimer()
@@ -136,7 +135,7 @@ class Info(QWidget):  # type: ignore[misc]
         perview_layout.addWidget(self.next_video_widget)
 
         self.next_image_label = QLabel()
-        self.next_image_label.setAlignment(Qt.AlignCenter)
+        self.next_image_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.next_image_label.setScaledContents(False)
         self.next_image_label.setMinimumSize(360, 240)
         self.next_image_label.hide()
@@ -167,7 +166,7 @@ class Info(QWidget):  # type: ignore[misc]
 
     @Slot()
     def update_time(self) -> None:
-        now = datetime.now()
+        now = datetime.now(tz=timezone.utc).astimezone()
         seconds = (now - self.start_time).total_seconds()
         hours, seconds = divmod(seconds, 3600)
         minutes, seconds = divmod(seconds, 60)
@@ -185,7 +184,7 @@ class Info(QWidget):  # type: ignore[misc]
         self.key_press_event.emit(event)
 
 
-class Player(QMainWindow):  # type: ignore[misc]
+class Player(QMainWindow):
     presentation_changed: Signal = Signal()
     slide_changed: Signal = Signal()
 
@@ -199,14 +198,14 @@ class Player(QMainWindow):  # type: ignore[misc]
         skip_all: bool = False,
         exit_after_last_slide: bool = False,
         hide_mouse: bool = False,
-        aspect_ratio_mode: Qt.AspectRatioMode = Qt.KeepAspectRatio,
+        aspect_ratio_mode: Qt.AspectRatioMode = Qt.AspectRatioMode.KeepAspectRatio,
         presentation_index: int = 0,
         slide_index: int = 0,
-        screen: Optional[QScreen] = None,
+        screen: QScreen | None = None,
         playback_rate: float = 1.0,
         next_terminates_loop: bool = False,
         hide_info_window: bool = False,
-        info_window_screen: Optional[QScreen] = None,
+        info_window_screen: QScreen | None = None,
     ):
         super().__init__()
 
@@ -234,7 +233,7 @@ class Player(QMainWindow):  # type: ignore[misc]
             self.move(screen.geometry().topLeft())
 
         if full_screen:
-            self.setWindowState(Qt.WindowFullScreen)
+            self.setWindowState(Qt.WindowState.WindowFullScreen)
         else:
             w, h = self.current_presentation_config.resolution
             geometry = self.geometry()
@@ -243,7 +242,7 @@ class Player(QMainWindow):  # type: ignore[misc]
             self.setGeometry(geometry)
 
         if hide_mouse:
-            self.setCursor(Qt.BlankCursor)
+            self.setCursor(Qt.CursorShape.BlankCursor)
 
         self.setWindowTitle(WINDOW_NAME)
         self.icon = QIcon(":/icon.png")
@@ -257,7 +256,7 @@ class Player(QMainWindow):  # type: ignore[misc]
         self.video_widget.setAspectRatioMode(aspect_ratio_mode)
 
         self.image_label = QLabel(self)
-        self.image_label.setAlignment(Qt.AlignCenter)
+        self.image_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.image_label.setScaledContents(False)
         w, h = self.current_presentation_config.resolution
         self.image_label.setMinimumSize(w, h)
@@ -396,7 +395,7 @@ class Player(QMainWindow):  # type: ignore[misc]
         self.__current_file = file
 
     @property
-    def next_slide_config(self) -> Optional[SlideConfig]:
+    def next_slide_config(self) -> SlideConfig | None:
         if self.playing_reversed_slide:
             return self.current_slide_config
         elif self.current_slide_index < self.current_slides_count - 1:
@@ -411,9 +410,9 @@ class Player(QMainWindow):  # type: ignore[misc]
             return None
 
     @property
-    def next_file(self) -> Optional[Path]:
+    def next_file(self) -> Path | None:
         if slide_config := self.next_slide_config:
-            return slide_config.file  # type: ignore[no-any-return]
+            return slide_config.file
 
         return None
 
@@ -551,7 +550,9 @@ class Player(QMainWindow):  # type: ignore[misc]
                 scaled_pixmap = pixmap.scaledToWidth(w)
                 self.info.next_image_label.setPixmap(scaled_pixmap)
 
-    def show(self, screens: list[QScreen]) -> None:
+    def show(  # ty: ignore[invalid-method-override]
+        self, screens: list[QScreen]
+    ) -> None:
         """Screens is necessary to prevent the info window from being shown on the same screen as the main window (especially in full screen mode)."""
         super().show()
 
@@ -620,19 +621,19 @@ class Player(QMainWindow):  # type: ignore[misc]
 
     @Slot()
     def full_screen(self) -> None:
-        if self.windowState() == Qt.WindowFullScreen:
-            self.setWindowState(Qt.WindowNoState)
-            self.info.setWindowState(Qt.WindowNoState)
+        if self.windowState() == Qt.WindowState.WindowFullScreen:
+            self.setWindowState(Qt.WindowState.WindowNoState)
+            self.info.setWindowState(Qt.WindowState.WindowNoState)
         else:
-            self.setWindowState(Qt.WindowFullScreen)
-            self.info.setWindowState(Qt.WindowFullScreen)
+            self.setWindowState(Qt.WindowState.WindowFullScreen)
+            self.info.setWindowState(Qt.WindowState.WindowFullScreen)
 
     @Slot()
     def hide_mouse(self) -> None:
-        if self.cursor().shape() == Qt.BlankCursor:
-            self.setCursor(Qt.ArrowCursor)
+        if self.cursor().shape() == Qt.CursorShape.BlankCursor:
+            self.setCursor(Qt.CursorShape.ArrowCursor)
         else:
-            self.setCursor(Qt.BlankCursor)
+            self.setCursor(Qt.CursorShape.BlankCursor)
 
     def frame_changed(self, frame: QVideoFrame) -> None:
         """

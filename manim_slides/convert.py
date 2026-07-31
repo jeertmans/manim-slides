@@ -24,6 +24,8 @@ from click import Context, Parameter
 from jinja2 import Template
 from lxml import etree
 from PIL import Image
+from pptx.shapes.picture import Movie
+from pptx.util import Emu
 from pydantic import (
     BaseModel,
     ConfigDict,
@@ -1143,7 +1145,7 @@ def convert(
     to: str,
     open_result: bool,
     config_options: dict[str, str],
-    template: Optional[Union[Path, str]],
+    template: Path | str | None,
     offline: bool,
     one_file: bool,
 ) -> None:

@@ -7,7 +7,7 @@ on:
     types: [opened, closed]
   schedule:
     # Every 6 hours, to keep the day-based thresholds below reasonably precise.
-    - cron: '0 */6 * * *'
+  - cron: 0 */6 * * *
   workflow_dispatch:
 
 permissions:

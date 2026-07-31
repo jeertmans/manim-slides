@@ -86,14 +86,23 @@ def test_present_start_at(args: tuple[str, ...]) -> None:
         assert results.stdout == ""
 
 
-def test_present_start_at_invalid(args: tuple[str, ...]) -> None:
+def test_present_start_at_invalid(
+    args: tuple[str, ...], monkeypatch: pytest.MonkeyPatch
+) -> None:
     runner = CliRunner()
+
+    # The "manim-slides" logger is a process-wide singleton whose level other
+    # CLI invocations (via `--verbosity`) may have raised, and whose captured
+    # output may be reformatted (e.g., wrapped) in ways that are hard to
+    # match reliably. Instead, the call itself is observed directly.
+    warnings = []
+    monkeypatch.setattr("manim_slides.present.player.logger.warning", warnings.append)
 
     with runner.isolated_filesystem():
         results = runner.invoke(present, ["BasicSlide", "--start-at", "0,1234", *args])
 
         assert results.exit_code == 0
-        assert "Could not set presentation index to 1234"
+        assert any("Could not set slide index to 1234" in msg for msg in warnings)
 
 
 def test_present_start_at_scene_number(args: tuple[str, ...]) -> None:

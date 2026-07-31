@@ -12,7 +12,7 @@ that directly calls ``self.play(Animation(...))``, see
 __all__ = ["Wipe", "Zoom"]
 
 from collections.abc import Mapping, Sequence
-from typing import Any, Optional
+from typing import Any
 
 import numpy as np
 
@@ -36,7 +36,7 @@ else:
     Mobject = Any
 
 
-class Wipe(AnimationGroup):  # type: ignore[misc]
+class Wipe(AnimationGroup):  # ty: ignore[unsupported-base]
     """
     Creates a wipe animation that will shift all the current objects and future objects
     by a given value.
@@ -73,11 +73,11 @@ class Wipe(AnimationGroup):  # type: ignore[misc]
 
     def __init__(
         self,
-        current: Optional[Sequence[Mobject]] = None,
-        future: Optional[Sequence[Mobject]] = None,
+        current: Sequence[Mobject] | None = None,
+        future: Sequence[Mobject] | None = None,
         shift: np.ndarray = LEFT,
-        fade_in_kwargs: Optional[Mapping[str, Any]] = None,
-        fade_out_kwargs: Optional[Mapping[str, Any]] = None,
+        fade_in_kwargs: Mapping[str, Any] | None = None,
+        fade_out_kwargs: Mapping[str, Any] | None = None,
         **kwargs: Any,
     ):
         animations = []
@@ -87,19 +87,23 @@ class Wipe(AnimationGroup):  # type: ignore[misc]
                 fade_in_kwargs = {}
 
             for mobject in future:
-                animations.append(FadeIn(mobject, shift=shift, **fade_in_kwargs))
+                animations.append(
+                    FadeIn(mobject, shift=shift, **fade_in_kwargs)  # ty: ignore[invalid-argument-type]
+                )
 
         if current:
             if fade_out_kwargs is None:
                 fade_out_kwargs = {}
 
             for mobject in current:
-                animations.append(FadeOut(mobject, shift=shift, **fade_out_kwargs))
+                animations.append(
+                    FadeOut(mobject, shift=shift, **fade_out_kwargs)  # ty: ignore[invalid-argument-type]
+                )
 
         super().__init__(*animations, **kwargs)
 
 
-class Zoom(AnimationGroup):  # type: ignore[misc]
+class Zoom(AnimationGroup):  # ty: ignore[unsupported-base]
     """
     Creates a zoom animation that will fade out all the current objects, and fade in all
     the future objects. Objects are faded in a direction that goes towards the camera.
@@ -138,12 +142,12 @@ class Zoom(AnimationGroup):  # type: ignore[misc]
 
     def __init__(
         self,
-        current: Optional[Sequence[Mobject]] = None,
-        future: Optional[Sequence[Mobject]] = None,
+        current: Sequence[Mobject] | None = None,
+        future: Sequence[Mobject] | None = None,
         scale: float = 4.0,
         out: bool = False,
-        fade_in_kwargs: Optional[Mapping[str, Any]] = None,
-        fade_out_kwargs: Optional[Mapping[str, Any]] = None,
+        fade_in_kwargs: Mapping[str, Any] | None = None,
+        fade_out_kwargs: Mapping[str, Any] | None = None,
         **kwargs: Any,
     ) -> None:
         scale_in = 1.0 / scale
@@ -159,13 +163,17 @@ class Zoom(AnimationGroup):  # type: ignore[misc]
                 fade_in_kwargs = {}
 
             for mobject in future:
-                animations.append(FadeIn(mobject, scale=scale_in, **fade_in_kwargs))
+                animations.append(
+                    FadeIn(mobject, scale=scale_in, **fade_in_kwargs)  # ty: ignore[invalid-argument-type]
+                )
 
         if current:
             if fade_out_kwargs is None:
                 fade_out_kwargs = {}
 
             for mobject in current:
-                animations.append(FadeOut(mobject, scale=scale_out, **fade_out_kwargs))
+                animations.append(
+                    FadeOut(mobject, scale=scale_out, **fade_out_kwargs)  # ty: ignore[invalid-argument-type]
+                )
 
         super().__init__(*animations, **kwargs)

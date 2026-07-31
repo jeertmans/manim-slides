@@ -25,8 +25,8 @@ Daniel publishes his presentations on *Cosmology, String Theory and related*
 topics on his
 [personal website](https://panopepino.github.io/web_page/main_page/slides.html).
 
-For example, below are the slides of a seminar he gave titled
-[Our Universe on a (Dark) Bubble](https://panopepino.github.io/web_page/main_page/presentations/2023_11_long/LS.html).
+For example, below are the slides of a seminar he gave in Madrid titled
+[Our Universe on a (Dark) Bubble](https://panopepino.github.io/web_page/main_page/presentations/2024_06_madrid/susy_24.html).
 
 <div style="position:relative;padding-bottom:56.25%;">
     <iframe
@@ -37,12 +37,12 @@ For example, below are the slides of a seminar he gave titled
         height="100%"
         allowfullscreen
         allow="autoplay"
-        src="https://panopepino.github.io/web_page/main_page/presentations/2023_11_long/LS.html">
+        src="https://panopepino.github.io/web_page/main_page/presentations/2024_06_madrid/susy_24.html">
     </iframe>
 </div>
 
-He also shares his code on a public
-[GitHub repository](https://github.com/PanoPepino/mtheoretical).
+He also maintains a public
+[GitHub repository](https://github.com/PanoPepino/beanim) where he shares code for reusable Manim Slides workflows.
 
 ### Jérome Eertmans
 

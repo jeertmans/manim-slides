@@ -1,5 +1,7 @@
 """Qt utils."""
 
+from typing import cast
+
 from qtpy.QtWidgets import QApplication
 
 
@@ -9,6 +11,6 @@ def qapp() -> QApplication:
     if needed.
     """
     if app := QApplication.instance():
-        return app
+        return cast(QApplication, app)
 
     return QApplication([])
