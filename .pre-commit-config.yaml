@@ -45,3 +45,9 @@ repos:
     entry: python .github/scripts/check_github_issues.py
     language: system
     types: [markdown]
+  - id: sync-firebase-template
+    name: Sync Firebase template
+    description: Ensure firebase_sync.html is in sync with revealjs.html.
+    entry: python scripts/sync_firebase_template.py
+    language: system
+    files: ^manim_slides/templates/revealjs\.html$|^scripts/sync_firebase_template\.py$
