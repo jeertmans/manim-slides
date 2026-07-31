@@ -1,0 +1,277 @@
+name: Triage issues and PRs
+
+on:
+  issues:
+    types: [opened, closed]
+  pull_request_target:
+    types: [opened, closed]
+  schedule:
+    # Every 6 hours, to keep the day-based thresholds below reasonably precise.
+    - cron: '0 */6 * * *'
+  workflow_dispatch:
+
+permissions:
+  issues: write
+  pull-requests: write
+
+concurrency:
+  group: triage-${{ github.event.issue.number || github.event.pull_request.number || 'scheduled' }}
+  cancel-in-progress: false
+
+env:
+  GH_TOKEN: ${{ github.token }}
+  REPO: ${{ github.repository }}
+  MAINTAINER_HANDLE: jeertmans
+  LABEL_TRIAGE: waiting triage
+  LABEL_REVIEW: waiting review
+  LABEL_AUTHOR: waiting author
+  LABEL_EXTERNAL: waiting external
+
+jobs:
+  # "Maintainer" == author_association is OWNER, MEMBER or COLLABORATOR. This
+  # comes straight from the API response (issue/PR/comment/review payloads all
+  # carry it), so there is no need to look up collaborator permissions.
+
+  label-new:
+    # Skip bots (dependabot, pre-commit.ci, ...) and maintainer-authored items.
+    if: |
+      github.event.action == 'opened' &&
+      (github.event.issue.user.type || github.event.pull_request.user.type) == 'User' &&
+      !contains(
+        fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'),
+        github.event.issue.author_association || github.event.pull_request.author_association
+      )
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      ITEM_NUMBER: ${{ github.event.issue.number || github.event.pull_request.number }}
+    steps:
+    - name: Ensure labels exist
+      run: |
+        set -euo pipefail
+        existing="$(gh api "repos/$REPO/labels" --paginate -q '.[].name')"
+        create_if_missing() {
+          local name="$1" color="$2" description="$3"
+          if ! grep -qxF "$name" <<< "$existing"; then
+            gh api "repos/$REPO/labels" -X POST -f "name=$name" -f "color=$color" -f "description=$description" || true
+          fi
+        }
+        create_if_missing "$LABEL_TRIAGE" ededed "Needs initial triage from a maintainer"
+        create_if_missing "$LABEL_REVIEW" fbca04 "Waiting for a maintainer to review"
+        create_if_missing "$LABEL_AUTHOR" d93f0b "Waiting for a reply from the author"
+        create_if_missing "$LABEL_EXTERNAL" 5319e7 "Waiting on something external; exempt from author pings"
+
+    - name: Add triage labels
+      run: |
+        set -euo pipefail
+        gh api "repos/$REPO/issues/$ITEM_NUMBER/labels" -X POST \
+          -f "labels[]=$LABEL_TRIAGE" -f "labels[]=$LABEL_REVIEW"
+
+  cleanup-closed:
+    if: github.event.action == 'closed'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      ITEM_NUMBER: ${{ github.event.issue.number || github.event.pull_request.number }}
+      ITEM_LABELS: ${{ toJSON(github.event.issue.labels || github.event.pull_request.labels) }}
+    steps:
+    - name: Remove "waiting ..." labels
+      run: |
+        set -euo pipefail
+        echo "$ITEM_LABELS" | jq -r '.[].name' | grep -i '^waiting ' | while IFS= read -r label; do
+          encoded="${label// /%20}"
+          gh api "repos/$REPO/issues/$ITEM_NUMBER/labels/$encoded" -X DELETE || true
+        done
+
+  sweep:
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+    - name: Ensure labels exist
+      run: |
+        set -euo pipefail
+        existing="$(gh api "repos/$REPO/labels" --paginate -q '.[].name')"
+        create_if_missing() {
+          local name="$1" color="$2" description="$3"
+          if ! grep -qxF "$name" <<< "$existing"; then
+            gh api "repos/$REPO/labels" -X POST -f "name=$name" -f "color=$color" -f "description=$description" || true
+          fi
+        }
+        create_if_missing "$LABEL_TRIAGE" ededed "Needs initial triage from a maintainer"
+        create_if_missing "$LABEL_REVIEW" fbca04 "Waiting for a maintainer to review"
+        create_if_missing "$LABEL_AUTHOR" d93f0b "Waiting for a reply from the author"
+        create_if_missing "$LABEL_EXTERNAL" 5319e7 "Waiting on something external; exempt from author pings"
+
+    - name: Process open issues and PRs
+      run: |
+        set -euo pipefail
+
+        MARKER_PING_3W='<!-- triage-bot:waiting-author-ping:3w -->'
+        MARKER_PING_2M='<!-- triage-bot:waiting-author-ping:2m -->'
+        MARKER_MAINTAINER_PING='<!-- triage-bot:maintainer-ping -->'
+        NOW_EPOCH="$(date -u +%s)"
+        DAY=86400
+
+        is_maintainer_assoc() {
+          case "$1" in
+            OWNER|MEMBER|COLLABORATOR) return 0 ;;
+            *) return 1 ;;
+          esac
+        }
+
+        epoch_of() { date -u -d "$1" +%s; }
+
+        add_label() {
+          gh api "repos/$REPO/issues/$1/labels" -X POST -f "labels[]=$2" >/dev/null
+        }
+
+        remove_label() {
+          local encoded="${2// /%20}"
+          gh api "repos/$REPO/issues/$1/labels/$encoded" -X DELETE >/dev/null 2>&1 || true
+        }
+
+        post_comment() {
+          gh api "repos/$REPO/issues/$1/comments" -f "body=$2" >/dev/null
+        }
+
+        # Fetch every page of a search query as one JSON array (gh api
+        # --paginate only merges bare-array responses, not search's {items:}
+        # envelope, so pages are combined by hand here).
+        search_all() {
+          local query="$1" page=1 all='[]'
+          while :; do
+            resp="$(gh api -X GET search/issues -f "q=$query" -F per_page=100 -F "page=$page")"
+            items="$(jq -c '.items' <<< "$resp")"
+            all="$(jq -c --argjson a "$all" --argjson b "$items" -n '$a + $b')"
+            count="$(jq 'length' <<< "$items")"
+            [ "$count" -lt 100 ] && break
+            page=$((page + 1))
+          done
+          echo "$all"
+        }
+
+        process_open_item() {
+          local item="$1"
+          local number author created_at is_pr labels_json
+          number="$(jq -r '.number' <<< "$item")"
+          author="$(jq -r '.user.login' <<< "$item")"
+          created_at="$(jq -r '.created_at' <<< "$item")"
+          is_pr="$(jq -r 'has("pull_request")' <<< "$item")"
+          labels_json="$(jq -c '[.labels[].name]' <<< "$item")"
+          local kind="issue"; [ "$is_pr" = "true" ] && kind="PR"
+
+          has_label() { jq -e --arg n "$1" 'index($n) != null' <<< "$labels_json" >/dev/null; }
+
+          comments="$(gh api --paginate "repos/$REPO/issues/$number/comments")"
+          reviews='[]'
+          if [ "$is_pr" = "true" ]; then
+            reviews="$(gh api --paginate "repos/$REPO/pulls/$number/reviews")"
+          fi
+
+          # Unified, chronological activity feed (comments + PR reviews),
+          # bot authors excluded so our own ping comments never count as
+          # "the author/a maintainer replied".
+          activity="$(jq -c -n --argjson c "$comments" --argjson r "$reviews" '
+            ($c | map(select(.user.type != "Bot") | {login: .user.login, assoc: .author_association, at: .created_at})) +
+            ($r | map(select(.state != "PENDING" and .user.type != "Bot") | {login: .user.login, assoc: .author_association, at: .submitted_at}))
+            | sort_by(.at)
+          ')"
+
+          last_login="$(jq -r 'if length > 0 then .[-1].login else "" end' <<< "$activity")"
+          last_assoc="$(jq -r 'if length > 0 then .[-1].assoc else "" end' <<< "$activity")"
+          last_at="$(jq -r 'if length > 0 then .[-1].at else "" end' <<< "$activity")"
+          last_maint_at="$(jq -r '
+            [.[] | select(.assoc == "OWNER" or .assoc == "MEMBER" or .assoc == "COLLABORATOR")]
+            | if length > 0 then .[-1].at else "" end
+          ' <<< "$activity")"
+
+          # Rule: last reply is from a maintainer and has gone unanswered for
+          # >1 day -> mark "waiting author". If the author replied since, and
+          # it's currently marked, clear it.
+          if [ -n "$last_login" ] && [ "$last_login" != "$author" ] && is_maintainer_assoc "$last_assoc"; then
+            age=$((NOW_EPOCH - $(epoch_of "$last_at")))
+            if [ "$age" -gt "$DAY" ] && ! has_label "$LABEL_EXTERNAL" && ! has_label "$LABEL_AUTHOR"; then
+              add_label "$number" "$LABEL_AUTHOR"
+              labels_json="$(jq -c --arg n "$LABEL_AUTHOR" '. + [$n]' <<< "$labels_json")"
+            fi
+          elif [ -n "$last_login" ] && [ "$last_login" = "$author" ] && has_label "$LABEL_AUTHOR"; then
+            remove_label "$number" "$LABEL_AUTHOR"
+            labels_json="$(jq -c --arg n "$LABEL_AUTHOR" 'map(select(. != $n))' <<< "$labels_json")"
+          fi
+
+          # Rule: "waiting author" has stood for 3 weeks / 2 months -> ping
+          # the author once per threshold, scoped to the current label span
+          # (so a past ping doesn't suppress a new one after the label was
+          # removed and re-applied later).
+          if has_label "$LABEL_AUTHOR"; then
+            timeline="$(gh api --paginate "repos/$REPO/issues/$number/timeline")"
+            labeled_at="$(jq -r --arg n "$LABEL_AUTHOR" '
+              [.[] | select(.event == "labeled" and .label.name == $n)]
+              | if length > 0 then .[-1].created_at else empty end
+            ' <<< "$timeline")"
+            [ -z "$labeled_at" ] && labeled_at="$created_at"
+            labeled_epoch="$(epoch_of "$labeled_at")"
+            age=$((NOW_EPOCH - labeled_epoch))
+
+            already_pinged() {
+              jq -e --arg m "$1" --argjson le "$labeled_epoch" '
+                any(.[]; ((.body // "") | contains($m)) and (((.created_at) | fromdateiso8601) >= $le))
+              ' <<< "$comments" >/dev/null
+            }
+
+            if [ "$age" -ge "$((60 * DAY))" ] && ! already_pinged "$MARKER_PING_2M"; then
+              body="$(printf 'Hi @%s, friendly reminder that this %s has been waiting on your reply for about 2 months now. Let us know if you are still working on it, or if it should be closed. 🙂\n\n%s' "$author" "$kind" "$MARKER_PING_2M")"
+              post_comment "$number" "$body"
+            elif [ "$age" -ge "$((21 * DAY))" ] && ! already_pinged "$MARKER_PING_3W"; then
+              body="$(printf 'Hi @%s, just a friendly ping - this %s has been waiting on your reply for about 3 weeks. Let us know if you are still around! 🙂\n\n%s' "$author" "$kind" "$MARKER_PING_3W")"
+              post_comment "$number" "$body"
+            fi
+          fi
+
+          # Rule: not (yet) labeled "waiting review", and no maintainer reply
+          # in 7+ days -> ping a maintainer, re-pinging weekly while it stays
+          # unresolved.
+          if ! has_label "$LABEL_REVIEW" && ! has_label "$LABEL_AUTHOR"; then
+            if [ -n "$last_maint_at" ]; then
+              ref_epoch="$(epoch_of "$last_maint_at")"
+            else
+              ref_epoch="$(epoch_of "$created_at")"
+            fi
+            age=$((NOW_EPOCH - ref_epoch))
+            if [ "$age" -ge "$((7 * DAY))" ]; then
+              last_ping_at="$(jq -r --arg m "$MARKER_MAINTAINER_PING" '
+                [.[] | select((.body // "") | contains($m))] | if length > 0 then .[-1].created_at else empty end
+              ' <<< "$comments")"
+              if [ -n "$last_ping_at" ]; then
+                ping_age=$((NOW_EPOCH - $(epoch_of "$last_ping_at")))
+              else
+                ping_age=999999999
+              fi
+              if [ "$ping_age" -ge "$((7 * DAY))" ]; then
+                body="$(printf 'Hey @%s, friendly ping - this %s has not had a maintainer reply in a week. Could you take a look when you have a chance? 🙏\n\n%s' "$MAINTAINER_HANDLE" "$kind" "$MARKER_MAINTAINER_PING")"
+                post_comment "$number" "$body"
+              fi
+            fi
+          fi
+        }
+
+        echo "Fetching open issues/PRs..."
+        open_items="$(search_all "repo:$REPO is:open")"
+        jq -c '.[]' <<< "$open_items" | while IFS= read -r item; do
+          number="$(jq -r '.number' <<< "$item")"
+          if ! process_open_item "$item"; then
+            echo "::warning::Failed to process open #$number, continuing"
+          fi
+        done
+
+        echo "Cleaning up closed issues/PRs that still carry a waiting-* label..."
+        for label in "$LABEL_TRIAGE" "$LABEL_REVIEW" "$LABEL_AUTHOR" "$LABEL_EXTERNAL"; do
+          items="$(search_all "repo:$REPO is:closed label:\"$label\"")"
+          jq -c '.[]' <<< "$items" | while IFS= read -r item; do
+            number="$(jq -r '.number' <<< "$item")"
+            jq -r '.labels[].name' <<< "$item" | grep -i '^waiting ' | while IFS= read -r name; do
+              remove_label "$number" "$name"
+            done
+          done
+        done
