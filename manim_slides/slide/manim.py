@@ -76,7 +76,10 @@ class Slide(BaseSlide, Scene):
     @property
     def _resolution(self) -> tuple[int, int]:
         if isinstance(self.renderer, OpenGLRenderer):
-            return self.renderer.get_pixel_shape()
+            if (pixel_shape := self.renderer.get_pixel_shape()) is None:
+                raise ValueError("Could not determine the pixel shape of the renderer")
+
+            return pixel_shape
         else:
             return (
                 int(self.renderer.camera.pixel_width),

@@ -30,7 +30,7 @@ repos:
   rev: v0.0.65
   hooks:
   - id: ty
-    args: [--isolated, --no-default-groups, --group=typechecking]
+    args: [--isolated, --frozen, --no-default-groups, --group=typechecking]
 - repo: https://github.com/codespell-project/codespell
   rev: v2.4.3
   hooks:

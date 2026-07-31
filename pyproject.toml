@@ -44,6 +44,7 @@ typechecking = [
   # type when both PyQt6 and PySide6 are installed, since qtpy re-exports
   # whichever binding is available at runtime.
   "manim-slides[pyside6]",
+  "lxml-stubs>=0.5.1",
   "ty>=0.0.65",
   "types-requests>=2.28.1",
   "types-setuptools>=73.0.1",

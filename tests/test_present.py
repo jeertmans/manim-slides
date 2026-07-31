@@ -87,21 +87,22 @@ def test_present_start_at(args: tuple[str, ...]) -> None:
 
 
 def test_present_start_at_invalid(
-    args: tuple[str, ...], caplog: pytest.LogCaptureFixture
+    args: tuple[str, ...], monkeypatch: pytest.MonkeyPatch
 ) -> None:
     runner = CliRunner()
 
-    # The "manim-slides" logger's level is a process-wide singleton that
-    # other CLI invocations (via `--verbosity`) may have raised above
-    # WARNING, so it is explicitly lowered here to observe the warning.
-    with (
-        runner.isolated_filesystem(),
-        caplog.at_level("WARNING", logger="manim-slides"),
-    ):
+    # The "manim-slides" logger is a process-wide singleton whose level other
+    # CLI invocations (via `--verbosity`) may have raised, and whose captured
+    # output may be reformatted (e.g., wrapped) in ways that are hard to
+    # match reliably. Instead, the call itself is observed directly.
+    warnings = []
+    monkeypatch.setattr("manim_slides.present.player.logger.warning", warnings.append)
+
+    with runner.isolated_filesystem():
         results = runner.invoke(present, ["BasicSlide", "--start-at", "0,1234", *args])
 
         assert results.exit_code == 0
-        assert "Could not set slide index to 1234" in caplog.text
+        assert any("Could not set slide index to 1234" in msg for msg in warnings)
 
 
 def test_present_start_at_scene_number(args: tuple[str, ...]) -> None:

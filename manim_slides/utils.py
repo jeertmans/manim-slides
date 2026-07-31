@@ -6,15 +6,29 @@ from collections.abc import Iterator
 from itertools import pairwise
 from multiprocessing import Pool
 from pathlib import Path
-from typing import Any
+from typing import Any, TypeVar, cast
 
 import av
 import av.filter
+import av.stream
 from tqdm import tqdm
 
 from .logger import logger
 
 AV_VERSION_14 = int(av.__version__.split(".", maxsplit=1)[0]) >= 14
+
+_StreamT = TypeVar("_StreamT", bound=av.stream.Stream)
+
+
+def add_stream_from_template_legacy(
+    output_container: av.container.OutputContainer, template: _StreamT
+) -> _StreamT:
+    """Reimplements `add_stream_from_template` for `av<14`."""
+    # `add_stream(template=...)` is only valid pre-`av 14`, and its exact
+    # overload shape has kept changing across `av` releases, so the call is
+    # made through `Any` rather than chasing a moving type-checking target.
+    add_stream = cast(Any, output_container.add_stream)
+    return add_stream(template=template)
 
 
 def concatenate_video_files(files: list[Path], dest: Path) -> None:
@@ -53,9 +67,7 @@ def concatenate_video_files(files: list[Path], dest: Path) -> None:
                 input_video_stream,
             )
             if AV_VERSION_14
-            else output_container.add_stream(  # ty: ignore[no-matching-overload]
-                template=input_video_stream,
-            )
+            else add_stream_from_template_legacy(output_container, input_video_stream)
         )
 
         if len(input_container.streams.audio) > 0:
@@ -65,8 +77,8 @@ def concatenate_video_files(files: list[Path], dest: Path) -> None:
                     input_audio_stream,
                 )
                 if AV_VERSION_14
-                else output_container.add_stream(  # ty: ignore[no-matching-overload]
-                    template=input_audio_stream,
+                else add_stream_from_template_legacy(
+                    output_container, input_audio_stream
                 )
             )
 
@@ -146,7 +158,10 @@ def reverse_video_file_in_one_chunk(src_and_dest: tuple[Path, Path]) -> None:
 
         for _ in range(frames_count):
             frame = graph.pull()
-            assert isinstance(frame, av.VideoFrame)
+            if not isinstance(frame, av.VideoFrame):
+                raise TypeError(
+                    f"Expected a video frame from the filter graph, got {type(frame)}"
+                )
             frame.pict_type = (
                 av.video.frame.PictureType.NONE
             )  # Otherwise we get a warning saying it is changed
@@ -190,9 +205,7 @@ def reverse_video_file(
                 output_stream = (
                     output_container.add_stream_from_template(input_stream)
                     if AV_VERSION_14
-                    else output_container.add_stream(  # ty: ignore[no-matching-overload]
-                        template=input_stream,
-                    )
+                    else add_stream_from_template_legacy(output_container, input_stream)
                 )
 
                 for packet in input_container.demux(input_stream):

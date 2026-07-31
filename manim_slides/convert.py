@@ -22,7 +22,7 @@ import requests
 from bs4 import BeautifulSoup
 from click import Context, Parameter
 from jinja2 import Template
-from lxml import etree  # ty: ignore[unresolved-import]
+from lxml import etree
 from PIL import Image
 from pptx.shapes.picture import Movie
 from pptx.util import Emu
@@ -782,6 +782,42 @@ class PDF(Converter):
         )
 
 
+def _xml_parent(el: etree._Element) -> etree._Element:
+    p = el.getparent()
+    assert p is not None, "Expected element to have a parent"
+    return p
+
+
+def _xml_xpath(el: etree._Element, query: str) -> list[etree._Element]:
+    nsmap = {"p": "http://schemas.openxmlformats.org/presentationml/2006/main"}
+    # `el` is actually a `pptx.oxml.xmlchemy.BaseOxmlElement`, whose `xpath`
+    # override doesn't accept `namespaces`, so the base `lxml.etree`
+    # implementation is called directly instead.
+    result = etree.ElementBase.xpath(el, query, namespaces=nsmap)
+    assert isinstance(result, list)
+    elements = []
+    for item in result:
+        assert isinstance(item, etree._Element)
+        elements.append(item)
+    return elements
+
+
+# From GitHub issue comment:
+# - https://github.com/scanny/python-pptx/issues/427#issuecomment-856724440
+def _auto_play_pptx_media(media: Movie, loop: bool = False) -> None:
+    el_id = _xml_xpath(media.element, ".//p:cNvPr")[0].attrib["id"]
+    el_cnt = _xml_xpath(
+        _xml_parent(_xml_parent(_xml_parent(media.element))),
+        f'.//p:timing//p:video//p:spTgt[@spid="{el_id}"]',
+    )[0]
+    cond = _xml_xpath(_xml_parent(_xml_parent(el_cnt)), ".//p:cond")[0]
+    cond.set("delay", "0")
+
+    if loop:
+        ctn = _xml_xpath(_xml_parent(_xml_parent(el_cnt)), ".//p:cTn")[0]
+        ctn.set("repeatCount", "indefinite")
+
+
 class PowerPoint(Converter):
     left: PositiveInt = Field(
         0, description="Horizontal offset where the video is placed from left border."
@@ -814,25 +850,6 @@ class PowerPoint(Converter):
         prs.slide_height = Emu(self.height * 9525)
 
         layout = prs.slide_layouts[6]  # Should be blank
-
-        # From GitHub issue comment:
-        # - https://github.com/scanny/python-pptx/issues/427#issuecomment-856724440
-        def auto_play_media(media: Movie, loop: bool = False) -> None:
-            el_id = xpath(media.element, ".//p:cNvPr")[0].attrib["id"]
-            el_cnt = xpath(
-                media.element.getparent().getparent().getparent(),
-                f'.//p:timing//p:video//p:spTgt[@spid="{el_id}"]',
-            )[0]
-            cond = xpath(el_cnt.getparent().getparent(), ".//p:cond")[0]
-            cond.set("delay", "0")
-
-            if loop:
-                ctn = xpath(el_cnt.getparent().getparent(), ".//p:cTn")[0]
-                ctn.set("repeatCount", "indefinite")
-
-        def xpath(el: etree.Element, query: str) -> etree.XPath:
-            nsmap = {"p": "http://schemas.openxmlformats.org/presentationml/2006/main"}
-            return etree.ElementBase.xpath(el, query, namespaces=nsmap)
 
         with tempfile.TemporaryDirectory() as directory_name:
             directory = Path(directory_name)
@@ -882,7 +899,7 @@ class PowerPoint(Converter):
                         )
 
                         if self.auto_play_media:
-                            auto_play_media(movie, loop=slide_config.loop)
+                            _auto_play_pptx_media(movie, loop=slide_config.loop)
 
                     if slide_config.notes != "":
                         slide.notes_slide.notes_text_frame.text = slide_config.notes
