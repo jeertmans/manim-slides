@@ -502,7 +502,7 @@
         });
       }
 
-      var _observedBgSlides = new WeakSet();
+      const _observedBgSlides = new WeakSet();
 
       function fixSlideBackground(bg) {
         if (_observedBgSlides.has(bg)) return;
