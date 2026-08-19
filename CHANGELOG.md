@@ -28,7 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Migrated static type checking from `mypy` to [`ty`](https://github.com/astral-sh/ty).
   [#636](https://github.com/jeertmans/manim-slides/pull/636)
 
-### fix
+### Fix
 - Fixed enum-typed HTML config values set via `-c` not being quoted in the output,
   producing a blank presentation, and restored validation of those values.
 
