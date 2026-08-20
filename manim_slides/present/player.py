@@ -469,7 +469,10 @@ class Player(QMainWindow):
 
     def load_current_slide(self) -> None:
         slide_config = self.current_slide_config
-        self.current_file = slide_config.file
+        if self.playing_reversed_slide:
+            self.current_file = slide_config.rev_file
+        else:
+            self.current_file = slide_config.file
 
         if slide_config.loop:
             self.media_player.setLoops(-1)
@@ -512,8 +515,7 @@ class Player(QMainWindow):
 
     def load_reversed_slide(self) -> None:
         self.playing_reversed_slide = True
-        self.current_file = self.current_slide_config.rev_file
-        self.load_current_media()
+        self.load_current_slide()
 
     """
     Key callbacks and slots
