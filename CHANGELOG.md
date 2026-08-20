@@ -30,6 +30,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fixed enum-typed HTML config values set via `-c` not being quoted in the output,
+  producing a blank presentation, and restored validation of those values.
+  [@lapotist](https://github.com/lapotist) [#664](https://github.com/jeertmans/manim-slides/pull/664)
 - Fixed presenter looping when reversing multiple slides.
   [@wuerfelfreak](https://github.com/wuerfelfreak) [#665](https://github.com/jeertmans/manim-slides/pull/665)
 

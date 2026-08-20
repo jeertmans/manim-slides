@@ -189,7 +189,9 @@ class Str(str):
     def __get_pydantic_core_schema__(
         cls, source_type: Any, handler: GetCoreSchemaHandler
     ) -> CoreSchema:
-        return core_schema.str_schema()
+        return core_schema.no_info_after_validator_function(
+            cls, core_schema.str_schema()
+        )
 
     def __str__(self) -> str:
         """Ensure that the string is correctly quoted."""
