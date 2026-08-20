@@ -70,4 +70,4 @@ def test_reverse_video_file_with_unordered_segments(
             for frame in container.decode(video=0)
         ]
 
-    assert values == sorted(values, reverse=True)
+    np.testing.assert_array_equal(values, sorted(values, reverse=True))
