@@ -8,6 +8,7 @@ import pytest
 import requests
 from bs4 import BeautifulSoup
 from click import Context, Parameter
+from pydantic import BaseModel
 
 from manim_slides.config import PresentationConfig
 from manim_slides.convert import (
@@ -151,6 +152,42 @@ def test_quoted_enum(enum_type: type[Enum]) -> None:
 
         expected = "'" + enum.value + "'"
         got = str(enum)
+
+        assert expected == got
+
+
+@pytest.mark.parametrize(
+    ("enum_type",),
+    [
+        (ControlsLayout,),
+        (ControlsBackArrows,),
+        (SlideNumber,),
+        (ShowSlideNumber,),
+        (KeyboardCondition,),
+        (NavigationMode,),
+        (AutoPlayMedia,),
+        (PreloadIframes,),
+        (AutoAnimateMatcher,),
+        (AutoAnimateEasing,),
+        (AutoSlideMethod,),
+        (Transition,),
+        (TransitionSpeed,),
+        (BackgroundSize,),
+        (BackgroundTransition,),
+        (Display,),
+    ],
+)
+def test_quoted_enum_survives_pydantic_validation(enum_type: type[Enum]) -> None:
+    class Model(BaseModel):
+        value: enum_type  # type: ignore[valid-type]
+
+    for enum in enum_type:
+        if enum in ["true", "false", "null"]:
+            continue
+
+        model = Model(value=enum.value)
+        expected = "'" + enum.value + "'"
+        got = str(model.value)
 
         assert expected == got
 
