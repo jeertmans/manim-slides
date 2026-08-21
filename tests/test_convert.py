@@ -179,7 +179,7 @@ def test_quoted_enum(enum_type: type[Enum]) -> None:
 )
 def test_quoted_enum_survives_pydantic_validation(enum_type: type[Enum]) -> None:
     class Model(BaseModel):
-        value: enum_type  # type: ignore[valid-type]
+        value: enum_type  # ty: ignore[invalid-type-form]
 
     for enum in enum_type:
         if enum in ["true", "false", "null"]:

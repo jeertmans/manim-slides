@@ -18,7 +18,7 @@ repos:
   - id: pretty-format-yaml
     args: [--autofix]
   - id: pretty-format-toml
-    exclude: poetry.lock
+    exclude: uv.lock
     args: [--autofix, --trailing-commas]
 - repo: https://github.com/astral-sh/ruff-pre-commit
   rev: v0.16.2
