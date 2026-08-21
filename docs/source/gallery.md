@@ -52,7 +52,7 @@ on the topic of *Ray Tracing applied to Radio Propagations* on his
 for presenting at conferences using the *PowerPoint* or HTML conversion.
 
 For example, below are the slides of his
-[PhD confirmation](https://eertmans.be/posts/confirmation2023-presentation/).
+[public Ph.D. defense](https://eertmans.be/posts/public-defense/) (*the second slide contains audio, headphones recommended*).
 
 <div style="position:relative;padding-bottom:56.25%;">
     <iframe
@@ -63,13 +63,13 @@ For example, below are the slides of his
         height="100%"
         allowfullscreen
         allow="autoplay"
-        src="https://eertmans.be/assets/slides/2023-12-07-confirmation.html">
+        src="https://eertmans.be/assets/slides/2026-07-06-public-defense.html">
     </iframe>
 </div>
 
 ### Justin (Jay) Smallwood
 
-Jay is a PhD student at Swinburne University in Melbourne, Australia and has
+Jay is a Ph.D. student at Swinburne University in Melbourne, Australia and has
 used Manim Slides to present his work on *Radio Frequency Interference
 Mitigation in Radio Astronomy*. He also publishes his slides on his [personal
 website](https://jsmallwood.net).
