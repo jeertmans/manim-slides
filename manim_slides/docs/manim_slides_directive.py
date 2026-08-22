@@ -221,8 +221,6 @@ class SkipManimNode(nodes.Admonition, nodes.Element):
     Skips rendering the manim-slides directive and outputs a placeholder instead.
     """
 
-    pass
-
 
 def visit(self, node, name=""):
     self.visit_admonition(node, name)
@@ -305,8 +303,6 @@ class ManimSlidesDirective(Directive):
             return [node]
 
         from manim import config, tempconfig
-
-        global classnamedict
 
         def split_file_cls(arg: str) -> tuple[Path, str]:
             if ":" in arg:
@@ -399,7 +395,10 @@ class ManimSlidesDirective(Directive):
             with tempconfig(example_config):
                 print(f"Rendering {clsname}...")  # noqa: T201
                 global_ns = {"__file__": str(source_file)}
-                run_time = timeit(lambda: exec("\n".join(code), global_ns), number=1)
+                run_time = timeit(
+                    lambda: exec("\n".join(code), global_ns),  # noqa: S102
+                    number=1,
+                )
                 video_dir = config.get_dir("video_dir")
         except Exception as e:
             raise RuntimeError(f"Error while rendering example {clsname}") from e
@@ -488,7 +487,7 @@ def _log_rendering_times(*args):
                 print(  # noqa: T201
                     f"{' ' * (max_file_length)} {row[2].rjust(7)}s {row[1]}"
                 )
-        print("")  # noqa: T201
+        print()  # noqa: T201
 
 
 def _delete_rendering_times(*args):

@@ -1,4 +1,3 @@
-# flake8: noqa: F403, F405
 # type: ignore
 
 from pathlib import Path

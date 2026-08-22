@@ -9,10 +9,11 @@ import warnings
 import webbrowser
 from base64 import b64encode
 from collections import deque
+from collections.abc import Callable
 from enum import Enum
 from importlib import resources
 from pathlib import Path
-from typing import Any, Callable, Optional, Union
+from typing import Any, TypeAlias, cast
 
 import av
 import click
@@ -23,6 +24,8 @@ from click import Context, Parameter
 from jinja2 import Template
 from lxml import etree
 from PIL import Image
+from pptx.shapes.picture import Movie
+from pptx.util import Emu
 from pydantic import (
     BaseModel,
     ConfigDict,
@@ -49,7 +52,7 @@ def open_with_default(file: Path) -> None:
     if system == "Darwin":
         subprocess.call(("open", str(file)))
     elif system == "Windows":
-        os.startfile(str(file))  # type: ignore[attr-defined,unused-ignore]  # nosec B606
+        os.startfile(str(file))  # type: ignore[attr-defined]
     else:
         subprocess.call(("xdg-open", str(file)))
 
@@ -85,8 +88,8 @@ def _builtin_template_names() -> list[str]:
 
 
 def resolve_template_option(
-    ctx: Context, param: Parameter, value: Optional[str]
-) -> Optional[Union[str, Path]]:
+    ctx: Context, param: Parameter, value: str | None
+) -> str | Path | None:
     """Resolve --use-template value to either a file path or a built-in template."""
     if value is None:
         return None
@@ -119,10 +122,13 @@ def get_duration_ms(file: Path) -> float:
     with av.open(str(file)) as container:
         video = container.streams.video[0]
 
+        if video.duration is None or video.time_base is None:
+            raise ValueError(f"Could not determine the duration of video '{file}'")
+
         return float(1000 * video.duration * video.time_base)
 
 
-def read_image_from_video_file(file: Path, frame_index: "FrameIndex") -> Image:
+def read_image_from_video_file(file: Path, frame_index: "FrameIndex") -> Image.Image:
     """Read a image from a video file at a given index."""
     with av.open(str(file)) as container:
         frames = container.decode(video=0)
@@ -135,13 +141,13 @@ def read_image_from_video_file(file: Path, frame_index: "FrameIndex") -> Image:
         return frame.to_image()
 
 
-class Converter(BaseModel):  # type: ignore
+class Converter(BaseModel):
     presentation_configs: list[PresentationConfig]
     assets_dir: str = Field(
         "{basename}_assets",
         description="Assets folder.\nThis is a template string that accepts 'dirname', 'basename', and 'ext' as variables.\nThose variables are obtained from the output filename.",
     )
-    template: Optional[Union[Path, str]] = Field(
+    template: Path | str | None = Field(
         None,
         description="Custom template path or built-in template name.",
     )
@@ -183,7 +189,9 @@ class Str(str):
     def __get_pydantic_core_schema__(
         cls, source_type: Any, handler: GetCoreSchemaHandler
     ) -> CoreSchema:
-        return core_schema.str_schema()
+        return core_schema.no_info_after_validator_function(
+            cls, core_schema.str_schema()
+        )
 
     def __str__(self) -> str:
         """Ensure that the string is correctly quoted."""
@@ -209,27 +217,27 @@ class JsFalse(str, StrEnum):
     false = "false"
 
 
-class JsBool(Str, StrEnum):  # type: ignore
+class JsBool(Str, StrEnum):
     true = "true"
     false = "false"
 
 
-class JsNull(Str, StrEnum):  # type: ignore
+class JsNull(Str, StrEnum):
     null = "null"
 
 
-class ControlsLayout(Str, StrEnum):  # type: ignore
+class ControlsLayout(Str, StrEnum):
     edges = "edges"
     bottom_right = "bottom-right"
 
 
-class ControlsBackArrows(Str, StrEnum):  # type: ignore
+class ControlsBackArrows(Str, StrEnum):
     faded = "faded"
     hidden = "hidden"
     visibly = "visibly"
 
 
-class SlideNumber(Str, StrEnum):  # type: ignore
+class SlideNumber(Str, StrEnum):
     true = "true"
     false = "false"
     hdotv = "h.v"
@@ -238,24 +246,24 @@ class SlideNumber(Str, StrEnum):  # type: ignore
     candt = "c/t"
 
 
-class ShowSlideNumber(Str, StrEnum):  # type: ignore
+class ShowSlideNumber(Str, StrEnum):
     all = "all"
     print = "print"
     speaker = "speaker"
 
 
-class KeyboardCondition(Str, StrEnum):  # type: ignore
+class KeyboardCondition(Str, StrEnum):
     null = "null"
     focused = "focused"
 
 
-class NavigationMode(Str, StrEnum):  # type: ignore
+class NavigationMode(Str, StrEnum):
     default = "default"
     linear = "linear"
     grid = "grid"
 
 
-class AutoPlayMedia(Str, StrEnum):  # type: ignore
+class AutoPlayMedia(Str, StrEnum):
     null = "null"
     true = "true"
     false = "false"
@@ -264,25 +272,25 @@ class AutoPlayMedia(Str, StrEnum):  # type: ignore
 PreloadIframes = AutoPlayMedia
 
 
-class AutoAnimateMatcher(Str, StrEnum):  # type: ignore
+class AutoAnimateMatcher(Str, StrEnum):
     null = "null"
 
 
-class AutoAnimateEasing(Str, StrEnum):  # type: ignore
+class AutoAnimateEasing(Str, StrEnum):
     ease = "ease"
 
 
-AutoSlide = Union[PositiveInt, JsFalse]
+AutoSlide: TypeAlias = PositiveInt | JsFalse
 
 
-class AutoSlideMethod(Str, StrEnum):  # type: ignore
+class AutoSlideMethod(Str, StrEnum):
     null = "null"
 
 
-MouseWheel = Union[JsNull, float]
+MouseWheel: TypeAlias = JsNull | float
 
 
-class Transition(Str, StrEnum):  # type: ignore
+class Transition(Str, StrEnum):
     none = "none"
     fade = "fade"
     slide = "slide"
@@ -291,13 +299,13 @@ class Transition(Str, StrEnum):  # type: ignore
     zoom = "zoom"
 
 
-class TransitionSpeed(Str, StrEnum):  # type: ignore
+class TransitionSpeed(Str, StrEnum):
     default = "default"
     fast = "fast"
     slow = "slow"
 
 
-class BackgroundSize(Str, StrEnum):  # type: ignore
+class BackgroundSize(Str, StrEnum):
     # From: https://developer.mozilla.org/en-US/docs/Web/CSS/background-size
     # TODO: support more background size
     contain = "contain"
@@ -307,7 +315,7 @@ class BackgroundSize(Str, StrEnum):  # type: ignore
 BackgroundTransition = Transition
 
 
-class Display(Str, StrEnum):  # type: ignore
+class Display(Str, StrEnum):
     block = "block"
 
 
@@ -343,12 +351,8 @@ class RevealJS(Converter):
         False, description="Download remote assets for offline presentation."
     )
     # Presentation size options from RevealJS
-    width: Union[Str, int] = Field(
-        Str("100%"), description="Width of the presentation."
-    )
-    height: Union[Str, int] = Field(
-        Str("100%"), description="Height of the presentation."
-    )
+    width: Str | int = Field(Str("100%"), description="Width of the presentation.")
+    height: Str | int = Field(Str("100%"), description="Height of the presentation.")
     margin: float = Field(0.04, description="Margin to use around the content.")
     min_scale: float = Field(
         0.2, description="Bound for smallest possible scale to apply to content."
@@ -376,7 +380,7 @@ class RevealJS(Converter):
     slide_number: SlideNumber = Field(
         SlideNumber.false, description="Display the page number of the current slide."
     )
-    show_slide_number: Union[ShowSlideNumber, Function] = Field(
+    show_slide_number: ShowSlideNumber | Function = Field(
         ShowSlideNumber.all,
         description="Can be used to limit the contexts in which the slide number appears.",
     )
@@ -403,7 +407,7 @@ class RevealJS(Converter):
     keyboard: JsBool = Field(
         JsBool.true, description="Enable keyboard shortcuts for navigation."
     )
-    keyboard_condition: Union[KeyboardCondition, Function] = Field(
+    keyboard_condition: KeyboardCondition | Function = Field(
         KeyboardCondition.null,
         description="Optional function that blocks keyboard events when retuning false.",
     )
@@ -462,7 +466,7 @@ class RevealJS(Converter):
     auto_animate: JsBool = Field(
         JsBool.true, description="Can be used to globally disable auto-animation."
     )
-    auto_animate_matcher: Union[AutoAnimateMatcher, Function] = Field(
+    auto_animate_matcher: AutoAnimateMatcher | Function = Field(
         AutoAnimateMatcher.null,
         description="Optionally provide a custom element matcher that will be used to dictate which elements we can animate between.",
     )
@@ -499,11 +503,11 @@ class RevealJS(Converter):
     auto_slide_stoppable: JsBool = Field(
         JsBool.true, description="Stop auto-sliding after user input."
     )
-    auto_slide_method: Union[AutoSlideMethod, Function] = Field(
+    auto_slide_method: AutoSlideMethod | Function = Field(
         AutoSlideMethod.null,
         description="Use this method for navigation when auto-sliding (defaults to navigateNext).",
     )
-    default_timing: Union[JsNull, int] = Field(
+    default_timing: JsNull | int = Field(
         JsNull.null,
         description="Specify the average time in seconds that you think you will spend presenting each slide.",
     )
@@ -535,7 +539,7 @@ class RevealJS(Converter):
         BackgroundTransition.none,
         description="Transition style for full page slide backgrounds.",
     )
-    pdf_max_pages_per_slide: Union[int, str] = Field(
+    pdf_max_pages_per_slide: int | str = Field(
         "Number.POSITIVE_INFINITY",
         description="The maximum number of pages a single slide can expand onto when printing to PDF, unlimited by default.",
     )
@@ -564,12 +568,12 @@ class RevealJS(Converter):
     )
     # Appearance options from RevealJS
     background_color: Color = Field(
-        "black",
+        Color("black"),
         description="Background color used in slides, not relevant if videos fill the whole area.",
     )
     reveal_version: str = Field("6.0.1", description="RevealJS version.")
     reveal_theme: RevealTheme = Field(
-        RevealTheme.black, description="RevealJS version."
+        RevealTheme.black, description="RevealJS color theme."
     )
     cdn_url: str = Field(
         "https://cdn.jsdelivr.net/npm/reveal.js@{reveal_version}",
@@ -681,13 +685,14 @@ class RevealJS(Converter):
 
             # If offline, download remote assets and store them in the assets folder
             soup = BeautifulSoup(content, "html.parser")
+            assert soup.head is not None, "Template is missing a <head> tag"
             session = requests.Session()
 
             for tag, inner in [("link", "href"), ("script", "src")]:
                 for item in soup.find_all(tag):
-                    if item.has_attr(inner) and (link := item[inner]).startswith(
-                        "http"
-                    ):
+                    if item.has_attr(inner) and (
+                        link := cast(str, item[inner])
+                    ).startswith("http"):
                         asset_name = link.rsplit("/", 1)[1]
                         asset = session.get(link)
                         if self.one_file:
@@ -779,6 +784,42 @@ class PDF(Converter):
         )
 
 
+def _xml_parent(el: etree._Element) -> etree._Element:
+    p = el.getparent()
+    assert p is not None, "Expected element to have a parent"
+    return p
+
+
+def _xml_xpath(el: etree._Element, query: str) -> list[etree._Element]:
+    nsmap = {"p": "http://schemas.openxmlformats.org/presentationml/2006/main"}
+    # `el` is actually a `pptx.oxml.xmlchemy.BaseOxmlElement`, whose `xpath`
+    # override doesn't accept `namespaces`, so the base `lxml.etree`
+    # implementation is called directly instead.
+    result = etree.ElementBase.xpath(el, query, namespaces=nsmap)
+    assert isinstance(result, list)
+    elements = []
+    for item in result:
+        assert isinstance(item, etree._Element)
+        elements.append(item)
+    return elements
+
+
+# From GitHub issue comment:
+# - https://github.com/scanny/python-pptx/issues/427#issuecomment-856724440
+def _auto_play_pptx_media(media: Movie, loop: bool = False) -> None:
+    el_id = _xml_xpath(media.element, ".//p:cNvPr")[0].attrib["id"]
+    el_cnt = _xml_xpath(
+        _xml_parent(_xml_parent(_xml_parent(media.element))),
+        f'.//p:timing//p:video//p:spTgt[@spid="{el_id}"]',
+    )[0]
+    cond = _xml_xpath(_xml_parent(_xml_parent(el_cnt)), ".//p:cond")[0]
+    cond.set("delay", "0")
+
+    if loop:
+        ctn = _xml_xpath(_xml_parent(_xml_parent(el_cnt)), ".//p:cTn")[0]
+        ctn.set("repeatCount", "indefinite")
+
+
 class PowerPoint(Converter):
     left: PositiveInt = Field(
         0, description="Horizontal offset where the video is placed from left border."
@@ -797,7 +838,7 @@ class PowerPoint(Converter):
     auto_play_media: bool = Field(
         True, description="Automatically play animations when changing slide."
     )
-    poster_frame_image: Optional[FilePath] = Field(
+    poster_frame_image: FilePath | None = Field(
         None,
         description="Optional image to use when animations are not playing.\n"
         "By default, the first frame of each animation is used.\nThis is important to avoid blinking effects between slides.",
@@ -807,31 +848,10 @@ class PowerPoint(Converter):
     def convert_to(self, dest: Path) -> None:
         """Convert this configuration into a PowerPoint presentation, saved to DEST."""
         prs = pptx.Presentation()
-        prs.slide_width = self.width * 9525
-        prs.slide_height = self.height * 9525
+        prs.slide_width = Emu(self.width * 9525)
+        prs.slide_height = Emu(self.height * 9525)
 
         layout = prs.slide_layouts[6]  # Should be blank
-
-        # From GitHub issue comment:
-        # - https://github.com/scanny/python-pptx/issues/427#issuecomment-856724440
-        def auto_play_media(
-            media: pptx.shapes.picture.Movie, loop: bool = False
-        ) -> None:
-            el_id = xpath(media.element, ".//p:cNvPr")[0].attrib["id"]
-            el_cnt = xpath(
-                media.element.getparent().getparent().getparent(),
-                f'.//p:timing//p:video//p:spTgt[@spid="{el_id}"]',
-            )[0]
-            cond = xpath(el_cnt.getparent().getparent(), ".//p:cond")[0]
-            cond.set("delay", "0")
-
-            if loop:
-                ctn = xpath(el_cnt.getparent().getparent(), ".//p:cTn")[0]
-                ctn.set("repeatCount", "indefinite")
-
-        def xpath(el: etree.Element, query: str) -> etree.XPath:
-            nsmap = {"p": "http://schemas.openxmlformats.org/presentationml/2006/main"}
-            return etree.ElementBase.xpath(el, query, namespaces=nsmap)
 
         with tempfile.TemporaryDirectory() as directory_name:
             directory = Path(directory_name)
@@ -881,13 +901,13 @@ class PowerPoint(Converter):
                         )
 
                         if self.auto_play_media:
-                            auto_play_media(movie, loop=slide_config.loop)
+                            _auto_play_pptx_media(movie, loop=slide_config.loop)
 
                     if slide_config.notes != "":
                         slide.notes_slide.notes_text_frame.text = slide_config.notes
 
             dest.parent.mkdir(parents=True, exist_ok=True)
-            prs.save(dest)
+            prs.save(str(dest))
 
 
 def show_config_options(function: Callable[..., Any]) -> Callable[..., Any]:
@@ -927,7 +947,7 @@ def show_config_options(function: Callable[..., Any]) -> Callable[..., Any]:
 
         ctx.exit()
 
-    return click.option(  # type: ignore
+    return click.option(
         "--show-config",
         is_flag=True,
         help="Show supported options for given format and exit.",
@@ -968,7 +988,7 @@ def show_template_option(function: Callable[..., Any]) -> Callable[..., Any]:
 
         ctx.exit()
 
-    return click.option(  # type: ignore
+    return click.option(
         "--show-template",
         is_flag=True,
         help="Show the template (currently) used for a given conversion format and exit.",
@@ -1047,7 +1067,7 @@ def convert(
     to: str,
     open_result: bool,
     config_options: dict[str, str],
-    template: Optional[Union[Path, str]],
+    template: Path | str | None,
     offline: bool,
     one_file: bool,
 ) -> None:

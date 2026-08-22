@@ -17,7 +17,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [macos-latest, ubuntu-latest, windows-latest]
-        pyversion: ['3.9', '3.10', '3.11', '3.12', '3.13', '3.14']
+        pyversion: ['3.10', '3.11', '3.12', '3.13', '3.14']
         extras: [pyside6-full, manimgl]
         # exclude:
         # - pyversion: '3.12'
@@ -25,10 +25,10 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v6
+      uses: actions/checkout@v7
 
     - name: Install Python
-      uses: actions/setup-python@v6
+      uses: actions/setup-python@v7
       with:
         python-version: ${{ matrix.pyversion }}
         cache: pip
@@ -60,7 +60,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [macos-latest, ubuntu-latest, windows-latest]
-        pyversion: ['3.9', '3.10', '3.11', '3.12', '3.13', '3.14']
+        pyversion: ['3.10', '3.11', '3.12', '3.13', '3.14']
     runs-on: ${{ matrix.os }}
     env:
       QT_QPA_PLATFORM: offscreen
@@ -69,10 +69,10 @@ jobs:
       GITHUB_WORKFLOWS: 1
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v6
+      uses: actions/checkout@v7
 
     - name: Setup uv
-      uses: astral-sh/setup-uv@v4
+      uses: astral-sh/setup-uv@v7
       with:
         enable-cache: true
 
@@ -93,7 +93,7 @@ jobs:
 
     - name: Install Mesa
       if: matrix.os == 'windows-latest'
-      uses: ssciwr/setup-mesa-dist-win@v2
+      uses: ssciwr/setup-mesa-dist-win@v3
 
     - name: Run pytest
       run: uv run --python ${{ matrix.pyversion }} --frozen --group tests --no-dev pytest
@@ -109,7 +109,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v6
+      uses: actions/checkout@v7
 
     - name: Check links
       uses: tcort/github-action-markdown-link-check@v1

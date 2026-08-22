@@ -18,6 +18,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added support for named built-in templates. Now `manim-slides convert` accepts the template name without the full path. [@liuktc](https://github.com/liuktc) [#638](https://github.com/jeertmans/manim-slides/pull/638)
 - Added `wait_between_looping_slides` property to skip the `wait_time_between_slides` pause inside slides created with `next_slide(loop=True)`, avoiding a stutter on every loop repeat. [@zain-asif-dev](https://github.com/zain-asif-dev) [#648](https://github.com/jeertmans/manim-slides/pull/648)
 
+### Changed
+
+- **Breaking change**: raised the minimum supported Python version from 3.9 to 3.10.
+  [#636](https://github.com/jeertmans/manim-slides/pull/636)
+
+### Chore
+
+- Migrated static type checking from `mypy` to [`ty`](https://github.com/astral-sh/ty).
+  [#636](https://github.com/jeertmans/manim-slides/pull/636)
+
+### Fixed
+
+- Fixed enum-typed HTML config values set via `-c` not being quoted in the output,
+  producing a blank presentation, and restored validation of those values.
+  [@lapotist](https://github.com/lapotist) [#664](https://github.com/jeertmans/manim-slides/pull/664)
+- Fixed presenter looping when reversing multiple slides.
+  [@wuerfelfreak](https://github.com/wuerfelfreak) [#665](https://github.com/jeertmans/manim-slides/pull/665)
+
 (v5.6.0)=
 ## [v5.6.0](https://github.com/jeertmans/manim-slides/compare/v5.5.4...v5.6.0)
 

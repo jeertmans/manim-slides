@@ -6,6 +6,7 @@ requires = ["hatchling", "hatch-fancy-pypi-readme"]
 dev = [
   {include-group = "docs"},
   {include-group = "tests"},
+  {include-group = "typechecking"},
   "bump-my-version>=0.20.3",
   "pre-commit>=3.5.0",
 ]
@@ -24,8 +25,11 @@ docs = [
   "sphinxext-opengraph>=0.7.5",
 ]
 tests = [
-  "importlib-metadata>=8.6.1;python_version<'3.10'",
-  "manim-slides[full,manim,manimgl,pyqt6,pyside6,sphinx-directive]",
+  {include-group = "tests-no-qt"},
+  "manim-slides[pyqt6,pyside6]",
+]
+tests-no-qt = [
+  "manim-slides[full,manim,manimgl,sphinx-directive]",
   "pytest>=7.4.0",
   "pytest-cov>=4.1.0",
   "pytest-env>=0.8.2",
@@ -33,12 +37,22 @@ tests = [
   "pytest-qt>=4.2.0",
   "setuptools>=73.0.1",
 ]
+typechecking = [
+  {include-group = "tests-no-qt"},
+  # Only one Qt binding is included here (unlike the `tests` group, which
+  # installs both): ty cannot resolve `qtpy` classes to a single concrete
+  # type when both PyQt6 and PySide6 are installed, since qtpy re-exports
+  # whichever binding is available at runtime.
+  "manim-slides[pyside6]",
+  "lxml-stubs>=0.5.1",
+  "types-requests>=2.28.1",
+  "types-setuptools>=73.0.1",
+]
 
 [project]
 authors = [{name = "Jérome Eertmans", email = "jeertmans@icloud.com"}]
 classifiers = [
   "Programming Language :: Python :: 3",
-  "Programming Language :: Python :: 3.9",
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
@@ -73,7 +87,7 @@ dynamic = ["readme", "version"]
 keywords = ["manim", "slides", "plugin", "manimgl"]
 license = "MIT"
 name = "manim-slides"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 
 [project.optional-dependencies]
 full = [
@@ -185,12 +199,6 @@ replacement = '> **\1:**'
 [tool.hatch.version]
 path = "manim_slides/__version__.py"
 
-[tool.mypy]
-disallow_untyped_decorators = false
-install_types = true
-python_version = "3.9"
-strict = true
-
 [tool.pytest.ini_options]
 addopts = [
   "--cov-report=xml",
@@ -235,3 +243,14 @@ isort = {known-first-party = ["manim_slides", "tests"]}
 [tool.ruff.lint.per-file-ignores]
 "docs/source/reference/magic_example.ipynb" = ["F403", "F405"]
 "tests/test_slide.py" = ["N801"]
+
+[tool.ty.rules]
+unused-ignore-comment = "error"
+
+[tool.ty.src]
+exclude = [
+  "manim_slides/resources.py",
+  # Uses a wildcard import, which ty cannot resolve across notebook cells
+  # (ruff has the same limitation, see the F403/F405 per-file-ignores above).
+  "docs/source/reference/magic_example.ipynb",
+]
