@@ -65,7 +65,7 @@ def test_player_backward_navigation() -> None:
         player.duration_changed_callback(5000)
 
         # Verify seeking was triggered and flag is reset
-        player.media_player.setPosition.assert_called_with(5000)
+        player.media_player.setPosition.assert_called_with(4999)
         player.media_player.pause.assert_called()
         assert player._navigated_backward is False  # nosec
 
@@ -77,6 +77,19 @@ def test_player_backward_navigation() -> None:
         # Test reversed slide navigation resets flag
         player._navigated_backward = True
         player.load_reversed_slide()
+        assert player._navigated_backward is False  # nosec
+
+        # Test replay resets flag and seeks to start
+        player._navigated_backward = True
+        player.replay()
+        assert player._navigated_backward is False  # nosec
+        player.media_player.setPosition.assert_called_with(0)
+        player.media_player.play.assert_called()
+
+        # Attempting to go back from the first slide must not set the flag.
+        player.current_slide_index = 0
+        player.current_presentation_index = 0
+        player.previous()
         assert player._navigated_backward is False  # nosec
 
 

@@ -48,7 +48,7 @@ jobs:
 
     - name: Install Windows dependencies
       if: matrix.os == 'windows-latest'
-      run: choco install ffmpeg
+      uses: FedericoCarboni/setup-ffmpeg@v3
 
     - name: Install package
       shell: bash
@@ -89,7 +89,7 @@ jobs:
 
     - name: Install Windows dependencies
       if: matrix.os == 'windows-latest'
-      run: choco install ffmpeg
+      uses: FedericoCarboni/setup-ffmpeg@v3
 
     - name: Install Mesa
       if: matrix.os == 'windows-latest'

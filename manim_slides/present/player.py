@@ -484,7 +484,6 @@ class Player(QMainWindow):  # type: ignore[misc]
 
     def load_previous_slide(self) -> None:
         self.playing_reversed_slide = False
-        self._navigated_backward = True
 
         if self.current_slide_index > 0:
             self.current_slide_index -= 1
@@ -495,6 +494,7 @@ class Player(QMainWindow):  # type: ignore[misc]
             logger.info("No previous slide.")
             return
 
+        self._navigated_backward = True
         self.load_current_slide()
 
     def load_next_slide(self) -> None:
@@ -543,7 +543,7 @@ class Player(QMainWindow):  # type: ignore[misc]
     @Slot(int)
     def duration_changed_callback(self, duration: int) -> None:
         if self._navigated_backward and duration > 0:
-            self.media_player.setPosition(duration)
+            self.media_player.setPosition(max(0, duration - 1))
             self.media_player.pause()
             self._navigated_backward = False
 
@@ -620,6 +620,7 @@ class Player(QMainWindow):  # type: ignore[misc]
 
     @Slot()
     def replay(self) -> None:
+        self._navigated_backward = False
         self.media_player.setPosition(0)
         self.media_player.play()
 

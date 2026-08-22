@@ -308,13 +308,23 @@
         () => {
           var currentVideos = Reveal.getCurrentSlide().slideBackgroundContentElement.getElementsByTagName("video");
           if (currentVideos.length > 0) {
-            currentVideos[0].currentTime = 0;
-            currentVideos[0].play();
+            const video = currentVideos[0];
+            if (video._cleanupBackward) {
+              video._cleanupBackward();
+            }
+            video.currentTime = 0;
+            video.play();
           }
         }
       );
       // Jump to end of animations when navigating to previous slide
       Reveal.on('slidechanged', event => {
+        if (event.previousSlide) {
+          const prevVideos = event.previousSlide.slideBackgroundContentElement.getElementsByTagName("video");
+          if (prevVideos.length > 0 && prevVideos[0]._cleanupBackward) {
+            prevVideos[0]._cleanupBackward();
+          }
+        }
         if (!event.previousSlide) return;
         const prevIndices = Reveal.getIndices(event.previousSlide);
         const currIndices = Reveal.getIndices(event.currentSlide);
@@ -324,10 +334,22 @@
           const currentVideos = event.currentSlide.slideBackgroundContentElement.getElementsByTagName("video");
           if (currentVideos.length > 0) {
             const video = currentVideos[0];
+            if (video._cleanupBackward) {
+              video._cleanupBackward();
+            }
+            const cleanup = () => {
+              video.removeEventListener('playing', goToEndAndPause);
+              video.removeEventListener('loadedmetadata', goToEndAndPause);
+              video._cleanupBackward = null;
+            };
             const goToEndAndPause = () => {
-              video.currentTime = video.duration;
+              cleanup();
+              if (!isNaN(video.duration) && video.duration > 0) {
+                video.currentTime = Math.max(0, video.duration - 0.001);
+              }
               video.pause();
             };
+            video._cleanupBackward = cleanup;
 
             // Intercept Reveal.js's internal autoplay ('default action')
             video.addEventListener('playing', goToEndAndPause, { once: true });
