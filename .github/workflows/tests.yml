@@ -117,3 +117,22 @@ jobs:
         use-quiet-mode: yes
         use-verbose-mode: yes
         config-file: .mdlc.json
+
+  type-check:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v7
+
+    - name: Setup uv
+      uses: astral-sh/setup-uv@v7
+      with:
+        enable-cache: true
+
+    - name: Install manim dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install build-essential python3-dev libcairo2-dev libpango1.0-dev ffmpeg freeglut3-dev
+
+    - name: Run ty
+      run: uv run --python 3.10 --frozen --no-default-groups --group typechecking ty check
