@@ -42,7 +42,7 @@ def _concat_list_entry(file: Path) -> str:
     escaped shell-style ('\''), which is the quoting ffmpeg's
     av_get_token() understands.
     """
-    escaped = str(file.resolve()).replace("'", "'\\''")
+    escaped = file.resolve().as_posix().replace("'", "'\\''")
     return f"file '{escaped}'\n"
 
 
