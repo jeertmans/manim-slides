@@ -35,6 +35,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   [@lapotist](https://github.com/lapotist) [#664](https://github.com/jeertmans/manim-slides/pull/664)
 - Fixed presenter looping when reversing multiple slides.
   [@wuerfelfreak](https://github.com/wuerfelfreak) [#665](https://github.com/jeertmans/manim-slides/pull/665)
+- Fixed intermittent deadlocks when reversing large videos by creating the
+  worker pool with the `spawn` start method instead of `fork`.
+  [@Agi-Asi](https://github.com/Agi-Asi) [#672](https://github.com/jeertmans/manim-slides/pull/672)
 
 (v5.6.0)=
 ## [v5.6.0](https://github.com/jeertmans/manim-slides/compare/v5.5.4...v5.6.0)
