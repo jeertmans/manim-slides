@@ -31,6 +31,21 @@ def add_stream_from_template_legacy(
     return add_stream(template=template)
 
 
+def _concat_list_entry(file: Path) -> str:
+    r"""
+    Format one entry of an ffmpeg concat demuxer list file.
+
+    The concat demuxer resolves *relative* paths against the directory of
+    the list file — which lives in the system temp folder, not the current
+    working directory — so every relative input silently became a dangling
+    reference. Write absolute paths instead. Quotes inside the path are
+    escaped shell-style ('\''), which is the quoting ffmpeg's
+    av_get_token() understands.
+    """
+    escaped = str(file.resolve()).replace("'", "'\\''")
+    return f"file '{escaped}'\n"
+
+
 def concatenate_video_files(files: list[Path], dest: Path) -> None:
     """Concatenate multiple video files into one."""
     if len(files) == 1:
@@ -54,7 +69,7 @@ def concatenate_video_files(files: list[Path], dest: Path) -> None:
     with tempfile.NamedTemporaryFile(
         mode="w", suffix=".txt", delete=False, encoding="utf-8"
     ) as f:
-        f.writelines(f"file '{file}'\n" for file in _filter(files))
+        f.writelines(_concat_list_entry(file) for file in _filter(files))
         tmp_file = f.name
 
     with (
