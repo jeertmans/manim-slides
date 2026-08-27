@@ -1,10 +1,10 @@
 import hashlib
+import multiprocessing as mp
 import os
 import shutil
 import tempfile
 from collections.abc import Iterator
 from itertools import pairwise
-from multiprocessing import Pool
 from pathlib import Path
 from typing import Any, TypeVar, cast
 
@@ -220,7 +220,19 @@ def reverse_video_file(
                 src_file.with_stem("rev_" + src_file.stem) for src_file in src_files
             ]
 
-            with Pool(num_processes, maxtasksperchild=1) as pool:
+            # Worker processes are created with the 'spawn' start method:
+            # the default 'fork' on Linux duplicates this process while the
+            # parent holds PyAV/FFmpeg (and possibly tqdm) locks from the
+            # still-open input container above — a forked child can then
+            # inherit a lock in a locked state with no owner to release it,
+            # and the pool deadlocks on its queue semaphore. Observed as
+            # renders hanging in 'Reversing large file by cutting it in
+            # segments' (#562) and as a multiprocessing semaphore deadlock
+            # (#569). 'spawn' starts clean interpreters, which cannot
+            # inherit held locks, and matches the default on macOS/Windows.
+            with mp.get_context("spawn").Pool(
+                num_processes, maxtasksperchild=1
+            ) as pool:
                 for _ in tqdm(
                     pool.imap_unordered(
                         reverse_video_file_in_one_chunk,
