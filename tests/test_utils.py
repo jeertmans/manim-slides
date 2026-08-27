@@ -49,7 +49,7 @@ def test_concatenate_video_files_relative_paths(
 
 def test_concatenate_video_files_quoted_path(video_file: Path, tmp_path: Path) -> None:
     # A single quote in a path used to terminate the quoted list entry early,
-    # making the entry unparseable for the concat demuxer.
+    # making the entry unparsable for the concat demuxer.
     quoted_dir = tmp_path / "John's slides"
     quoted_dir.mkdir()
     src = quoted_dir / video_file.name
