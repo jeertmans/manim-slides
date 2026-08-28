@@ -2,9 +2,14 @@ import shutil
 from pathlib import Path
 
 import av
+import numpy as np
 import pytest
 
-from manim_slides.utils import concatenate_video_files, merge_basenames
+from manim_slides.utils import (
+    concatenate_video_files,
+    merge_basenames,
+    reverse_video_file,
+)
 
 
 def test_merge_basenames(paths: list[Path]) -> None:
@@ -57,5 +62,49 @@ def test_concatenate_video_files_quoted_path(video_file: Path, tmp_path: Path) -
     dest = tmp_path / "out.mp4"
 
     concatenate_video_files([src, src], dest)
+
+    assert_has_decodable_video_stream(dest)
+
+
+def _make_long_video(dest: Path, duration: float = 10.0, fps: int = 24) -> None:
+    """Write a synthetic video of the given duration (solid-color frames)."""
+    width, height = 320, 240
+    with av.open(str(dest), mode="w") as container:
+        stream = container.add_stream("libx264", rate=fps)
+        stream.width = width
+        stream.height = height
+        stream.pix_fmt = "yuv420p"
+        total_frames = int(duration * fps)
+        for i in range(total_frames):
+            frame = av.VideoFrame.from_ndarray(
+                np.full((height, width, 3), (i % 256), dtype=np.uint8),
+                format="rgb24",
+            )
+            for packet in stream.encode(frame):
+                container.mux(packet)
+        for packet in stream.encode():
+            container.mux(packet)
+
+
+def test_reverse_video_file_segmented(video_file: Path, tmp_path: Path) -> None:
+    """Segmented reversal (long video) completes without deadlock."""
+    long_src = tmp_path / "long.mp4"
+    _make_long_video(long_src, duration=10.0)
+
+    dest = tmp_path / "reversed.mp4"
+    reverse_video_file(long_src, dest, max_segment_duration=2.0, num_processes=2)
+
+    assert_has_decodable_video_stream(dest)
+
+
+def test_reverse_video_file_segmented_sequential_fallback(
+    video_file: Path, tmp_path: Path
+) -> None:
+    """When max_segment_duration is None, reversal uses a single chunk (no pool)."""
+    long_src = tmp_path / "long.mp4"
+    _make_long_video(long_src, duration=10.0)
+
+    dest = tmp_path / "reversed.mp4"
+    reverse_video_file(long_src, dest, max_segment_duration=None)
 
     assert_has_decodable_video_stream(dest)

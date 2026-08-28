@@ -5,6 +5,7 @@ import tempfile
 from collections.abc import Iterator
 from itertools import pairwise
 from multiprocessing import Pool
+from multiprocessing import TimeoutError as MultiprocessingTimeoutError
 from pathlib import Path
 from typing import Any, TypeVar, cast
 
@@ -225,17 +226,39 @@ def reverse_video_file(
                 src_file.with_stem("rev_" + src_file.stem) for src_file in src_files
             ]
 
-            with Pool(num_processes, maxtasksperchild=1) as pool:
-                for _ in tqdm(
-                    pool.imap_unordered(
-                        reverse_video_file_in_one_chunk,
-                        zip(src_files, rev_files, strict=True),
-                    ),
-                    desc="Reversing large file by cutting it in segments",
+            # Timeout per segment in seconds (generous: 10 min per segment).
+            segment_timeout = 600
+
+            try:
+                with Pool(num_processes, maxtasksperchild=1) as pool:
+                    results = []
+                    async_results = [
+                        pool.apply_async(reverse_video_file_in_one_chunk, (args,))
+                        for args in zip(src_files, rev_files, strict=True)
+                    ]
+
+                    for ar in tqdm(
+                        async_results,
+                        desc="Reversing large file by cutting it in segments",
+                        total=len(async_results),
+                        unit=" files",
+                        **tqdm_kwargs,
+                    ):
+                        ar.get(timeout=segment_timeout)
+                        results.append(True)
+
+            except (MultiprocessingTimeoutError, OSError) as exc:
+                logger.warning(
+                    f"Parallel segment reversal failed ({type(exc).__name__}: {exc}), "
+                    "falling back to sequential reversal."
+                )
+                for src_file, rev_file in tqdm(
+                    zip(src_files, rev_files, strict=True),
+                    desc="Reversing segments sequentially (fallback)",
                     total=len(src_files),
                     unit=" files",
                     **tqdm_kwargs,
                 ):
-                    pass  # We just consume the iterator
+                    reverse_video_file_in_one_chunk((src_file, rev_file))
 
             concatenate_video_files(rev_files[::-1], dest)
