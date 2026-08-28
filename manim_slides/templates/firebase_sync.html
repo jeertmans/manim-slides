@@ -529,6 +529,22 @@
       }
       // Setup base64 videos
       Reveal.on( 'ready', fixBase64VideoBackground );
+      // Pre-convert data URIs to Blob URLs so slide transitions don't flicker
+      // while the browser re-decodes massive base64 strings.
+      function preCreateBlobUrls() {
+        for (const slide of Reveal.getBackgroundsElement().querySelectorAll('.slide-background')) {
+          const video = slide.querySelector('video');
+          if (video && video.src && video.src.startsWith('data:')) {
+            const dataSrc = video.src;
+            fetch(dataSrc)
+              .then(r => r.blob())
+              .then(blob => {
+                video.src = URL.createObjectURL(blob);
+              });
+          }
+        }
+      }
+      Reveal.on( 'ready', preCreateBlobUrls );
       {% endif %}
     </script>
     {% if env['READTHEDOCS'] %}
