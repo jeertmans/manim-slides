@@ -318,9 +318,8 @@ class Player(QMainWindow):
         else:
 
             def media_status_changed(status: QMediaPlayer.MediaStatus) -> None:
-                if (
-                    status == QMediaPlayer.MediaStatus.EndOfMedia
-                    and self.current_slide_config.auto_next
+                if status == QMediaPlayer.MediaStatus.EndOfMedia and (
+                    self.current_slide_config.auto_next or self.next_terminates_loop
                 ):
                     self.load_next_slide()
 
@@ -588,11 +587,9 @@ class Player(QMainWindow):
         if self.media_player.playbackState() == QMediaPlayer.PlaybackState.PausedState:
             self.media_player.play()
         elif self.next_terminates_loop and self.media_player.loops() != 1:
-            position = self.media_player.position()
+            # Change from infinite loop to single play; let EndOfMedia advance
+            # instead of stop/restart which causes a visible blank frame.
             self.media_player.setLoops(1)
-            self.media_player.stop()
-            self.media_player.setPosition(position)
-            self.media_player.play()
         else:
             self.load_next_slide()
 
