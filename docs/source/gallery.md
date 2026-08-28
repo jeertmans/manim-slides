@@ -25,8 +25,8 @@ Daniel publishes his presentations on *Cosmology, String Theory and related*
 topics on his
 [personal website](https://panopepino.github.io/web_page/main_page/slides.html).
 
-For example, below are the slides of a seminar he gave titled
-[Our Universe on a (Dark) Bubble](https://panopepino.github.io/web_page/main_page/presentations/2023_11_long/LS.html).
+For example, below are the slides of a seminar he gave in Madrid titled
+[Our Universe on a (Dark) Bubble](https://panopepino.github.io/web_page/main_page/presentations/2024_06_madrid/susy_24.html).
 
 <div style="position:relative;padding-bottom:56.25%;">
     <iframe
@@ -37,12 +37,12 @@ For example, below are the slides of a seminar he gave titled
         height="100%"
         allowfullscreen
         allow="autoplay"
-        src="https://panopepino.github.io/web_page/main_page/presentations/2023_11_long/LS.html">
+        src="https://panopepino.github.io/web_page/main_page/presentations/2024_06_madrid/susy_24.html">
     </iframe>
 </div>
 
-He also shares his code on a public
-[GitHub repository](https://github.com/PanoPepino/mtheoretical).
+He also maintains a public
+[GitHub repository](https://github.com/PanoPepino/beanim) where he shares code for reusable Manim Slides workflows.
 
 ### Jérome Eertmans
 
@@ -52,7 +52,7 @@ on the topic of *Ray Tracing applied to Radio Propagations* on his
 for presenting at conferences using the *PowerPoint* or HTML conversion.
 
 For example, below are the slides of his
-[PhD confirmation](https://eertmans.be/posts/confirmation2023-presentation/).
+[public Ph.D. defense](https://eertmans.be/posts/public-defense/) (*the second slide contains audio, headphones recommended*).
 
 <div style="position:relative;padding-bottom:56.25%;">
     <iframe
@@ -63,13 +63,13 @@ For example, below are the slides of his
         height="100%"
         allowfullscreen
         allow="autoplay"
-        src="https://eertmans.be/assets/slides/2023-12-07-confirmation.html">
+        src="https://eertmans.be/assets/slides/2026-07-06-public-defense.html">
     </iframe>
 </div>
 
 ### Justin (Jay) Smallwood
 
-Jay is a PhD student at Swinburne University in Melbourne, Australia and has
+Jay is a Ph.D. student at Swinburne University in Melbourne, Australia and has
 used Manim Slides to present his work on *Radio Frequency Interference
 Mitigation in Radio Astronomy*. He also publishes his slides on his [personal
 website](https://jsmallwood.net).

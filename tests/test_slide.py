@@ -6,7 +6,7 @@ import sys
 import tempfile
 from collections.abc import Iterator
 from pathlib import Path
-from typing import Any, Union
+from typing import Any, TypeVar
 
 import pytest
 from click.testing import CliRunner
@@ -20,6 +20,7 @@ from manim import (
     Circle,
     Dot,
     FadeIn,
+    FadeOut,
     GrowFromCenter,
     Square,
     Text,
@@ -30,24 +31,7 @@ from manim_slides.config import PresentationConfig
 from manim_slides.defaults import FOLDER_PATH
 from manim_slides.render import render
 from manim_slides.slide.manim import Slide as CESlide
-
-if sys.version_info < (3, 10):
-
-    class _GLSlide:
-        def construct(self) -> None:
-            pass
-
-        def render(self) -> None:
-            pass
-
-    GLSlide = pytest.param(
-        _GLSlide,
-        marks=pytest.mark.skip(reason="See https://github.com/3b1b/manim/issues/2263"),
-    )
-else:
-    from manim_slides.slide.manimlib import Slide as GLSlide
-
-    _GLSlide = GLSlide
+from manim_slides.slide.manimlib import Slide as GLSlide
 
 
 class CEGLSlide(CESlide):
@@ -55,21 +39,16 @@ class CEGLSlide(CESlide):
         super().__init__(*args, renderer=OpenGLRenderer(), **kwargs)
 
 
-SlideType = Union[type[CESlide], type[_GLSlide], type[CEGLSlide]]
-Slide = Union[CESlide, _GLSlide, CEGLSlide]
+SlideType = type[CESlide] | type[GLSlide] | type[CEGLSlide]
+Slide = CESlide | GLSlide | CEGLSlide
+SlideT = TypeVar("SlideT", bound=Slide)
 
 
 @pytest.mark.parametrize(
     "renderer",
     [
         "--CE",
-        pytest.param(
-            "--GL",
-            marks=pytest.mark.skipif(
-                sys.version_info < (3, 10),
-                reason="See https://github.com/3b1b/manim/issues/2263.",
-            ),
-        ),
+        "--GL",
         "--CE --renderer=opengl",
     ],
     ids=("CE", "GL", "CE(GL)"),
@@ -117,13 +96,7 @@ def test_render_basic_slide(
     "renderer",
     [
         "--CE",
-        pytest.param(
-            "--GL",
-            marks=pytest.mark.skipif(
-                sys.version_info < (3, 10),
-                reason="See https://github.com/3b1b/manim/issues/2263.",
-            ),
-        ),
+        "--GL",
         "--CE --renderer=opengl",
     ],
     ids=("CE", "GL", "CE(GL)"),
@@ -205,13 +178,7 @@ def test_clear_cache(
     "renderer",
     [
         "--CE",
-        pytest.param(
-            "--GL",
-            marks=pytest.mark.skipif(
-                sys.version_info < (3, 10),
-                reason="See https://github.com/3b1b/manim/issues/2263.",
-            ),
-        ),
+        "--GL",
     ],
 )
 @pytest.mark.parametrize(
@@ -246,7 +213,7 @@ def test_skip_reversing(
                 assert slide.file != slide.rev_file
 
 
-def init_slide(cls: SlideType) -> Slide:
+def init_slide(cls: type[SlideT]) -> SlideT:
     if issubclass(cls, CESlide):
         return cls()
     elif issubclass(cls, GLSlide):
@@ -284,7 +251,7 @@ def tmp_cwd() -> Iterator[str]:
         os.chdir(cwd)
 
 
-def assert_renders(cls: SlideType) -> None:
+def assert_renders(cls: type[CESlide]) -> None:
     with tmp_cwd():
         init_slide(cls).render()
 
@@ -540,6 +507,26 @@ class TestSlide:
                 assert self._current_animation == 1
                 self.next_slide()
                 assert self._current_animation == 2  # self.wait = +1
+
+    def test_wait_between_looping_slides(self) -> None:
+        @assert_constructs
+        class _(CESlide):
+            def construct(self) -> None:
+                self._wait_time_between_slides = 1.0
+                self.wait_between_looping_slides = False
+                circle = Circle(color=BLUE)
+                self.play(GrowFromCenter(circle))
+                assert self._current_animation == 1
+                self.next_slide(loop=True)
+                assert (
+                    self._current_animation == 2
+                )  # self.wait = +1, slide is not a loop yet
+                self.play(FadeOut(circle))
+                assert self._current_animation == 3
+                self.next_slide()
+                assert (
+                    self._current_animation == 3
+                )  # no extra wait, closing slide loops
 
     def test_next_slide(self) -> None:
         @assert_constructs

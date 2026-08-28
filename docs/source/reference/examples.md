@@ -170,3 +170,18 @@ A more advanced example is `ConvertExample`, which is used as demo slide and tut
    :linenos:
    :pyobject: ConvertExample
 ```
+
+## Various Media Types
+
+Manim Slides supports including external media files of various media types, such as images (including GIFs) and videos.
+
+```{eval-rst}
+.. manim-slides:: ../../../example.py:SlideTypesExample
+    :hide_source:
+    :quality: high
+
+.. literalinclude:: ../../../example.py
+   :language: python
+   :linenos:
+   :pyobject: SlideTypesExample
+```

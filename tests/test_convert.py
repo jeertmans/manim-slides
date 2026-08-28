@@ -1,10 +1,14 @@
 import shutil
-from enum import EnumMeta
+from enum import Enum
 from pathlib import Path
+from typing import cast
 
+import click
 import pytest
 import requests
 from bs4 import BeautifulSoup
+from click import Context, Parameter
+from pydantic import BaseModel
 
 from manim_slides.config import PresentationConfig
 from manim_slides.convert import (
@@ -36,6 +40,7 @@ from manim_slides.convert import (
     TransitionSpeed,
     file_to_data_uri,
     get_duration_ms,
+    resolve_template_option,
 )
 
 
@@ -45,6 +50,36 @@ def test_get_duration_ms(video_file: Path) -> None:
 
 def test_file_to_data_uri(video_file: Path, video_data_uri_file: Path) -> None:
     assert file_to_data_uri(video_file) == video_data_uri_file.read_text().strip()
+
+
+def test_resolve_template_option_accepts_builtin_template() -> None:
+    assert (
+        resolve_template_option(
+            cast(Context, None), cast(Parameter, None), "firebase_sync.html"
+        )
+        == "firebase_sync.html"
+    )
+
+
+def test_resolve_template_option_accepts_existing_path(tmp_path: Path) -> None:
+    template_file = tmp_path / "custom.html"
+    template_file.write_text("template")
+
+    assert (
+        resolve_template_option(
+            cast(Context, None), cast(Parameter, None), str(template_file)
+        )
+        == template_file
+    )
+
+
+def test_resolve_template_option_rejects_missing_template() -> None:
+    with pytest.raises(
+        click.BadParameter, match=r"Template 'missing\.html' was not found"
+    ):
+        resolve_template_option(
+            cast(Context, None), cast(Parameter, None), "missing.html"
+        )
 
 
 @pytest.mark.parametrize(
@@ -73,8 +108,8 @@ def test_file_to_data_uri(video_file: Path, video_data_uri_file: Path) -> None:
         (RevealTheme,),
     ],
 )
-def test_format_enum(enum_type: EnumMeta) -> None:
-    for enum in enum_type:  # type: ignore[var-annotated]
+def test_format_enum(enum_type: type[Enum]) -> None:
+    for enum in enum_type:
         expected = str(enum)
         got = f"{enum}"
 
@@ -110,13 +145,49 @@ def test_format_enum(enum_type: EnumMeta) -> None:
         (Display,),
     ],
 )
-def test_quoted_enum(enum_type: EnumMeta) -> None:
-    for enum in enum_type:  # type: ignore[var-annotated]
+def test_quoted_enum(enum_type: type[Enum]) -> None:
+    for enum in enum_type:
         if enum in ["true", "false", "null"]:
             continue
 
         expected = "'" + enum.value + "'"
         got = str(enum)
+
+        assert expected == got
+
+
+@pytest.mark.parametrize(
+    ("enum_type",),
+    [
+        (ControlsLayout,),
+        (ControlsBackArrows,),
+        (SlideNumber,),
+        (ShowSlideNumber,),
+        (KeyboardCondition,),
+        (NavigationMode,),
+        (AutoPlayMedia,),
+        (PreloadIframes,),
+        (AutoAnimateMatcher,),
+        (AutoAnimateEasing,),
+        (AutoSlideMethod,),
+        (Transition,),
+        (TransitionSpeed,),
+        (BackgroundSize,),
+        (BackgroundTransition,),
+        (Display,),
+    ],
+)
+def test_quoted_enum_survives_pydantic_validation(enum_type: type[Enum]) -> None:
+    class Model(BaseModel):
+        value: enum_type  # ty: ignore[invalid-type-form]
+
+    for enum in enum_type:
+        if enum in ["true", "false", "null"]:
+            continue
+
+        model = Model(value=enum.value)
+        expected = "'" + enum.value + "'"
+        got = str(model.value)
 
         assert expected == got
 
@@ -131,8 +202,8 @@ def test_quoted_enum(enum_type: EnumMeta) -> None:
         (RevealTheme,),
     ],
 )
-def test_unquoted_enum(enum_type: EnumMeta) -> None:
-    for enum in enum_type:  # type: ignore[var-annotated]
+def test_unquoted_enum(enum_type: type[Enum]) -> None:
+    for enum in enum_type:
         expected = enum.value
         got = str(enum)
 
@@ -168,10 +239,10 @@ class TestConverter:
         assets_dir = Path(tmp_path / "slides_assets")
         assert assets_dir.is_dir()
         for file in [
-            "black.min.css",
-            "reveal.min.css",
-            "reveal.min.js",
-            "zenburn.min.css",
+            "black.css",
+            "reveal.css",
+            "reveal.js",
+            "zenburn.css",
         ]:
             assert (assets_dir / file).exists()
 
@@ -220,7 +291,9 @@ class TestConverter:
 
         # Check if CSS is not inlined
         styles = soup.find_all("style")
-        assert not any("background-color: #9a3241;" in style.string for style in styles)
+        assert not any(
+            "background-color: #9a3241;" in (style.string or "") for style in styles
+        )
         # Check if JS is not inlined
         scripts = soup.find_all("script")
         assert not any(
@@ -264,11 +337,15 @@ class TestConverter:
 
         # Check if CSS is inlined
         styles = soup.find_all("style")
-        assert any("background-color: #9a3241;" in style.string for style in styles)
+        assert any(
+            "background-color: #9a3241;" in (style.string or "") for style in styles
+        )
 
         # Check if JS is inlined
         scripts = soup.find_all("script")
-        assert any("background-color: #9a3241;" in script.string for script in scripts)
+        assert any(
+            "background-color: #9a3241;" in (script.string or "") for script in scripts
+        )
 
     def test_htmlzip_converter(
         self, tmp_path: Path, presentation_config: PresentationConfig

@@ -15,7 +15,13 @@ from typing import (
 import numpy as np
 from tqdm import tqdm
 
-from ..config import BaseSlideConfig, PresentationConfig, PreSlideConfig, SlideConfig
+from ..config import (
+    BaseSlideConfig,
+    PresentationConfig,
+    PreSlideConfig,
+    SlideConfig,
+    SlideType,
+)
 from ..defaults import FOLDER_PATH
 from ..logger import logger
 from ..utils import concatenate_video_files, merge_basenames, reverse_video_file
@@ -51,6 +57,7 @@ class BaseSlide:
         self._start_animation = 0
         self._canvas: MutableMapping[str, Mobject] = {}
         self._wait_time_between_slides = 0.0
+        self._wait_between_looping_slides = True
         self._skip_animations = False
 
     @property
@@ -215,7 +222,7 @@ class BaseSlide:
         """
         return [
             mobject
-            for mobject in self.mobjects  # type: ignore[attr-defined]
+            for mobject in self.mobjects  # ty: ignore[unresolved-attribute]
             if mobject not in self.canvas_mobjects
         ]
 
@@ -279,9 +286,72 @@ class BaseSlide:
     def wait_time_between_slides(self, wait_time: float) -> None:
         self._wait_time_between_slides = max(wait_time, 0.0)
 
+    @property
+    def wait_between_looping_slides(self) -> bool:
+        """
+        Return whether :attr:`wait_time_between_slides` should also apply
+        to slides that loop, i.e., slides created with
+        ``self.next_slide(loop=True)``.
+
+        By default, this value is set to :data:`True`, for backward
+        compatibility.
+
+        Setting this value to :data:`False` avoids the small pause added by
+        :attr:`wait_time_between_slides` right before a looping slide starts,
+        which can otherwise be visible as an unwanted stutter every time the
+        loop repeats.
+
+        Examples
+        --------
+        .. manim-slides:: WithWaitBetweenLoopingSlidesExample
+
+            from manim import *
+            from manim_slides import Slide
+
+            class WithWaitBetweenLoopingSlidesExample(Slide):
+                def construct(self):
+                    self.wait_time_between_slides = 0.5
+                    dot = Dot(color=BLUE, radius=1)
+
+                    self.play(FadeIn(dot))
+                    self.next_slide(loop=True)
+
+                    self.play(Indicate(dot, scale_factor=2))
+
+                    self.next_slide()
+
+                    self.play(FadeOut(dot))
+
+        .. manim-slides:: WithoutWaitBetweenLoopingSlidesExample
+
+            from manim import *
+            from manim_slides import Slide
+
+            class WithoutWaitBetweenLoopingSlidesExample(Slide):
+                def construct(self):
+                    self.wait_time_between_slides = 0.5
+                    self.wait_between_looping_slides = False
+                    dot = Dot(color=BLUE, radius=1)
+
+                    self.play(FadeIn(dot))
+                    self.next_slide(loop=True)
+
+                    self.play(Indicate(dot, scale_factor=2))
+
+                    self.next_slide()
+
+                    self.play(FadeOut(dot))
+
+        """
+        return self._wait_between_looping_slides
+
+    @wait_between_looping_slides.setter
+    def wait_between_looping_slides(self, wait_between_looping_slides: bool) -> None:
+        self._wait_between_looping_slides = wait_between_looping_slides
+
     def play(self, *args: Any, **kwargs: Any) -> None:
         """Overload 'self.play' and increment animation count."""
-        super().play(*args, **kwargs)  # type: ignore[misc]
+        super().play(*args, **kwargs)  # ty: ignore[unresolved-attribute]
         self._current_animation += 1
 
     @BaseSlideConfig.wrapper("base_slide_config")
@@ -469,8 +539,10 @@ class BaseSlide:
 
         """
         if self._current_animation > self._start_animation:
-            if self.wait_time_between_slides > 0.0:
-                self.wait(self.wait_time_between_slides)  # type: ignore[attr-defined]
+            if self.wait_time_between_slides > 0.0 and (
+                not self._base_slide_config.loop or self.wait_between_looping_slides
+            ):
+                self.wait(self.wait_time_between_slides)  # ty: ignore[unresolved-attribute]
 
             self._slides.append(
                 PreSlideConfig.from_base_slide_config_and_animation_indices(
@@ -569,7 +641,10 @@ class BaseSlide:
                 slide_files = files[pre_slide_config.slides_slice]
 
             try:
-                file = merge_basenames(slide_files)
+                if pre_slide_config.type == SlideType.Video:
+                    file = merge_basenames(slide_files)
+                else:
+                    file = Path(slide_files[0])
             except ValueError as e:
                 raise ValueError(
                     f"Failed to merge basenames of files for slide: {pre_slide_config!r}"
@@ -581,9 +656,9 @@ class BaseSlide:
             if not use_cache or not dst_file.exists():
                 concatenate_video_files(slide_files, dst_file)
 
-            # We only reverse video if it was not present
+            # We only reverse video if it was not present and not a static image
             if not use_cache or not rev_file.exists():
-                if skip_reversing:
+                if skip_reversing or pre_slide_config.type == SlideType.Image:
                     rev_file = dst_file
                 else:
                     reverse_video_file(

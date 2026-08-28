@@ -221,8 +221,6 @@ class SkipManimNode(nodes.Admonition, nodes.Element):
     Skips rendering the manim-slides directive and outputs a placeholder instead.
     """
 
-    pass
-
 
 def visit(self, node, name=""):
     self.visit_admonition(node, name)
@@ -306,8 +304,6 @@ class ManimSlidesDirective(Directive):
 
         from manim import config, tempconfig
 
-        global classnamedict
-
         def split_file_cls(arg: str) -> tuple[Path, str]:
             if ":" in arg:
                 file, cls = arg.split(":", maxsplit=1)
@@ -379,8 +375,10 @@ class ManimSlidesDirective(Directive):
         }
 
         if file := arguments[0][0]:
-            user_code = file.absolute().read_text().splitlines()
+            source_file = file.absolute()
+            user_code = source_file.read_text().splitlines()
         else:
+            source_file = source_file_name.absolute()
             user_code = self.content
 
         if user_code[0].startswith(">>> "):  # check whether block comes from doctest
@@ -396,7 +394,11 @@ class ManimSlidesDirective(Directive):
         try:
             with tempconfig(example_config):
                 print(f"Rendering {clsname}...")  # noqa: T201
-                run_time = timeit(lambda: exec("\n".join(code), globals()), number=1)
+                global_ns = {"__file__": str(source_file)}
+                run_time = timeit(
+                    lambda: exec("\n".join(code), global_ns),  # noqa: S102
+                    number=1,
+                )
                 video_dir = config.get_dir("video_dir")
         except Exception as e:
             raise RuntimeError(f"Error while rendering example {clsname}") from e
@@ -485,7 +487,7 @@ def _log_rendering_times(*args):
                 print(  # noqa: T201
                     f"{' ' * (max_file_length)} {row[2].rjust(7)}s {row[1]}"
                 )
-        print("")  # noqa: T201
+        print()  # noqa: T201
 
 
 def _delete_rendering_times(*args):

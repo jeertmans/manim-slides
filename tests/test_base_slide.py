@@ -63,7 +63,7 @@ class TestBaseSlide:
 
         assert len(base_slide.canvas) == 3
 
-        assert sorted(base_slide.canvas_mobjects) == [1, 3, 4]
+        assert sorted(base_slide.canvas_mobjects) == [1, 3, 4]  # ty: ignore[invalid-argument-type]
 
         base_slide.remove_from_canvas("a", "b", "c")
 
@@ -85,6 +85,13 @@ class TestBaseSlide:
         base_slide.wait_time_between_slides = -1.0
 
         assert base_slide.wait_time_between_slides == 0.0
+
+    def test_wait_between_looping_slides(self, base_slide: BaseSlide) -> None:
+        assert base_slide.wait_between_looping_slides
+
+        base_slide.wait_between_looping_slides = False
+
+        assert not base_slide.wait_between_looping_slides
 
     def test_skip_animations(self, base_slide: BaseSlide) -> None:
         assert not base_slide._skip_animations

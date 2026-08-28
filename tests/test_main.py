@@ -69,28 +69,73 @@ def test_convert(slides_folder: Path, extension: str) -> None:
 def test_convert_data_uri_deprecated(slides_folder: Path, extension: str) -> None:
     runner = CliRunner()
 
+    with runner.isolated_filesystem(), warnings.catch_warnings(record=True) as w:
+        warnings.simplefilter("always")
+        results = runner.invoke(
+            cli,
+            [
+                "convert",
+                "BasicSlide",
+                f"basic_example.{extension}",
+                "--folder",
+                str(slides_folder),
+                "--to",
+                extension,
+                "-cdata_uri=true",
+            ],
+        )
+        assert any(
+            "'data_uri' configuration option is deprecated" in str(item.message)
+            and item.category is DeprecationWarning
+            for item in w
+        )
+        assert results.exit_code == 0
+
+
+def test_convert_with_builtin_template_name(slides_folder: Path) -> None:
+    runner = CliRunner()
+
     with runner.isolated_filesystem():
-        with warnings.catch_warnings(record=True) as w:
-            warnings.simplefilter("always")
-            results = runner.invoke(
-                cli,
-                [
-                    "convert",
-                    "BasicSlide",
-                    f"basic_example.{extension}",
-                    "--folder",
-                    str(slides_folder),
-                    "--to",
-                    extension,
-                    "-cdata_uri=true",
-                ],
-            )
-            assert any(
-                "'data_uri' configuration option is deprecated" in str(item.message)
-                and item.category is DeprecationWarning
-                for item in w
-            )
-            assert results.exit_code == 0
+        results = runner.invoke(
+            cli,
+            [
+                "convert",
+                "BasicSlide",
+                "basic_example.html",
+                "--folder",
+                str(slides_folder),
+                "--to",
+                "html",
+                "--use-template",
+                "firebase_sync.html",
+            ],
+        )
+
+        assert results.exit_code == 0
+        assert "firebase" in Path("basic_example.html").read_text().casefold()
+
+
+def test_convert_with_unknown_template_fails(slides_folder: Path) -> None:
+    runner = CliRunner()
+
+    with runner.isolated_filesystem():
+        results = runner.invoke(
+            cli,
+            [
+                "convert",
+                "BasicSlide",
+                "basic_example.html",
+                "--folder",
+                str(slides_folder),
+                "--to",
+                "html",
+                "--use-template",
+                "unknown_template.html",
+            ],
+        )
+
+        assert results.exit_code != 0
+        assert "Template 'unknown_template.html' was not found" in results.output
 
 
 @pytest.mark.parametrize(

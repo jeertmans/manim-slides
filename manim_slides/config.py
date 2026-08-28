@@ -1,10 +1,13 @@
 import json
+import mimetypes
 import shutil
+from collections.abc import Callable
+from enum import Enum
 from functools import wraps
 from inspect import Parameter, signature
 from pathlib import Path
 from textwrap import dedent
-from typing import Any, Callable, Literal, Optional
+from typing import Annotated, Any, Literal
 
 import rtoml
 from pydantic import (
@@ -13,7 +16,6 @@ from pydantic import (
     FilePath,
     PositiveInt,
     PrivateAttr,
-    conset,
     field_serializer,
     field_validator,
     model_validator,
@@ -25,7 +27,14 @@ from .logger import logger
 Receiver = Callable[..., Any]
 
 
-class Signal(BaseModel):  # type: ignore[misc]
+class SlideType(Enum):
+    """Enumeration of slide types."""
+
+    Video = "video"
+    Image = "image"
+
+
+class Signal(BaseModel):
     __receivers: list[Receiver] = PrivateAttr(default_factory=list)
 
     def connect(self, receiver: Receiver) -> None:
@@ -46,11 +55,11 @@ def key_id(name: str) -> PositiveInt:
     return getattr(Qt, f"Key_{name}")
 
 
-class Key(BaseModel):  # type: ignore[misc]
+class Key(BaseModel):
     """Represents a list of key codes, with optionally a name."""
 
-    ids: conset(PositiveInt, min_length=1)  # type: ignore[valid-type]
-    name: Optional[str] = None
+    ids: Annotated[set[PositiveInt], Field(min_length=1)]
+    name: str | None = None
 
     __signal: Signal = PrivateAttr(default_factory=Signal)
 
@@ -77,7 +86,7 @@ class Key(BaseModel):  # type: ignore[misc]
         return list(self.ids)
 
 
-class Keys(BaseModel):  # type: ignore[misc]
+class Keys(BaseModel):
     QUIT: Key = Field(default_factory=lambda: Key(ids=[key_id("Q")], name="QUIT"))
     PLAY_PAUSE: Key = Field(
         default_factory=lambda: Key(ids=[key_id("Space")], name="PLAY / PAUSE")
@@ -97,15 +106,19 @@ class Keys(BaseModel):  # type: ignore[misc]
 
     @model_validator(mode="before")
     @classmethod
-    def ids_are_unique_across_keys(cls, values: dict[str, Key]) -> dict[str, Key]:
+    def ids_are_unique_across_keys(
+        cls, values: dict[str, "Key | dict[str, Any]"]
+    ) -> dict[str, "Key | dict[str, Any]"]:
         ids: set[int] = set()
 
         for key in values.values():
-            if len(ids.intersection(key["ids"])) != 0:
+            key_ids = key.ids if isinstance(key, Key) else key["ids"]
+
+            if len(ids.intersection(key_ids)) != 0:
                 raise ValueError(
                     "Two or more keys share a common key code: please make sure each key has distinct key codes"
                 )
-            ids.update(key["ids"])
+            ids.update(key_ids)
 
         return values
 
@@ -131,7 +144,7 @@ class Keys(BaseModel):  # type: ignore[misc]
         return dispatch
 
 
-class Config(BaseModel):  # type: ignore[misc]
+class Config(BaseModel):
     """General Manim Slides config."""
 
     keys: Keys = Field(default_factory=Keys)
@@ -139,7 +152,7 @@ class Config(BaseModel):  # type: ignore[misc]
     @classmethod
     def from_file(cls, path: Path) -> "Config":
         """Read a configuration from a file."""
-        return cls.model_validate(rtoml.load(path))  # type: ignore
+        return cls.model_validate(rtoml.load(path))
 
     def to_file(self, path: Path) -> None:
         """Dump the configuration to a file."""
@@ -151,7 +164,7 @@ class Config(BaseModel):  # type: ignore[misc]
         return self
 
 
-class BaseSlideConfig(BaseModel):  # type: ignore
+class BaseSlideConfig(BaseModel):
     """Base class for slide config."""
 
     loop: bool = False
@@ -161,8 +174,30 @@ class BaseSlideConfig(BaseModel):  # type: ignore
     notes: str = ""
     dedent_notes: bool = True
     skip_animations: bool = False
-    src: Optional[FilePath] = None
+    src: FilePath | None = None
+    type: SlideType = SlideType.Video
     direction: Literal["horizontal", "vertical"] = "horizontal"
+
+    @model_validator(mode="after")
+    def determine_slide_type(self) -> "BaseSlideConfig":
+        """Determine the type of src."""
+        if self.src is not None:
+            guessed_typed = mimetypes.guess_type(self.src)[0]
+            if guessed_typed is None:
+                logger.warning(
+                    f"The file type of 'src' ({str(self.src)!r}) could not be guessed. Defaulting to video type.",
+                )
+                self.type = SlideType.Video
+            elif guessed_typed.startswith("image"):
+                self.type = SlideType.Image
+            elif guessed_typed.startswith("video"):
+                self.type = SlideType.Video
+            else:
+                logger.warning(
+                    f"The file type of 'src' ({str(self.src)!r}) is guessed as {guessed_typed!r}, which is not recognized or currently supported. Defaulting to video type.",
+                )
+                self.type = SlideType.Video
+        return self
 
     @classmethod
     def wrapper(cls, arg_name: str) -> Callable[..., Any]:
@@ -200,7 +235,7 @@ class BaseSlideConfig(BaseModel):  # type: ignore
             ]
 
             sig = sig.replace(parameters=parameters)
-            __wrapper__.__signature__ = sig  # type: ignore[attr-defined]
+            __wrapper__.__signature__ = sig  # ty: ignore[unresolved-attribute]
 
             return __wrapper__
 
@@ -289,10 +324,10 @@ class SlideConfig(BaseSlideConfig):
         return cls(file=file, rev_file=rev_file, **pre_slide_config.model_dump())
 
 
-class PresentationConfig(BaseModel):  # type: ignore[misc]
+class PresentationConfig(BaseModel):
     slides: list[SlideConfig] = Field(min_length=1)
     resolution: tuple[PositiveInt, PositiveInt] = (1920, 1080)
-    background_color: Color = "black"
+    background_color: Color = Color("black")
 
     @classmethod
     def from_file(cls, path: Path) -> "PresentationConfig":
@@ -310,7 +345,7 @@ class PresentationConfig(BaseModel):  # type: ignore[misc]
                 if rev_file := slide.get("rev_file", None):
                     slide["rev_file"] = parent / rev_file
 
-            return cls.model_validate(obj)  # type: ignore
+            return cls.model_validate(obj)
 
     def to_file(self, path: Path) -> None:
         """Dump the presentation configuration to a file."""

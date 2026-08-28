@@ -6,12 +6,12 @@
 
     <title>{{ title }}</title>
 
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/{{ reveal_version }}/reveal.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/{{ reveal_version }}/theme/{{ reveal_theme }}.min.css">
+    <link rel="stylesheet" href="{{ cdn_url }}/dist/reveal.css">
+    <link rel="stylesheet" href="{{ cdn_url }}/dist/theme/{{ reveal_theme }}.css">
 
     <!-- Theme used for syntax highlighting of code -->
     <!-- <link rel="stylesheet" href="lib/css/zenburn.css"> -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/styles/zenburn.min.css">
+    <link rel="stylesheet" href="{{ cdn_url }}/dist/plugin/highlight/zenburn.css">
     <!-- <link rel="stylesheet" href="index.css"> -->
   </head>
 
@@ -25,7 +25,7 @@
             {% if one_file %}
               {% set file = file_to_data_uri(slide_config.file) %}
             {% else %}
-              {% set file = assets_dir / (prefix(outer_loop.index0) + slide_config.file.name) %}
+              {% set file = assets_dir ~ '/' ~ (prefix(outer_loop.index0) + slide_config.file.name) %}
             {% endif %}
             {% if slide_config.direction == "vertical" %}
               {% if not ns.open_stack %}
@@ -41,12 +41,16 @@
         <section
           data-background-size={{ background_size }}
           data-background-color="{{ presentation_config.background_color }}"
+          {% if slide_config.type.value == "image" %}
+          data-background-image="{{ file }}"
+          {% else %}
           data-background-video="{{ file }}"
           {% if loop.index == 1 and outer_loop.index == 1 %}
           data-background-video-muted
           {% endif %}
           {% if slide_config.loop %}
           data-background-video-loop
+          {% endif %}
           {% endif %}
           {% if slide_config.auto_next %}
           data-autoslide="{{ get_duration_ms(slide_config.file) }}"
@@ -64,12 +68,12 @@
       </div>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/{{ reveal_version }}/reveal.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/{{ reveal_version }}/plugin/notes/notes.min.js"></script>
+    <script src="{{ cdn_url }}/dist/reveal.js"></script>
+    <script src="{{ cdn_url }}/dist/plugin/notes.js"></script>
 
     <!-- To include plugins, see: https://revealjs.com/plugins/ -->
     {% if has_notes %}
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/{{ reveal_version }}/plugin/markdown/markdown.min.js"></script>
+    <script src="{{ cdn_url }}/dist/plugin/markdown.js"></script>
     {% endif %}
 
     <!-- <script src="index.js"></script> -->
