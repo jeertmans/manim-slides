@@ -26,7 +26,7 @@ def test_merge_basenames_same_with_different_parent_directories(
     assert merge_basenames([p1, p2]).name == merge_basenames([p3, p4]).name
 
 
-def _assert_decodable(dest: Path) -> None:
+def assert_has_decodable_video_stream(dest: Path) -> None:
     assert dest.exists()
     with av.open(str(dest)) as container:
         assert sum(1 for _ in container.decode(video=0)) > 0
@@ -44,7 +44,7 @@ def test_concatenate_video_files_relative_paths(
 
     concatenate_video_files([relative, relative], dest)
 
-    _assert_decodable(dest)
+    assert_has_decodable_video_stream(dest)
 
 
 def test_concatenate_video_files_quoted_path(video_file: Path, tmp_path: Path) -> None:
@@ -58,4 +58,4 @@ def test_concatenate_video_files_quoted_path(video_file: Path, tmp_path: Path) -
 
     concatenate_video_files([src, src], dest)
 
-    _assert_decodable(dest)
+    assert_has_decodable_video_stream(dest)
