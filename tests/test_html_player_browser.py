@@ -1,5 +1,5 @@
-import io
 import hashlib
+import io
 import os
 from pathlib import Path
 
@@ -19,7 +19,9 @@ pytestmark = pytest.mark.skipif(
 )
 
 
-def make_video(path: Path, start: tuple[int, int, int], end: tuple[int, int, int]) -> None:
+def make_video(
+    path: Path, start: tuple[int, int, int], end: tuple[int, int, int]
+) -> None:
     container = av.open(str(path), "w")
     stream = container.add_stream("libx264", rate=15)
     stream.width = 160
@@ -34,6 +36,27 @@ def make_video(path: Path, start: tuple[int, int, int], end: tuple[int, int, int
         )
         pixels = np.empty((90, 160, 3), dtype=np.uint8)
         pixels[:] = color
+        frame = av.VideoFrame.from_ndarray(pixels, format="rgb24")
+        for packet in stream.encode(frame):
+            container.mux(packet)
+    for packet in stream.encode():
+        container.mux(packet)
+    container.close()
+
+
+def make_motion_video(path: Path, *, reverse: bool = False) -> None:
+    container = av.open(str(path), "w")
+    stream = container.add_stream("libx264", rate=15)
+    stream.width = 160
+    stream.height = 90
+    stream.pix_fmt = "yuv420p"
+    stream.options = {"preset": "ultrafast", "crf": "18"}
+    for index in range(30):
+        position = 29 - index if reverse else index
+        left = round(8 + 134 * position / 29)
+        pixels = np.zeros((90, 160, 3), dtype=np.uint8)
+        pixels[44:46, 8:152] = (40, 100, 220)
+        pixels[35:55, left : left + 18] = (230, 40, 40)
         frame = av.VideoFrame.from_ndarray(pixels, format="rgb24")
         for packet in stream.encode(frame):
             container.mux(packet)
@@ -68,6 +91,22 @@ def color_config(tmp_path: Path) -> PresentationConfig:
                 direction="vertical",
                 notes="Second note",
             ),
+        ],
+        resolution=(160, 90),
+        background_color="black",
+    )
+
+
+@pytest.fixture
+def motion_config(tmp_path: Path) -> PresentationConfig:
+    forward = tmp_path / "motion-forward.mp4"
+    reverse = tmp_path / "motion-reverse.mp4"
+    make_motion_video(forward)
+    make_motion_video(reverse, reverse=True)
+    return PresentationConfig(
+        slides=[
+            SlideConfig(file=forward, rev_file=reverse),
+            SlideConfig(file=forward, rev_file=reverse),
         ],
         resolution=(160, 90),
         background_color="black",
@@ -118,6 +157,122 @@ def center_rgb(page) -> tuple[int, int, int]:
     return int(pixel[0]), int(pixel[1]), int(pixel[2])
 
 
+def active_video_telemetry(page) -> dict[str, object]:
+    value = page.evaluate(
+        """() => {
+          const player = document.querySelector('[data-ms-player]');
+          const video = player.manimSlidesPlayer.currentVideo();
+          return {
+            attributeSrc: video.getAttribute('src'),
+            src: video.src,
+            currentSrc: video.currentSrc,
+            currentTime: video.currentTime,
+            duration: video.duration,
+            paused: video.paused,
+          };
+        }"""
+    )
+    assert isinstance(value, dict)
+    return value
+
+
+def wait_playing_and_assert_time_advances(page, role: str) -> None:
+    page.wait_for_function(
+        "role => document.querySelector('[data-ms-player]').dataset.state === role",
+        arg=role,
+        timeout=10_000,
+    )
+    start = active_video_telemetry(page)["currentTime"]
+    assert isinstance(start, (int, float))
+    page.wait_for_function(
+        "start => document.querySelector('[data-ms-player]').manimSlidesPlayer"
+        ".currentVideo().currentTime > start + 0.12",
+        arg=start,
+        timeout=3_000,
+    )
+
+
+def assert_blob_source_is_not_document(page, output: Path) -> None:
+    telemetry = active_video_telemetry(page)
+    assert isinstance(telemetry["attributeSrc"], str)
+    assert telemetry["attributeSrc"].startswith("blob:")
+    assert telemetry["src"] == telemetry["currentSrc"]
+    assert telemetry["src"] != output.resolve().as_uri()
+    assert page.evaluate(
+        "[...document.querySelectorAll('video')].every(video => video.src !== location.href)"
+    )
+
+
+def test_file_portable_motion_preferences_and_explicit_playback(
+    browser, tmp_path: Path, motion_config: PresentationConfig
+) -> None:
+    output = tmp_path / "motion.html"
+    HtmlPlayer(presentation_configs=[motion_config], one_file=True).convert_to(output)
+
+    context, page, requests = open_portable(
+        browser, output, reduced_motion="no-preference"
+    )
+    page.wait_for_function(
+        "document.querySelector('[data-ms-player]')?.manimSlidesPlayer"
+        "?.currentVideo()?.currentSrc"
+    )
+    assert_blob_source_is_not_document(page, output)
+    if page.locator("[data-ms-player]").get_attribute("data-state") == "paused":
+        page.locator("[data-ms-gesture]").click()
+    wait_playing_and_assert_time_advances(page, "playing-forward")
+    wait_held(page, 0)
+
+    page.locator("nav [data-command=next]").click()
+    wait_playing_and_assert_time_advances(page, "playing-forward")
+    wait_held(page, 1)
+    page.locator("nav [data-command=back]").click()
+    wait_playing_and_assert_time_advances(page, "playing-reverse")
+    wait_held(page, 0)
+    page.locator("[data-command=replay]").click()
+    wait_playing_and_assert_time_advances(page, "playing-forward")
+    assert all(not url.startswith(("http://", "https://")) for url in requests)
+    context.close()
+
+    context, page, requests = open_portable(browser, output, reduced_motion="reduce")
+    page.wait_for_function(
+        "document.querySelector('[data-ms-player]')?.dataset.state === 'paused'"
+    )
+    assert page.evaluate("matchMedia('(prefers-reduced-motion: reduce)').matches")
+    assert_blob_source_is_not_document(page, output)
+    before = active_video_telemetry(page)["currentTime"]
+    page.wait_for_timeout(300)
+    after = active_video_telemetry(page)["currentTime"]
+    assert isinstance(before, (int, float))
+    assert isinstance(after, (int, float))
+    assert before < 0.05
+    assert after == pytest.approx(before, abs=0.02)
+    assert page.locator("[data-ms-gesture]").is_visible()
+    assert page.locator("[data-ms-gesture]").text_content() == "Play animation"
+    page.locator("[data-ms-gesture]").click()
+    wait_playing_and_assert_time_advances(page, "playing-forward")
+    wait_held(page, 0)
+
+    page.locator("nav [data-command=next]").click()
+    page.wait_for_function(
+        "document.querySelector('[data-ms-player]').dataset.state === 'paused' && "
+        "document.querySelector('[data-ms-player]').dataset.slideIndex === '1'"
+    )
+    page.locator("[data-ms-gesture]").click()
+    wait_playing_and_assert_time_advances(page, "playing-forward")
+    wait_held(page, 1)
+    page.locator("nav [data-command=back]").click()
+    page.wait_for_function(
+        "document.querySelector('[data-ms-player]').dataset.state === 'paused'"
+    )
+    page.locator("[data-ms-gesture]").click()
+    wait_playing_and_assert_time_advances(page, "playing-reverse")
+    wait_held(page, 0)
+    page.locator("[data-command=replay]").click()
+    wait_playing_and_assert_time_advances(page, "playing-forward")
+    assert all(not url.startswith(("http://", "https://")) for url in requests)
+    context.close()
+
+
 def test_file_portable_navigation_reverse_pixels_and_cleanup(
     browser, tmp_path: Path, color_config: PresentationConfig
 ) -> None:
@@ -148,7 +303,9 @@ def test_file_portable_navigation_reverse_pixels_and_cleanup(
         )
         > 0
     )
-    page.evaluate("document.querySelector('[data-ms-player]').manimSlidesPlayer.destroy()")
+    page.evaluate(
+        "document.querySelector('[data-ms-player]').manimSlidesPlayer.destroy()"
+    )
     assert (
         page.evaluate(
             "document.querySelector('[data-ms-player]').manimSlidesPlayer.assetStore.urls.size"
@@ -363,7 +520,8 @@ def test_loop_auto_next_pause_replay_and_error_state(
         "document.querySelector('[data-ms-player]').dataset.state === 'failed'",
         timeout=10_000,
     )
-    assert "Slide 1 forward asset" in page.locator(
-        "[data-ms-error-message]"
-    ).text_content()
+    assert (
+        "Slide 1 forward asset"
+        in page.locator("[data-ms-error-message]").text_content()
+    )
     context.close()

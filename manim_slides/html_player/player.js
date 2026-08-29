@@ -202,7 +202,7 @@
           slot.video.load();
           await metadata;
           let target = 0;
-          if (effect.seek === "end" || this.reducedMotion) target = this.safeEnd(slot.video);
+          if (effect.seek === "end") target = this.safeEnd(slot.video);
           else if (effect.seek === "mapped") target = this.mappedTime(effect, slot.video.duration);
           await this.seek(slot.video, target, generation);
         }
@@ -218,7 +218,12 @@
         this.dispatch({
           type: "LOAD_READY",
           generation,
-          playable: asset.kind === "video" && !this.reducedMotion,
+          playable: asset.kind === "video",
+          requiresGesture:
+            asset.kind === "video" &&
+            this.reducedMotion &&
+            effect.autoplay &&
+            !effect.userGesture,
         });
       } catch (error) {
         if (error && error.name === "AbortError") return;
@@ -297,7 +302,8 @@
       const needsGesture =
         this.model.status === Core.Status.PAUSED && this.model.resumeStatus !== null;
       this.gesture.hidden = !needsGesture;
-      if (needsGesture) this.gesture.textContent = "Play presentation";
+      if (needsGesture)
+        this.gesture.textContent = this.reducedMotion ? "Play animation" : "Play presentation";
       for (const button of this.overviewList.querySelectorAll("button"))
         button.setAttribute("aria-current", String(Number(button.dataset.index) === this.model.index));
     }

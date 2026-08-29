@@ -80,6 +80,27 @@ test("replay and pause resume preserve semantic role", () => {
   result = apply(result.model, { type: "REPLAY" });
   assert.equal(result.effects[0].seek, "start");
   assert.equal(result.effects[0].slideIndex, 0);
+  assert.equal(result.effects[0].userGesture, true);
+});
+
+test("reduced motion waits in the existing paused state for explicit playback", () => {
+  let model = Core.initial(slides.length);
+  let result = apply(model, { type: "BOOT" });
+  model = result.model;
+  result = apply(model, {
+    type: "LOAD_READY",
+    generation: model.generation,
+    playable: true,
+    requiresGesture: true,
+  });
+  model = result.model;
+  assert.equal(model.status, Core.Status.PAUSED);
+  assert.equal(model.resumeStatus, Core.Status.PLAYING_FORWARD);
+  assert.equal(result.effects.length, 0);
+
+  result = apply(model, { type: "TOGGLE_PAUSE" });
+  assert.equal(result.model.status, Core.Status.PLAYING_FORWARD);
+  assert.deepEqual(result.effects, [{ type: "play", userGesture: true }]);
 });
 
 test("first and last boundaries are quiet", () => {

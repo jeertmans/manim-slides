@@ -127,6 +127,7 @@
           seek: "start",
           settleIndex: model.index,
           slideIndex: model.index,
+          userGesture: true,
         });
       case "JUMP": {
         const index = Math.max(0, Math.min(model.slideCount - 1, event.index));
@@ -162,6 +163,22 @@
       case "LOAD_READY":
         if (event.generation !== model.generation || !model.pending)
           return unchanged(model);
+        if (event.playable && event.requiresGesture && model.pending.autoplay) {
+          return {
+            model: {
+              ...model,
+              active: model.pending,
+              index: model.pending.slideIndex,
+              pending: null,
+              resumeStatus:
+                model.pending.role === "reverse"
+                  ? Status.PLAYING_REVERSE
+                  : Status.PLAYING_FORWARD,
+              status: Status.PAUSED,
+            },
+            effects: [],
+          };
+        }
         if (!event.playable || !model.pending.autoplay) {
           return {
             model: {

@@ -74,8 +74,9 @@ most one navigation command.
 Browsers may reject playback until the user interacts with the page, especially
 when externally supplied media contains audio. The player then shows a clear
 play button and remains paused instead of claiming to be playing. With
-`prefers-reduced-motion: reduce`, animations settle on their end frame without
-autoplay; navigation, notes, and direct jumps remain available.
+`prefers-reduced-motion: reduce`, animations remain paused on their starting
+frame until the viewer chooses **Play animation** or explicitly replays them;
+navigation, notes, and direct jumps remain available.
 
 ### Browser, accessibility, and embedding notes
 
