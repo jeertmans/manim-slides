@@ -12,6 +12,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added an offline first-party HTML player export with asset-backed and portable
+  single-file packaging, reverse playback, mobile controls, and accessible
+  presentation affordances.
 - Added `firebase_sync.html` template to enable realtime slide syncing via
   Firebase Realtime Database, including a usage guide in the templates
   directory. [@liuktc](https://github.com/liuktc) [#638](https://github.com/jeertmans/manim-slides/pull/638)

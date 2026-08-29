@@ -173,6 +173,7 @@ class Converter(BaseModel):
         """Return the appropriate converter from a string name."""
         return {
             "html": RevealJS,
+            "html-player": HtmlPlayer,
             "pdf": PDF,
             "pptx": PowerPoint,
             "zip": HtmlZip,
@@ -741,6 +742,45 @@ class HtmlZip(RevealJS):
             shutil.make_archive(str(dest.with_suffix("")), "zip", directory_name)
 
 
+class HtmlPlayer(Converter):
+    """First-party, dependency-free HTML presentation player options."""
+
+    template: None = Field(
+        None,
+        description="RevealJS templates are not supported by this exporter.",
+    )
+    one_file: bool = Field(
+        False,
+        description="Embed the player and all media in one portable HTML file.",
+    )
+    background_size: BackgroundSize = Field(
+        BackgroundSize.contain,
+        description="Fit media inside the player with 'contain' or 'cover'.",
+    )
+    title: str = Field("Manim Slides", description="Presentation title.")
+    model_config = ConfigDict(use_enum_values=True, extra="forbid")
+
+    def open(self, file: Path) -> None:
+        webbrowser.open(file.absolute().as_uri())
+
+    def convert_to(self, dest: Path) -> None:
+        """Write the first-party HTML presentation to DEST."""
+        from .html_player import build_html_player
+
+        result = build_html_player(
+            self.presentation_configs,
+            dest,
+            self.assets_dir,
+            self.one_file,
+            self.title,
+            self.background_size,
+        )
+        logger.info(
+            f"Created {result.mode} HTML player at {dest} "
+            f"({result.output_size} bytes, {result.asset_count} media assets)."
+        )
+
+
 class FrameIndex(str, Enum):
     first = "first"
     last = "last"
@@ -1005,7 +1045,10 @@ def show_template_option(function: Callable[..., Any]) -> Callable[..., Any]:
 @click.argument("dest", type=click.Path(dir_okay=False, path_type=Path))
 @click.option(
     "--to",
-    type=click.Choice(["auto", "html", "pdf", "pptx", "zip"], case_sensitive=False),
+    type=click.Choice(
+        ["auto", "html", "html-player", "pdf", "pptx", "zip"],
+        case_sensitive=False,
+    ),
     metavar="FORMAT",
     default="auto",
     show_default=True,
@@ -1089,7 +1132,7 @@ def convert(
 
         if (
             one_file
-            and issubclass(cls, (RevealJS, HtmlZip))
+            and issubclass(cls, (RevealJS, HtmlZip, HtmlPlayer))
             and "one_file" not in config_options
         ):
             config_options["one_file"] = "true"
@@ -1115,6 +1158,9 @@ def convert(
             and "offline" not in config_options
         ):
             config_options["offline"] = "true"
+
+        if offline and issubclass(cls, HtmlPlayer):
+            logger.info("The first-party HTML player is already fully offline.")
 
         converter = cls(
             presentation_configs=presentation_configs,

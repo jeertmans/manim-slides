@@ -1,0 +1,225 @@
+.ms-player-document {
+  margin: 0;
+  overflow: hidden;
+  background: #000;
+}
+
+.manim-slides-player,
+.manim-slides-player * {
+  box-sizing: border-box;
+}
+
+.manim-slides-player {
+  --ms-accent: #7dd3fc;
+  --ms-background: #000;
+  position: relative;
+  display: grid;
+  width: 100%;
+  height: 100dvh;
+  min-height: 100svh;
+  overflow: hidden;
+  color: #fff;
+  background: var(--ms-background);
+  font: 500 14px/1.35 system-ui, sans-serif;
+  outline: none;
+  isolation: isolate;
+}
+
+.manim-slides-player:focus-visible {
+  outline: 3px solid var(--ms-accent);
+  outline-offset: -3px;
+}
+
+.ms-stage {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: var(--ms-background);
+  touch-action: pan-y pinch-zoom;
+}
+
+[data-ms-standalone] .ms-stage {
+  touch-action: none;
+}
+
+.ms-media-slot {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  display: grid;
+  visibility: hidden;
+  place-items: center;
+  background: var(--ms-background);
+}
+
+.ms-media-slot.is-active {
+  z-index: 1;
+  visibility: visible;
+}
+
+.ms-media-slot video,
+.ms-media-slot img {
+  display: none;
+  width: 100%;
+  height: 100%;
+  background: var(--ms-background);
+  object-fit: var(--ms-fit, contain);
+}
+
+.ms-media-slot.is-video video,
+.ms-media-slot.is-image img {
+  display: block;
+}
+
+.ms-loading,
+.ms-gesture,
+.ms-error {
+  position: absolute;
+  z-index: 4;
+  top: 50%;
+  left: 50%;
+  max-width: min(90%, 38rem);
+  transform: translate(-50%, -50%);
+}
+
+.ms-loading,
+.ms-error {
+  padding: 1rem 1.25rem;
+  border-radius: .6rem;
+  background: rgb(0 0 0 / 78%);
+  text-align: center;
+}
+
+.ms-controls {
+  position: absolute;
+  z-index: 5;
+  right: max(.5rem, env(safe-area-inset-right));
+  bottom: max(.5rem, env(safe-area-inset-bottom));
+  left: max(.5rem, env(safe-area-inset-left));
+  display: flex;
+  gap: .35rem;
+  justify-content: center;
+  opacity: .18;
+  transition: opacity .15s ease;
+}
+
+.manim-slides-player:hover .ms-controls,
+.manim-slides-player:focus-within .ms-controls,
+.ms-controls:hover {
+  opacity: 1;
+}
+
+.manim-slides-player button {
+  min-width: 44px;
+  min-height: 44px;
+  padding: .55rem .75rem;
+  border: 1px solid rgb(255 255 255 / 35%);
+  border-radius: .45rem;
+  color: inherit;
+  background: rgb(0 0 0 / 78%);
+  font: inherit;
+  cursor: pointer;
+}
+
+.manim-slides-player button:focus-visible {
+  outline: 3px solid var(--ms-accent);
+  outline-offset: 2px;
+}
+
+.ms-position {
+  position: absolute;
+  z-index: 3;
+  top: max(.5rem, env(safe-area-inset-top));
+  right: max(.65rem, env(safe-area-inset-right));
+  padding: .25rem .45rem;
+  border-radius: .3rem;
+  background: rgb(0 0 0 / 62%);
+}
+
+.ms-progress {
+  position: absolute;
+  z-index: 3;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  border: 0;
+}
+
+.ms-notes,
+.ms-overview,
+.ms-help {
+  position: absolute;
+  z-index: 6;
+  overflow: auto;
+  border: 1px solid rgb(255 255 255 / 25%);
+  border-radius: .6rem;
+  background: rgb(12 15 20 / 96%);
+  box-shadow: 0 1rem 3rem rgb(0 0 0 / 45%);
+}
+
+.ms-notes {
+  right: max(.75rem, env(safe-area-inset-right));
+  bottom: calc(4rem + env(safe-area-inset-bottom));
+  left: max(.75rem, env(safe-area-inset-left));
+  max-height: 38%;
+  padding: 1rem;
+}
+
+.ms-notes pre {
+  margin: 0;
+  white-space: pre-wrap;
+  font: inherit;
+}
+
+.ms-overview,
+.ms-help {
+  inset: max(1rem, env(safe-area-inset-top)) max(1rem, env(safe-area-inset-right)) max(1rem, env(safe-area-inset-bottom)) max(1rem, env(safe-area-inset-left));
+  padding: 1rem;
+}
+
+.ms-overview > div {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr));
+  gap: .6rem;
+}
+
+.ms-overview button[aria-current="true"] {
+  border-color: var(--ms-accent);
+}
+
+.ms-help dl {
+  display: grid;
+  grid-template-columns: minmax(9rem, auto) 1fr;
+  gap: .45rem 1rem;
+}
+
+.ms-help dt {
+  font-weight: 750;
+}
+
+.manim-slides-player [hidden] {
+  display: none !important;
+}
+
+@media (max-width: 42rem), (max-height: 28rem) {
+  .ms-controls {
+    overflow-x: auto;
+    justify-content: flex-start;
+  }
+
+  .ms-controls button {
+    flex: 0 0 auto;
+  }
+
+  .ms-help dl {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ms-controls {
+    transition: none;
+  }
+}

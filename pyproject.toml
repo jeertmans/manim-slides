@@ -3,6 +3,10 @@ build-backend = "hatchling.build"
 requires = ["hatchling", "hatch-fancy-pypi-readme"]
 
 [dependency-groups]
+browser-tests = [
+  {include-group = "tests-no-qt"},
+  "playwright==1.62.0",
+]
 dev = [
   {include-group = "docs"},
   {include-group = "tests"},

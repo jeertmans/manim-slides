@@ -78,6 +78,11 @@ or directly proposing a
 A major advantage of HTML files is that they can be opened cross-platform,
 granted one has a modern web browser (which is pretty standard).
 
+See [HTML Presentations](html.md) for the choice between the default RevealJS
+export and the first-party `--to=html-player` export. The first-party player is
+offline in both asset-backed and `--one-file` modes and supports reverse
+navigation and mobile input.
+
 ### Sharing HTML and animation files
 
 First, you need to create the HTML file and its assets directory.
@@ -137,10 +142,12 @@ and it there to preserve the original aspect ratio (16:9).
 
 ### Sharing ONE HTML file
 
-If you set the `--one-file` flag, all animations will be data URI encoded,
-making the HTML a self-contained presentation file that can be shared
-on its own. If you also set the `--offline` flag, the JS and CSS files will
-be included in the HTML file as well.
+For the first-party player, `--to=html-player --one-file` embeds the local
+runtime and all media in one file that can be opened directly from `file://`.
+No `--offline` flag is needed.
+
+For the RevealJS exporter, `--one-file` embeds animations as data URIs. Add
+`--offline` to download and embed RevealJS CSS and JavaScript as well.
 
 ### Over the internet
 
