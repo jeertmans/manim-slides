@@ -323,25 +323,25 @@ def present(  # noqa: C901
     defaults = config.defaults
 
     # Apply config defaults where CLI didn't override (value is None)
-    start_paused = (
+    resolved_start_paused: bool = (
         start_paused == "true"
         if start_paused is not None
         else (defaults.start_paused or False)
     )
-    full_screen = (
+    resolved_full_screen: bool = (
         full_screen == "true"
         if full_screen is not None
         else (defaults.full_screen or False)
     )
-    skip_all = (
+    resolved_skip_all: bool = (
         skip_all == "true" if skip_all is not None else (defaults.skip_all or False)
     )
-    exit_after_last_slide = (
+    resolved_exit_after_last_slide: bool = (
         exit_after_last_slide == "true"
         if exit_after_last_slide is not None
         else (defaults.exit_after_last_slide or False)
     )
-    hide_mouse = (
+    resolved_hide_mouse: bool = (
         hide_mouse == "true"
         if hide_mouse is not None
         else (defaults.hide_mouse or False)
@@ -352,14 +352,14 @@ def present(  # noqa: C901
     playback_rate = (
         playback_rate if playback_rate is not None else (defaults.playback_rate or 1.0)
     )
-    next_terminates_loop = (
+    resolved_next_terminates_loop: bool = (
         next_terminates_loop == "true"
         if next_terminates_loop is not None
         else (defaults.next_terminates_loop or False)
     )
 
-    if skip_all:
-        exit_after_last_slide = True
+    if resolved_skip_all:
+        resolved_exit_after_last_slide = True
 
     presentation_configs = get_scenes_presentation_config(scenes, folder)
 
@@ -420,17 +420,17 @@ def present(  # noqa: C901
     player = Player(
         config,
         presentation_configs,
-        start_paused=start_paused,
-        full_screen=full_screen,
-        skip_all=skip_all,
-        exit_after_last_slide=exit_after_last_slide,
-        hide_mouse=hide_mouse,
+        start_paused=resolved_start_paused,
+        full_screen=resolved_full_screen,
+        skip_all=resolved_skip_all,
+        exit_after_last_slide=resolved_exit_after_last_slide,
+        hide_mouse=resolved_hide_mouse,
         aspect_ratio_mode=aspect_ratio_modes[aspect_ratio],
         presentation_index=start_at_scene_number,
         slide_index=start_at_slide_number,
         screen=screen,
         playback_rate=playback_rate,
-        next_terminates_loop=next_terminates_loop,
+        next_terminates_loop=resolved_next_terminates_loop,
         hide_info_window=should_hide_info_window,
         info_window_screen=info_window_screen,
     )
