@@ -21,6 +21,7 @@ import pptx
 import requests
 from bs4 import BeautifulSoup
 from click import Context, Parameter
+from platformdirs import user_cache_path
 from jinja2 import Template
 from lxml import etree
 from PIL import Image
