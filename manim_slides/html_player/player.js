@@ -422,10 +422,14 @@
         { signal },
       );
       this.root.querySelectorAll("[data-command]").forEach((button) =>
-        button.addEventListener("click", (event) => {
-          event.stopPropagation();
-          this.command(button.dataset.command);
-        }, { signal }),
+        button.addEventListener(
+          "click",
+          (event) => {
+            event.stopPropagation();
+            this.command(button.dataset.command);
+          },
+          { signal },
+        ),
       );
       this.root.querySelector("[data-ms-retry]").addEventListener(
         "click",

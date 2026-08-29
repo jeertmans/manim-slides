@@ -152,14 +152,17 @@
           slideIndex: model.index,
         });
       case "REPLAY":
-        return load({ ...model, animationOptIn: true }, {
-          autoplay: true,
-          role: "forward",
-          seek: "start",
-          settleIndex: model.index,
-          slideIndex: model.index,
-          userGesture: true,
-        });
+        return load(
+          { ...model, animationOptIn: true },
+          {
+            autoplay: true,
+            role: "forward",
+            seek: "start",
+            settleIndex: model.index,
+            slideIndex: model.index,
+            userGesture: true,
+          },
+        );
       case "JUMP": {
         const index = Math.max(0, Math.min(model.slideCount - 1, event.index));
         return load(model, {
