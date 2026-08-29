@@ -98,9 +98,86 @@ test("reduced motion waits in the existing paused state for explicit playback", 
   assert.equal(model.resumeStatus, Core.Status.PLAYING_FORWARD);
   assert.equal(result.effects.length, 0);
 
-  result = apply(model, { type: "TOGGLE_PAUSE" });
+  result = apply(model, { type: "PLAY_WITH_CONSENT" });
+  assert.equal(result.model.animationOptIn, true);
   assert.equal(result.model.status, Core.Status.PLAYING_FORWARD);
   assert.deepEqual(result.effects, [{ type: "play", userGesture: true }]);
+
+  model = result.model;
+  result = apply(model, { type: "NEXT" });
+  model = apply(result.model, {
+    type: "HOLD_READY",
+    generation: result.model.generation,
+  }).model;
+  result = apply(model, { type: "NEXT" });
+  assert.equal(result.model.animationOptIn, true);
+});
+
+test("forward intent finishes unseen forward playback before advancing", () => {
+  let model = loadedForward();
+  let result = apply(model, { type: "NEXT" });
+  assert.equal(result.model.index, 0);
+  assert.equal(result.effects[0].type, "hold");
+  model = result.model;
+  result = apply(model, { type: "HOLD_READY", generation: model.generation });
+  model = result.model;
+  assert.equal(model.status, Core.Status.HELD_END);
+  result = apply(model, { type: "NEXT" });
+  assert.equal(result.effects[0].slideIndex, 1);
+
+  model = loadedForward();
+  model = apply(model, { type: "TOGGLE_PAUSE" }).model;
+  result = apply(model, { type: "NEXT" });
+  assert.equal(result.model.index, 0);
+  assert.equal(result.effects[0].type, "hold");
+});
+
+test("repeated back intent settles active reverse playback deterministically", () => {
+  let model = { ...loadedForward(1), status: Core.Status.HELD_END };
+  let result = apply(model, { type: "BACK" });
+  model = result.model;
+  result = apply(model, {
+    type: "LOAD_READY",
+    generation: model.generation,
+    playable: true,
+  });
+  model = result.model;
+  result = apply(model, { type: "PLAY_STARTED", generation: model.generation });
+  model = result.model;
+  result = apply(model, { type: "BACK" });
+  assert.equal(result.effects[0].type, "hold");
+  assert.equal(result.model.index, 1);
+  model = result.model;
+  result = apply(model, { type: "HOLD_READY", generation: model.generation });
+  assert.equal(result.model.index, 0);
+  assert.equal(result.model.status, Core.Status.HELD_END);
+});
+
+test("Present mode is model state and supplies durable animation consent", () => {
+  let model = Core.initial(slides.length);
+  let result = apply(model, { type: "BOOT" });
+  model = result.model;
+  result = apply(model, {
+    type: "LOAD_READY",
+    generation: model.generation,
+    playable: true,
+    requiresGesture: true,
+  });
+  model = result.model;
+  result = apply(model, { type: "TOGGLE_PRESENT" });
+  assert.equal(result.model.presenting, true);
+  assert.equal(result.model.animationOptIn, true);
+  assert.equal(result.model.status, Core.Status.PLAYING_FORWARD);
+  assert.deepEqual(result.effects, [
+    { type: "play", userGesture: true },
+    { type: "request-fullscreen" },
+    { type: "focus-player" },
+  ]);
+
+  model = result.model;
+  result = apply(model, { type: "FULLSCREEN_EXITED" });
+  assert.equal(result.model.presenting, false);
+  assert.deepEqual(result.effects, [{ type: "focus-player" }]);
 });
 
 test("first and last boundaries are quiet", () => {
@@ -116,6 +193,14 @@ test("stale completions and rapid next back next cannot win", () => {
   let model = loadedForward(1);
   let result = apply(model, { type: "BACK" });
   const stale = result.model.generation;
+  model = result.model;
+  result = apply(model, {
+    type: "LOAD_READY",
+    generation: model.generation,
+    playable: true,
+  });
+  model = result.model;
+  result = apply(model, { type: "PLAY_STARTED", generation: model.generation });
   model = result.model;
   result = apply(model, { type: "NEXT" });
   model = result.model;

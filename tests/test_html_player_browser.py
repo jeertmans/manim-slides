@@ -116,7 +116,9 @@ def motion_config(tmp_path: Path) -> PresentationConfig:
 @pytest.fixture(scope="module")
 def browser():
     with playwright.sync_playwright() as instance:
-        browser = instance.chromium.launch()
+        browser = instance.chromium.launch(
+            args=["--autoplay-policy=no-user-gesture-required"]
+        )
         yield browser
         browser.close()
 
@@ -203,6 +205,28 @@ def assert_blob_source_is_not_document(page, output: Path) -> None:
     )
 
 
+def swipe(
+    page,
+    *,
+    pointer_id: int,
+    start: tuple[int, int],
+    end: tuple[int, int],
+) -> None:
+    stage = page.locator("[data-ms-stage]")
+    common = {"pointerId": pointer_id, "pointerType": "touch", "isPrimary": True}
+    stage.dispatch_event(
+        "pointerdown",
+        {**common, "button": 0, "clientX": start[0], "clientY": start[1]},
+    )
+    stage.dispatch_event(
+        "pointermove", {**common, "clientX": end[0], "clientY": end[1]}
+    )
+    stage.dispatch_event(
+        "pointerup",
+        {**common, "button": 0, "clientX": end[0], "clientY": end[1]},
+    )
+
+
 def test_file_portable_motion_preferences_and_explicit_playback(
     browser, tmp_path: Path, motion_config: PresentationConfig
 ) -> None:
@@ -217,16 +241,16 @@ def test_file_portable_motion_preferences_and_explicit_playback(
         "?.currentVideo()?.currentSrc"
     )
     assert_blob_source_is_not_document(page, output)
-    if page.locator("[data-ms-player]").get_attribute("data-state") == "paused":
-        page.locator("[data-ms-gesture]").click()
     wait_playing_and_assert_time_advances(page, "playing-forward")
+    page.keyboard.press("Space")
     wait_held(page, 0)
 
-    page.locator("nav [data-command=next]").click()
+    page.keyboard.press("Space")
     wait_playing_and_assert_time_advances(page, "playing-forward")
     wait_held(page, 1)
     page.locator("nav [data-command=back]").click()
     wait_playing_and_assert_time_advances(page, "playing-reverse")
+    page.locator("nav [data-command=back]").click()
     wait_held(page, 0)
     page.locator("[data-command=replay]").click()
     wait_playing_and_assert_time_advances(page, "playing-forward")
@@ -249,27 +273,146 @@ def test_file_portable_motion_preferences_and_explicit_playback(
     assert page.locator("[data-ms-gesture]").is_visible()
     assert page.locator("[data-ms-gesture]").text_content() == "Play animation"
     page.locator("[data-ms-gesture]").click()
+    assert (
+        page.locator("[data-ms-player]").get_attribute("data-animation-opt-in")
+        == "true"
+    )
     wait_playing_and_assert_time_advances(page, "playing-forward")
-    wait_held(page, 0)
 
     page.locator("nav [data-command=next]").click()
-    page.wait_for_function(
-        "document.querySelector('[data-ms-player]').dataset.state === 'paused' && "
-        "document.querySelector('[data-ms-player]').dataset.slideIndex === '1'"
-    )
-    page.locator("[data-ms-gesture]").click()
+    wait_held(page, 0)
+    page.locator("nav [data-command=next]").click()
     wait_playing_and_assert_time_advances(page, "playing-forward")
+    assert not page.locator("[data-ms-gesture]").is_visible()
     wait_held(page, 1)
     page.locator("nav [data-command=back]").click()
-    page.wait_for_function(
-        "document.querySelector('[data-ms-player]').dataset.state === 'paused'"
-    )
-    page.locator("[data-ms-gesture]").click()
     wait_playing_and_assert_time_advances(page, "playing-reverse")
+    page.locator("nav [data-command=back]").click()
     wait_held(page, 0)
     page.locator("[data-command=replay]").click()
     wait_playing_and_assert_time_advances(page, "playing-forward")
     assert all(not url.startswith(("http://", "https://")) for url in requests)
+    context.close()
+
+
+def test_forward_click_and_visible_next_are_two_step_intents(
+    browser, tmp_path: Path, motion_config: PresentationConfig
+) -> None:
+    output = tmp_path / "forward-intents.html"
+    HtmlPlayer(presentation_configs=[motion_config], one_file=True).convert_to(output)
+    context, page, requests = open_portable(browser, output)
+
+    wait_playing_and_assert_time_advances(page, "playing-forward")
+    page.locator("nav [data-command=next]").click()
+    wait_held(page, 0)
+    page.locator("nav [data-command=next]").click()
+    wait_playing_and_assert_time_advances(page, "playing-forward")
+    wait_held(page, 1)
+
+    page.keyboard.press("ArrowLeft")
+    wait_held(page, 0)
+    page.keyboard.press("r")
+    wait_playing_and_assert_time_advances(page, "playing-forward")
+    page.locator("[data-ms-stage]").click(position={"x": 300, "y": 180})
+    wait_held(page, 0)
+    page.locator("[data-ms-stage]").click(position={"x": 300, "y": 180})
+    wait_playing_and_assert_time_advances(page, "playing-forward")
+    assert page.locator("[data-ms-player]").get_attribute("data-slide-index") == "1"
+    assert all(not url.startswith(("http://", "https://")) for url in requests)
+    context.close()
+
+
+def test_present_mode_consent_chrome_overlays_and_fullscreen_rejection(
+    browser, tmp_path: Path, motion_config: PresentationConfig
+) -> None:
+    output = tmp_path / "present-rejected.html"
+    HtmlPlayer(presentation_configs=[motion_config], one_file=True).convert_to(output)
+    context = browser.new_context(reduced_motion="reduce")
+    context.route("http://**", lambda route: route.abort())
+    context.route("https://**", lambda route: route.abort())
+    page = context.new_page()
+    requests = []
+    page.on("request", lambda request: requests.append(request.url))
+    page.add_init_script(
+        """
+        Object.defineProperty(Element.prototype, 'requestFullscreen', {
+          configurable: true,
+          value() { return Promise.reject(new DOMException('denied', 'NotAllowedError')); },
+        });
+        """
+    )
+    page.goto(output.resolve().as_uri())
+    page.wait_for_function(
+        "document.querySelector('[data-ms-player]').dataset.state === 'paused'"
+    )
+
+    page.get_by_role("button", name="Enter presentation mode").click()
+    wait_playing_and_assert_time_advances(page, "playing-forward")
+    player = page.locator("[data-ms-player]")
+    assert player.get_attribute("data-presenting") == "true"
+    assert player.get_attribute("data-animation-opt-in") == "true"
+    assert player.evaluate("node => node === document.activeElement")
+    for selector in (".ms-controls", ".ms-position", ".ms-progress"):
+        assert (
+            page.locator(selector).evaluate("node => getComputedStyle(node).display")
+            == "none"
+        )
+
+    page.keyboard.press("p")
+    assert player.get_attribute("data-state") == "paused"
+    page.keyboard.press("p")
+    wait_playing_and_assert_time_advances(page, "playing-forward")
+    page.keyboard.press("r")
+    wait_playing_and_assert_time_advances(page, "playing-forward")
+    page.keyboard.press("?")
+    assert page.locator("[data-ms-help]").is_visible()
+    page.keyboard.press("Escape")
+    assert not page.locator("[data-ms-help]").is_visible()
+    assert player.get_attribute("data-presenting") == "true"
+    page.keyboard.press("o")
+    assert page.locator("[data-ms-overview]").is_visible()
+    page.keyboard.press("Escape")
+    assert not page.locator("[data-ms-overview]").is_visible()
+    assert player.get_attribute("data-presenting") == "true"
+
+    page.keyboard.press("Escape")
+    page.wait_for_function(
+        "document.querySelector('[data-ms-player]').dataset.presenting === 'false'"
+    )
+    assert (
+        page.locator(".ms-controls").evaluate("node => getComputedStyle(node).display")
+        != "none"
+    )
+    assert all(not url.startswith(("http://", "https://")) for url in requests)
+    context.close()
+
+
+def test_present_fullscreen_exit_synchronizes_and_f_toggles_mode(
+    browser, tmp_path: Path, motion_config: PresentationConfig
+) -> None:
+    output = tmp_path / "present-fullscreen.html"
+    HtmlPlayer(presentation_configs=[motion_config], one_file=True).convert_to(output)
+    context, page, _requests = open_portable(browser, output)
+    wait_playing_and_assert_time_advances(page, "playing-forward")
+
+    page.get_by_role("button", name="Enter presentation mode").click()
+    page.wait_for_function(
+        "document.fullscreenElement === document.querySelector('[data-ms-player]')"
+    )
+    page.evaluate("document.exitFullscreen()")
+    page.wait_for_function(
+        "document.querySelector('[data-ms-player]').dataset.presenting === 'false'"
+    )
+
+    page.locator("[data-ms-player]").focus()
+    page.keyboard.press("f")
+    page.wait_for_function(
+        "document.querySelector('[data-ms-player]').dataset.presenting === 'true'"
+    )
+    page.keyboard.press("f")
+    page.wait_for_function(
+        "document.querySelector('[data-ms-player]').dataset.presenting === 'false'"
+    )
     context.close()
 
 
@@ -396,79 +539,18 @@ def test_mobile_swipe_resize_and_autoplay_recovery(
     )
     assert page.locator("[data-ms-gesture]").is_visible()
     page.locator("[data-ms-gesture]").click()
-    wait_held(page, 0)
+    wait_playing_and_assert_time_advances(page, "playing-forward")
 
-    stage = page.locator("[data-ms-stage]")
-    stage.dispatch_event(
-        "pointerdown",
-        {
-            "pointerId": 1,
-            "pointerType": "touch",
-            "isPrimary": True,
-            "button": 0,
-            "clientX": 330,
-            "clientY": 400,
-        },
-    )
-    stage.dispatch_event(
-        "pointermove",
-        {
-            "pointerId": 1,
-            "pointerType": "touch",
-            "isPrimary": True,
-            "clientX": 80,
-            "clientY": 400,
-        },
-    )
-    stage.dispatch_event(
-        "pointerup",
-        {
-            "pointerId": 1,
-            "pointerType": "touch",
-            "isPrimary": True,
-            "button": 0,
-            "clientX": 80,
-            "clientY": 400,
-        },
-    )
+    swipe(page, pointer_id=1, start=(330, 400), end=(80, 400))
+    wait_held(page, 0)
+    swipe(page, pointer_id=2, start=(330, 400), end=(80, 400))
     wait_held(page, 1)
     page.set_viewport_size({"width": 844, "height": 390})
     assert page.locator("[data-ms-player]").bounding_box()["width"] == pytest.approx(
         844, abs=1
     )
 
-    stage.dispatch_event(
-        "pointerdown",
-        {
-            "pointerId": 2,
-            "pointerType": "touch",
-            "isPrimary": True,
-            "button": 0,
-            "clientX": 400,
-            "clientY": 80,
-        },
-    )
-    stage.dispatch_event(
-        "pointermove",
-        {
-            "pointerId": 2,
-            "pointerType": "touch",
-            "isPrimary": True,
-            "clientX": 400,
-            "clientY": 300,
-        },
-    )
-    stage.dispatch_event(
-        "pointerup",
-        {
-            "pointerId": 2,
-            "pointerType": "touch",
-            "isPrimary": True,
-            "button": 0,
-            "clientX": 400,
-            "clientY": 300,
-        },
-    )
+    swipe(page, pointer_id=3, start=(400, 80), end=(400, 300))
     wait_held(page, 0)
     context.close()
 
@@ -485,11 +567,6 @@ def test_loop_auto_next_pause_replay_and_error_state(
         presentation_configs=[PresentationConfig(slides=slides, resolution=(160, 90))]
     ).convert_to(output)
     context, page, _requests = open_portable(browser, output)
-    page.wait_for_function(
-        "document.querySelector('[data-ms-player]').dataset.state === 'paused'",
-        timeout=10_000,
-    )
-    page.locator("[data-ms-gesture]").click()
     page.wait_for_function(
         "document.querySelector('[data-ms-player]').dataset.slideIndex === '1'",
         timeout=10_000,

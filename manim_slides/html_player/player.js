@@ -103,6 +103,9 @@
       else if (effect.type === "hold") this.hold(effect);
       else if (effect.type === "hold-active") this.holdActive();
       else if (effect.type === "replay-active") this.replayActive();
+      else if (effect.type === "request-fullscreen") this.requestPresentationFullscreen();
+      else if (effect.type === "exit-fullscreen") this.exitPresentationFullscreen();
+      else if (effect.type === "focus-player") this.root.focus({ preventScroll: true });
     }
 
     currentSlot() {
@@ -223,7 +226,7 @@
             asset.kind === "video" &&
             this.reducedMotion &&
             effect.autoplay &&
-            !effect.userGesture,
+            !this.model.animationOptIn,
         });
       } catch (error) {
         if (error && error.name === "AbortError") return;
@@ -288,11 +291,34 @@
       this.play({ generation: this.model.generation });
     }
 
+    async requestPresentationFullscreen() {
+      if (!this.root.requestFullscreen || document.fullscreenElement === this.root) return;
+      try {
+        await this.root.requestFullscreen();
+        if (!this.model.presenting && document.fullscreenElement === this.root)
+          await document.exitFullscreen?.();
+      } catch (_error) {
+        // Present mode remains useful when fullscreen is unavailable or denied.
+      }
+    }
+
+    async exitPresentationFullscreen() {
+      if (document.fullscreenElement !== this.root || !document.exitFullscreen) return;
+      try {
+        await document.exitFullscreen();
+      } catch (_error) {
+        // The fullscreenchange handler remains the source of synchronization.
+      }
+    }
+
     render() {
       const slide = this.slides[this.model.index];
       const total = this.slides.length;
       this.root.dataset.state = this.model.status;
       this.root.dataset.slideIndex = String(this.model.index);
+      this.root.dataset.animationOptIn = String(this.model.animationOptIn);
+      this.root.dataset.presenting = String(this.model.presenting);
+      this.root.classList.toggle("is-presenting", this.model.presenting);
       this.position.textContent = total ? `${this.model.index + 1} / ${total}` : "0 / 0";
       this.progress.max = Math.max(1, total - 1);
       this.progress.value = this.model.index;
@@ -304,6 +330,17 @@
       this.gesture.hidden = !needsGesture;
       if (needsGesture)
         this.gesture.textContent = this.reducedMotion ? "Play animation" : "Play presentation";
+      const forwardWillFinish =
+        this.model.status === Core.Status.PLAYING_FORWARD ||
+        this.model.status === Core.Status.READY_START ||
+        (this.model.status === Core.Status.PAUSED &&
+          this.model.resumeStatus === Core.Status.PLAYING_FORWARD);
+      this.root
+        .querySelector("nav [data-command=next]")
+        .setAttribute(
+          "aria-label",
+          forwardWillFinish ? "Finish current animation" : "Next slide",
+        );
       for (const button of this.overviewList.querySelectorAll("button"))
         button.setAttribute("aria-current", String(Number(button.dataset.index) === this.model.index));
     }
@@ -331,12 +368,7 @@
       else if (name === "notes") this.notes.hidden = !this.notes.hidden;
       else if (name === "overview") this.overview.hidden = !this.overview.hidden;
       else if (name === "help") this.help.hidden = !this.help.hidden;
-      else if (name === "fullscreen") this.toggleFullscreen();
-    }
-
-    toggleFullscreen() {
-      if (document.fullscreenElement) document.exitFullscreen?.();
-      else this.root.requestFullscreen?.();
+      else if (name === "present") this.dispatch({ type: "TOGGLE_PRESENT" });
     }
 
     closeOverlays() {
@@ -369,12 +401,16 @@
             N: "notes",
             o: "overview",
             O: "overview",
-            f: "fullscreen",
-            F: "fullscreen",
+            f: "present",
+            F: "present",
             "?": "help",
           };
           if (event.key === "Escape") {
             if (this.closeOverlays()) event.preventDefault();
+            else if (this.model.presenting) {
+              event.preventDefault();
+              this.dispatch({ type: "TOGGLE_PRESENT" });
+            }
             return;
           }
           const command = map[event.key];
@@ -404,7 +440,7 @@
         (event) => {
           event.stopPropagation();
           this.root.focus({ preventScroll: true });
-          this.dispatch({ type: "TOGGLE_PAUSE" });
+          this.dispatch({ type: "PLAY_WITH_CONSENT" });
         },
         { signal },
       );
@@ -428,6 +464,14 @@
         { signal },
       );
       if (this.root.hasAttribute("data-ms-standalone")) this.root.focus({ preventScroll: true });
+      document.addEventListener(
+        "fullscreenchange",
+        () => {
+          if (this.model.presenting && document.fullscreenElement !== this.root)
+            this.dispatch({ type: "FULLSCREEN_EXITED" });
+        },
+        { signal },
+      );
       addEventListener("pagehide", () => this.destroy(), { once: true, signal });
     }
 

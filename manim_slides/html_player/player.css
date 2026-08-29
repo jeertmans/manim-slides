@@ -30,6 +30,21 @@
   outline-offset: -3px;
 }
 
+.manim-slides-player.is-presenting {
+  position: fixed;
+  z-index: 2147483647;
+  inset: 0;
+  width: 100vw;
+  height: 100dvh;
+  min-height: 100svh;
+}
+
+.manim-slides-player.is-presenting .ms-controls,
+.manim-slides-player.is-presenting .ms-position,
+.manim-slides-player.is-presenting .ms-progress {
+  display: none;
+}
+
 .ms-stage {
   position: absolute;
   inset: 0;

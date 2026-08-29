@@ -56,27 +56,47 @@ Keyboard and presentation-remote controls are:
 
 | Input | Action |
 | :--- | :--- |
-| Space, Right, Page Down | Advance |
-| Left, Page Up | Go backward |
+| Space, Right, Page Down | Finish the current forward animation; press again to advance |
+| Left, Page Up | Finish active reverse playback or go backward |
 | R | Replay the current forward animation |
 | P | Pause or resume at the configured playback rate |
 | N | Toggle safely rendered notes |
 | O | Toggle the compact overview; selecting a slide jumps to its held end frame |
-| F | Toggle fullscreen when the browser supports it |
+| F | Enter or exit Present mode |
 | ? | Show help |
-| Escape | Close overlays or leave fullscreen |
+| Escape | Close an overlay or exit Present mode |
 
-A primary click or tap on the presentation advances. A horizontal swipe moves
-forward or backward. An upward swipe enters a following vertical slide, and a
-downward swipe leaves the current vertical slide. Each gesture dispatches at
-most one navigation command.
+A primary click or tap, a leftward swipe, and the **Next** button use the same
+two-step forward behavior as Space: the first input finishes an animation that
+is still playing, and the next advances. A rightward swipe goes backward. An
+upward swipe enters a following vertical slide, and a downward swipe leaves the
+current vertical slide. Repeating Back while reverse playback is active finishes
+that transition deterministically. Each gesture dispatches at most one command.
+
+The **Present** button (or F) enters a clean presentation mode that hides the
+controls, slide position, and progress bar while keeping explicitly requested
+overlays available. The player requests browser fullscreen from the same user
+gesture. If fullscreen is unavailable or denied, the clean viewport-filling mode
+still works. Leaving browser fullscreen also leaves Present mode, and Escape
+restores the ordinary viewer chrome. F is deliberately the single command for
+both behaviors, avoiding separate fullscreen and presentation states.
+
+F5 is not assigned: Chromium and other browsers reserve it for reloading the
+current page, so the player cannot handle it consistently without risking lost
+presentation state. Chrome documents F5 as a reload shortcut in its
+[keyboard shortcut reference](https://support.google.com/chrome/answer/157179).
 
 Browsers may reject playback until the user interacts with the page, especially
 when externally supplied media contains audio. The player then shows a clear
-play button and remains paused instead of claiming to be playing. With
-`prefers-reduced-motion: reduce`, animations remain paused on their starting
-frame until the viewer chooses **Play animation** or explicitly replays them;
-navigation, notes, and direct jumps remain available.
+play button and remains paused instead of claiming to be playing. Without a
+reduced-motion preference, the first slide and each newly entered forward slide
+start automatically, subject to that browser policy. With
+`prefers-reduced-motion: reduce`, the first animation remains paused on its
+starting frame until the viewer chooses **Play animation**, **Replay**, or
+**Present**. That affirmative choice enables forward and reverse autoplay for
+the lifetime of that player instance, without changing the operating-system
+preference or writing persistent storage. Reloading the document resets the
+choice. Navigation, notes, and direct jumps remain available before opt-in.
 
 ### Browser, accessibility, and embedding notes
 

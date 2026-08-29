@@ -27,7 +27,7 @@
         <button type="button" data-command="notes" aria-label="Toggle notes">Notes</button>
         <button type="button" data-command="overview" aria-label="Toggle overview">Overview</button>
         <button type="button" data-command="help" aria-label="Show keyboard help">?</button>
-        <button type="button" data-command="fullscreen" aria-label="Toggle fullscreen">⛶</button>
+        <button type="button" data-command="present" aria-label="Enter presentation mode" aria-keyshortcuts="F">Present</button>
       </nav>
       <div class="ms-position" data-ms-position aria-live="polite"></div>
       <progress class="ms-progress" data-ms-progress max="1" value="0" aria-label="Presentation progress"></progress>
@@ -35,7 +35,8 @@
       <section class="ms-overview" data-ms-overview hidden aria-label="Slide overview"><div data-ms-overview-list></div></section>
       <section class="ms-help" data-ms-help hidden role="dialog" aria-modal="false" aria-label="Keyboard help">
         <h2>Presentation controls</h2>
-        <dl><dt>Space, Right, Page Down</dt><dd>Next</dd><dt>Left, Page Up</dt><dd>Previous</dd><dt>R</dt><dd>Replay</dd><dt>P</dt><dd>Pause or resume</dd><dt>N</dt><dd>Notes</dd><dt>O</dt><dd>Overview</dd><dt>F</dt><dd>Fullscreen</dd><dt>Escape</dt><dd>Close overlay or leave fullscreen</dd></dl>
+        <p>With reduced motion, choose Play animation or Present once to enable animation for this player session.</p>
+        <dl><dt>Space, Right, Page Down</dt><dd>Finish the current animation; press again to advance</dd><dt>Left, Page Up</dt><dd>Finish active reverse playback or go back</dd><dt>R</dt><dd>Replay</dd><dt>P</dt><dd>Pause or resume</dd><dt>N</dt><dd>Notes</dd><dt>O</dt><dd>Overview</dd><dt>F</dt><dd>Enter or exit Present mode</dd><dt>Escape</dt><dd>Close an overlay or exit Present mode</dd></dl>
         <button type="button" data-command="help">Close</button>
       </section>
       <script type="application/json" data-ms-manifest>@@MANIFEST@@</script>

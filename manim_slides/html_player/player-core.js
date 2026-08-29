@@ -19,11 +19,13 @@
   function initial(slideCount) {
     return {
       active: null,
+      animationOptIn: false,
       error: null,
       failedEffect: null,
       generation: 0,
       index: 0,
       pending: null,
+      presenting: false,
       resumeStatus: null,
       slideCount,
       status: Status.LOADING,
@@ -80,10 +82,22 @@
           slideIndex: 0,
         });
       case "NEXT":
-        if (model.status === Status.PLAYING_FORWARD) {
+        if (model.status === Status.TRANSITIONING && model.pending)
+          return unchanged(model);
+        if (
+          model.status === Status.PLAYING_FORWARD ||
+          model.status === Status.READY_START ||
+          (model.status === Status.PAUSED &&
+            model.resumeStatus === Status.PLAYING_FORWARD)
+        ) {
           const generation = model.generation + 1;
           return {
-            model: { ...model, generation, status: Status.TRANSITIONING },
+            model: {
+              ...model,
+              generation,
+              pending: null,
+              status: Status.TRANSITIONING,
+            },
             effects: [{ type: "hold", generation }],
           };
         }
@@ -109,7 +123,24 @@
           slideIndex: model.index + 1,
         });
       case "BACK":
+        if (model.status === Status.TRANSITIONING) return unchanged(model);
         if (model.index <= 0) return unchanged(model);
+        if (
+          model.status === Status.PLAYING_REVERSE ||
+          (model.status === Status.PAUSED &&
+            model.resumeStatus === Status.PLAYING_REVERSE)
+        ) {
+          const generation = model.generation + 1;
+          return {
+            model: {
+              ...model,
+              generation,
+              pending: null,
+              status: Status.TRANSITIONING,
+            },
+            effects: [{ type: "hold", generation }],
+          };
+        }
         return load(model, {
           autoplay: true,
           mapFromActive:
@@ -121,7 +152,7 @@
           slideIndex: model.index,
         });
       case "REPLAY":
-        return load(model, {
+        return load({ ...model, animationOptIn: true }, {
           autoplay: true,
           role: "forward",
           seek: "start",
@@ -155,11 +186,57 @@
         }
         if (model.status === Status.PAUSED && model.resumeStatus) {
           return {
-            model: { ...model, status: model.resumeStatus },
+            model: {
+              ...model,
+              animationOptIn: true,
+              status: model.resumeStatus,
+            },
             effects: [{ type: "play", userGesture: true }],
           };
         }
         return unchanged(model);
+      case "PLAY_WITH_CONSENT":
+        if (model.status !== Status.PAUSED || !model.resumeStatus)
+          return unchanged(model);
+        return {
+          model: {
+            ...model,
+            animationOptIn: true,
+            status: model.resumeStatus,
+          },
+          effects: [{ type: "play", userGesture: true }],
+        };
+      case "TOGGLE_PRESENT":
+        if (model.presenting) {
+          return {
+            model: { ...model, presenting: false },
+            effects: [{ type: "exit-fullscreen" }, { type: "focus-player" }],
+          };
+        }
+        return {
+          model: {
+            ...model,
+            animationOptIn: true,
+            presenting: true,
+            status:
+              model.status === Status.PAUSED && model.resumeStatus
+                ? model.resumeStatus
+                : model.status,
+          },
+          effects: [
+            ...(model.status === Status.PAUSED && model.resumeStatus
+              ? [{ type: "play", userGesture: true }]
+              : []),
+            { type: "request-fullscreen" },
+            { type: "focus-player" },
+          ],
+        };
+      case "FULLSCREEN_EXITED":
+        if (!model.presenting) return unchanged(model);
+        return {
+          model: { ...model, presenting: false },
+          effects: [{ type: "focus-player" }],
+        };
       case "LOAD_READY":
         if (event.generation !== model.generation || !model.pending)
           return unchanged(model);
@@ -233,7 +310,14 @@
       case "HOLD_READY":
         if (event.generation !== model.generation) return unchanged(model);
         return {
-          model: { ...model, status: Status.HELD_END },
+          model: {
+            ...model,
+            index:
+              model.active && model.active.role === "reverse"
+                ? model.active.settleIndex
+                : model.index,
+            status: Status.HELD_END,
+          },
           effects: [],
         };
       case "ENDED":
