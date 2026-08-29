@@ -100,11 +100,15 @@ def test_asset_backed_copies_forward_reverse_and_local_runtime(
         path.name for path in assets.iterdir()
     }
     references = {
-        slide[role]["url"] for slide in manifest["slides"] for role in ("forward", "reverse")
+        slide[role]["url"]
+        for slide in manifest["slides"]
+        for role in ("forward", "reverse")
     }
     assert all(url.startswith("deck_assets/media-") for url in references)
     assert all((tmp_path / Path(url)).is_file() for url in references)
-    assert all(slide["forward"]["id"] != slide["reverse"]["id"] for slide in manifest["slides"])
+    assert all(
+        slide["forward"]["id"] != slide["reverse"]["id"] for slide in manifest["slides"]
+    )
     content = output.read_text(encoding="utf-8")
     assert "https://" not in content
     assert "http://" not in content
@@ -127,7 +131,9 @@ def test_collision_safe_asset_names(
         for path in same_names
     ]
     output = tmp_path / "collision.html"
-    HtmlPlayer(presentation_configs=[PresentationConfig(slides=slides)]).convert_to(output)
+    HtmlPlayer(presentation_configs=[PresentationConfig(slides=slides)]).convert_to(
+        output
+    )
     names = [slide["forward"]["url"] for slide in read_manifest(output)["slides"]]
     assert len(set(names)) == 2
     assert all("clip.mp4" not in name for name in names)
@@ -137,11 +143,15 @@ def test_portable_payloads_are_unique_exact_and_inert(
     tmp_path: Path, presentation_config: PresentationConfig
 ) -> None:
     output = tmp_path / "portable.html"
-    HtmlPlayer(presentation_configs=[presentation_config], one_file=True).convert_to(output)
+    HtmlPlayer(presentation_configs=[presentation_config], one_file=True).convert_to(
+        output
+    )
     manifest = read_manifest(output)
     embedded = payloads(output)
     referenced = {
-        slide[role]["id"] for slide in manifest["slides"] for role in ("forward", "reverse")
+        slide[role]["id"]
+        for slide in manifest["slides"]
+        for role in ("forward", "reverse")
     }
     assert set(embedded) == referenced
     assert all(mime == "video/mp4" for mime, _ in embedded.values())
@@ -179,9 +189,9 @@ def test_metadata_and_hostile_text_are_safe(
         background_color="#123456",
     )
     output = tmp_path / "hostile.html"
-    HtmlPlayer(
-        presentation_configs=[config], one_file=True, title=hostile
-    ).convert_to(output)
+    HtmlPlayer(presentation_configs=[config], one_file=True, title=hostile).convert_to(
+        output
+    )
     manifest = read_manifest(output)
     got = manifest["slides"][0]
     assert got["autoNext"] and got["loop"]

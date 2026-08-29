@@ -139,9 +139,7 @@ def _plan(
         for slide_index, slide in enumerate(presentation.slides):
             slide_id = f"scene-{scene_index + 1}-slide-{slide_index + 1}"
             kind = "image" if slide.type == SlideType.Image else "video"
-            forward = _asset_for(
-                slide.file, kind, slide_id, "forward", assets_by_key
-            )
+            forward = _asset_for(slide.file, kind, slide_id, "forward", assets_by_key)
             reverse = (
                 forward
                 if kind == "image"
@@ -216,14 +214,10 @@ def build_html_player(
     if not presentation_configs:
         raise ValueError("At least one presentation configuration is required.")
 
-    manifest, assets = _plan(
-        presentation_configs, title, background_size, one_file
-    )
+    manifest, assets = _plan(presentation_configs, title, background_size, one_file)
     dirname = dest.parent
     assets_dir = Path(
-        assets_dir_template.format(
-            dirname=dirname, basename=dest.stem, ext=dest.suffix
-        )
+        assets_dir_template.format(dirname=dirname, basename=dest.stem, ext=dest.suffix)
     )
     full_assets_dir = dirname / assets_dir
     template = _resource_text("player.html")
