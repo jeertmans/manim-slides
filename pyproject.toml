@@ -4,8 +4,10 @@ requires = ["hatchling", "hatch-fancy-pypi-readme"]
 
 [dependency-groups]
 browser-tests = [
-  {include-group = "tests-no-qt"},
   "playwright==1.62.0",
+  "pytest>=7.4.0",
+  "pytest-cov>=4.1.0",
+  "pytest-env>=0.8.2",
 ]
 dev = [
   {include-group = "docs"},

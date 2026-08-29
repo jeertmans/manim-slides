@@ -2006,14 +2006,10 @@ sphinx-directive = [
 
 [package.dev-dependencies]
 browser-tests = [
-    { name = "manim-slides", extra = ["full", "manim", "manimgl", "sphinx-directive"] },
     { name = "playwright" },
     { name = "pytest" },
     { name = "pytest-cov" },
     { name = "pytest-env" },
-    { name = "pytest-missing-modules" },
-    { name = "pytest-qt" },
-    { name = "setuptools" },
 ]
 dev = [
     { name = "bump-my-version" },
@@ -2134,14 +2130,10 @@ provides-extras = ["full", "magic", "manim", "manimgl", "pyqt6", "pyqt6-full", "
 
 [package.metadata.requires-dev]
 browser-tests = [
-    { name = "manim-slides", extras = ["full", "manim", "manimgl", "sphinx-directive"] },
     { name = "playwright", specifier = "==1.62.0" },
     { name = "pytest", specifier = ">=7.4.0" },
     { name = "pytest-cov", specifier = ">=4.1.0" },
     { name = "pytest-env", specifier = ">=0.8.2" },
-    { name = "pytest-missing-modules", specifier = ">=0.1.0" },
-    { name = "pytest-qt", specifier = ">=4.2.0" },
-    { name = "setuptools", specifier = ">=73.0.1" },
 ]
 dev = [
     { name = "bump-my-version", specifier = ">=0.20.3" },

@@ -132,7 +132,11 @@ jobs:
         enable-cache: true
 
     - name: Install Chromium and system dependencies
-      run: uv run --frozen --group browser-tests playwright install --with-deps chromium
+      run: >-
+        uv run --frozen --no-default-groups --group browser-tests
+        playwright install --with-deps chromium
 
     - name: Run first-party HTML player browser tests
-      run: uv run --frozen --group browser-tests pytest tests/test_html_player_browser.py -q
+      run: >-
+        uv run --frozen --no-default-groups --group browser-tests
+        pytest tests/test_html_player_browser.py -q
