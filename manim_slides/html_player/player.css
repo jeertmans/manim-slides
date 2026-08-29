@@ -12,6 +12,7 @@
 .manim-slides-player {
   --ms-accent: #7dd3fc;
   --ms-background: #000;
+
   position: relative;
   display: grid;
   width: 100%;
@@ -37,12 +38,6 @@
   width: 100vw;
   height: 100dvh;
   min-height: 100svh;
-}
-
-.manim-slides-player.is-presenting .ms-controls,
-.manim-slides-player.is-presenting .ms-position,
-.manim-slides-player.is-presenting .ms-progress {
-  display: none;
 }
 
 .ms-stage {
@@ -160,6 +155,12 @@
   width: 100%;
   height: 3px;
   border: 0;
+}
+
+.manim-slides-player.is-presenting .ms-controls,
+.manim-slides-player.is-presenting .ms-position,
+.manim-slides-player.is-presenting .ms-progress {
+  display: none;
 }
 
 .ms-notes,

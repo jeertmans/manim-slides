@@ -36,7 +36,12 @@
     return { model, effects: [] };
   }
 
-  function mapReverseTime(forwardTime, forwardDuration, reverseDuration, tolerance = 0.15) {
+  function mapReverseTime(
+    forwardTime,
+    forwardDuration,
+    reverseDuration,
+    tolerance = 0.15,
+  ) {
     if (
       !Number.isFinite(forwardTime) ||
       !Number.isFinite(forwardDuration) ||
@@ -45,10 +50,10 @@
       reverseDuration <= 0 ||
       Math.abs(reverseDuration - forwardDuration) / forwardDuration > tolerance
     ) {
-      return { fallback: true, time: 0 };
+      return { fallback: true, time: 0 }; // NOPMD - This is a returned object literal, not a block.
     }
     const ratio = Math.max(0, Math.min(1, forwardTime / forwardDuration));
-    return { fallback: false, time: reverseDuration * (1 - ratio) };
+    return { fallback: false, time: reverseDuration * (1 - ratio) }; // NOPMD - This is a returned object literal, not a block.
   }
 
   function load(model, details) {
@@ -103,7 +108,8 @@
         }
         if (
           model.status === Status.PLAYING_REVERSE ||
-          (model.status === Status.PAUSED && model.resumeStatus === Status.PLAYING_REVERSE)
+          (model.status === Status.PAUSED &&
+            model.resumeStatus === Status.PLAYING_REVERSE)
         ) {
           return load(model, {
             autoplay: true,
@@ -145,7 +151,8 @@
           autoplay: true,
           mapFromActive:
             model.status === Status.PLAYING_FORWARD ||
-            (model.status === Status.PAUSED && model.resumeStatus === Status.PLAYING_FORWARD),
+            (model.status === Status.PAUSED &&
+              model.resumeStatus === Status.PLAYING_FORWARD),
           role: "reverse",
           seek: model.status === Status.HELD_END ? "start" : "mapped",
           settleIndex: model.index - 1,

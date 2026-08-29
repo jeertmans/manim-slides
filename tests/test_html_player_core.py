@@ -1,5 +1,5 @@
 import shutil
-import subprocess
+import subprocess  # nosec B404
 from pathlib import Path
 
 import pytest
@@ -7,8 +7,10 @@ import pytest
 
 @pytest.mark.skipif(shutil.which("node") is None, reason="Node.js is not installed")
 def test_player_core_state_machine(project_folder: Path) -> None:
-    result = subprocess.run(
-        ["node", "--test", "tests/player_core.test.cjs"],
+    node = shutil.which("node")
+    assert node is not None
+    result = subprocess.run(  # nosec B603
+        [node, "--test", "tests/player_core.test.cjs"],
         cwd=project_folder,
         check=False,
         capture_output=True,

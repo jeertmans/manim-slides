@@ -19,19 +19,24 @@
         this.urls.set(asset.id, url);
         return url;
       }
-      const node = this.root.querySelector(`[data-ms-asset="${CSS.escape(asset.id)}"]`);
+      const node = this.root.querySelector(
+        `[data-ms-asset="${CSS.escape(asset.id)}"]`,
+      );
       if (!node) throw new Error(`Embedded asset '${asset.id}' is missing.`);
       const base64 = node.textContent.trim();
       const parts = [];
       const chunkSize = 1024 * 1024 - ((1024 * 1024) % 4);
       for (let offset = 0; offset < base64.length; offset += chunkSize) {
         const binary = atob(base64.slice(offset, offset + chunkSize));
-        const bytes = new Uint8Array(binary.length);
-        for (let index = 0; index < binary.length; index += 1)
-          bytes[index] = binary.charCodeAt(index);
+        const bytes = Uint8Array.from(binary, (character) =>
+          character.charCodeAt(0),
+        );
         parts.push(bytes);
       }
-      const url = URL.createObjectURL(new Blob(parts, { type: asset.mimeType }));
+      // eslint-disable-next-line compat/compat -- Self-contained media requires Blob URLs.
+      const url = URL.createObjectURL(
+        new Blob(parts, { type: asset.mimeType }),
+      );
       this.urls.set(asset.id, url);
       return url;
     }
@@ -40,13 +45,17 @@
       for (const [id, url] of this.urls) {
         if (this.urls.size <= this.limit) break;
         if (protectedIds.has(id)) continue;
+        // eslint-disable-next-line compat/compat -- Blob URL support is required above.
         URL.revokeObjectURL(url);
         this.urls.delete(id);
       }
     }
 
     destroy() {
-      for (const url of this.urls.values()) URL.revokeObjectURL(url);
+      for (const url of this.urls.values()) {
+        // eslint-disable-next-line compat/compat -- Blob URL support is required above.
+        URL.revokeObjectURL(url);
+      }
       this.urls.clear();
     }
   }
@@ -54,9 +63,13 @@
   class Player {
     constructor(root) {
       this.root = root;
-      this.manifest = JSON.parse(root.querySelector("[data-ms-manifest]").textContent);
+      this.manifest = JSON.parse(
+        root.querySelector("[data-ms-manifest]").textContent,
+      );
       if (this.manifest.version !== 1) {
-        throw new Error(`Unsupported player manifest version '${this.manifest.version}'.`);
+        throw new Error(
+          `Unsupported player manifest version '${this.manifest.version}'.`,
+        );
       }
       this.slides = this.manifest.slides;
       this.model = Core.initial(this.slides.length);
@@ -79,7 +92,9 @@
       this.help = root.querySelector("[data-ms-help]");
       this.overview = root.querySelector("[data-ms-overview]");
       this.overviewList = root.querySelector("[data-ms-overview-list]");
-      this.reducedMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+      this.reducedMotion = matchMedia(
+        "(prefers-reduced-motion: reduce)",
+      ).matches;
       this.abort = new AbortController();
       this.pointer = null;
       this.suppressClick = false;
@@ -90,7 +105,9 @@
     }
 
     dispatch(event) {
-      const result = Core.transition(this.model, event, { slides: this.slides });
+      const result = Core.transition(this.model, event, {
+        slides: this.slides,
+      });
       this.model = result.model;
       this.render();
       for (const effect of result.effects) this.run(effect);
@@ -103,9 +120,12 @@
       else if (effect.type === "hold") this.hold(effect);
       else if (effect.type === "hold-active") this.holdActive();
       else if (effect.type === "replay-active") this.replayActive();
-      else if (effect.type === "request-fullscreen") this.requestPresentationFullscreen();
-      else if (effect.type === "exit-fullscreen") this.exitPresentationFullscreen();
-      else if (effect.type === "focus-player") this.root.focus({ preventScroll: true });
+      else if (effect.type === "request-fullscreen")
+        this.requestPresentationFullscreen();
+      else if (effect.type === "exit-fullscreen")
+        this.exitPresentationFullscreen();
+      else if (effect.type === "focus-player")
+        this.root.focus({ preventScroll: true });
     }
 
     currentSlot() {
@@ -118,14 +138,18 @@
     }
 
     safeEnd(video) {
-      return Number.isFinite(video.duration) ? Math.max(0, video.duration - 0.001) : 0;
+      return Number.isFinite(video.duration)
+        ? Math.max(0, video.duration - 0.001)
+        : 0;
     }
 
     waitFor(target, name, generation, rejectName = "error") {
+      // eslint-disable-next-line compat/compat -- The player targets modern browsers.
       return new Promise((resolve, reject) => {
         const done = () => {
           cleanup();
-          if (generation !== this.model.generation) reject(new DOMException("Stale operation", "AbortError"));
+          if (generation !== this.model.generation)
+            reject(new DOMException("Stale operation", "AbortError"));
           else resolve();
         };
         const failed = () => {
@@ -158,17 +182,25 @@
           });
         });
       } else {
-        await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+        await new Promise((resolve) =>
+          requestAnimationFrame(() => requestAnimationFrame(resolve)),
+        );
       }
     }
 
     mappedTime(effect, duration) {
       if (!effect.mapFromActive) return 0;
       const active = this.currentVideo();
-      if (!active || !Number.isFinite(active.duration) || active.duration <= 0) return 0;
-      const mapping = Core.mapReverseTime(active.currentTime, active.duration, duration);
+      if (!active || !Number.isFinite(active.duration) || active.duration <= 0)
+        return 0;
+      const mapping = Core.mapReverseTime(
+        active.currentTime,
+        active.duration,
+        duration,
+      );
       if (mapping.fallback) {
-        this.loading.textContent = "Media durations differ; using full reverse playback.";
+        this.loading.textContent =
+          "Media durations differ; using full reverse playback.";
       }
       return mapping.time;
     }
@@ -178,7 +210,7 @@
       const slide = this.slides[effect.slideIndex];
       const asset = slide[effect.role];
       const slotIndex = 1 - this.activeSlot;
-      const slot = this.slots[slotIndex];
+      const slot = slotIndex === 0 ? this.slots[0] : this.slots[1];
       this.loading.hidden = false;
       this.loading.textContent = `Loading slide ${effect.slideIndex + 1} (${effect.role})…`;
       this.gesture.hidden = true;
@@ -199,14 +231,21 @@
           slot.node.classList.add("is-video");
           slot.video.muted = false;
           slot.video.playbackRate =
-            effect.role === "reverse" ? slide.reversedPlaybackRate : slide.playbackRate;
-          const metadata = this.waitFor(slot.video, "loadedmetadata", generation);
+            effect.role === "reverse"
+              ? slide.reversedPlaybackRate
+              : slide.playbackRate;
+          const metadata = this.waitFor(
+            slot.video,
+            "loadedmetadata",
+            generation,
+          );
           slot.video.src = url;
           slot.video.load();
           await metadata;
           let target = 0;
           if (effect.seek === "end") target = this.safeEnd(slot.video);
-          else if (effect.seek === "mapped") target = this.mappedTime(effect, slot.video.duration);
+          else if (effect.seek === "mapped")
+            target = this.mappedTime(effect, slot.video.duration);
           await this.seek(slot.video, target, generation);
         }
         if (generation !== this.model.generation) return;
@@ -215,7 +254,9 @@
         this.slots[this.activeSlot].node.classList.remove("is-active");
         slot.node.classList.add("is-active");
         this.activeSlot = slotIndex;
-        const protectedIds = new Set(this.slots.map((item) => item.assetId).filter(Boolean));
+        const protectedIds = new Set(
+          this.slots.map((item) => item.assetId).filter(Boolean),
+        );
         this.assetStore.trim(protectedIds);
         this.loading.hidden = true;
         this.dispatch({
@@ -281,7 +322,8 @@
       const video = this.currentVideo();
       if (!video) return;
       video.pause();
-      if (Number.isFinite(video.duration)) video.currentTime = this.safeEnd(video);
+      if (Number.isFinite(video.duration))
+        video.currentTime = this.safeEnd(video);
     }
 
     replayActive() {
@@ -292,7 +334,11 @@
     }
 
     async requestPresentationFullscreen() {
-      if (!this.root.requestFullscreen || document.fullscreenElement === this.root) return;
+      if (
+        !this.root.requestFullscreen ||
+        document.fullscreenElement === this.root
+      )
+        return;
       try {
         await this.root.requestFullscreen();
         if (!this.model.presenting && document.fullscreenElement === this.root)
@@ -303,7 +349,8 @@
     }
 
     async exitPresentationFullscreen() {
-      if (document.fullscreenElement !== this.root || !document.exitFullscreen) return;
+      if (document.fullscreenElement !== this.root || !document.exitFullscreen)
+        return;
       try {
         await document.exitFullscreen();
       } catch (_error) {
@@ -319,17 +366,22 @@
       this.root.dataset.animationOptIn = String(this.model.animationOptIn);
       this.root.dataset.presenting = String(this.model.presenting);
       this.root.classList.toggle("is-presenting", this.model.presenting);
-      this.position.textContent = total ? `${this.model.index + 1} / ${total}` : "0 / 0";
+      this.position.textContent = total
+        ? `${this.model.index + 1} / ${total}`
+        : "0 / 0";
       this.progress.max = Math.max(1, total - 1);
       this.progress.value = this.model.index;
       this.notesText.textContent = slide ? slide.notes : "";
       this.error.hidden = this.model.status !== Core.Status.FAILED;
       if (this.model.error) this.errorMessage.textContent = this.model.error;
       const needsGesture =
-        this.model.status === Core.Status.PAUSED && this.model.resumeStatus !== null;
+        this.model.status === Core.Status.PAUSED &&
+        this.model.resumeStatus !== null;
       this.gesture.hidden = !needsGesture;
       if (needsGesture)
-        this.gesture.textContent = this.reducedMotion ? "Play animation" : "Play presentation";
+        this.gesture.textContent = this.reducedMotion
+          ? "Play animation"
+          : "Play presentation";
       const forwardWillFinish =
         this.model.status === Core.Status.PLAYING_FORWARD ||
         this.model.status === Core.Status.READY_START ||
@@ -342,7 +394,10 @@
           forwardWillFinish ? "Finish current animation" : "Next slide",
         );
       for (const button of this.overviewList.querySelectorAll("button"))
-        button.setAttribute("aria-current", String(Number(button.dataset.index) === this.model.index));
+        button.setAttribute(
+          "aria-current",
+          String(Number(button.dataset.index) === this.model.index),
+        );
     }
 
     buildOverview() {
@@ -366,7 +421,8 @@
       else if (name === "replay") this.dispatch({ type: "REPLAY" });
       else if (name === "pause") this.dispatch({ type: "TOGGLE_PAUSE" });
       else if (name === "notes") this.notes.hidden = !this.notes.hidden;
-      else if (name === "overview") this.overview.hidden = !this.overview.hidden;
+      else if (name === "overview")
+        this.overview.hidden = !this.overview.hidden;
       else if (name === "help") this.help.hidden = !this.help.hidden;
       else if (name === "present") this.dispatch({ type: "TOGGLE_PRESENT" });
     }
@@ -386,7 +442,10 @@
       this.root.addEventListener(
         "keydown",
         (event) => {
-          if (event.target.closest("input, textarea, select, [contenteditable]")) return;
+          if (
+            event.target.closest("input, textarea, select, [contenteditable]")
+          )
+            return;
           const map = {
             " ": "next",
             ArrowRight: "next",
@@ -449,10 +508,26 @@
         { signal },
       );
       const stage = this.root.querySelector("[data-ms-stage]");
-      stage.addEventListener("pointerdown", (event) => this.pointerDown(event), { signal });
-      stage.addEventListener("pointermove", (event) => this.pointerMove(event), { signal });
-      stage.addEventListener("pointerup", (event) => this.pointerUp(event), { signal });
-      stage.addEventListener("pointercancel", () => { this.pointer = null; }, { signal });
+      stage.addEventListener(
+        "pointerdown",
+        (event) => this.pointerDown(event),
+        { signal },
+      );
+      stage.addEventListener(
+        "pointermove",
+        (event) => this.pointerMove(event),
+        { signal },
+      );
+      stage.addEventListener("pointerup", (event) => this.pointerUp(event), {
+        signal,
+      });
+      stage.addEventListener(
+        "pointercancel",
+        () => {
+          this.pointer = null;
+        },
+        { signal },
+      );
       stage.addEventListener(
         "click",
         (event) => {
@@ -460,14 +535,18 @@
             this.suppressClick = false;
             return;
           }
-          if (event.button === 0 && !event.target.closest("button, a, input, select, textarea")) {
+          if (
+            event.button === 0 &&
+            !event.target.closest("button, a, input, select, textarea")
+          ) {
             this.root.focus({ preventScroll: true });
             this.command("next");
           }
         },
         { signal },
       );
-      if (this.root.hasAttribute("data-ms-standalone")) this.root.focus({ preventScroll: true });
+      if (this.root.hasAttribute("data-ms-standalone"))
+        this.root.focus({ preventScroll: true });
       document.addEventListener(
         "fullscreenchange",
         () => {
@@ -476,7 +555,10 @@
         },
         { signal },
       );
-      addEventListener("pagehide", () => this.destroy(), { once: true, signal });
+      addEventListener("pagehide", () => this.destroy(), {
+        once: true,
+        signal,
+      });
     }
 
     pointerDown(event) {
@@ -511,8 +593,16 @@
       if (distance < 48 || velocity < 0.25) return;
       let command = null;
       if (Math.abs(dx) >= Math.abs(dy)) command = dx < 0 ? "next" : "back";
-      else if (dy < 0 && this.slides[this.model.index + 1]?.direction === "vertical") command = "next";
-      else if (dy > 0 && this.slides[this.model.index]?.direction === "vertical") command = "back";
+      else if (
+        dy < 0 &&
+        this.slides[this.model.index + 1]?.direction === "vertical"
+      )
+        command = "next";
+      else if (
+        dy > 0 &&
+        this.slides[this.model.index]?.direction === "vertical"
+      )
+        command = "back";
       if (command) {
         this.suppressClick = true;
         this.root.focus({ preventScroll: true });
@@ -532,11 +622,12 @@
   }
 
   for (const root of document.querySelectorAll("[data-ms-player]")) {
-    try {
+    try /* NOPMD - Each player needs an isolated initialization failure boundary. */ {
       root.manimSlidesPlayer = new Player(root);
     } catch (error) {
       const status = root.querySelector("[data-ms-loading]");
-      if (status) status.textContent = `Player initialization failed: ${error.message || error}`;
+      if (status)
+        status.textContent = `Player initialization failed: ${error.message || error}`;
       root.dataset.state = "failed";
     }
   }

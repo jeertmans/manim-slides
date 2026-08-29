@@ -56,12 +56,12 @@ Keyboard and presentation-remote controls are:
 
 | Input | Action |
 | :--- | :--- |
-| Space, Right, Page Down | Finish the current forward animation; press again to advance |
+| Space, Right, Page Down | Finish animation; press again to advance |
 | Left, Page Up | Finish active reverse playback or go backward |
 | R | Replay the current forward animation |
 | P | Pause or resume at the configured playback rate |
 | N | Toggle safely rendered notes |
-| O | Toggle the compact overview; selecting a slide jumps to its held end frame |
+| O | Toggle overview; selecting a slide jumps to its held end frame |
 | F | Enter or exit Present mode |
 | ? | Show help |
 | Escape | Close an overlay or exit Present mode |

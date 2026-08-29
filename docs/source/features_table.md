@@ -17,7 +17,7 @@ The following summarizes the different presentation features Manim Slides offers
 | Requires internet access | No | Depends[^1] | No | No | No |
 | Auto. play slides | Yes | Yes | Yes | Yes | N/A |
 | Loops support | Yes | Yes | Yes | Yes | N/A |
-| Fully customizable | No | Yes (`--use-template` option) | Scoped CSS overrides | No | No |
+| Fully customizable | No | Yes (`--use-template`) | CSS overrides | No | No |
 | Other dependencies | None | A modern web browser | A modern web browser | PowerPoint or LibreOffice Impress[^2] | None |
 | Works cross-platforms | Yes | Yes | Yes[^4] | Partly[^2][^3] | Yes |
 :::
