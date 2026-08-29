@@ -28,6 +28,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Migrated static type checking from `mypy` to [`ty`](https://github.com/astral-sh/ty).
   [#636](https://github.com/jeertmans/manim-slides/pull/636)
 
+### Fixed
+
+- Fixed enum-typed HTML config values set via `-c` not being quoted in the output,
+  producing a blank presentation, and restored validation of those values.
+  [@lapotist](https://github.com/lapotist) [#664](https://github.com/jeertmans/manim-slides/pull/664)
+- Fixed presenter looping when reversing multiple slides.
+  [@wuerfelfreak](https://github.com/wuerfelfreak) [#665](https://github.com/jeertmans/manim-slides/pull/665)
+- Fixed `concatenate_video_files` failing on relative input paths and on paths containing single quotes, by writing absolute, properly escaped entries to the concat list file.
+  [@Agi-Asi](https://github.com/Agi-Asi) [#673](https://github.com/jeertmans/manim-slides/pull/673)
+
 (v5.6.0)=
 ## [v5.6.0](https://github.com/jeertmans/manim-slides/compare/v5.5.4...v5.6.0)
 
