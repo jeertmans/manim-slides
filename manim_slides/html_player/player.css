@@ -113,9 +113,9 @@
   transition: opacity .15s ease;
 }
 
+.ms-controls:hover,
 .manim-slides-player:hover .ms-controls,
-.manim-slides-player:focus-within .ms-controls,
-.ms-controls:hover {
+.manim-slides-player:focus-within .ms-controls {
   opacity: 1;
 }
 
