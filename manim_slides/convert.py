@@ -1141,7 +1141,7 @@ def show_template_option(function: Callable[..., Any]) -> Callable[..., Any]:
 @show_template_option
 @show_config_options
 @verbosity_option
-def convert(
+def convert(  # noqa: C901
     scenes: list[str],
     folder: Path,
     dest: Path,
@@ -1149,6 +1149,9 @@ def convert(
     open_result: bool,
     config_options: dict[str, str],
     template: Path | str | None,
+    revealjs_assets_timeout: float,
+    flush_revealjs_cache: bool,
+    disable_revealjs_cache: bool,
     offline: bool,
     one_file: bool,
 ) -> None:
