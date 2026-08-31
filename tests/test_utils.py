@@ -5,9 +5,8 @@ import av
 import pytest
 from click.testing import CliRunner
 
-from manim_slides.utils import concatenate_video_files, merge_basenames
 from manim_slides.__main__ import cli
-
+from manim_slides.utils import concatenate_video_files, merge_basenames
 
 
 def test_merge_basenames(paths: list[Path]) -> None:
@@ -68,8 +67,6 @@ def test_issue540(slides_file: Path) -> None:
     runner = CliRunner()
 
     with runner.isolated_filesystem() as tmp_dir:
-        results = runner.invoke(
-            cli, ["render", str(slides_file), "Issue540", "-ql"]
-        )
+        results = runner.invoke(cli, ["render", str(slides_file), "Issue540", "-ql"])
 
         assert results.exit_code == 0, results.output

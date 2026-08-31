@@ -78,4 +78,3 @@ class Issue540(ThreeDSlide):
         )
 
         self.play(FadeOut(ref_dot2))
-
