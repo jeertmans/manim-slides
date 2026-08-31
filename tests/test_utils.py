@@ -3,8 +3,11 @@ from pathlib import Path
 
 import av
 import pytest
+from click.testing import CliRunner
 
 from manim_slides.utils import concatenate_video_files, merge_basenames
+from manim_slides.__main__ import cli
+
 
 
 def test_merge_basenames(paths: list[Path]) -> None:
@@ -59,3 +62,14 @@ def test_concatenate_video_files_quoted_path(video_file: Path, tmp_path: Path) -
     concatenate_video_files([src, src], dest)
 
     assert_has_decodable_video_stream(dest)
+
+
+def test_issue540(slides_file: Path) -> None:
+    runner = CliRunner()
+
+    with runner.isolated_filesystem() as tmp_dir:
+        results = runner.invoke(
+            cli, ["render", str(slides_file), "Issue540", "-ql"]
+        )
+
+        assert results.exit_code == 0, results.output
