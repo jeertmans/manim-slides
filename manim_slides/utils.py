@@ -54,7 +54,12 @@ def concatenate_video_files(files: list[Path], dest: Path) -> None:
     with tempfile.NamedTemporaryFile(
         mode="w", suffix=".txt", delete=False, encoding="utf-8"
     ) as f:
-        f.writelines(f"file '{file}'\n" for file in _filter(files))
+        # Write absolute paths and escape single quotes ('\'') so that ffmpeg's
+        # concat demuxer parses every entry correctly, see #673.
+        f.writelines(
+            "file '{}'\n".format(file.resolve().as_posix().replace("'", "'\\''"))
+            for file in _filter(files)
+        )
         tmp_file = f.name
 
     with (
