@@ -487,6 +487,70 @@
           }
         }
       );
+      // Replay slide using "R"
+      Reveal.addKeyBinding(
+        {
+          keyCode: 82,
+          key: 'R',
+          description: 'Replay slide'
+        },
+        () => {
+          var currentVideos = Reveal.getCurrentSlide().slideBackgroundContentElement.getElementsByTagName("video");
+          if (currentVideos.length > 0) {
+            const video = currentVideos[0];
+            if (video._cleanupBackward) {
+              video._cleanupBackward();
+            }
+            video.currentTime = 0;
+            video.play();
+          }
+        }
+      );
+      // Jump to end of animations when navigating to previous slide
+      Reveal.on('slidechanged', event => {
+        if (event.previousSlide) {
+          const prevVideos = event.previousSlide.slideBackgroundContentElement.getElementsByTagName("video");
+          if (prevVideos.length > 0 && prevVideos[0]._cleanupBackward) {
+            prevVideos[0]._cleanupBackward();
+          }
+        }
+        if (!event.previousSlide) return;
+        const prevIndices = Reveal.getIndices(event.previousSlide);
+        const currIndices = Reveal.getIndices(event.currentSlide);
+        const isBackward = (currIndices.h < prevIndices.h) || (currIndices.h === prevIndices.h && currIndices.v < prevIndices.v);
+
+        if (isBackward) {
+          const currentVideos = event.currentSlide.slideBackgroundContentElement.getElementsByTagName("video");
+          if (currentVideos.length > 0) {
+            const video = currentVideos[0];
+            if (video._cleanupBackward) {
+              video._cleanupBackward();
+            }
+            const cleanup = () => {
+              video.removeEventListener('playing', goToEndAndPause);
+              video.removeEventListener('loadedmetadata', goToEndAndPause);
+              video._cleanupBackward = null;
+            };
+            const goToEndAndPause = () => {
+              cleanup();
+              if (!isNaN(video.duration) && video.duration > 0) {
+                video.currentTime = Math.max(0, video.duration - 0.001);
+              }
+              video.pause();
+            };
+            video._cleanupBackward = cleanup;
+
+            // Intercept Reveal.js's internal autoplay ('default action')
+            video.addEventListener('playing', goToEndAndPause, { once: true });
+
+            if (video.readyState >= 1) {
+              goToEndAndPause();
+            } else {
+              video.addEventListener('loadedmetadata', goToEndAndPause, { once: true });
+            }
+          }
+        }
+      });
       {% if one_file %}
       // Fix found by @t-fritsch and @Rapsssito on GitHub
       // see: https://github.com/hakimel/reveal.js/discussions/3362#discussioncomment-11733074.
