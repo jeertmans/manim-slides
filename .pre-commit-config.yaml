@@ -4,6 +4,7 @@ ci:
 
     for more information, see https://pre-commit.ci
   autoupdate_commit_msg: 'chore(deps): pre-commit autoupdate'
+  skip: [ty]
 repos:
 - repo: https://github.com/pre-commit/pre-commit-hooks
   rev: v6.0.0
