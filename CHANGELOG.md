@@ -38,6 +38,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   [@wuerfelfreak](https://github.com/wuerfelfreak) [#665](https://github.com/jeertmans/manim-slides/pull/665)
 - Fixed `concatenate_video_files` failing on relative input paths and on paths containing single quotes, by writing absolute, properly escaped entries to the concat list file.
   [@Agi-Asi](https://github.com/Agi-Asi) [#673](https://github.com/jeertmans/manim-slides/pull/673)
+- Fixed `concatenate_video_files` failing with non monotonous dts and added test. [@wuerfelfreak](https://github.com/wuerfelfreak) [#680](https://github.com/jeertmans/manim-slides/pull/680)
 
 (v5.6.0)=
 ## [v5.6.0](https://github.com/jeertmans/manim-slides/compare/v5.5.4...v5.6.0)
