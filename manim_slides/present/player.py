@@ -482,8 +482,6 @@ class Player(QMainWindow):
         self.load_current_media()
 
     def load_previous_slide(self) -> None:
-        self.playing_reversed_slide = False
-
         if self.current_slide_index > 0:
             self.current_slide_index -= 1
         elif self.current_presentation_index > 0:
@@ -511,10 +509,6 @@ class Player(QMainWindow):
             logger.info("No more slide to play.")
             return
 
-        self.load_current_slide()
-
-    def load_reversed_slide(self) -> None:
-        self.playing_reversed_slide = True
         self.load_current_slide()
 
     """
@@ -598,15 +592,13 @@ class Player(QMainWindow):
 
     @Slot()
     def previous(self) -> None:
+        self.playing_reversed_slide = False
         self.load_previous_slide()
 
     @Slot()
     def reverse(self) -> None:
-        if self.playing_reversed_slide and self.current_slide_index >= 1:
-            self.current_slide_index -= 1
-
-        self.load_reversed_slide()
-        self.preview_next_slide()
+        self.playing_reversed_slide = True
+        self.load_previous_slide()
 
     @Slot()
     def replay(self) -> None:
