@@ -73,6 +73,7 @@ dependencies = [
   "lxml>=4.9.2",
   "numpy>=1.19",
   "pillow>=9.5.0",
+  "platformdirs>=4.0",
   "pydantic>=2.0.1",
   "pydantic-extra-types>=2.0.0",
   "python-pptx>=0.6.21",
@@ -95,7 +96,7 @@ full = [
 ]
 magic = ["manim-slides[manim]", "ipython>=8.12.2"]
 manim = ["manim>=0.19"]
-manimgl = ["manimgl>=1.7.2", "setuptools<84"]
+manimgl = ["manimgl>=1.7.2", "setuptools<80.10.2"]
 pyqt6 = ["pyqt6>=6.7.0"]
 pyqt6-full = ["manim-slides[full,pyqt6]"]
 pyside6 = ["pyside6>=6.6.1,!=6.8.1.1"]

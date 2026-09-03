@@ -53,18 +53,15 @@ from manim_slides import Slide
 
 
 class Introduction(Slide):
-    def construct(self):
-        ...
+    def construct(self): ...
 
 
 class ExplainConcepts(Slide):
-    def construct(self):
-        ...
+    def construct(self): ...
 
 
 class ShowResults(Slide):
-    def construct(self):
-        ...
+    def construct(self): ...
 ```
 
 Each class can now be rendered independently from the command line. When you
@@ -179,7 +176,8 @@ def render_worker(args):
     logger.info(f"Command is {cmd}")
     try:
         result = subprocess.run(
-            cmd, shell=True, check=True, text=True, stdout=subprocess.DEVNULL)
+            cmd, shell=True, check=True, text=True, stdout=subprocess.DEVNULL
+        )
         if result.returncode == 0:
             logger.info(f"Finished: {scene_name}")
         else:
@@ -238,7 +236,9 @@ def main():
     logger.info("\nAll render jobs completed.")
 
     if len(FAILED_SCENES):
-        logger.warning(f"The following {len(FAILED_SCENES)} scenes had errors: {FAILED_SCENES}.")
+        logger.warning(
+            f"The following {len(FAILED_SCENES)} scenes had errors: {FAILED_SCENES}."
+        )
     else:
         logger.info("All render jobs were successful!")
 
@@ -292,8 +292,7 @@ setting `max_duration_before_split_reverse` to `None`:
 class Presentation(Slide):
     max_duration_before_split_reverse = None
 
-    def construct(self):
-        ...
+    def construct(self): ...
 ```
 
 ## Minimize TeX Calls

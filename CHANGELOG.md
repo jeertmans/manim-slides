@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   directory. [@liuktc](https://github.com/liuktc) [#638](https://github.com/jeertmans/manim-slides/pull/638)
 - Added support for named built-in templates. Now `manim-slides convert` accepts the template name without the full path. [@liuktc](https://github.com/liuktc) [#638](https://github.com/jeertmans/manim-slides/pull/638)
 - Added `wait_between_looping_slides` property to skip the `wait_time_between_slides` pause inside slides created with `next_slide(loop=True)`, avoiding a stutter on every loop repeat. [@zain-asif-dev](https://github.com/zain-asif-dev) [#648](https://github.com/jeertmans/manim-slides/pull/648)
+- Added Reveal.js asset caching for offline HTML export. [@saikat709](https://github.com/saikat709) [#645](https://github.com/jeertmans/manim-slides/pull/645)
 
 ### Changed
 
@@ -35,8 +36,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   [@lapotist](https://github.com/lapotist) [#664](https://github.com/jeertmans/manim-slides/pull/664)
 - Fixed presenter looping when reversing multiple slides.
   [@wuerfelfreak](https://github.com/wuerfelfreak) [#665](https://github.com/jeertmans/manim-slides/pull/665)
+- Fixed presenter not reversing to previous scene.
+  [@wuerfelfreak](https://github.com/wuerfelfreak) [#671](https://github.com/jeertmans/manim-slides/pull/671)
 - Fixed `concatenate_video_files` failing on relative input paths and on paths containing single quotes, by writing absolute, properly escaped entries to the concat list file.
   [@Agi-Asi](https://github.com/Agi-Asi) [#673](https://github.com/jeertmans/manim-slides/pull/673)
+- Fixed `concatenate_video_files` failing with non monotonous dts and added test. [@wuerfelfreak](https://github.com/wuerfelfreak) [#680](https://github.com/jeertmans/manim-slides/pull/680)
 
 (v5.6.0)=
 ## [v5.6.0](https://github.com/jeertmans/manim-slides/compare/v5.5.4...v5.6.0)
