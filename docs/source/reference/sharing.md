@@ -141,6 +141,8 @@ If you set the `--one-file` flag, all animations will be data URI encoded,
 making the HTML a self-contained presentation file that can be shared
 on its own. If you also set the `--offline` flag, the JS and CSS files will
 be included in the HTML file as well.
+Reveal.js assets are downloaded once and cached locally, allowing
+subsequent offline exports without network access.
 
 ### Over the internet
 
