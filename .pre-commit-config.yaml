@@ -21,13 +21,13 @@ repos:
     exclude: uv.lock
     args: [--autofix, --trailing-commas]
 - repo: https://github.com/astral-sh/ruff-pre-commit
-  rev: v0.16.2
+  rev: v0.16.5
   hooks:
   - id: ruff
     args: [--fix]
   - id: ruff-format
 - repo: https://github.com/astral-sh/ty-pre-commit
-  rev: v0.0.69
+  rev: v0.0.76
   hooks:
   - id: ty
     args: [--isolated, --frozen, --no-default-groups, --group=typechecking]

@@ -87,6 +87,7 @@ def concatenate_video_files(files: list[Path], dest: Path) -> None:
                 )
             )
 
+        last_dts = {"video": None, "audio": None}
         for packet in input_container.demux():
             if packet.dts is None:
                 continue
@@ -99,6 +100,14 @@ def concatenate_video_files(files: list[Path], dest: Path) -> None:
                 packet.stream = output_audio_stream
             else:
                 continue  # We don't support subtitles
+
+            # stopgap solution for https://github.com/jeertmans/manim-slides/issues/540
+            if last_dts[ptype] is not None and packet.dts <= last_dts[ptype]:
+                packet.dts = last_dts[ptype] + 1
+                if packet.pts is not None and packet.pts < packet.dts:
+                    packet.pts = packet.dts
+            last_dts[ptype] = packet.dts
+
             output_container.mux(packet)
 
     os.unlink(tmp_file)  # https://stackoverflow.com/a/54768241
