@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="color-scheme" content="dark">
+    <title>@@TITLE@@</title>
+    @@STYLES@@
+  </head>
+  <body class="ms-player-document">
+    <main class="manim-slides-player" data-ms-player data-ms-standalone tabindex="0" aria-label="Manim Slides presentation player">
+      <div class="ms-stage" data-ms-stage aria-live="off">
+        <div class="ms-media-slot is-active" data-ms-slot="0"><video playsinline preload="metadata"></video><img alt=""></div>
+        <div class="ms-media-slot" data-ms-slot="1"><video playsinline preload="metadata"></video><img alt=""></div>
+        <div class="ms-loading" data-ms-loading role="status">Loading presentation…</div>
+        <button class="ms-gesture" data-ms-gesture type="button" hidden>Play presentation</button>
+        <section class="ms-error" data-ms-error role="alert" hidden>
+          <p data-ms-error-message></p>
+          <div><button type="button" data-ms-retry>Retry</button><button type="button" data-command="back">Previous</button><button type="button" data-command="next">Next</button></div>
+        </section>
+      </div>
+      <nav class="ms-controls" aria-label="Presentation controls">
+        <button type="button" data-command="back" aria-label="Previous slide">◀</button>
+        <button type="button" data-command="replay" aria-label="Replay slide">↻</button>
+        <button type="button" data-command="pause" aria-label="Pause or resume">⏯</button>
+        <button type="button" data-command="next" aria-label="Next slide">▶</button>
+        <button type="button" data-command="notes" aria-label="Toggle notes">Notes</button>
+        <button type="button" data-command="overview" aria-label="Toggle overview">Overview</button>
+        <button type="button" data-command="help" aria-label="Show keyboard help">?</button>
+        <button type="button" data-command="present" aria-label="Enter presentation mode" aria-keyshortcuts="F">Present</button>
+      </nav>
+      <div class="ms-position" data-ms-position aria-live="polite"></div>
+      <progress class="ms-progress" data-ms-progress max="1" value="0" aria-label="Presentation progress"></progress>
+      <aside class="ms-notes" data-ms-notes hidden aria-label="Slide notes"><pre data-ms-notes-text></pre></aside>
+      <section class="ms-overview" data-ms-overview hidden aria-label="Slide overview"><div data-ms-overview-list></div></section>
+      <section class="ms-help" data-ms-help hidden role="dialog" aria-modal="false" aria-label="Keyboard help">
+        <h2>Presentation controls</h2>
+        <p>With reduced motion, choose Play animation or Present once to enable animation for this player session.</p>
+        <dl><dt>Space, Right, Page Down</dt><dd>Finish the current animation; press again to advance</dd><dt>Left, Page Up</dt><dd>Finish active reverse playback or go back</dd><dt>R</dt><dd>Replay</dd><dt>P</dt><dd>Pause or resume</dd><dt>N</dt><dd>Notes</dd><dt>O</dt><dd>Overview</dd><dt>F</dt><dd>Enter or exit Present mode</dd><dt>Escape</dt><dd>Close an overlay or exit Present mode</dd></dl>
+        <button type="button" data-command="help">Close</button>
+      </section>
+      <script type="application/json" data-ms-manifest>@@MANIFEST@@</script>
+      @@PAYLOADS@@
+    </main>
+    @@SCRIPTS@@
+  </body>
+</html>

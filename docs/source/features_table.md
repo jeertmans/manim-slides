@@ -6,20 +6,20 @@ The following summarizes the different presentation features Manim Slides offers
 :widths: auto
 :align: center
 
-| Feature / Constraint | [`present`](reference/cli.md) | [`convert --to=html`](reference/cli.md) | [`convert --to=pptx`](reference/cli.md) | [`convert --to=pdf`](reference/cli.md)
-| :--- | :---: | :---: | :---: | :---: |
-| Basic navigation through slides | Yes | Yes | Yes | Yes (static image) |
-| Replay slide | Yes | No | No | N/A |
-| Pause animation | Yes | Yes | No | N/A |
-| Play slide in reverse | Yes | No | No | N/A |
-| Slide count | Yes | Yes (optional) | Yes (optional) | N/A |
-| Needs Python with Manim Slides installed | Yes | No | No | No
-| Requires internet access | No | Depends[^1] | No | No |
-| Auto. play slides | Yes | Yes | Yes | N/A |
-| Loops support | Yes | Yes | Yes | N/A |
-| Fully customizable | No | Yes (`--use-template` option) | No | No |
-| Other dependencies | None | A modern web browser | PowerPoint or LibreOffice Impress[^2] | None |
-| Works cross-platforms | Yes | Yes | Partly[^2][^3] | Yes |
+| Feature / Constraint | [`present`](reference/cli.md) | [`convert --to=html`](reference/cli.md) | [`convert --to=html-player`](reference/cli.md) | [`convert --to=pptx`](reference/cli.md) | [`convert --to=pdf`](reference/cli.md)
+| :--- | :---: | :---: | :---: | :---: | :---: |
+| Basic navigation through slides | Yes | Yes | Yes | Yes | Yes (static image) |
+| Replay slide | Yes | No | Yes | No | N/A |
+| Pause animation | Yes | Yes | Yes | No | N/A |
+| Play slide in reverse | Yes | No | Yes | No | N/A |
+| Slide count | Yes | Yes (optional) | Yes | Yes (optional) | N/A |
+| Needs Python with Manim Slides installed | Yes | No | No | No | No
+| Requires internet access | No | Depends[^1] | No | No | No |
+| Auto. play slides | Yes | Yes | Yes | Yes | N/A |
+| Loops support | Yes | Yes | Yes | Yes | N/A |
+| Fully customizable | No | Yes (`--use-template`) | CSS overrides | No | No |
+| Other dependencies | None | A modern web browser | A modern web browser | PowerPoint or LibreOffice Impress[^2] | None |
+| Works cross-platforms | Yes | Yes | Yes[^4] | Partly[^2][^3] | Yes |
 :::
 
 [^1]: By default, HTML assets are loaded from the internet, but they can be
@@ -29,3 +29,4 @@ The following summarizes the different presentation features Manim Slides offers
   [file an issue on GitHub](https://github.com/jeertmans/manim-slides/issues/new/choose).
 [^3]: PowerPoint online does not seem to support automatic playing of videos,
   so you need LibreOffice Impress on Linux platforms.
+[^4]: Media codec support depends on the browser and operating system.

@@ -18,6 +18,13 @@ Each converter has its own configuration options, which are listed below.
 ```
 ::::
 
+::::{dropdown} First-party HTML player
+
+```{program-output} manim-slides convert --to=html-player --show-config
+```
+
+::::
+
 ::::{dropdown} Zip
 :::{note}
 The Zip converter inherits from the HTML converter.

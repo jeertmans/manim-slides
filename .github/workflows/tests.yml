@@ -117,3 +117,26 @@ jobs:
         use-quiet-mode: yes
         use-verbose-mode: yes
         config-file: .mdlc.json
+
+  html-player-browser:
+    runs-on: ubuntu-latest
+    env:
+      MANIM_SLIDES_BROWSER_TESTS: 1
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v7
+
+    - name: Setup uv
+      uses: astral-sh/setup-uv@v7
+      with:
+        enable-cache: true
+
+    - name: Install Chromium and system dependencies
+      run: >-
+        uv run --frozen --no-default-groups --group browser-tests
+        playwright install --with-deps chromium
+
+    - name: Run first-party HTML player browser tests
+      run: >-
+        uv run --frozen --no-default-groups --group browser-tests
+        pytest tests/test_html_player_browser.py -q

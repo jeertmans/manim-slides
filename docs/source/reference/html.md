@@ -1,8 +1,13 @@
 # HTML Presentations
 
-Manim Slides allows you to convert presentations into one HTML file, with
-[RevealJS](https://revealjs.com/). This file can then be opened with any modern
-web browser, allowing for a nice portability of your presentations.
+Manim Slides provides two HTML exporters:
+
+- `--to=html` is the existing [RevealJS](https://revealjs.com/) exporter. It
+  remains the default for an `.html` destination and supports RevealJS templates
+  and configuration.
+- `--to=html-player` uses the dependency-free Manim Slides player. It supports
+  generated reverse media, replay, touch input, and completely self-contained
+  offline output.
 
 As with every command with Manim Slides, converting slides' fragments into one
 HTML file (and its assets) can be done in one command:
@@ -11,9 +16,112 @@ HTML file (and its assets) can be done in one command:
 manim-slides convert [SCENES]... DEST
 ```
 
-where `DEST` is the `.html` destination file.
+where `DEST` is the `.html` destination file. Automatic format detection chooses
+RevealJS; select the first-party player explicitly:
 
-## Configuring the Template
+```bash
+manim-slides convert BasicExample presentation.html --to=html-player
+```
+
+## First-party HTML player
+
+The default player output is one HTML file plus a `presentation_assets`
+directory. The directory contains the local runtime and collision-safe copies of
+every forward and reverse media asset. Keep it beside the HTML file when moving
+or publishing the presentation. The output makes no CDN or telemetry requests.
+
+For a single portable file, add `--one-file`:
+
+```bash
+manim-slides convert BasicExample presentation.html --to=html-player --one-file
+```
+
+The portable file contains the manifest, player, styles, and media. It can be
+opened directly by double-clicking it (`file://`); no local server or internet
+connection is needed. Media is decoded lazily into Blob URLs, with a bounded
+working set. Portable files are approximately one third larger than their raw
+binary media because of Base64 encoding, and the current and nearby decoded
+assets require additional browser memory. Prefer asset-backed output for large
+decks or web hosting.
+
+### Playback and controls
+
+The player loads the replacement media and its target frame before displaying
+it. Backward navigation plays the generated reverse clip. When reversing a
+partly played forward clip, equal-duration media starts at the corresponding
+reverse time. If durations differ by more than 15%, the deterministic fallback
+plays the reverse clip from its beginning.
+
+Keyboard and presentation-remote controls are:
+
+| Input | Action |
+| :--- | :--- |
+| Space, Right, Page Down | Finish animation; press again to advance |
+| Left, Page Up | Finish active reverse playback or go backward |
+| R | Replay the current forward animation |
+| P | Pause or resume at the configured playback rate |
+| N | Toggle safely rendered notes |
+| O | Toggle overview; selecting a slide jumps to its held end frame |
+| F | Enter or exit Present mode |
+| ? | Show help |
+| Escape | Close an overlay or exit Present mode |
+
+A primary click or tap, a leftward swipe, and the **Next** button use the same
+two-step forward behavior as Space: the first input finishes an animation that
+is still playing, and the next advances. A rightward swipe goes backward. An
+upward swipe enters a following vertical slide, and a downward swipe leaves the
+current vertical slide. Repeating Back while reverse playback is active finishes
+that transition deterministically. Each gesture dispatches at most one command.
+
+The **Present** button (or F) enters a clean presentation mode that hides the
+controls, slide position, and progress bar while keeping explicitly requested
+overlays available. The player requests browser fullscreen from the same user
+gesture. If fullscreen is unavailable or denied, the clean viewport-filling mode
+still works. Leaving browser fullscreen also leaves Present mode, and Escape
+restores the ordinary viewer chrome. F is deliberately the single command for
+both behaviors, avoiding separate fullscreen and presentation states.
+
+F5 is not assigned: Chromium and other browsers reserve it for reloading the
+current page, so the player cannot handle it consistently without risking lost
+presentation state. Chrome documents F5 as a reload shortcut in its
+[keyboard shortcut reference](https://support.google.com/chrome/answer/157179).
+
+Browsers may reject playback until the user interacts with the page, especially
+when externally supplied media contains audio. The player then shows a clear
+play button and remains paused instead of claiming to be playing. Without a
+reduced-motion preference, the first slide and each newly entered forward slide
+start automatically, subject to that browser policy. With
+`prefers-reduced-motion: reduce`, the first animation remains paused on its
+starting frame until the viewer chooses **Play animation**, **Replay**, or
+**Present**. That affirmative choice enables forward and reverse autoplay for
+the lifetime of that player instance, without changing the operating-system
+preference or writing persistent storage. Reloading the document resets the
+choice. Navigation, notes, and direct jumps remain available before opt-in.
+
+### Browser, accessibility, and embedding notes
+
+The player targets current desktop and mobile browsers with Blob URLs,
+`playsinline`, and standard HTML media support. Chromium is the required tested
+baseline. Actual codec support is browser- and operating-system-dependent; an
+unsupported or missing asset produces a slide- and role-specific error with
+retry and navigation controls.
+
+Controls are semantic buttons with visible keyboard focus and 44 CSS-pixel touch
+targets. Viewport sizing uses dynamic viewport units and safe-area insets. The
+player's CSS and input listeners are scoped to its root. In an embedded host,
+keyboard events are handled only while the player or one of its controls has
+focus, and pointer handling does not originate outside the player.
+
+The generated CSS class names and DOM structure are implementation details, not
+a compatibility API. For durable custom layout, place the generated file in a
+responsive `iframe`, or override only the outer `.manim-slides-player` size in a
+host integration and test it against the Manim Slides versions you support.
+
+Image slides use their static image for both logical directions. `loop`,
+`auto_next`, forward and reverse playback rates, notes, direction, multiple
+scenes, resolution, and background color come from the existing slide metadata.
+
+## Configuring the RevealJS template
 
 Many configuration options are available through the `-c<option>=<value>` syntax.
 Most, if not all, RevealJS options should be available by default. If that is
@@ -27,7 +135,7 @@ You can print the list of available options with:
 manim-slides convert --show-config
 ```
 
-## Using a Custom Template
+## Using a Custom RevealJS template
 
 The default template used for HTML conversion can be found on
 [GitHub](https://github.com/jeertmans/manim-slides/blob/main/manim_slides/templates/revealjs.html)
