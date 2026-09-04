@@ -127,7 +127,9 @@ def merge_basenames(files: list[Path]) -> Path:
 
     # We use hashes to prevent too-long filenames, see issue #123:
     # https://github.com/jeertmans/manim-slides/issues/123
-    basename = hashlib.sha256(basenames_str.encode()).hexdigest()
+    # Hash is truncated to 16 hex chars (64 bits) to keep total path length
+    # under Windows MAX_PATH (260 chars) — see issue #540.
+    basename = hashlib.sha256(basenames_str.encode()).hexdigest()[:16]
 
     logger.debug(f"Generated a new basename for basenames: {basenames} -> '{basename}'")
 
