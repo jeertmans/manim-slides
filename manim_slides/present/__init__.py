@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import Literal
 
 import click
-from click import Context, Parameter
+from click import Context, Parameter, ParameterSource
 from pydantic import ValidationError
 
 from ..commons import config_path_option, folder_path_option, verbosity_option
@@ -195,8 +195,9 @@ def start_at_callback(
 @click.option(
     "--aspect-ratio",
     type=click.Choice(["keep", "ignore"], case_sensitive=False),
-    default=None,
+    default="keep",
     help="Set the aspect ratio mode to be used when rescaling the video.",
+    show_default=True,
 )
 @click.option(
     "--sa",
@@ -240,7 +241,7 @@ def start_at_callback(
     "--playback-rate",
     metavar="RATE",
     type=float,
-    default=None,
+    default=1.0,
     help="Playback rate of the video slides, see PySide6 docs for details. "
     " The playback rate of each slide is defined as the product of its default "
     " playback rate and the provided value.",
@@ -280,7 +281,9 @@ def start_at_callback(
 )
 @click.help_option("-h", "--help")
 @verbosity_option
+@click.pass_context
 def present(  # noqa: C901
+    ctx: Context,
     scenes: list[str],
     config_path: Path,
     folder: Path,
@@ -289,12 +292,12 @@ def present(  # noqa: C901
     skip_all: str | None,
     exit_after_last_slide: str | None,
     hide_mouse: str | None,
-    aspect_ratio: str | None,
+    aspect_ratio: str,
     start_at: tuple[int | None, int | None, int | None],
     start_at_scene_number: int,
     start_at_slide_number: int,
     screen_number: int | None,
-    playback_rate: float | None,
+    playback_rate: float,
     next_terminates_loop: str | None,
     hide_info_window: Literal["always", "never"] | None,
     info_window_screen_number: int | None,
@@ -322,41 +325,42 @@ def present(  # noqa: C901
 
     defaults = config.defaults
 
-    # Apply config defaults where CLI didn't override (value is None)
-    resolved_start_paused: bool = (
-        start_paused == "true"
-        if start_paused is not None
-        else (defaults.start_paused or False)
-    )
-    resolved_full_screen: bool = (
-        full_screen == "true"
-        if full_screen is not None
-        else (defaults.full_screen or False)
-    )
-    resolved_skip_all: bool = (
-        skip_all == "true" if skip_all is not None else (defaults.skip_all or False)
-    )
-    resolved_exit_after_last_slide: bool = (
-        exit_after_last_slide == "true"
-        if exit_after_last_slide is not None
-        else (defaults.exit_after_last_slide or False)
-    )
-    resolved_hide_mouse: bool = (
-        hide_mouse == "true"
-        if hide_mouse is not None
-        else (defaults.hide_mouse or False)
-    )
-    aspect_ratio = (
-        aspect_ratio if aspect_ratio is not None else (defaults.aspect_ratio or "keep")
-    )
-    playback_rate = (
-        playback_rate if playback_rate is not None else (defaults.playback_rate or 1.0)
-    )
-    resolved_next_terminates_loop: bool = (
-        next_terminates_loop == "true"
-        if next_terminates_loop is not None
-        else (defaults.next_terminates_loop or False)
-    )
+    # Config-file values apply only where the CLI is silent, so an explicit
+    # flag always wins. Boolean flags are tri-state ("true"/"false"/None via
+    # the --opt/--no-opt pairs); valued options keep their real defaults and
+    # are resolved through the parameter source, so None stays a usable value
+    # and --help keeps printing the actual defaults.
+    resolved: dict[str, bool] = {}
+    for name in (
+        "start_paused",
+        "full_screen",
+        "skip_all",
+        "exit_after_last_slide",
+        "hide_mouse",
+        "next_terminates_loop",
+    ):
+        cli_value: str | None = ctx.params[name]
+        if cli_value is not None:
+            resolved[name] = cli_value == "true"
+        else:
+            configured: bool | None = getattr(defaults, name)
+            resolved[name] = configured if configured is not None else False
+    resolved_start_paused = resolved["start_paused"]
+    resolved_full_screen = resolved["full_screen"]
+    resolved_skip_all = resolved["skip_all"]
+    resolved_exit_after_last_slide = resolved["exit_after_last_slide"]
+    resolved_hide_mouse = resolved["hide_mouse"]
+    resolved_next_terminates_loop = resolved["next_terminates_loop"]
+
+    cli_silent = {
+        name
+        for name in ("aspect_ratio", "playback_rate")
+        if ctx.get_parameter_source(name) is not ParameterSource.COMMANDLINE
+    }
+    if "aspect_ratio" in cli_silent and defaults.aspect_ratio is not None:
+        aspect_ratio = defaults.aspect_ratio
+    if "playback_rate" in cli_silent and defaults.playback_rate is not None:
+        playback_rate = defaults.playback_rate
 
     if resolved_skip_all:
         resolved_exit_after_last_slide = True
