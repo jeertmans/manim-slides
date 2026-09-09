@@ -12,6 +12,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added support for specifying default values of command-line options in
+  configuration files, using the new `[defaults.<command>]` sections, e.g.,
+  `[defaults.present]` or `[defaults.convert]`. Defaults are read from a global
+  configuration file (e.g., `~/.config/manim-slides/manim-slides.toml` on Linux)
+  and from local `.manim-slides.toml` files found in the current directory or
+  its parents (closest file wins). Command-line options always take precedence.
+  [#535](https://github.com/jeertmans/manim-slides/issues/535)
 - Added `firebase_sync.html` template to enable realtime slide syncing via
   Firebase Realtime Database, including a usage guide in the templates
   directory. [@liuktc](https://github.com/liuktc) [#638](https://github.com/jeertmans/manim-slides/pull/638)

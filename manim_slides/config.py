@@ -16,6 +16,7 @@ from pydantic import (
     FilePath,
     PositiveInt,
     PrivateAttr,
+    RootModel,
     field_serializer,
     field_validator,
     model_validator,
@@ -144,10 +145,67 @@ class Keys(BaseModel):
         return dispatch
 
 
+class CommandDefaults(RootModel[dict[str, dict[str, Any]]]):
+    """
+    Mapping of command names (e.g., ``present``) to option defaults.
+
+    Keys within each command are option names, e.g., ``full_screen``.
+    Values must be scalars, or a list of scalars for options that
+    can be repeated.
+    """
+
+    @staticmethod
+    def _validate_value(key: str, value: Any) -> None:
+        if isinstance(value, dict):
+            raise ValueError(  # noqa: TRY004 (pydantic only catches ValueError)
+                f"Defaults for '{key}': nested tables are not supported, "
+                "please use scalar values (or lists of scalars) only."
+            )
+        if isinstance(value, list) and any(isinstance(v, (dict, list)) for v in value):
+            raise ValueError(
+                f"Defaults for '{key}': lists must only contain scalar "
+                "values (str, int, float, bool) and not nested tables or lists."
+            )
+
+    @model_validator(mode="before")
+    @classmethod
+    def _validate(cls, values: Any) -> Any:
+        if not isinstance(values, dict):
+            raise ValueError(  # noqa: TRY004 (pydantic only catches ValueError)
+                "Invalid defaults: expected a table of command names to tables "
+                f"of option names to values, got {type(values).__name__}."
+            )
+
+        for command, defaults in values.items():
+            if not isinstance(defaults, dict):
+                raise ValueError(  # noqa: TRY004 (pydantic only catches ValueError)
+                    f"Invalid defaults for command '{command}': expected a table "
+                    f"of option names to values, got {type(defaults).__name__}."
+                )
+            for key, value in defaults.items():
+                cls._validate_value(f"{command}.{key}", value)
+        return values
+
+    def merge_with(self, other: "CommandDefaults") -> "CommandDefaults":
+        """Merge with other command defaults, with other taking precedence."""
+        root = self.root
+        for command, defaults in other.root.items():
+            root.setdefault(command, {}).update(defaults)
+
+        return self
+
+
 class Config(BaseModel):
     """General Manim Slides config."""
 
     keys: Keys = Field(default_factory=Keys)
+    defaults: CommandDefaults = Field(
+        default_factory=lambda: CommandDefaults({}),
+        description=(
+            "Default options for commands, e.g.,\n"
+            "[defaults.present]\nfull_screen = true"
+        ),
+    )
 
     @classmethod
     def from_file(cls, path: Path) -> "Config":
@@ -161,6 +219,7 @@ class Config(BaseModel):
     def merge_with(self, other: "Config") -> "Config":
         """Merge with another config."""
         self.keys = self.keys.merge_with(other.keys)
+        self.defaults = self.defaults.merge_with(other.defaults)
         return self
 
 

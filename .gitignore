@@ -1,6 +1,7 @@
 # Python files
 __pycache__/
 /env
+/.venv
 /build
 /dist
 *.egg-info/
