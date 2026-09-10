@@ -1,6 +1,6 @@
 # Internals
 
-Manim-Slides' work in split in two steps: first, when rendering animation, and, second, when converting multiple animations into one slides presentation.
+Manim-Slides' work is split in two steps: first, when rendering animation, and, second, when converting multiple animations into one slides presentation.
 
 ## Rendering
 

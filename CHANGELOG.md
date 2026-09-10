@@ -28,6 +28,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Migrated static type checking from `mypy` to [`ty`](https://github.com/astral-sh/ty).
   [#636](https://github.com/jeertmans/manim-slides/pull/636)
+- Moved the `ty` type-checking hook from pre-commit.ci, which does not allow
+  the network access it needs, to a dedicated GitHub Actions job.
+  [@Rodbourn](https://github.com/Rodbourn) [#682](https://github.com/jeertmans/manim-slides/pull/682)
 
 ### Fixed
 
