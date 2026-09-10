@@ -329,7 +329,7 @@ class RevealTheme(str, StrEnum):
     night = "night"
     serif = "serif"
     simple = "simple"
-    soralized = "solarized"
+    solarized = "solarized"
     blood = "blood"
     moon = "moon"
     black_contrast = "black-contrast"
