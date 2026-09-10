@@ -212,7 +212,8 @@ def test_unquoted_enum(enum_type: type[Enum]) -> None:
 
 def test_reveal_theme_members() -> None:
     for member in RevealTheme:
-        assert member.name.replace("_", "-") == member.value
+        if member.name.replace("_", "-") != member.value:
+            raise AssertionError(f"Expected {member.value}, got {member.name}")
 
 
 class TestConverter:

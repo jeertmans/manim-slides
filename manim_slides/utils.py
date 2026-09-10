@@ -31,7 +31,7 @@ def add_stream_from_template_legacy(
     return add_stream(template=template)
 
 
-def concatenate_video_files(files: list[Path], dest: Path) -> None:
+def concatenate_video_files(files: list[Path], dest: Path) -> None:  # noqa: C901
     """Concatenate multiple video files into one."""
     if len(files) == 1:
         shutil.copy(files[0], dest)
