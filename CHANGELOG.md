@@ -50,6 +50,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed `concatenate_video_files` failing with non monotonous dts and added test. [@wuerfelfreak](https://github.com/wuerfelfreak) [#680](https://github.com/jeertmans/manim-slides/pull/680)
 - Fixed animation stuttering when triggering loop termination in a non-interrupting fashion (using `--next-terminates-loop` flag) mid-animation.
   [@melyso](https://github.com/melyso) [#605](https://github.com/jeertmans/manim-slides/pull/605)
+- Fixed typo in `RevealTheme` member name where `solarized` was misspelled as `soralized`.
+  [@ajlaanayan-crypto](https://github.com/ajlaanayan-crypto) [#692](https://github.com/jeertmans/manim-slides/pull/692)
 
 (v5.6.0)=
 ## [v5.6.0](https://github.com/jeertmans/manim-slides/compare/v5.5.4...v5.6.0)

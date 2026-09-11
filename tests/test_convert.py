@@ -210,6 +210,12 @@ def test_unquoted_enum(enum_type: type[Enum]) -> None:
         assert expected == got
 
 
+def test_reveal_theme_members() -> None:
+    for member in RevealTheme:
+        if member.name.replace("_", "-") != member.value:
+            raise AssertionError(f"Expected {member.value}, got {member.name}")
+
+
 class TestConverter:
     @pytest.mark.parametrize(
         ("name", "converter"),
