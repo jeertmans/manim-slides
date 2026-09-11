@@ -628,6 +628,9 @@ class Player(QMainWindow):
 
     @Slot()
     def replay(self) -> None:
+        self.__prev_pos = -1
+        self.__termination_requested = False
+        self.__termination_achieved = False
         self.media_player.setPosition(0)
         self.media_player.play()
 
