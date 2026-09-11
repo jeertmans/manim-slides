@@ -1,10 +1,14 @@
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/jeertmans/manim-slides/main/static/logo_dark_transparent.png">
-  <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/jeertmans/manim-slides/main/static/logo_light_transparent.png">
-  <img alt="Manim Slides Logo" src="https://raw.githubusercontent.com/jeertmans/manim-slides/main/static/logo.png">
-</picture>
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/jeertmans/manim-slides/main/static/logo_dark_transparent.png">
+    <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/jeertmans/manim-slides/main/static/logo_light_transparent.png">
+    <img alt="Manim Slides Logo" src="https://raw.githubusercontent.com/jeertmans/manim-slides/main/static/logo.png" width="480">
+  </picture>
+</p>
 
 <!-- start pypi -->
+
+<div align="center">
 
 [![Latest Release][pypi-version-badge]][pypi-version-url]
 [![Python version][pypi-python-version-badge]][pypi-version-url]
@@ -15,53 +19,90 @@
 [![codecov][codecov-badge]][codecov-url]
 [![Binder][binder-badge]][binder-url]
 
-# Manim Slides
+# 🎬 Manim Slides
 
-Tool for live presentations using either
-[Manim (community edition)](https://www.manim.community/)
-or [ManimGL](https://3b1b.github.io/manim/).
-Manim Slides will *automatically* detect the one you are using!
+**Transform mathematical animations into sleek, interactive presentations.**
+
+Works automatically with both **[Manim Community Edition](https://www.manim.community/)** and **[3Blue1Brown's ManimGL](https://3b1b.github.io/manim/)**!
+
+[📖 Documentation](https://eertmans.be/manim-slides/) •
+[🚀 Quick Start](#-usage) •
+[✨ Key Features](#-key-features) •
+[📊 Comparison](#-comparison-with-similar-tools) •
+[🤝 Contributing](#-contributing)
+
+</div>
+
+---
 
 > [!NOTE]
-> This project extends the work of
-> [`manim-presentation`](https://github.com/galatolofederico/manim-presentation),
-> with a lot more features!
+> This project extends the pioneering work of [`manim-presentation`](https://github.com/galatolofederico/manim-presentation) with a rich set of modern presentation features, offline exporting, and web synchronization!
 
-- [Installation](#installation)
-- [Usage](#usage)
-- [Comparison with Similar Tools](#comparison-with-similar-tools)
-- [F.A.Q](https://eertmans.be/manim-slides/latest/faq.html)
-- [Citing](#citing)
-- [Contributing](#contributing)
-  * [Reporting an Issue](#reporting-an-issue)
-  * [Seeking for Help](#seeking-for-help)
-  * [Contact](#contact)
+---
 
-## Installation
+## ✨ Key Features
 
-Manim Slides requires either Manim or ManimGL to be installed, along
-with their dependencies. Please checkout the
-[documentation](https://eertmans.be/manim-slides/latest/installation.html)
-for detailed install instructions.
+<div align="center">
 
-## Usage
+| Feature | Description |
+| :--- | :--- |
+| ⚡ **Dual Engine Auto-Detection** | Seamlessly works with both `manim` (Community) and `manimgl` without configuration. |
+| 🎮 **Live Interactive Presenter** | Fluid playback, slide-reversal, pause-on-demand, and looping animations. |
+| 📦 **Multi-Format Export** | Export directly to **Reveal.js HTML**, **PowerPoint PPTX**, **PDF**, or **HTML Zip**. |
+| 📡 **Real-Time Web Sync** | Synchronize slide state and live laser pointers with audience via Firebase. |
+| ⌨️ **Intuitive Keybindings** | Instant shortcuts to replay slides (`R`), toggle controls (`C`), and show help (`?`). |
+| 🎨 **Theme Flexibility** | Full support for dark and light modes (`white`, `black`, `solarized`, etc.). |
+
+</div>
+
+---
+
+## 🗺️ Visual Presentation Workflow
+
+```mermaid
+graph LR
+    classDef step fill:#1e1e2e,stroke:#89b4fa,stroke-width:2px,color:#cdd6f4;
+    classDef branch fill:#313244,stroke:#f9e2af,stroke-width:2px,color:#cdd6f4;
+    classDef target fill:#181825,stroke:#a6e3a1,stroke-width:2px,color:#cdd6f4;
+
+    A["📝 <b>Write Code</b><br>Inherit from <code>Slide</code>"]:::step --> B["🎬 <b>Add Animations</b><br>Call <code>self.next_slide()</code>"]:::step
+    B --> C["⚙️ <b>Render Scenes</b><br><code>manim-slides render</code>"]:::step
+    C --> D{"🎯 <b>Select Destination</b>"}:::branch
+
+    D -->|"Desktop Screen"| E["🖥️ <b>Native Qt Player</b><br><code>manim-slides present</code>"]:::target
+    D -->|"Web Browser"| F["🌐 <b>Reveal.js HTML</b><br>Standalone or Hosted"]:::target
+    D -->|"Slideshow File"| G["📊 <b>PowerPoint Deck</b><br>Editable <code>.pptx</code> format"]:::target
+    D -->|"Handout / Print"| H["📄 <b>Vector PDF</b><br>Slide-by-slide export"]:::target
+```
+
+---
+
+## 💻 Installation
+
+Manim Slides requires either **Manim** or **ManimGL** to be installed, along with their respective system dependencies (such as FFmpeg).
+
+```bash
+# Install with PyPI
+pip install manim-slides
+
+# Or install with uv (recommended for ultra-fast setup)
+uv pip install manim-slides
+```
+
+For platform-specific instructions (macOS, Linux, Windows), check out the [Installation Guide](https://eertmans.be/manim-slides/latest/installation.html).
+
+---
+
+## 🚀 Usage
 
 <!-- start usage -->
 
-Using Manim Slides is a two-step process:
-1. Render animations using `Slide` (resp. `ThreeDSlide`) as a base class instead
-   of `Scene` (resp. `ThreeDScene`), and add calls to `self.next_slide()`
-   every time you want to create a new slide.
-2. Run `manim-slides` on rendered animations and display them like a
-   *PowerPoint* presentation.
+Using Manim Slides is a simple two-step process:
 
-The documentation is available [online](https://eertmans.be/manim-slides/).
+1. **Write & Render**: Inherit from `Slide` (or `ThreeDSlide`) instead of `Scene`, and insert `self.next_slide()` wherever you want a pause.
+2. **Present & Share**: Run `manim-slides` to present animations like a native PowerPoint or export them to modern web decks.
 
-### Basic Example
-
-Call `self.next_slide()` every time you want to create a pause between
-animations, and `self.next_slide(loop=True)` if you want the next slide to loop
-over animations until the user presses continue:
+### 📝 Basic Example
 
 ```python
 from manim import *  # or: from manimlib import *
@@ -75,159 +116,187 @@ class BasicExample(Slide):
         dot = Dot()
 
         self.play(GrowFromCenter(circle))
-        self.next_slide()  # Waits user to press continue to go to the next slide
+        self.next_slide()  # Pauses presentation until you press NEXT
 
-        self.next_slide(loop=True)  # Start loop
+        self.next_slide(loop=True)  # Begins looping animation
         self.play(MoveAlongPath(dot, circle), run_time=2, rate_func=linear)
-        self.next_slide()  # This will start a new non-looping slide
+        self.next_slide()  # Exits loop and moves to the next slide
 
         self.play(dot.animate.move_to(ORIGIN))
 ```
 
-First, render the animation files:
+Render your slide scene using `manim-slides render`:
 
 ```bash
+# Render with Manim Community
 manim-slides render example.py BasicExample
-# or use ManimGL
+
+# Or render with ManimGL
 manim-slides render --GL example.py BasicExample
 ```
+
 <!-- end usage -->
 
 > [!NOTE]
-> Using `manim-slides render` makes sure to use the `manim`
-> (or `manimlib`) library that was installed in the same Python environment.
-> Put simply, this is a wrapper around
-> `manim render [ARGS]...` (or `manimgl [ARGS]...`).
+> `manim-slides render` automatically detects the Manim installation in your active virtual environment. It acts as an optimized wrapper around `manim render` and `manimgl`.
+
+---
+
+### 🖥️ Presenting Slides
 
 <!-- start more-usage -->
 
-To start the presentation using `Scene1`, `Scene2` and so on, run:
-
-```bash
-manim-slides [OPTIONS] Scene1 Scene2...
-```
-
-In our example:
+To launch the live presentation player:
 
 ```bash
 manim-slides BasicExample
 ```
 
+Or present multiple scenes in sequence:
+
+```bash
+manim-slides Scene1 Scene2 Scene3
+```
+
 <!-- end more-usage -->
 
 <p align="center">
-  <img alt="Example GIF" src="https://raw.githubusercontent.com/jeertmans/manim-slides/main/static/example.gif">
+  <img alt="Manim Slides Interactive Demo" src="https://raw.githubusercontent.com/jeertmans/manim-slides/main/static/example.gif" width="720">
 </p>
 
-For detailed usage documentation, run `manim-slides --help`, or go to the
-[documentation](https://eertmans.be/manim-slides/latest/reference/cli.html).
+---
 
-## Interactive Tutorial
+## ⌨️ Interactive Controls & Shortcuts
 
-Click on the image to watch a slides presentation that explains to you how
-to use Manim Slides.
+<details>
+<summary><b>🔍 Click to view Presentation Keyboard Shortcuts</b></summary>
 
-[![Manim Slides Docs](https://raw.githubusercontent.com/jeertmans/manim-slides/main/static/docs.png)](https://eertmans.be/manim-slides/)
+<br>
 
-## More Examples
+| Key | Action | Context | Description |
+| :--- | :--- | :--- | :--- |
+| <kbd>Space</kbd> | **Play / Pause** | All Players | Toggles video animation playback. |
+| <kbd>→</kbd> / <kbd>PageDown</kbd> | **Next Slide** | All Players | Advances to the next slide. |
+| <kbd>←</kbd> / <kbd>PageUp</kbd> | **Previous Slide** | All Players | Navigates back to the preceding slide. |
+| <kbd>R</kbd> | **Replay Slide** | Reveal.js & Qt | Rewinds and replays current slide animation. |
+| <kbd>C</kbd> | **Toggle Controls** | Reveal.js HTML | Shows/hides video seekbar scrubber. |
+| <kbd>F</kbd> | **Full Screen** | All Players | Toggles fullscreen presentation mode. |
+| <kbd>?</kbd> | **Help Overlay** | Reveal.js HTML | Displays complete keyboard shortcuts modal. |
+| <kbd>Q</kbd> | **Quit** | Native Player | Closes the presentation window. |
 
-More examples are available in the
-[`example.py`](https://github.com/jeertmans/manim-slides/blob/main/example.py)
-file, if you downloaded the git repository.
+</details>
 
-## Comparison with Similar Tools
+---
 
-There exists a variety of tools that allows to create slides presentations
-containing Manim animations.
+## 🌐 Exporting to Other Formats
 
-Below is a comparison of the most used ones with Manim Slides:
+Convert your animations for the web, documents, or conference slideshows:
 
-| Project name | Manim Slides | Manim Presentation | Manim Editor | Jupyter Notebooks |
-|:------------:|:------------:|:------------------:|:------------:|:-----------------:|
-| Link | [![GitHub Repo stars](https://img.shields.io/github/stars/jeertmans/manim-slides?style=social)](https://github.com/jeertmans/manim-slides) | [![GitHub Repo stars](https://img.shields.io/github/stars/galatolofederico/manim-presentation?style=social)](https://github.com/galatolofederico/manim-presentation) | [![GitHub Repo stars](https://img.shields.io/github/stars/ManimCommunity/manim_editor?style=social)](https://github.com/ManimCommunity/manim_editor) | [![GitHub Repo stars](https://img.shields.io/github/stars/jupyter/notebook?style=social)](https://github.com/jupyter/notebook) |
-| Activity | [![GitHub Repo stars](https://img.shields.io/github/last-commit/jeertmans/manim-slides?style=social)](https://github.com/jeertmans/manim-slides) | [![GitHub Repo stars](https://img.shields.io/github/last-commit/galatolofederico/manim-presentation?style=social)](https://github.com/galatolofederico/manim-presentation) | [![GitHub Repo stars](https://img.shields.io/github/last-commit/ManimCommunity/manim_editor?style=social)](https://github.com/ManimCommunity/manim_editor) | [![GitHub Repo stars](https://img.shields.io/github/last-commit/jupyter/notebook?style=social)](https://github.com/jupyter/notebook) |
-| Usage | Command-line | Command-line | Web Browser | Notebook |
-| Note | Requires minimal modif. in scenes files | Requires minimal modif. in scenes files |  Requires the usage of sections, and configuration through graphical interface | Relies on `nbconvert` to create slides from a Notebook |
-| Support for ManimGL | Yes | No | No | No |
-| Web Browser presentations | Yes | No | Yes | No |
-| Offline presentations | Yes, with Qt, [RevealJS](https://revealjs.com/) (any web browser), or PowerPoint | Yes, with OpenCV | No | No
+```bash
+# Export to Reveal.js HTML (Light Theme)
+manim-slides convert BasicExample presentation.html -c reveal_theme=white
 
-## Citing
+# Export all assets self-contained in a single HTML file
+manim-slides convert BasicExample presentation.html --one-file
 
-If you use this software, please cite it using as:
+# Export to PowerPoint (.pptx)
+manim-slides convert BasicExample presentation.pptx
+
+# Export to Printable PDF
+manim-slides convert BasicExample presentation.pdf
+```
+
+---
+
+## 🎥 Interactive Tutorial
+
+Click on the thumbnail below to launch an interactive presentation explaining how to use Manim Slides:
+
+<p align="center">
+  <a href="https://eertmans.be/manim-slides/">
+    <img alt="Manim Slides Interactive Tutorial" src="https://raw.githubusercontent.com/jeertmans/manim-slides/main/static/docs.png" width="700">
+  </a>
+</p>
+
+---
+
+## 📊 Comparison with Similar Tools
+
+Below is a side-by-side comparison of tools used to present mathematical Manim animations:
+
+| Feature / Project | 🎬 **Manim Slides** | 📽️ **Manim Presentation** | 💻 **Manim Editor** | 📓 **Jupyter Notebooks** |
+| :--- | :---: | :---: | :---: | :---: |
+| **GitHub Stars** | [![GitHub Stars][stars-slides]][repo-slides] | [![GitHub Stars][stars-presentation]][repo-presentation] | [![GitHub Stars][stars-editor]][repo-editor] | [![GitHub Stars][stars-jupyter]][repo-jupyter] |
+| **Last Activity** | [![Last Commit][commit-slides]][repo-slides] | [![Last Commit][commit-presentation]][repo-presentation] | [![Last Commit][commit-editor]][repo-editor] | [![Last Commit][commit-jupyter]][repo-jupyter] |
+| **Primary Interface** | Command-Line & GUI | Command-Line | Web Browser GUI | Notebook Cells |
+| **Scene Modifications** | Minimal (`Slide`) | Minimal (`Presentation`) | Sections Required | `nbconvert` Setup |
+| **ManimGL Support** | ✅ **Yes** | ❌ No | ❌ No | ❌ No |
+| **HTML Export** | ✅ **Reveal.js + Cloud** | ❌ No | ✅ Yes | ❌ No |
+| **PowerPoint Export** | ✅ **Yes (`.pptx`)** | ❌ No | ❌ No | ❌ No |
+| **PDF Export** | ✅ **Yes (`.pdf`)** | ❌ No | ❌ No | ❌ No |
+| **Offline Presentations** | ✅ **Qt, RevealJS, PPTX** | ✅ OpenCV | ❌ No | ❌ No |
+
+---
+
+## 📚 Citing Manim Slides
+
+If you use Manim Slides in academic research, lectures, or conference talks, please cite:
 
 ```bibtex
 @article{Jerome_Eertmans_Manim_Slides_A_2023,
-	title   = {{Manim Slides: A Python package for presenting Manim content anywhere}},
-	author  = {{Jérome Eertmans}},
-	year    = 2023,
-	month   = aug,
-	journal = {Journal of Open Source Education},
-	volume  = 6,
-	doi     = {10.21105/jose.00206}
+    title   = {{Manim Slides: A Python package for presenting Manim content anywhere}},
+    author  = {{Jérome Eertmans}},
+    year    = 2023,
+    month   = aug,
+    journal = {Journal of Open Source Education},
+    volume  = 6,
+    doi     = {10.21105/jose.00206}
 }
 ```
 
-or by linking this GitHub repository at the end of your presentation.
+---
 
-Other citation formats can be obtained by clicking on the *Cite this repository* button on this page.
+## 🤝 Contributing
 
-## Contributing
+We warmly welcome contributions of all kinds! Please read through our [Contributing Guidelines](https://eertmans.be/manim-slides/latest/contributing/index.html) to get started.
 
-Contributions are more than welcome! Please read through
-[our contributing section](https://eertmans.be/manim-slides/latest/contributing/index.html).
-
-### Reporting an Issue
+### 🐛 Reporting an Issue
 
 <!-- start reporting-an-issue -->
 
-If you think you found a bug,
-an error in the documentation,
-or wish there was some feature that is currently missing,
-we would love to hear from you!
+If you think you found a bug, an error in the documentation, or wish there was a feature currently missing, we would love to hear from you!
 
-The best way to reach us is via the
-[GitHub issues](https://github.com/jeertmans/manim-slides/issues).
-If your problem is not covered by an already existing (closed or open) issue,
-then we suggest you create a
-[new issue](https://github.com/jeertmans/manim-slides/issues/new/choose).
-You can choose from a list of templates, or open a
-[blank issue](https://github.com/jeertmans/manim-slides/issues/new)
-if your issue does not fit one of the proposed topics.
-
-The more precise you are in the description of your problem, the faster we will
-be able to help you!
+The best way to reach us is via [GitHub Issues](https://github.com/jeertmans/manim-slides/issues). If your problem is not covered by an existing issue, please [create a new issue](https://github.com/jeertmans/manim-slides/issues/new/choose).
 
 <!-- end reporting-an-issue -->
 
-### Seeking for help
+### 💬 Seeking for Help
 
 <!-- start seeking-for-help -->
 
-Sometimes, you may have a question about Manim Slides,
-not necessarily an issue.
-
-First, make sure to read the
-[F.A.Q](https://eertmans.be/manim-slides/latest/faq.html) to see if
-your question has already been answered. If not, please follow the
-recommendation (from that page) to reach us for questions.
+Have a question about using Manim Slides? First check the [F.A.Q](https://eertmans.be/manim-slides/latest/faq.html) to see if it has been answered. If not, feel free to open a discussion in GitHub Issues.
 
 <!-- end seeking-for-help -->
 
-### Contact
+### 📬 Contact
 
 <!-- start contact -->
 
-Finally, if you do not have any GitHub account,
-or just wish to contact the author of Manim Slides,
-you can do so at: [jeertmans@icloud.com](mailto:jeertmans@icloud.com).
+If you do not have a GitHub account or wish to contact the author directly, reach out at [jeertmans@icloud.com](mailto:jeertmans@icloud.com).
 
 <!-- end contact -->
 
-[pypi-version-badge]: https://img.shields.io/pypi/v/manim-slides?label=manim-slides
+---
+
+<div align="center">
+  <sub>Built with ❤️ for mathematical presentations and educator communities. Distributed under the MIT License.</sub>
+</div>
+
+<!-- Badges & Links Reference Definitions -->
+[pypi-version-badge]: https://img.shields.io/pypi/v/manim-slides?label=manim-slides&color=blue
 [pypi-version-url]: https://pypi.org/project/manim-slides/
 [pypi-python-version-badge]: https://img.shields.io/pypi/pyversions/manim-slides
-[pypi-download-badge]: https://img.shields.io/pypi/dm/manim-slides
+[pypi-download-badge]: https://img.shields.io/pypi/dm/manim-slides?color=green
 [documentation-badge]: https://readthedocs.org/projects/manim-slides/badge/?version=latest
 [documentation-url]: https://manim-slides.readthedocs.io/
 [doi-badge]: https://zenodo.org/badge/DOI/10.5281/zenodo.7971360.svg
@@ -238,3 +307,19 @@ you can do so at: [jeertmans@icloud.com](mailto:jeertmans@icloud.com).
 [codecov-url]: https://codecov.io/gh/jeertmans/manim-slides
 [binder-badge]: https://mybinder.org/badge_logo.svg
 [binder-url]: https://mybinder.org/v2/gh/jeertmans/manim-slides-binder/HEAD?filepath=getting_started.ipynb
+
+[repo-slides]: https://github.com/jeertmans/manim-slides
+[stars-slides]: https://img.shields.io/github/stars/jeertmans/manim-slides?style=social
+[commit-slides]: https://img.shields.io/github/last-commit/jeertmans/manim-slides?style=social
+
+[repo-presentation]: https://github.com/galatolofederico/manim-presentation
+[stars-presentation]: https://img.shields.io/github/stars/galatolofederico/manim-presentation?style=social
+[commit-presentation]: https://img.shields.io/github/last-commit/galatolofederico/manim-presentation?style=social
+
+[repo-editor]: https://github.com/ManimCommunity/manim_editor
+[stars-editor]: https://img.shields.io/github/stars/ManimCommunity/manim_editor?style=social
+[commit-editor]: https://img.shields.io/github/last-commit/ManimCommunity/manim_editor?style=social
+
+[repo-jupyter]: https://github.com/jupyter/notebook
+[stars-jupyter]: https://img.shields.io/github/stars/jupyter/notebook?style=social
+[commit-jupyter]: https://img.shields.io/github/last-commit/jupyter/notebook?style=social
