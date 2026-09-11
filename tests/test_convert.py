@@ -598,11 +598,17 @@ class TestConverter:
     ) -> None:
         out_file = tmp_path / "slides.html"
         RevealJS(presentation_configs=[presentation_config]).convert_to(out_file)
-        assert out_file.exists()
+        if not out_file.exists():
+            raise AssertionError(f"{out_file} does not exist")
         content = out_file.read_text(encoding="utf-8")
-        assert "key: 'R'" in content
-        assert "description: 'Replay current slide'" in content
-        assert "key: 'C'" in content
-        assert "description: 'Toggle video controls'" in content
-        assert "key: '?'" in content
-        assert "description: 'Toggle help'" in content
+        expected_snippets = [
+            "key: 'R'",
+            "description: 'Replay current slide'",
+            "key: 'C'",
+            "description: 'Toggle video controls'",
+            "key: '?'",
+            "description: 'Toggle help'",
+        ]
+        for snippet in expected_snippets:
+            if snippet not in content:
+                raise AssertionError(f"Expected {snippet!r} in {out_file}")
