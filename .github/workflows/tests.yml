@@ -12,6 +12,28 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  typecheck:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v7
+
+    # `manimpango` and `pycairo`, pulled in by the `manimgl` extra, publish no
+    # Linux wheels, so they are built from source and need the cairo / pango
+    # development headers, see #682.
+    - name: Install manim build dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y build-essential pkg-config libcairo2-dev libpango1.0-dev
+
+    - name: Setup uv
+      uses: astral-sh/setup-uv@v7
+      with:
+        enable-cache: true
+
+    - name: Run type checks
+      run: uvx pre-commit run ty --all-files
+
   pip-install:
     strategy:
       fail-fast: false
