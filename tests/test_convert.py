@@ -592,3 +592,17 @@ class TestConverter:
         out_file = tmp_path / "slides.pptx"
         PowerPoint(presentation_configs=[presentation_config]).convert_to(out_file)
         assert out_file.exists()
+
+    def test_revealjs_keybindings(
+        self, tmp_path: Path, presentation_config: PresentationConfig
+    ) -> None:
+        out_file = tmp_path / "slides.html"
+        RevealJS(presentation_configs=[presentation_config]).convert_to(out_file)
+        assert out_file.exists()
+        content = out_file.read_text(encoding="utf-8")
+        assert "key: 'R'" in content
+        assert "description: 'Replay current slide'" in content
+        assert "key: 'C'" in content
+        assert "description: 'Toggle video controls'" in content
+        assert "key: '?'" in content
+        assert "description: 'Toggle help'" in content

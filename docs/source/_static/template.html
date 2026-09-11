@@ -296,6 +296,46 @@
           }
         }
       );
+      // Replay current slide using 'R'
+      Reveal.addKeyBinding(
+        {
+          keyCode: 82,
+          key: 'R',
+          description: 'Replay current slide'
+        },
+        () => {
+          var currentVideos = Reveal.getCurrentSlide().slideBackgroundContentElement.getElementsByTagName("video");
+          if (currentVideos.length > 0) {
+            currentVideos[0].currentTime = 0;
+            currentVideos[0].play();
+          }
+        }
+      );
+      // Toggle video controls using 'C'
+      Reveal.addKeyBinding(
+        {
+          keyCode: 67,
+          key: 'C',
+          description: 'Toggle video controls'
+        },
+        () => {
+          var currentVideos = Reveal.getCurrentSlide().slideBackgroundContentElement.getElementsByTagName("video");
+          if (currentVideos.length > 0) {
+            currentVideos[0].controls = !currentVideos[0].controls;
+          }
+        }
+      );
+      // Toggle shortcuts help overlay using '?'
+      Reveal.addKeyBinding(
+        {
+          keyCode: 191,
+          key: '?',
+          description: 'Toggle help'
+        },
+        () => {
+          Reveal.toggleHelp();
+        }
+      );
       {% if one_file %}
       // Fix found by @t-fritsch and @Rapsssito on GitHub
       // see: https://github.com/hakimel/reveal.js/discussions/3362#discussioncomment-11733074.
