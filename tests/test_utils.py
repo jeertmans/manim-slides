@@ -66,7 +66,7 @@ def test_concatenate_video_files_quoted_path(video_file: Path, tmp_path: Path) -
 def test_issue540(slides_file: Path) -> None:
     runner = CliRunner()
 
-    with runner.isolated_filesystem() as tmp_dir:
+    with runner.isolated_filesystem():
         results = runner.invoke(cli, ["render", str(slides_file), "Issue540", "-ql"])
 
         assert results.exit_code == 0, results.output
