@@ -1,3 +1,16 @@
+<!-- markdownlint-configure-file {
+  "MD043": {
+    "headings": [
+      "# Contributor Guide for AI Assistants",
+      "## Repository map",
+      "## Working agreement",
+      "## Required local checks",
+      "## Checks required by the changed area",
+      "## CI expectations"
+    ]
+  }
+} -->
+
 # Contributor Guide for AI Assistants
 
 This file is the short operational entry point for contributors using an AI
