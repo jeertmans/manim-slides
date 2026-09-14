@@ -16,12 +16,12 @@ your own issue or discussion on GitHub!
 
 Everything related to installing Manim-Slides.
 
-Please do not forget the carefully read through
+Please do not forget to carefully read through
 the [installation](/installation) page!
 
 ## Rendering
 
-Questions related to `manim-slides render [SCENES]...`,
+Questions related to `manim-slides render [SCENES]...`.
 
 ### I cannot render with ManimGL
 
@@ -39,10 +39,10 @@ or `manim-slides [SCENES]...` for short.
 
 ### Can I have interactive slides
 
-No. Slides are pre-rendered static videos files
+No. Slides are pre-rendered static video files
 and cannot be modified on the fly.
 
-If you need new to have some kind of interactive, look
+If you need to have some kind of interactivity, look
 at the preview feature coupled with the OpenGL renderer
 with ManimCE or ManimGL.
 
@@ -52,7 +52,7 @@ This is an issue with Qt,
 which cannot be solved on all platforms and Python versions,
 see [#293](https://github.com/jeertmans/manim-slides/issues/293).
 
-Recent version of Manim Slides, i.e., `manim-slides>5.1.7`, come
+Recent versions of Manim Slides, i.e., `manim-slides>5.1.7`, come
 with a fix that should work fine.
 
 ### How to increase quality on Windows
