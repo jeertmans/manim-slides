@@ -144,10 +144,24 @@ class Keys(BaseModel):
         return dispatch
 
 
+class PresentDefaults(BaseModel):
+    """Default values for the `present` command CLI options."""
+
+    start_paused: bool | None = None
+    full_screen: bool | None = None
+    skip_all: bool | None = None
+    exit_after_last_slide: bool | None = None
+    hide_mouse: bool | None = None
+    aspect_ratio: str | None = None
+    playback_rate: float | None = None
+    next_terminates_loop: bool | None = None
+
+
 class Config(BaseModel):
     """General Manim Slides config."""
 
     keys: Keys = Field(default_factory=Keys)
+    defaults: PresentDefaults = Field(default_factory=PresentDefaults)
 
     @classmethod
     def from_file(cls, path: Path) -> "Config":
@@ -156,11 +170,15 @@ class Config(BaseModel):
 
     def to_file(self, path: Path) -> None:
         """Dump the configuration to a file."""
-        rtoml.dump(self.model_dump(), path, pretty=True)
+        rtoml.dump(self.model_dump(exclude_none=True), path, pretty=True)
 
     def merge_with(self, other: "Config") -> "Config":
         """Merge with another config."""
         self.keys = self.keys.merge_with(other.keys)
+        for field_name in PresentDefaults.model_fields:
+            other_val = getattr(other.defaults, field_name)
+            if other_val is not None:
+                setattr(self.defaults, field_name, other_val)
         return self
 
 
