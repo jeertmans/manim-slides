@@ -6,11 +6,40 @@ from click_default_group import DefaultGroup
 
 from .__version__ import __version__
 from .checkhealth import checkhealth
+from .config_lookup import load_merged_config, validate_defaults_against_command
 from .convert import convert
 from .logger import logger
 from .present import list_scenes, present
 from .render import render
 from .wizard import init, wizard
+
+
+def set_defaults_from_config(ctx: click.Context) -> None:
+    """Populate ctx.default_map from the merged configuration files."""
+    defaults = load_merged_config().defaults
+
+    group = ctx.command
+    assert isinstance(group, click.Group), "cli must be a click.Group"
+
+    unknown_options = []
+
+    for name, command in group.commands.items():
+        command_defaults = defaults.root.get(name)
+
+        if not command_defaults:
+            continue
+
+        unknown_options.extend(
+            f"{name}.{key}"
+            for key in validate_defaults_against_command(command, command_defaults)
+        )
+
+    if unknown_options:
+        logger.warning(
+            "Ignoring unknown configuration options: " + ", ".join(unknown_options)
+        )
+
+    ctx.default_map = defaults.root
 
 
 @click.group(cls=DefaultGroup, default="present", default_if_no_args=True)
@@ -29,6 +58,8 @@ def cli(notify_outdated_version: bool) -> None:
 
     If no command is specified, defaults to `present`.
     """
+    set_defaults_from_config(click.get_current_context())
+
     # Code below is mostly a copy from:
     # https://github.com/ManimCommunity/manim/blob/main/manim/cli/render/commands.py
     if notify_outdated_version:
