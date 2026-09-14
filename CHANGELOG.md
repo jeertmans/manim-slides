@@ -8,9 +8,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <!-- start changelog -->
 
 (unreleased)=
-## [Unreleased](https://github.com/jeertmans/manim-slides/compare/v5.6.0...HEAD)
+## [Unreleased](https://github.com/jeertmans/manim-slides/compare/v5.7.0...HEAD)
 
-(unreleased-added)=
+(v5.7.0)=
+## [v5.7.0](https://github.com/jeertmans/manim-slides/compare/v5.6.0...v5.7.0)
+
+(v5.7.0-added)=
 ### Added
 
 - Added `firebase_sync.html` template to enable realtime slide syncing via
@@ -20,13 +23,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added `wait_between_looping_slides` property to skip the `wait_time_between_slides` pause inside slides created with `next_slide(loop=True)`, avoiding a stutter on every loop repeat. [@zain-asif-dev](https://github.com/zain-asif-dev) [#648](https://github.com/jeertmans/manim-slides/pull/648)
 - Added Reveal.js asset caching for offline HTML export. [@saikat709](https://github.com/saikat709) [#645](https://github.com/jeertmans/manim-slides/pull/645)
 
-(unreleased-changed)=
+(v5.7.0-changed)=
 ### Changed
 
 - **Breaking change**: raised the minimum supported Python version from 3.9 to 3.10.
   [#636](https://github.com/jeertmans/manim-slides/pull/636)
 
-(unreleased-chore)=
+(v5.7.0-chore)=
 ### Chore
 
 - Migrated static type checking from `mypy` to [`ty`](https://github.com/astral-sh/ty).
@@ -36,7 +39,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   [@Rodbourn](https://github.com/Rodbourn) [#682](https://github.com/jeertmans/manim-slides/pull/682)
 - Fixed several grammar issues in the FAQ documentation. [@TianHengZhuang](https://github.com/TianHengZhuang) [#696](https://github.com/jeertmans/manim-slides/pull/696)
 
-(unreleased-fixed)=
+(v5.7.0-fixed)=
 ### Fixed
 
 - Fixed enum-typed HTML config values set via `-c` not being quoted in the output,
