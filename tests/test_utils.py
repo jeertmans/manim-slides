@@ -70,3 +70,12 @@ def test_issue540(slides_file: Path) -> None:
         results = runner.invoke(cli, ["render", str(slides_file), "Issue540", "-ql"])
 
         assert results.exit_code == 0, results.output
+
+
+def test_merge_basenames_short_hash() -> None:
+    """Hash is truncated to 16 hex chars to keep paths under Windows MAX_PATH."""
+    paths = [Path("a/b/c/very_long_partial_movie_file_name.mp4")]
+    merged = merge_basenames(paths)
+    # Stem should be at most 16 hex characters (plus extension)
+    assert len(merged.stem) == 16
+    assert all(c in "0123456789abcdef" for c in merged.stem)

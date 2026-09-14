@@ -52,6 +52,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   [@melyso](https://github.com/melyso) [#605](https://github.com/jeertmans/manim-slides/pull/605)
 - Fixed typo in `RevealTheme` member name where `solarized` was misspelled as `soralized`.
   [@ajlaanayan-crypto](https://github.com/ajlaanayan-crypto) [#692](https://github.com/jeertmans/manim-slides/pull/692)
+- Fixed Windows `MAX_PATH` failures when rendering scenes with many animations by truncating the `merge_basenames` hash to 16 hex chars.
+  [@aniruddhaadak80](https://github.com/aniruddhaadak80) [#675](https://github.com/jeertmans/manim-slides/pull/675)
 
 (v5.6.0)=
 ## [v5.6.0](https://github.com/jeertmans/manim-slides/compare/v5.5.4...v5.6.0)
