@@ -4,9 +4,9 @@ requires = ["hatchling", "hatch-fancy-pypi-readme"]
 
 [dependency-groups]
 dev = [
-  { include-group = "docs" },
-  { include-group = "tests" },
-  { include-group = "typechecking" },
+  {include-group = "docs"},
+  {include-group = "tests"},
+  {include-group = "typechecking"},
   "bump-my-version>=0.20.3",
   "pre-commit>=3.5.0",
 ]
@@ -25,7 +25,7 @@ docs = [
   "sphinxext-opengraph>=0.7.5",
 ]
 tests = [
-  { include-group = "tests-no-qt" },
+  {include-group = "tests-no-qt"},
   "manim-slides[pyqt6,pyside6]",
 ]
 tests-no-qt = [
@@ -38,7 +38,7 @@ tests-no-qt = [
   "setuptools>=73.0.1",
 ]
 typechecking = [
-  { include-group = "tests-no-qt" },
+  {include-group = "tests-no-qt"},
   # Only one Qt binding is included here (unlike the `tests` group, which
   # installs both): ty cannot resolve `qtpy` classes to a single concrete
   # type when both PyQt6 and PySide6 are installed, since qtpy re-exports
@@ -50,7 +50,7 @@ typechecking = [
 ]
 
 [project]
-authors = [{ name = "Jérome Eertmans", email = "jeertmans@icloud.com" }]
+authors = [{name = "Jérome Eertmans", email = "jeertmans@icloud.com"}]
 classifiers = [
   "Programming Language :: Python :: 3",
   "Programming Language :: Python :: 3.10",
@@ -239,7 +239,7 @@ extend-ignore = [
   "E501",
 ]
 extend-select = ["B", "C90", "D", "I", "N", "RUF", "UP", "T"]
-isort = { known-first-party = ["manim_slides", "tests"] }
+isort = {known-first-party = ["manim_slides", "tests"]}
 
 [tool.ruff.lint.per-file-ignores]
 "docs/source/reference/magic_example.ipynb" = ["F403", "F405"]
