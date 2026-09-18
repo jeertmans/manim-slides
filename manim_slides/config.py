@@ -169,6 +169,7 @@ class BaseSlideConfig(BaseModel):
 
     loop: bool = False
     auto_next: bool = False
+    next_terminates_loop: bool = False
     playback_rate: float = 1.0
     reversed_playback_rate: float = 1.0
     notes: str = ""

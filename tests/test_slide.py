@@ -391,6 +391,25 @@ class TestSlide:
 
                 assert not self._base_slide_config.auto_next
 
+    def test_next_terminates_loop(self) -> None:
+        @assert_constructs
+        class _(CESlide):
+            def construct(self) -> None:
+                text = Text("Some text")
+
+                self.add(text)
+
+                assert not self._base_slide_config.next_terminates_loop
+
+                self.next_slide(next_terminates_loop=True)
+                self.play(text.animate.scale(2))
+
+                assert self._base_slide_config.next_terminates_loop
+
+                self.next_slide(next_terminates_loop=False)
+
+                assert not self._base_slide_config.next_terminates_loop
+
     def test_loop_and_auto_next_succeeds(self) -> None:
         @assert_constructs
         class _(CESlide):

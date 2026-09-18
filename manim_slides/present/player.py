@@ -330,7 +330,11 @@ class Player(QMainWindow):
 
             self.media_player.mediaStatusChanged.connect(media_status_changed)
 
-        if next_terminates_loop:
+        if next_terminates_loop or any(
+            slide.next_terminates_loop
+            for presentation_config in self.presentation_configs
+            for slide in presentation_config.slides
+        ):
 
             def on_position_changed(position: int) -> None:
                 # non-monotonicity in the position, when occurring outside of the loading of a new slide, indicates looping
@@ -608,7 +612,10 @@ class Player(QMainWindow):
         ):
             self.media_player.play()
         elif (
-            self.next_terminates_loop
+            (
+                self.next_terminates_loop
+                or self.current_slide_config.next_terminates_loop
+            )
             and self.media_player.loops() != 1
             and not self.__termination_achieved
         ):
