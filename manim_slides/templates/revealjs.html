@@ -39,6 +39,7 @@
             {% endif %}
           {% endif %}
         <section
+          {% if slide_config.id %}id="{{ slide_config.id }}"{% endif %}
           data-background-size={{ background_size }}
           data-background-color="{{ presentation_config.background_color }}"
           {% if slide_config.type.value == "image" %}
