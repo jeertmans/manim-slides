@@ -392,6 +392,13 @@ class BaseSlide:
 
                 Only supported by ``manim-slides present``
                 and ``manim-slides convert --to=html``.
+        :param next_terminates_loop:
+            If set, terminating a looping slide will wait until the loop is
+            completed before proceeding to the next slide.
+
+            .. warning::
+
+                Only supported by ``manim-slides present``.
         :param playback_rate:
             Playback rate at which the video is played.
 
