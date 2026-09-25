@@ -148,3 +148,40 @@ def test_present_set_invalid_screen(args: tuple[str, ...]) -> None:
 
         assert results.exit_code == 0
         assert "Invalid screen number 999" in results.stdout
+
+
+def test_present_invalid_explicit_config(args: tuple[str, ...]) -> None:
+    runner = CliRunner()
+
+    with runner.isolated_filesystem():
+        with open(".manim-slides.toml", "w") as f:
+            f.write("defaults = 5")
+
+        results = runner.invoke(
+            present, ["BasicSlide", "--config", ".manim-slides.toml", *args]
+        )
+
+        assert results.exit_code != 0
+        assert "Invalid defaults" in results.output
+
+
+def test_present_invalid_local_config_is_skipped(
+    args: tuple[str, ...], caplog: pytest.LogCaptureFixture
+) -> None:
+    """An invalid config found in the folder tree only warns, it does not fail."""
+    runner = CliRunner()
+
+    with runner.isolated_filesystem():
+        with open(".manim-slides.toml", "w") as f:
+            f.write("defaults = 5")
+
+        # Not passing --config, so the file is only discovered by walking
+        # up the folder tree, and errors are downgraded to warnings.
+        with caplog.at_level("WARNING", logger="manim-slides"):
+            results = runner.invoke(present, ["BasicSlide", *args])
+
+        assert results.exit_code == 0
+        assert any(
+            "Ignoring invalid configuration file" in record.message
+            for record in caplog.records
+        )

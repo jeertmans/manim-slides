@@ -4,11 +4,12 @@ from pathlib import Path
 from typing import Literal
 
 import click
-from click import Context, Parameter
+from click import Context, Parameter, ParameterSource
 from pydantic import ValidationError
 
 from ..commons import config_path_option, folder_path_option, verbosity_option
 from ..config import Config, PresentationConfig
+from ..config_lookup import load_merged_config
 from ..logger import logger
 
 
@@ -276,14 +277,21 @@ def present(  # noqa: C901
 
     presentation_configs = get_scenes_presentation_config(scenes, folder)
 
-    if config_path.exists():
+    # An explicitly provided --config FILE must be valid, whereas config
+    # files found along the folder tree are silently skipped (with a
+    # warning) if they cannot be parsed.
+    ctx = click.get_current_context()
+
+    if (
+        config_path.exists()
+        and ctx.get_parameter_source("config_path") is ParameterSource.COMMANDLINE
+    ):
         try:
-            config = Config.from_file(config_path)
+            Config.from_file(config_path)
         except ValidationError as e:
             raise click.UsageError(str(e)) from None
-    else:
-        logger.debug("No configuration file found, using default configuration.")
-        config = Config()
+
+    config = load_merged_config(folder=Path.cwd(), config_path=config_path)
 
     if start_at[0]:
         start_at_scene_number = start_at[0]

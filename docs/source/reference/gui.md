@@ -25,19 +25,56 @@ directory, you should not worry about that :-)
 
 ## Configuration File
 
-It is possible to configure Manim Slides via a configuration file, even though
-this feature is currently limited. You may initialize the default configuration
-file with:
+It is possible to configure Manim Slides via a configuration file. You may
+initialize the default (local) configuration file with:
 
 ```bash
 manim-slides init
 ```
+
+Configuration files are looked up in the following locations, listed by
+increasing order of precedence:
+
+1. the global configuration file, e.g., `~/.config/manim-slides/manim-slides.toml`
+   on Linux (see [platformdirs](https://platformdirs.readthedocs.io/) for
+   other operating systems);
+2. a local `.manim-slides.toml` file in the current directory, or any of its
+   parent directories (stopping at the filesystem boundary), where the file
+   closest to the current directory wins.
+
+This means that you can, e.g., set global defaults for all your presentations,
+and override them locally for a specific project.
 
 :::{warning}
 Note that, by default, Manim Slides will use default key bindings that are
 platform-dependent. If you decide to overwrite those with a config file, you may
 encounter some problems from platform to platform.
 :::
+
+### Setting Command-Line Defaults
+
+The configuration file can also define default values for command-line options,
+using the `[defaults.<command>]` sections, e.g.:
+
+```toml
+# .manim-slides.toml
+[defaults.present]
+full_screen = true
+
+[defaults.convert]
+one_file = true
+offline = true
+```
+
+With the above configuration, running `manim-slides present` will start in
+full screen mode, and `manim-slides convert Slide slide.html` will generate
+a single, offline, HTML file — without needing to pass any option.
+
+Options passed on the command line always take precedence over the values
+from configuration files.
+
+Use `manim-slides checkhealth` to list the configuration files that were
+found on your system.
 
 ## Configuring Key Bindings
 

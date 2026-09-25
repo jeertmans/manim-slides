@@ -8,6 +8,35 @@ import pytest
 from manim_slides.config import PresentationConfig
 
 
+@pytest.fixture(autouse=True)
+def isolated_global_config(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> Iterator[None]:
+    """Isolate tests from the user's global configuration file."""
+    from manim_slides import config_lookup, defaults
+
+    global_dir = tmp_path / "global-config"
+    global_dir.mkdir()
+    global_config = global_dir / defaults.GLOBAL_CONFIG_PATH.name
+
+    monkeypatch.setattr(defaults, "GLOBAL_CONFIG_PATH", global_config, raising=True)
+    monkeypatch.setattr(
+        config_lookup, "GLOBAL_CONFIG_PATH", global_config, raising=True
+    )
+
+    yield
+
+
+@pytest.fixture
+def global_config_path(monkeypatch: pytest.MonkeyPatch) -> Iterator[Path]:
+    """Path to an (initially absent) global configuration file."""
+    from manim_slides import defaults
+
+    path = defaults.GLOBAL_CONFIG_PATH
+    assert not path.exists()
+    yield path
+
+
 @pytest.fixture(scope="session")
 def tests_folder() -> Iterator[Path]:
     yield Path(__file__).parent.resolve(strict=True)

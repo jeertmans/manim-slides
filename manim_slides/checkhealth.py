@@ -3,6 +3,7 @@ import sys
 import click
 
 from .__version__ import __version__
+from .config_lookup import list_config_files
 
 
 @click.command()
@@ -40,3 +41,13 @@ def checkhealth() -> None:
             "No Qt API found, some Manim Slides commands will not be available",
             bold=True,
         )
+
+    config_files = list_config_files()
+
+    if config_files:
+        click.echo("Configuration files:")
+
+        for config_file in config_files:
+            click.echo(f"\t{config_file}")
+    else:
+        click.echo("No configuration file found (using defaults).")
