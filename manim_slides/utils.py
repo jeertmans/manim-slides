@@ -4,7 +4,7 @@ import shutil
 import tempfile
 from collections.abc import Iterator
 from itertools import pairwise
-from multiprocessing import Pool
+from multiprocessing import get_context
 from pathlib import Path
 from typing import Any, TypeVar, cast
 
@@ -194,7 +194,13 @@ def reverse_video_file(
     num_processes: int | None = None,
     **tqdm_kwargs: Any,
 ) -> None:
-    """Reverses a video file, writing the result to `dest`."""
+    """
+    Reverses a video file, writing the result to `dest`.
+
+    Segmented reversal uses spawned processes to avoid inheriting renderer
+    locks. When calling this directly from a script, guard the entry point with
+    ``if __name__ == "__main__":`` so workers can safely import the main module.
+    """
     with av.open(str(src)) as input_container:  # Fast path if file is short enough
         input_stream = input_container.streams.video[0]
         if max_segment_duration is None:
@@ -213,7 +219,7 @@ def reverse_video_file(
         with tempfile.TemporaryDirectory() as tmpdirname:
             tmpdir = Path(tmpdirname)
             with av.open(
-                str(tmpdir / f"%04d.{src.suffix}"),
+                str(tmpdir / f"%04d{src.suffix}"),
                 "w",
                 format="segment",
                 options={"segment_time": str(max_segment_duration)},
@@ -231,12 +237,15 @@ def reverse_video_file(
                     packet.stream = output_stream
                     output_container.mux(packet)
 
-            src_files = list(tmpdir.iterdir())
+            src_files = sorted(tmpdir.iterdir())
             rev_files = [
                 src_file.with_stem("rev_" + src_file.stem) for src_file in src_files
             ]
 
-            with Pool(num_processes, maxtasksperchild=1) as pool:
+            # Forking after the renderer and PyAV have initialized can inherit
+            # locked native state and stall the worker pool.  Fresh interpreters
+            # avoid that state while preserving parallel segment processing.
+            with get_context("spawn").Pool(num_processes, maxtasksperchild=1) as pool:
                 for _ in tqdm(
                     pool.imap_unordered(
                         reverse_video_file_in_one_chunk,

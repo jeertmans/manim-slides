@@ -10,6 +10,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 (unreleased)=
 ## [Unreleased](https://github.com/jeertmans/manim-slides/compare/v5.7.0...HEAD)
 
+(unreleased-fixed)=
+### Fixed
+
+- Fixed segmented video reversal stalls and made segment ordering deterministic.
+  [@rusetiq](https://github.com/rusetiq) [#668](https://github.com/jeertmans/manim-slides/pull/668)
+
 (v5.7.0)=
 ## [v5.7.0](https://github.com/jeertmans/manim-slides/compare/v5.6.0...v5.7.0)
 

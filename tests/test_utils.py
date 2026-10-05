@@ -1,12 +1,23 @@
+import multiprocessing
+import os
 import shutil
+import signal
+import subprocess
+import sys
+from collections.abc import Iterator
 from pathlib import Path
 
 import av
+import numpy as np
 import pytest
 from click.testing import CliRunner
 
 from manim_slides.__main__ import cli
-from manim_slides.utils import concatenate_video_files, merge_basenames
+from manim_slides.utils import (
+    concatenate_video_files,
+    merge_basenames,
+    reverse_video_file,
+)
 
 
 def test_merge_basenames(paths: list[Path]) -> None:
@@ -79,3 +90,100 @@ def test_merge_basenames_short_hash() -> None:
     # Stem should be at most 16 hex characters (plus extension)
     assert len(merged.stem) == 16
     assert all(c in "0123456789abcdef" for c in merged.stem)
+
+
+@pytest.fixture
+def reversal_video(tmp_path: Path) -> Path:
+    src = tmp_path / "src.mp4"
+
+    with av.open(str(src), mode="w") as container:
+        stream = container.add_stream("libx264", rate=2)
+        stream.width = 16
+        stream.height = 16
+        stream.pix_fmt = "yuv420p"
+        stream.codec_context.gop_size = 1
+
+        for value in range(6):
+            array = np.full((16, 16, 3), value * 40, dtype=np.uint8)
+            frame = av.VideoFrame.from_ndarray(array, format="rgb24")
+            for packet in stream.encode(frame):
+                container.mux(packet)
+
+        for packet in stream.encode():
+            container.mux(packet)
+
+    return src
+
+
+def assert_reversed_frames(src: Path, dest: Path) -> None:
+    def values(path: Path) -> list[float]:
+        with av.open(str(path)) as container:
+            return [
+                float(frame.to_ndarray(format="gray").mean())
+                for frame in container.decode(video=0)
+            ]
+
+    expected = values(src)[::-1]
+    assert len(expected) == 6
+    # Re-encoding is lossy. Check every frame, including count and brightness,
+    # so an empty, constant, or incomplete output cannot satisfy the test.
+    np.testing.assert_allclose(values(dest), expected, atol=3)
+
+
+@pytest.mark.parametrize("num_processes", [1, 2])
+def test_reverse_video_file_with_unordered_segments(
+    reversal_video: Path, monkeypatch: pytest.MonkeyPatch, num_processes: int
+) -> None:
+    dest = reversal_video.with_name("dest.mp4")
+
+    original_iterdir = Path.iterdir
+
+    def reversed_iterdir(path: Path) -> Iterator[Path]:
+        return iter(reversed(list(original_iterdir(path))))
+
+    with monkeypatch.context() as patch:
+        patch.setattr(Path, "iterdir", reversed_iterdir)
+        reverse_video_file(
+            reversal_video,
+            dest,
+            max_segment_duration=1.0,
+            num_processes=num_processes,
+            disable=True,
+        )
+
+    assert_reversed_frames(reversal_video, dest)
+
+
+@pytest.mark.skipif(
+    "fork" not in multiprocessing.get_all_start_methods(), reason="requires fork"
+)
+@pytest.mark.parametrize("num_processes", [1, 2])
+def test_reverse_video_file_with_inherited_renderer_lock(
+    reversal_video: Path, data_folder: Path, num_processes: int
+) -> None:
+    dest = reversal_video.with_name("dest.mp4")
+    with subprocess.Popen(
+        [
+            sys.executable,
+            str(data_folder / "reversal_deadlock.py"),
+            str(reversal_video),
+            str(dest),
+            str(num_processes),
+        ],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        text=True,
+        start_new_session=True,
+    ) as process:
+        try:
+            output, _ = process.communicate(timeout=30)
+        except subprocess.TimeoutExpired:
+            # Kill the whole pool, not just the parent, so a regression cannot
+            # leave hung workers behind or prevent the remaining tests running.
+            os.killpg(process.pid, signal.SIGKILL)
+            output, _ = process.communicate()
+            pytest.fail(f"Segmented reversal stalled with an inherited lock:\n{output}")
+
+        assert process.returncode == 0, output
+
+    assert_reversed_frames(reversal_video, dest)
