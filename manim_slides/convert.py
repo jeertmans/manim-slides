@@ -37,7 +37,6 @@ from pydantic import (
     PositiveFloat,
     PositiveInt,
     ValidationError,
-    field_validator,
 )
 from pydantic_core import CoreSchema, core_schema
 from pydantic_extra_types.color import Color

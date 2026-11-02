@@ -600,4 +600,3 @@ class TestConverter:
             presentation_configs=[presentation_config], left=0, top=0
         ).convert_to(out_file)
         assert out_file.exists()
-
