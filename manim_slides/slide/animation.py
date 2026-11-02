@@ -27,9 +27,10 @@ else:
     # Manimlib parses sys.argv on import, so we clear it temporarily.
     old_argv = sys.argv
     sys.argv = [__file__]
-    from manimlib import LEFT, AnimationGroup, FadeIn, FadeOut
-
-    sys.argv = old_argv
+    try:
+        from manimlib import LEFT, AnimationGroup, FadeIn, FadeOut
+    finally:
+        sys.argv = old_argv
 
     del sys
 

@@ -86,6 +86,16 @@ def test_present_start_at(args: tuple[str, ...]) -> None:
         assert results.stdout == ""
 
 
+def test_present_start_at_zero(args: tuple[str, ...]) -> None:
+    runner = CliRunner()
+
+    with runner.isolated_filesystem():
+        results = runner.invoke(present, ["BasicSlide", "--start-at", "0,0", *args])
+
+        assert results.exit_code == 0
+        assert results.stdout == ""
+
+
 def test_present_start_at_invalid(
     args: tuple[str, ...], monkeypatch: pytest.MonkeyPatch
 ) -> None:

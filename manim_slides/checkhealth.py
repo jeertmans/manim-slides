@@ -19,17 +19,17 @@ def checkhealth() -> None:
     except ImportError:
         click.secho("\tmanim not found", bold=True)
 
+    old_argv = sys.argv
     try:
         # Manimlib parses sys.argv on import, so we clear it temporarily.
-        old_argv = sys.argv
         sys.argv = [__file__]
         from manimlib import __version__ as manimlib_version
-
-        sys.argv = old_argv
 
         click.echo(f"\tmanimgl (version: {manimlib_version})")
     except ImportError:
         click.secho("\tmanimgl not found", bold=True)
+    finally:
+        sys.argv = old_argv
 
     try:
         from qtpy import API, QT_VERSION

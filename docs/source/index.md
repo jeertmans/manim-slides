@@ -8,7 +8,7 @@ og:description: Manim Slides makes creating slides with Manim super easy!
     :width: 600px
     :align: center
     :class: only-light
-    :alt: Manim Slide logo
+    :alt: Manim Slides logo
 ```
 
 ```{eval-rst}
@@ -16,10 +16,10 @@ og:description: Manim Slides makes creating slides with Manim super easy!
     :width: 600px
     :align: center
     :class: only-dark
-    :alt: Manim Slide logo
+    :alt: Manim Slides logo
 ```
 
-# Welcome to Manim Slide's documentation
+# Welcome to Manim Slides' documentation
 
 Manim Slides makes creating slides with Manim super easy!
 

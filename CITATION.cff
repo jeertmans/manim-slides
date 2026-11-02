@@ -19,7 +19,7 @@ abstract: >-
   Manim animations straightforward. With minimal changes
   required to pre-existing code, one can slide through
   animations in a PowerPoint-like manner, or share its
-  slides online using ReavealJS' power.
+  slides online using RevealJS' power.
 keywords:
   - Education
   - Math Animations

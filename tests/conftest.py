@@ -13,6 +13,17 @@ def tests_folder() -> Iterator[Path]:
     yield Path(__file__).parent.resolve(strict=True)
 
 
+@pytest.fixture(autouse=True)
+def preserve_logger_level() -> Iterator[None]:
+    from manim_slides.logger import logger
+
+    old_level = logger.level
+    try:
+        yield
+    finally:
+        logger.setLevel(old_level)
+
+
 @pytest.fixture(scope="session")
 def project_folder(tests_folder: Path) -> Iterator[Path]:
     yield tests_folder.parent.resolve(strict=True)

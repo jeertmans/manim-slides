@@ -4,9 +4,9 @@ requires = ["hatchling", "hatch-fancy-pypi-readme"]
 
 [dependency-groups]
 dev = [
-  {include-group = "docs"},
-  {include-group = "tests"},
-  {include-group = "typechecking"},
+  { include-group = "docs" },
+  { include-group = "tests" },
+  { include-group = "typechecking" },
   "bump-my-version>=0.20.3",
   "pre-commit>=3.5.0",
 ]
@@ -25,7 +25,7 @@ docs = [
   "sphinxext-opengraph>=0.7.5",
 ]
 tests = [
-  {include-group = "tests-no-qt"},
+  { include-group = "tests-no-qt" },
   "manim-slides[pyqt6,pyside6]",
 ]
 tests-no-qt = [
@@ -38,7 +38,7 @@ tests-no-qt = [
   "setuptools>=73.0.1",
 ]
 typechecking = [
-  {include-group = "tests-no-qt"},
+  { include-group = "tests-no-qt" },
   # Only one Qt binding is included here (unlike the `tests` group, which
   # installs both): ty cannot resolve `qtpy` classes to a single concrete
   # type when both PyQt6 and PySide6 are installed, since qtpy re-exports
@@ -50,7 +50,7 @@ typechecking = [
 ]
 
 [project]
-authors = [{name = "Jérome Eertmans", email = "jeertmans@icloud.com"}]
+authors = [{ name = "Jérome Eertmans", email = "jeertmans@icloud.com" }]
 classifiers = [
   "Programming Language :: Python :: 3",
   "Programming Language :: Python :: 3.10",
@@ -109,7 +109,7 @@ manim-slides = "manim_slides.__main__:cli"
 [project.urls]
 Changelog = "https://github.com/jeertmans/manim-slides/releases"
 Documentation = "https://eertmans.be/manim-slides"
-Founding = "https://github.com/sponsors/jeertmans"
+Funding = "https://github.com/sponsors/jeertmans"
 Homepage = "https://github.com/jeertmans/manim-slides"
 Repository = "https://github.com/jeertmans/manim-slides"
 
@@ -183,7 +183,7 @@ content-type = "text/markdown"
 
 [[tool.hatch.metadata.hooks.fancy-pypi-readme.fragments]]
 text = """<p align="center">
-  <a href="https://www.github.com/jeertmans/manin-slides">
+  <a href="https://www.github.com/jeertmans/manim-slides">
     <img src="https://raw.githubusercontent.com/jeertmans/manim-slides/main/static/logo.png"/>
   </a>
 </p>
@@ -239,7 +239,7 @@ extend-ignore = [
   "E501",
 ]
 extend-select = ["B", "C90", "D", "I", "N", "RUF", "UP", "T"]
-isort = {known-first-party = ["manim_slides", "tests"]}
+isort = { known-first-party = ["manim_slides", "tests"] }
 
 [tool.ruff.lint.per-file-ignores]
 "docs/source/reference/magic_example.ipynb" = ["F403", "F405"]

@@ -5,7 +5,7 @@ Alias command to either
 
 This is especially useful for two reasons:
 
-1. You can are sure to execute the rendering command with the same Python environment
+1. You can be sure to execute the rendering command with the same Python environment
    as for ``manim-slides``.
 2. You can pass options to the config.
 """

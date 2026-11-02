@@ -16,7 +16,7 @@ if __name__ == "__main__":
 
     for glob_pattern in sys.argv[1:]:
         for file in glob.glob(glob_pattern, recursive=True):
-            with open(file) as f:
+            with open(file, encoding="utf-8") as f:
                 for i, line in enumerate(f):
                     for m in p.finditer(line):
                         if m.group("number1") != m.group("number2"):

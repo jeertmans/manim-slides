@@ -144,7 +144,7 @@ def start_at_callback(
     "-s",
     "--skip-all",
     is_flag=True,
-    help="Skip all slides, useful the test if slides are working. "
+    help="Skip all slides, useful to test if slides are working. "
     "Automatically sets ``--exit-after-last-slide`` to True.",
 )
 @click.option(
@@ -251,7 +251,7 @@ def present(  # noqa: C901
     exit_after_last_slide: bool,
     hide_mouse: bool,
     aspect_ratio: str,
-    start_at: tuple[int | None, int | None, int | None],
+    start_at: tuple[int | None, int | None],
     start_at_scene_number: int,
     start_at_slide_number: int,
     screen_number: int | None,
@@ -268,7 +268,7 @@ def present(  # noqa: C901
 
     You can present the same SCENE multiple times by repeating the parameter.
 
-    Use ``manim-slide list-scenes`` to list all available
+    Use ``manim-slides list-scenes`` to list all available
     scenes in a given folder.
     """
     if skip_all:
@@ -285,10 +285,10 @@ def present(  # noqa: C901
         logger.debug("No configuration file found, using default configuration.")
         config = Config()
 
-    if start_at[0]:
+    if start_at[0] is not None:
         start_at_scene_number = start_at[0]
 
-    if start_at[1]:
+    if start_at[1] is not None:
         start_at_slide_number = start_at[1]
 
     from qtpy.QtCore import Qt

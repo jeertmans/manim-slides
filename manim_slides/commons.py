@@ -73,6 +73,9 @@ def folder_path_option(function: F) -> F:
     """Wrap a function to add folder path option."""
 
     def callback(ctx: Context, param: Parameter, value: Path) -> Path:
+        if ctx.resilient_parsing:
+            return value
+
         if not value.exists():
             raise click.UsageError(
                 f"Invalid value for '--folder': Directory '{value}' does not exist. "
