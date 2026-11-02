@@ -68,9 +68,9 @@ class ManimSlidesMagic(Magics):
 
             This magic works pretty much like the one from Manim, except that it
             will render Manim Slides using RevealJS. For passing arguments to
-            Manim Slides' convert module, use ``-manim-slides key=value``.
+            Manim Slides' convert module, use ``--manim-slides key=value``.
 
-            Everything that is after ``--manim-slides`` will be send to
+            Everything that is after ``--manim-slides`` will be sent to
             Manim Slides' command. E.g., use ``--manim-slides controls=true``
             to display control buttons.
 
@@ -95,7 +95,7 @@ class ManimSlidesMagic(Magics):
 
             %%manim_slides [CLI options] MyAwesomeSlide
 
-            class MyAweseomeSlide(Slide):
+            class MyAwesomeSlide(Slide):
                 def construct(self):
                     ...
 
@@ -199,7 +199,7 @@ class ManimSlidesMagic(Magics):
             )
 
             if local_path in self.rendered_files:
-                self.rendered_files[local_path].unlink()
+                self.rendered_files[local_path].unlink(missing_ok=True)
             self.rendered_files[local_path] = tmpfile
             tmpfile.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy(local_path, tmpfile)
@@ -255,7 +255,7 @@ class ManimSlidesMagic(Magics):
             if embed:
                 result = HTML(
                     """<div style="position:relative;padding-bottom:56.25%;"><iframe style="width:100%;height:100%;position:absolute;left:0px;top:0px;" frameborder="0" width="100%" height="100%" allowfullscreen allow="autoplay" srcdoc="{srcdoc}"></iframe></div>""".format(
-                        srcdoc=tmpfile.read_text().replace('"', "'")
+                        srcdoc=tmpfile.read_text(encoding="utf-8").replace('"', "'")
                     )
                 )
             else:

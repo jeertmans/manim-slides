@@ -12,7 +12,7 @@ import sys
 
 
 class ManimApiNotFoundError(ImportError):
-    """Error raised if specified manim API could be imported."""
+    """Error raised if specified manim API could not be imported."""
 
     _msg = "Could not import the specified manim API"
 

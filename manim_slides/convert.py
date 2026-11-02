@@ -33,9 +33,11 @@ from pydantic import (
     Field,
     FilePath,
     GetCoreSchemaHandler,
+    NonNegativeInt,
     PositiveFloat,
     PositiveInt,
     ValidationError,
+    field_validator,
 )
 from pydantic_core import CoreSchema, core_schema
 from pydantic_extra_types.color import Color
@@ -130,7 +132,7 @@ def get_duration_ms(file: Path) -> float:
 
 
 def read_image_from_video_file(file: Path, frame_index: "FrameIndex") -> Image.Image:
-    """Read a image from a video file at a given index."""
+    """Read an image from a video file at a given index."""
     with av.open(str(file)) as container:
         frames = container.decode(video=0)
 
@@ -235,7 +237,7 @@ class ControlsLayout(Str, StrEnum):
 class ControlsBackArrows(Str, StrEnum):
     faded = "faded"
     hidden = "hidden"
-    visibly = "visibly"
+    visible = "visible"
 
 
 class SlideNumber(Str, StrEnum):
@@ -359,7 +361,7 @@ class RevealJS(Converter):
         0.2, description="Bound for smallest possible scale to apply to content."
     )
     max_scale: float = Field(
-        2.0, description="Bound for large possible scale to apply to content."
+        2.0, description="Bound for largest possible scale to apply to content."
     )
     # Configuration options from RevealJS
     controls: JsBool = Field(
@@ -410,7 +412,7 @@ class RevealJS(Converter):
     )
     keyboard_condition: KeyboardCondition | Function = Field(
         KeyboardCondition.null,
-        description="Optional function that blocks keyboard events when retuning false.",
+        description="Optional function that blocks keyboard events when returning false.",
     )
     disable_layout: JsBool = Field(
         JsBool.false,
@@ -458,7 +460,7 @@ class RevealJS(Converter):
     )
     auto_play_media: AutoPlayMedia = Field(
         AutoPlayMedia.null,
-        description="Global override for autolaying embedded media (video/audio/iframe).",
+        description="Global override for autoplaying embedded media (video/audio/iframe).",
     )
     preload_iframes: PreloadIframes = Field(
         PreloadIframes.null,
@@ -599,22 +601,26 @@ class RevealJS(Converter):
     def load_template(self) -> str:
         """Return the RevealJS HTML template as a string."""
         if isinstance(self.template, Path):
-            return self.template.read_text()
+            return self.template.read_text(encoding="utf-8")
 
         if isinstance(self.template, str):
             template_path = Path(self.template)
             if template_path.is_file():
-                return template_path.read_text()
+                return template_path.read_text(encoding="utf-8")
 
             builtin_template = resources.files(templates).joinpath(self.template)
             if builtin_template.is_file():
-                return builtin_template.read_text()
+                return builtin_template.read_text(encoding="utf-8")
 
             raise FileNotFoundError(
                 f"Template '{self.template}' was not found as a file path or built-in template. It must be one of the following built-in templates: [{', '.join(_builtin_template_names())}]."
             )
 
-        return resources.files(templates).joinpath("revealjs.html").read_text()
+        return (
+            resources.files(templates)
+            .joinpath("revealjs.html")
+            .read_text(encoding="utf-8")
+        )
 
     def open(self, file: Path) -> None:
         webbrowser.open(file.absolute().as_uri())
@@ -885,10 +891,10 @@ def _auto_play_pptx_media(media: Movie, loop: bool = False) -> None:
 
 
 class PowerPoint(Converter):
-    left: PositiveInt = Field(
+    left: NonNegativeInt = Field(
         0, description="Horizontal offset where the video is placed from left border."
     )
-    top: PositiveInt = Field(
+    top: NonNegativeInt = Field(
         0, description="Vertical offset where the video is placed from top border."
     )
     width: PositiveInt = Field(
@@ -936,7 +942,7 @@ class PowerPoint(Converter):
                             str(file),
                             self.left,
                             self.top,
-                            self.width * 9625,
+                            self.width * 9525,
                             self.height * 9525,
                         )
                     else:
@@ -1130,13 +1136,13 @@ def show_template_option(function: Callable[..., Any]) -> Callable[..., Any]:
     "--one-file",
     is_flag=True,
     help="Embed all local assets (e.g., video files) in the output file. "
-    "The is a convenient alias to '-cone_file=true'.",
+    "This is a convenient alias to '-cone_file=true'.",
 )
 @click.option(
     "--offline",
     is_flag=True,
     help="Download any remote content and store it in the assets folder. "
-    "The is a convenient alias to '-coffline=true'.",
+    "This is a convenient alias to '-coffline=true'.",
 )
 @show_template_option
 @show_config_options

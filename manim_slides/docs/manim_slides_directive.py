@@ -452,7 +452,7 @@ rendering_times_file_path = Path("../rendering_times.csv")
 
 
 def _write_rendering_stats(scene_name, run_time, file_name):
-    with rendering_times_file_path.open("a") as file:
+    with rendering_times_file_path.open("a", encoding="utf-8") as file:
         csv.writer(file).writerow(
             [
                 re.sub(r"^(reference\/)|(manim\.)", "", file_name),
@@ -464,7 +464,7 @@ def _write_rendering_stats(scene_name, run_time, file_name):
 
 def _log_rendering_times(*args):
     if rendering_times_file_path.exists():
-        with rendering_times_file_path.open() as file:
+        with rendering_times_file_path.open(encoding="utf-8") as file:
             data = list(csv.reader(file))
         if len(data) == 0:
             sys.exit()

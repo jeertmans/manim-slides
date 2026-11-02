@@ -109,7 +109,7 @@ manim-slides = "manim_slides.__main__:cli"
 [project.urls]
 Changelog = "https://github.com/jeertmans/manim-slides/releases"
 Documentation = "https://eertmans.be/manim-slides"
-Founding = "https://github.com/sponsors/jeertmans"
+Funding = "https://github.com/sponsors/jeertmans"
 Homepage = "https://github.com/jeertmans/manim-slides"
 Repository = "https://github.com/jeertmans/manim-slides"
 
@@ -183,7 +183,7 @@ content-type = "text/markdown"
 
 [[tool.hatch.metadata.hooks.fancy-pypi-readme.fragments]]
 text = """<p align="center">
-  <a href="https://www.github.com/jeertmans/manin-slides">
+  <a href="https://www.github.com/jeertmans/manim-slides">
     <img src="https://raw.githubusercontent.com/jeertmans/manim-slides/main/static/logo.png"/>
   </a>
 </p>

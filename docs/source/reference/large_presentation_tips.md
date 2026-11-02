@@ -111,7 +111,7 @@ Because each scene is independent, you can render multiple scenes at the same
 time; e.g., one per CPU thread. There is one important caveat:
 generated artifacts such as TeX images will collide if every scene writes to
 the same directory. To fix this, give each scene its own `media_dir` to
-file collision. Below, we provide a sample render script is that
+avoid file collision. Below, we provide a sample render script that
 automatically creates media directories based upon the scene name.
 
 <details>

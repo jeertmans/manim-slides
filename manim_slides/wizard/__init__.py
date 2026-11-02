@@ -5,7 +5,6 @@ import click
 
 from ..commons import config_options, verbosity_option
 from ..config import Config
-from ..defaults import CONFIG_PATH
 from ..logger import logger
 
 
@@ -37,7 +36,7 @@ def _init(
     mode.
     """
     if config_path.exists():
-        click.secho(f"The `{CONFIG_PATH}` configuration file exists")
+        click.secho(f"The `{config_path}` configuration file exists")
 
         if not force and not merge:
             choice = click.prompt(

@@ -75,7 +75,7 @@ class Wizard(QWidget):
 
             # Create button that will pop-up a dialog and ask to input a new key
             value = value["ids"].pop()
-            button = QPushButton(keymap[value])
+            button = QPushButton(keymap.get(value, f"Key_{value}"))
             button.setToolTip(
                 f"Click to modify the key associated to action {key_info}"
             )
@@ -119,6 +119,6 @@ class Wizard(QWidget):
         dialog = KeyInput()
         dialog.exec()
         if dialog.key is not None:
-            key_name = keymap[dialog.key]
+            key_name = keymap.get(dialog.key, f"Key_{dialog.key}")
             key.set_ids(dialog.key)
             button.setText(key_name)

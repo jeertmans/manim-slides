@@ -5,9 +5,10 @@ from typing import Any, ClassVar
 # Manimlib parses sys.argv on import, so we clear it temporarily.
 old_argv = sys.argv
 sys.argv = [__file__]
-from manimlib import Scene, ThreeDCamera
-
-sys.argv = old_argv
+try:
+    from manimlib import Scene, ThreeDCamera
+finally:
+    sys.argv = old_argv
 
 from .base import BaseSlide
 

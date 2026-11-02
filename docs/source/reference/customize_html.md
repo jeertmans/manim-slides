@@ -41,7 +41,7 @@ default template file:
 
 ```{eval-rst}
 .. literalinclude:: ../_static/template.diff
-   :language: html
+   :language: diff
 ```
 
 :::{tip}

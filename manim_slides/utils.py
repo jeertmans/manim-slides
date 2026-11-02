@@ -213,7 +213,7 @@ def reverse_video_file(
         with tempfile.TemporaryDirectory() as tmpdirname:
             tmpdir = Path(tmpdirname)
             with av.open(
-                str(tmpdir / f"%04d.{src.suffix}"),
+                str(tmpdir / f"%04d{src.suffix}"),
                 "w",
                 format="segment",
                 options={"segment_time": str(max_segment_duration)},
@@ -231,7 +231,7 @@ def reverse_video_file(
                     packet.stream = output_stream
                     output_container.mux(packet)
 
-            src_files = list(tmpdir.iterdir())
+            src_files = sorted(tmpdir.iterdir())
             rev_files = [
                 src_file.with_stem("rev_" + src_file.stem) for src_file in src_files
             ]

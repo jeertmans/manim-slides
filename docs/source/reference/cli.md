@@ -31,7 +31,7 @@ The Zip converter inherits from the HTML converter.
 ```
 ::::
 
-::::{dropdown} HTML
-```{program-output} manim-slides convert --to=pdf --show-config
+::::{dropdown} PowerPoint
+```{program-output} manim-slides convert --to=pptx --show-config
 ```
 ::::

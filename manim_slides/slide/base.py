@@ -385,7 +385,7 @@ class BaseSlide:
         :param loop:
             If set, next slide will be looping.
         :param auto_next:
-            If set, next slide will play immediately play the next slide
+            If set, next slide will immediately play the next slide
             upon terminating.
 
             .. warning::

@@ -27,7 +27,7 @@ describe the slides.
 
 If you have such files, you can recompile the animations locally, and use
 `manim-slides present` for your presentation. You may want to copy / paste
-you own `.manim-slides.json` config file, but it is **not recommended** if
+your own `.manim-slides.toml` config file, but it is **not recommended** if
 you are sharing from one platform (e.g., Linux) to another (e.g., Windows) as
 the key bindings might not be the same.
 
@@ -42,7 +42,7 @@ manim-slides render example.py BasicExample
 manim-slides present BasicExample
 ```
 
-### Sharing your animations files
+### Sharing your animation files
 
 If you do not want to recompile all the animations, you can simply share the
 slides folder (defaults to `./slides`). Then, Manim Slides will be able to read
@@ -88,7 +88,7 @@ Example:
 manim-slides convert BasicExample basic_example.html
 ```
 
-Then, you need to copy the HTML files and its assets directory to target location,
+Then, you need to copy the HTML file and its assets directory to target location,
 while keeping the relative path between the HTML and the assets the same. The
 easiest solution is to compress both the file and the directory into one ZIP,
 and to extract it to the desired location.
@@ -131,7 +131,7 @@ to use an `iframe`:
 
 The additional code comes from
 [this article](https://faq.dailymotion.com/hc/en-us/articles/360022841393-How-to-preserve-the-player-aspect-ratio-on-a-responsive-page)
-and it there to preserve the original aspect ratio (16:9).
+and is there to preserve the original aspect ratio (16:9).
 
 <!-- markdown-link-check-enable -->
 
@@ -149,7 +149,7 @@ subsequent offline exports without network access.
 HTML conversion makes it convenient to play your presentation on a
 remote server.
 
-This is how your are able to watch all the examples on this website. If you want
+This is how you are able to watch all the examples on this website. If you want
 to know how to share your slide with GitHub pages, check out the
 [Manim Slides Starter GitHub repository template](https://github.com/jeertmans/manim-slides-starter).
 

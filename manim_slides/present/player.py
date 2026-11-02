@@ -118,8 +118,8 @@ class Info(QWidget):
         # Next slide preview
         preview_container = QWidget()
         preview_container.setFixedSize(360, 240)
-        perview_layout = QVBoxLayout(preview_container)
-        perview_layout.setContentsMargins(0, 0, 0, 0)
+        preview_layout = QVBoxLayout(preview_container)
+        preview_layout.setContentsMargins(0, 0, 0, 0)
 
         right_layout = QVBoxLayout()
         right_layout.addWidget(
@@ -132,14 +132,14 @@ class Info(QWidget):
         self.next_media_player.setVideoOutput(self.next_video_widget)
         self.next_media_player.setLoops(-1)
 
-        perview_layout.addWidget(self.next_video_widget)
+        preview_layout.addWidget(self.next_video_widget)
 
         self.next_image_label = QLabel()
         self.next_image_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.next_image_label.setScaledContents(False)
         self.next_image_label.setMinimumSize(360, 240)
         self.next_image_label.hide()
-        perview_layout.addWidget(self.next_image_label)
+        preview_layout.addWidget(self.next_image_label)
 
         right_layout.addWidget(preview_container)
 
@@ -542,13 +542,13 @@ class Player(QMainWindow):
     def presentation_changed_callback(self) -> None:
         index = self.current_presentation_index
         count = self.presentations_count
-        self.info.scene_label.setText(f"{index + 1:4d}/{count:4<d}")
+        self.info.scene_label.setText(f"{index + 1:4d}/{count:<4d}")
 
     @Slot()
     def slide_changed_callback(self) -> None:
         index = self.current_slide_index
         count = self.current_slides_count
-        self.info.slide_label.setText(f"{index + 1:4d}/{count:4<d}")
+        self.info.slide_label.setText(f"{index + 1:4d}/{count:<4d}")
         self.info.slide_notes.setText(self.current_slide_config.notes)
         self.preview_next_slide()
 

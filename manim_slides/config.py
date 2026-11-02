@@ -125,7 +125,7 @@ class Keys(BaseModel):
     def merge_with(self, other: "Keys") -> "Keys":
         for key_name, key in self:
             other_key = getattr(other, key_name)
-            key.ids = list(set(key.ids).union(other_key.ids))
+            key.ids = set(key.ids).union(other_key.ids)
             key.name = other_key.name or key.name
 
         return self
@@ -182,19 +182,19 @@ class BaseSlideConfig(BaseModel):
     def determine_slide_type(self) -> "BaseSlideConfig":
         """Determine the type of src."""
         if self.src is not None:
-            guessed_typed = mimetypes.guess_type(self.src)[0]
-            if guessed_typed is None:
+            guessed_type = mimetypes.guess_type(self.src)[0]
+            if guessed_type is None:
                 logger.warning(
                     f"The file type of 'src' ({str(self.src)!r}) could not be guessed. Defaulting to video type.",
                 )
                 self.type = SlideType.Video
-            elif guessed_typed.startswith("image"):
+            elif guessed_type.startswith("image"):
                 self.type = SlideType.Image
-            elif guessed_typed.startswith("video"):
+            elif guessed_type.startswith("video"):
                 self.type = SlideType.Video
             else:
                 logger.warning(
-                    f"The file type of 'src' ({str(self.src)!r}) is guessed as {guessed_typed!r}, which is not recognized or currently supported. Defaulting to video type.",
+                    f"The file type of 'src' ({str(self.src)!r}) is guessed as {guessed_type!r}, which is not recognized or currently supported. Defaulting to video type.",
                 )
                 self.type = SlideType.Video
         return self
@@ -332,7 +332,7 @@ class PresentationConfig(BaseModel):
     @classmethod
     def from_file(cls, path: Path) -> "PresentationConfig":
         """Read a presentation configuration from a file."""
-        with open(path) as f:
+        with open(path, encoding="utf-8") as f:
             obj = json.load(f)
 
             slides = obj.setdefault("slides", [])
