@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import Literal
 
 import click
-from click import Context, Parameter
+from click import Context, Parameter, ParameterSource
 from pydantic import ValidationError
 
 from ..commons import config_path_option, folder_path_option, verbosity_option
@@ -131,32 +131,66 @@ def start_at_callback(
 @click.argument("scenes", nargs=-1)
 @config_path_option
 @folder_path_option
-@click.option("--start-paused", is_flag=True, help="Start paused.")
+@click.option(
+    "--start-paused",
+    flag_value="true",
+    help="Start paused.",
+)
+@click.option(
+    "--no-start-paused",
+    "start_paused",
+    flag_value="false",
+    help="Do not start paused.",
+)
 @click.option(
     "-F",
     "--full-screen",
     "--fullscreen",
     "full_screen",
-    is_flag=True,
+    flag_value="true",
     help="Toggle full screen mode.",
+)
+@click.option(
+    "--no-full-screen",
+    "full_screen",
+    flag_value="false",
+    help="Disable full screen mode.",
 )
 @click.option(
     "-s",
     "--skip-all",
-    is_flag=True,
+    flag_value="true",
     help="Skip all slides, useful the test if slides are working. "
     "Automatically sets ``--exit-after-last-slide`` to True.",
 )
 @click.option(
+    "--no-skip-all",
+    "skip_all",
+    flag_value="false",
+    help="Do not skip all slides.",
+)
+@click.option(
     "--exit-after-last-slide",
-    is_flag=True,
+    flag_value="true",
     help="At the end of last slide, the application will be exited.",
+)
+@click.option(
+    "--no-exit-after-last-slide",
+    "exit_after_last_slide",
+    flag_value="false",
+    help="Do not exit after last slide.",
 )
 @click.option(
     "-H",
     "--hide-mouse",
-    is_flag=True,
+    flag_value="true",
     help="Hide mouse cursor.",
+)
+@click.option(
+    "--no-hide-mouse",
+    "hide_mouse",
+    flag_value="false",
+    help="Do not hide mouse cursor.",
 )
 @click.option(
     "--aspect-ratio",
@@ -215,8 +249,14 @@ def start_at_callback(
 @click.option(
     "--next-terminates-loop",
     "next_terminates_loop",
-    is_flag=True,
+    flag_value="true",
     help="If set, pressing next will turn any looping slide into a play slide.",
+)
+@click.option(
+    "--no-next-terminates-loop",
+    "next_terminates_loop",
+    flag_value="false",
+    help="Disable next-terminates-loop.",
 )
 @click.option(
     "--hide-info-window",
@@ -241,22 +281,24 @@ def start_at_callback(
 )
 @click.help_option("-h", "--help")
 @verbosity_option
+@click.pass_context
 def present(  # noqa: C901
+    ctx: Context,
     scenes: list[str],
     config_path: Path,
     folder: Path,
-    start_paused: bool,
-    full_screen: bool,
-    skip_all: bool,
-    exit_after_last_slide: bool,
-    hide_mouse: bool,
+    start_paused: str | None,
+    full_screen: str | None,
+    skip_all: str | None,
+    exit_after_last_slide: str | None,
+    hide_mouse: str | None,
     aspect_ratio: str,
     start_at: tuple[int | None, int | None, int | None],
     start_at_scene_number: int,
     start_at_slide_number: int,
     screen_number: int | None,
     playback_rate: float,
-    next_terminates_loop: bool,
+    next_terminates_loop: str | None,
     hide_info_window: Literal["always", "never"] | None,
     info_window_screen_number: int | None,
 ) -> None:
@@ -271,11 +313,7 @@ def present(  # noqa: C901
     Use ``manim-slide list-scenes`` to list all available
     scenes in a given folder.
     """
-    if skip_all:
-        exit_after_last_slide = True
-
-    presentation_configs = get_scenes_presentation_config(scenes, folder)
-
+    # Load config and apply defaults for unset CLI options
     if config_path.exists():
         try:
             config = Config.from_file(config_path)
@@ -284,6 +322,50 @@ def present(  # noqa: C901
     else:
         logger.debug("No configuration file found, using default configuration.")
         config = Config()
+
+    defaults = config.defaults
+
+    # Config-file values apply only where the CLI is silent, so an explicit
+    # flag always wins. Boolean flags are tri-state ("true"/"false"/None via
+    # the --opt/--no-opt pairs); valued options keep their real defaults and
+    # are resolved through the parameter source, so None stays a usable value
+    # and --help keeps printing the actual defaults.
+    resolved: dict[str, bool] = {}
+    for name in (
+        "start_paused",
+        "full_screen",
+        "skip_all",
+        "exit_after_last_slide",
+        "hide_mouse",
+        "next_terminates_loop",
+    ):
+        cli_value: str | None = ctx.params[name]
+        if cli_value is not None:
+            resolved[name] = cli_value == "true"
+        else:
+            configured: bool | None = getattr(defaults, name)
+            resolved[name] = configured if configured is not None else False
+    resolved_start_paused = resolved["start_paused"]
+    resolved_full_screen = resolved["full_screen"]
+    resolved_skip_all = resolved["skip_all"]
+    resolved_exit_after_last_slide = resolved["exit_after_last_slide"]
+    resolved_hide_mouse = resolved["hide_mouse"]
+    resolved_next_terminates_loop = resolved["next_terminates_loop"]
+
+    cli_silent = {
+        name
+        for name in ("aspect_ratio", "playback_rate")
+        if ctx.get_parameter_source(name) is not ParameterSource.COMMANDLINE
+    }
+    if "aspect_ratio" in cli_silent and defaults.aspect_ratio is not None:
+        aspect_ratio = defaults.aspect_ratio
+    if "playback_rate" in cli_silent and defaults.playback_rate is not None:
+        playback_rate = defaults.playback_rate
+
+    if resolved_skip_all:
+        resolved_exit_after_last_slide = True
+
+    presentation_configs = get_scenes_presentation_config(scenes, folder)
 
     if start_at[0]:
         start_at_scene_number = start_at[0]
@@ -342,17 +424,17 @@ def present(  # noqa: C901
     player = Player(
         config,
         presentation_configs,
-        start_paused=start_paused,
-        full_screen=full_screen,
-        skip_all=skip_all,
-        exit_after_last_slide=exit_after_last_slide,
-        hide_mouse=hide_mouse,
+        start_paused=resolved_start_paused,
+        full_screen=resolved_full_screen,
+        skip_all=resolved_skip_all,
+        exit_after_last_slide=resolved_exit_after_last_slide,
+        hide_mouse=resolved_hide_mouse,
         aspect_ratio_mode=aspect_ratio_modes[aspect_ratio],
         presentation_index=start_at_scene_number,
         slide_index=start_at_slide_number,
         screen=screen,
         playback_rate=playback_rate,
-        next_terminates_loop=next_terminates_loop,
+        next_terminates_loop=resolved_next_terminates_loop,
         hide_info_window=should_hide_info_window,
         info_window_screen=info_window_screen,
     )
