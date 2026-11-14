@@ -189,11 +189,15 @@ class ManimSlidesMagic(Magics):
                 if renderer is not None and renderer.window is not None:
                     renderer.window.close()
 
-            if config["output_file"] is None:
+            # Since Manim v0.22, 'config.output_file' is no longer set by rendering.
+            output_file = getattr(
+                scene.renderer.file_writer, "final_file_path", config["output_file"]
+            )
+            if output_file is None:
                 logger.info("No output file produced")
                 return
 
-            local_path = Path(config["output_file"]).relative_to(Path.cwd())
+            local_path = Path(output_file).relative_to(Path.cwd())
             tmpfile = (
                 Path(config["media_dir"]) / "jupyter" / f"{_generate_file_name()}.html"
             )
@@ -204,7 +208,7 @@ class ManimSlidesMagic(Magics):
             tmpfile.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy(local_path, tmpfile)
 
-            file_type = mimetypes.guess_type(config["output_file"])[0] or "video/mp4"
+            file_type = mimetypes.guess_type(output_file)[0] or "video/mp4"
             embed = config["media_embed"]
             if embed is None:
                 # videos need to be embedded when running in google colab.

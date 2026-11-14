@@ -10,6 +10,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 (unreleased)=
 ## [Unreleased](https://github.com/jeertmans/manim-slides/compare/v5.7.0...HEAD)
 
+(unreleased-fixed)=
+### Fixed
+
+- Fixed rendering with Manim v0.22, which removed the `write_to_movie` and
+  `flush_cache` options, reads `max_files_cached` when the scene is created,
+  and no longer sets `config.output_file` (used by the IPython magic).
+
 (v5.7.0)=
 ## [v5.7.0](https://github.com/jeertmans/manim-slides/compare/v5.6.0...v5.7.0)
 
