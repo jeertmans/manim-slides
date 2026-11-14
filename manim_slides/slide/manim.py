@@ -188,7 +188,8 @@ class Slide(BaseSlide, Scene):
         )
 
         if flush_manim_cache:
-            self.renderer.file_writer.flush_cache_directory()
+            # Only reachable before Manim v0.22, which removed this method
+            self.renderer.file_writer.flush_cache_directory()  # ty: ignore[unresolved-attribute]
 
 
 class ThreeDSlide(Slide, ThreeDScene):
