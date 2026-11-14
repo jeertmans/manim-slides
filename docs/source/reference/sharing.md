@@ -167,6 +167,39 @@ presentation on your Github account. The template comes ready with
 functionality to automate tasks using Github actions and publish to Github
 Pages. Please refer to the template page for usage instructions.
 
+### Uploading to deed.page
+
+If you only need a link to send to someone, without setting up a repository,
+you can upload the presentation to [deed.page](https://deed.page), a static
+host that takes an upload over HTTP and needs no account. A self-contained
+file is one request:
+
+```bash
+manim-slides convert --one-file --offline BasicExample basic_example.html
+curl -T basic_example.html "https://deed.page/v1/sites?slug=basic-example-<random>"
+```
+
+Replace `<random>` with your own suffix. The JSON response contains the
+permanent URL, `https://basic-example-<random>.deed.page/`, and an owner token
+that is shown only once. Keep it: sending the same request with
+`-H "Authorization: Bearer <token>"` replaces the presentation, and
+`curl -X DELETE` on `https://deed.page/v1/sites/basic-example-<random>` with
+that header removes it.
+
+One request is capped at 4 MB. For a longer presentation, convert without
+`--one-file`, name the HTML file `index.html`, and upload it together with its
+assets directory as a tarball:
+
+```bash
+mkdir site
+manim-slides convert BasicExample site/index.html
+tar -czf site.tar.gz -C site .
+curl -T site.tar.gz "https://deed.page/v1/sites?slug=basic-example-<random>"
+```
+
+Free sites show a small deed.page badge in the corner; see the
+[deed.page docs](https://deed.page/docs) for the plan limits.
+
 ### With PowerPoint (*EXPERIMENTAL*)
 
 A convenient conversion feature is to the PowerPoint format, thanks to the
