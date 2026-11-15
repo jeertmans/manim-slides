@@ -44,9 +44,20 @@ class Slide(BaseSlide, Scene):
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         # OpenGL renderer disables 'write_to_movie' by default
-        # which is required for saving the animations
-        config["write_to_movie"] = True
-        super().__init__(*args, **kwargs)
+        # which is required for saving the animations.
+        # Manim v0.22 removed this option; both renderers write video files by default.
+        if "write_to_movie" in config:
+            config["write_to_movie"] = True
+
+        # We need to disable the caching limit since we rely on intermediate files.
+        # Since Manim v0.22, the limit is read here, when the scene is created,
+        # and no longer at the end of 'render'.
+        max_files_cached = config["max_files_cached"]
+        config["max_files_cached"] = -1
+        try:
+            super().__init__(*args, **kwargs)
+        finally:
+            config["max_files_cached"] = max_files_cached
 
     @property
     def _frame_shape(self) -> tuple[float, float]:
@@ -157,9 +168,10 @@ class Slide(BaseSlide, Scene):
         """MANIM renderer."""
         # We need to disable the caching limit since we rely on intermediate files
         max_files_cached = config["max_files_cached"]
-        config["max_files_cached"] = float("inf")
+        config["max_files_cached"] = -1
 
-        flush_manim_cache = config["flush_cache"]
+        # Manim v0.22 removed the 'flush_cache' option.
+        flush_manim_cache = "flush_cache" in config and config["flush_cache"]
 
         if flush_manim_cache:
             # We need to postpone flushing *after* we saved slides
@@ -171,12 +183,13 @@ class Slide(BaseSlide, Scene):
 
         self._save_slides(
             use_cache=not (config["disable_caching"] or self.disable_caching),
-            flush_cache=(config["flush_cache"] or self.flush_cache),
+            flush_cache=self.flush_cache,
             skip_reversing=self.skip_reversing,
         )
 
         if flush_manim_cache:
-            self.renderer.file_writer.flush_cache_directory()
+            # Only reachable before Manim v0.22, which removed this method
+            self.renderer.file_writer.flush_cache_directory()  # ty: ignore[unresolved-attribute]
 
 
 class ThreeDSlide(Slide, ThreeDScene):

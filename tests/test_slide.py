@@ -24,6 +24,7 @@ from manim import (
     GrowFromCenter,
     Square,
     Text,
+    config,
 )
 from manim.renderer.opengl_renderer import OpenGLRenderer
 
@@ -117,6 +118,9 @@ def test_render_failing_slide(
         assert results.exit_code != 0, results
 
 
+@pytest.mark.skipif(
+    "flush_cache" not in config, reason="Manim v0.22 removed '--flush_cache'"
+)
 def test_clear_cache(
     slides_file: Path,
 ) -> None:
@@ -172,6 +176,25 @@ def test_clear_cache(
         assert results.exit_code == 0, results
         assert local_media_folder.is_dir() and not list(local_media_folder.iterdir())
         assert local_slides_folder.exists()
+
+
+def test_max_files_cached(
+    slides_file: Path,
+) -> None:
+    runner = CliRunner()
+
+    with runner.isolated_filesystem() as tmp_dir:
+        (Path(tmp_dir) / "manim.cfg").write_text("[CLI]\nmax_files_cached = 1\n")
+        results = runner.invoke(render, [str(slides_file), "BasicSlide", "-ql"])
+
+        assert results.exit_code == 0, results
+
+        presentation_config = PresentationConfig.from_file(
+            Path(tmp_dir) / "slides" / "BasicSlide.json"
+        )
+        for slide in presentation_config.slides:
+            assert slide.file.exists()
+            assert slide.rev_file.exists()
 
 
 @pytest.mark.parametrize(
