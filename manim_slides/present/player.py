@@ -128,7 +128,7 @@ class Info(QWidget):
         )
         self.next_video_widget = QVideoWidget()
         self.next_video_widget.setAspectRatioMode(aspect_ratio_mode)
-        self.next_media_player = QMediaPlayer()
+        self.next_media_player = QMediaPlayer(self)
         self.next_media_player.setVideoOutput(self.next_video_widget)
         self.next_media_player.setLoops(-1)
 
@@ -568,6 +568,10 @@ class Player(QMainWindow):
                 pixmap = QPixmap(url.toLocalFile())
                 scaled_pixmap = pixmap.scaledToWidth(w)
                 self.info.next_image_label.setPixmap(scaled_pixmap)
+        else:
+            self.info.next_video_widget.hide()
+            self.info.next_image_label.hide()
+            self.info.next_media_player.stop()
 
     def show(  # ty: ignore[invalid-method-override]
         self, screens: list[QScreen]
@@ -597,6 +601,8 @@ class Player(QMainWindow):
     @Slot()
     def close(self) -> None:
         logger.info("Closing gracefully...")
+        self.media_player.stop()
+        self.info.next_media_player.stop()
         self.info.close()
         super().close()
 
