@@ -252,15 +252,26 @@ class ManimSlidesMagic(Magics):
                 tmpfile
             )
 
+            container_style = "position:relative;"
+
+            iframe_style = (
+                "display:block;"
+                f"max-width:{config.media_width};"
+                "height:auto;"
+                "aspect-ratio:16/9;"
+            )
+
             if embed:
                 result = HTML(
-                    """<div style="position:relative;padding-bottom:56.25%;"><iframe style="width:100%;height:100%;position:absolute;left:0px;top:0px;" frameborder="0" width="100%" height="100%" allowfullscreen allow="autoplay" srcdoc="{srcdoc}"></iframe></div>""".format(
-                        srcdoc=tmpfile.read_text().replace('"', "'")
+                    """<div style="{container_style}"><iframe style="{iframe_style}" frameborder="0" width="100%" height="100%" allowfullscreen allow="autoplay" srcdoc="{srcdoc}"></iframe></div>""".format(
+                        container_style=container_style,
+                        iframe_style=iframe_style,
+                        srcdoc=tmpfile.read_text().replace('"', "'"),
                     )
                 )
             else:
                 result = HTML(
-                    f"""<div style="position:relative;padding-bottom:56.25%;"><iframe style="width:100%;height:100%;position:absolute;left:0px;top:0px;" frameborder="0" width="100%" height="100%" allowfullscreen allow="autoplay" src="{tmpfile.as_posix()}"></iframe></div>"""
+                    f"""<div style="{container_style}"><iframe style="{iframe_style}" frameborder="0" width="100%" height="100%" allowfullscreen allow="autoplay" src="{tmpfile.as_posix()}"></iframe></div>"""
                 )
 
             display(result)
