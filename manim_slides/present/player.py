@@ -20,6 +20,21 @@ from ..resources import *
 
 WINDOW_NAME = "Manim Slides"
 
+# Tolerance, in milliseconds, applied when detecting the end of a loop
+# iteration from the media player's position.
+#
+# The position reported when the end of the media is reached is compared
+# against the media duration using this tolerance, so that loop
+# termination can be triggered *before* the position wraps around to 0.
+# Without this, the first frame(s) of the next loop iteration would be
+# displayed before terminating, which is visible as a stutter.
+LOOP_END_TOLERANCE_MS = 5
+
+# Tolerance, in microseconds, applied when detecting that a video frame
+# belongs to a new loop iteration (i.e., the frame timestamp wrapped
+# around to the beginning of the media).
+LOOP_WRAP_TOLERANCE_US = 1_000
+
 
 class Info(QWidget):
     key_press_event: Signal = Signal(QKeyEvent)
@@ -333,14 +348,22 @@ class Player(QMainWindow):
         if next_terminates_loop:
 
             def on_position_changed(position: int) -> None:
-                # non-monotonicity in the position, when occurring outside of the loading of a new slide, indicates looping
-                if self.__termination_requested and self.__prev_pos > position:
-                    if self.current_slide_config.auto_next:
-                        self.load_next_slide()
-                    else:
-                        self.media_player.setPosition(self.media_player.duration())
-                        self.media_player.pause()
-                        self.__termination_achieved = True
+                """Terminate the loop at the end of the iteration if requested."""
+                # Reaching the end of the media means that the current loop
+                # iteration is over. Detecting it this way, i.e., before the
+                # position wraps around to 0, ensures that no frame of the
+                # next iteration is ever played, which would otherwise be
+                # visible as a stutter (see issue #500).
+                #
+                # Non-monotonicity in the position is kept as a fallback
+                # indicator of looping, e.g., for backends that never report
+                # the end position.
+                duration = self.media_player.duration()
+                if self.__termination_requested and (
+                    self.__prev_pos > position
+                    or (duration > 0 and position >= duration - LOOP_END_TOLERANCE_MS)
+                ):
+                    self.__terminate_loop()
                 self.__prev_pos = position
 
             self.media_player.positionChanged.connect(on_position_changed)
@@ -534,6 +557,27 @@ class Player(QMainWindow):
 
         self.load_current_slide()
 
+    def __terminate_loop(self) -> None:
+        """Terminate the looping slide at the end of the current iteration."""
+        # The termination is non-interrupting: if the slide is configured
+        # with ``auto_next``, the next slide is loaded right away; otherwise,
+        # the player is paused on the last frame of the slide, and a
+        # subsequent call to :meth:`next` will load the next slide.
+        # Clear the flags first, so that position changes triggered by the
+        # termination itself (e.g., when seeking to the last frame) cannot
+        # re-enter this method.
+        self.__termination_requested = False
+        self.__termination_achieved = True
+
+        if self.current_slide_config.auto_next:
+            self.load_next_slide()
+        else:
+            # Pause before seeking to the end, so that the player cannot
+            # wrap around to the next loop iteration while seeking, which
+            # would be visible as a backwards jump.
+            self.media_player.pause()
+            self.media_player.setPosition(self.media_player.duration())
+
     """
     Key callbacks and slots
     """
@@ -612,7 +656,14 @@ class Player(QMainWindow):
             and self.media_player.loops() != 1
             and not self.__termination_achieved
         ):
-            self.__termination_requested = True
+            if self.__termination_requested:
+                # Termination was already requested, meaning the looping
+                # slide was already turned into a play slide: skip to the
+                # next slide immediately.
+                self.load_next_slide()
+            else:
+                # Let the current loop iteration finish before terminating.
+                self.__termination_requested = True
         else:
             self.load_next_slide()
 
@@ -661,6 +712,30 @@ class Player(QMainWindow):
         else:
             self.setCursor(Qt.CursorShape.BlankCursor)
 
+    def __is_loop_wrap_frame(self, frame: QVideoFrame) -> bool:
+        """Return whether the frame belongs to a new loop iteration."""
+        # A new loop iteration means the position wrapped around to the
+        # beginning of the media. This can only happen while a loop
+        # termination was requested (or achieved) through the
+        # ``next_terminates_loop`` flag, and is used to drop the first
+        # frame(s) of the next iteration, which would otherwise be
+        # displayed before the slide actually terminates, resulting in a
+        # visible stutter (see issue #500).
+        #
+        # :param frame: The frame to check.
+        if not (self.__termination_requested or self.__termination_achieved):
+            return False
+
+        previous = self.frame
+
+        if not previous.isValid():
+            return False
+
+        # Frame timestamps are expressed in microseconds, and a wrapped
+        # frame restarts near zero, while the previous frame was near the
+        # end of the media.
+        return frame.startTime() < previous.startTime() - LOOP_WRAP_TOLERANCE_US
+
     def frame_changed(self, frame: QVideoFrame) -> None:
         """
         Slot to handle possibly invalid frames.
@@ -674,18 +749,23 @@ class Player(QMainWindow):
         To avoid this issue, we check every frame, and avoid playing
         invalid ones.
 
+        Similarly, when a loop termination is pending, frames from the
+        next loop iteration are dropped, so that the animation ends
+        smoothly on the last frame of the current iteration.
+
         References
         ----------
         1. https://github.com/jeertmans/manim-slides/issues/293
         2. https://github.com/jeertmans/manim-slides/pull/464
+        3. https://github.com/jeertmans/manim-slides/issues/500
 
         :param frame: The most recent frame.
 
         """
-        if frame.isValid():
-            self.frame = frame
-        else:
+        if not frame.isValid() or self.__is_loop_wrap_frame(frame):
             self.video_sink.setVideoFrame(self.frame)  # Reuse previous frame
+        else:
+            self.frame = frame
 
         self.info.video_sink.setVideoFrame(self.frame)
 

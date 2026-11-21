@@ -10,6 +10,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 (unreleased)=
 ## [Unreleased](https://github.com/jeertmans/manim-slides/compare/v5.7.0...HEAD)
 
+(unreleased-fixed)=
+### Fixed
+
+- Fixed non-smooth animations when pressing next during a looping slide while using the `--next-terminates-loop` flag: loop termination is now triggered at the very end of the current iteration (before the player position wraps around to the next one), frames of the next loop iteration are no longer displayed, and the player is paused before seeking to the last frame. Pressing next a second time now skips to the next slide immediately.
+  [#500](https://github.com/jeertmans/manim-slides/issues/500)
+
 (v5.7.0)=
 ## [v5.7.0](https://github.com/jeertmans/manim-slides/compare/v5.6.0...v5.7.0)
 
