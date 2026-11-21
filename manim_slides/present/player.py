@@ -348,15 +348,7 @@ class Player(QMainWindow):
         if next_terminates_loop:
 
             def on_position_changed(position: int) -> None:
-                """
-                Slot called whenever the media player position changes.
-
-                While a loop termination is pending, reaching the end of the
-                media (or a non-monotonic position, as a fallback) triggers
-                the termination of the current loop iteration.
-
-                :param position: The new position, in milliseconds.
-                """
+                """Terminate the loop at the end of the iteration if requested."""
                 # Reaching the end of the media means that the current loop
                 # iteration is over. Detecting it this way, i.e., before the
                 # position wraps around to 0, ensures that no frame of the
@@ -566,14 +558,11 @@ class Player(QMainWindow):
         self.load_current_slide()
 
     def __terminate_loop(self) -> None:
-        """
-        Terminate the looping slide at the end of the current iteration.
-
-        The termination is non-interrupting: if the slide is configured
-        with ``auto_next``, the next slide is loaded right away; otherwise,
-        the player is paused on the last frame of the slide, and a
-        subsequent call to :meth:`next` will load the next slide.
-        """
+        """Terminate the looping slide at the end of the current iteration."""
+        # The termination is non-interrupting: if the slide is configured
+        # with ``auto_next``, the next slide is loaded right away; otherwise,
+        # the player is paused on the last frame of the slide, and a
+        # subsequent call to :meth:`next` will load the next slide.
         # Clear the flags first, so that position changes triggered by the
         # termination itself (e.g., when seeking to the last frame) cannot
         # re-enter this method.
@@ -724,17 +713,16 @@ class Player(QMainWindow):
             self.setCursor(Qt.CursorShape.BlankCursor)
 
     def __is_loop_wrap_frame(self, frame: QVideoFrame) -> bool:
-        """
-        Return whether the frame belongs to a new loop iteration.
-
-        A new loop iteration means the position wrapped around to the
-        beginning of the media. This can only happen while a loop
-        termination was requested (or achieved) through the
-        ``next_terminates_loop`` flag, and is used to drop the first
-        frame(s) of the next iteration, which would otherwise be
-        displayed before the slide actually terminates, resulting in a
-        visible stutter (see issue #500).
-        """
+        """Return whether the frame belongs to a new loop iteration."""
+        # A new loop iteration means the position wrapped around to the
+        # beginning of the media. This can only happen while a loop
+        # termination was requested (or achieved) through the
+        # ``next_terminates_loop`` flag, and is used to drop the first
+        # frame(s) of the next iteration, which would otherwise be
+        # displayed before the slide actually terminates, resulting in a
+        # visible stutter (see issue #500).
+        #
+        # :param frame: The frame to check.
         if not (self.__termination_requested or self.__termination_achieved):
             return False
 
