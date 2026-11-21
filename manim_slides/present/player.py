@@ -567,13 +567,12 @@ class Player(QMainWindow):
 
     def __terminate_loop(self) -> None:
         """
-        Terminate the current looping slide at the end of its current
-        iteration, in a non-interrupting fashion.
+        Terminate the looping slide at the end of the current iteration.
 
-        If the slide is configured with ``auto_next``, the next slide is
-        loaded right away; otherwise, the player is paused on the last
-        frame of the slide, and a subsequent call to :meth:`next` will
-        load the next slide.
+        The termination is non-interrupting: if the slide is configured
+        with ``auto_next``, the next slide is loaded right away; otherwise,
+        the player is paused on the last frame of the slide, and a
+        subsequent call to :meth:`next` will load the next slide.
         """
         # Clear the flags first, so that position changes triggered by the
         # termination itself (e.g., when seeking to the last frame) cannot
@@ -726,14 +725,15 @@ class Player(QMainWindow):
 
     def __is_loop_wrap_frame(self, frame: QVideoFrame) -> bool:
         """
-        Return whether the given frame belongs to a new loop iteration,
-        i.e., the position wrapped around to the beginning of the media.
+        Return whether the frame belongs to a new loop iteration.
 
-        This can only happen while a loop termination was requested (or
-        achieved) through the ``next_terminates_loop`` flag, and is used
-        to drop the first frame(s) of the next iteration, which would
-        otherwise be displayed before the slide actually terminates,
-        resulting in a visible stutter (see issue #500).
+        A new loop iteration means the position wrapped around to the
+        beginning of the media. This can only happen while a loop
+        termination was requested (or achieved) through the
+        ``next_terminates_loop`` flag, and is used to drop the first
+        frame(s) of the next iteration, which would otherwise be
+        displayed before the slide actually terminates, resulting in a
+        visible stutter (see issue #500).
         """
         if not (self.__termination_requested or self.__termination_achieved):
             return False
