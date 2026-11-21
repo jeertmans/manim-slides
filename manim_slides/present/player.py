@@ -348,6 +348,15 @@ class Player(QMainWindow):
         if next_terminates_loop:
 
             def on_position_changed(position: int) -> None:
+                """
+                Slot called whenever the media player position changes.
+
+                While a loop termination is pending, reaching the end of the
+                media (or a non-monotonic position, as a fallback) triggers
+                the termination of the current loop iteration.
+
+                :param position: The new position, in milliseconds.
+                """
                 # Reaching the end of the media means that the current loop
                 # iteration is over. Detecting it this way, i.e., before the
                 # position wraps around to 0, ensures that no frame of the

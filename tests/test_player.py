@@ -25,6 +25,7 @@ LOOP_SLIDE_INDEX = 1
 
 @pytest.fixture(scope="session")
 def app() -> Iterator[QApplication]:
+    """Yield a shared QApplication instance for the test session."""
     from manim_slides.qt_utils import qapp
 
     yield qapp()
@@ -34,6 +35,7 @@ def app() -> Iterator[QApplication]:
 def player_factory(
     app: QApplication, slides_folder: Path
 ) -> Iterator[Callable[..., Player]]:
+    """Yield a factory creating (and tracking) players on the looping slide."""
     players: list[Player] = []
 
     def factory(
@@ -41,6 +43,7 @@ def player_factory(
         next_terminates_loop: bool = True,
         auto_next: bool = False,
     ) -> Player:
+        """Create a player starting on the looping slide of BasicSlide.json."""
         presentation_config = PresentationConfig.from_file(
             slides_folder / "BasicSlide.json"
         )
@@ -105,6 +108,10 @@ def make_video_frame(start_us: int, end_us: int) -> QVideoFrame:
 def test_next_without_flag_advances_immediately(
     player_factory: Callable[..., Player],
 ) -> None:
+    """
+    Without the ``--next-terminates-loop`` flag, pressing next on a looping
+    slide advances to the next slide immediately.
+    """
     player = player_factory(next_terminates_loop=False)
     wait_for_media_loaded(player)
     process_events_for(200)
